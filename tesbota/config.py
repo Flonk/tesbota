@@ -22,7 +22,8 @@ GODHEAD = "the godhead"
 OPENING = {
     "narration": (
         "You are standing on a road in wet grass. Fog stands close on every side, "
-        "and the road runs away from you in two directions."
+        "and the road runs away from you in two directions. "
+        "You should probably keep walking."
     ),
     "claims": [
         {"id": "o1", "text": "A road runs through wet grass.",
