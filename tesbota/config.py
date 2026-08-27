@@ -25,7 +25,7 @@ OPENING = {
         "and the road runs away from you in two directions."
     ),
     "claims": [
-        {"id": "o1", "text": "The adventurer stands on a road running through wet grass.",
+        {"id": "o1", "text": "A road runs through wet grass.",
          "entity": "the-road", "kind": "places"},
         {"id": "o2", "text": "Fog stands close around the road on every side, hiding what lies beyond.",
          "entity": "the-road", "kind": "places"},

@@ -12,6 +12,7 @@ introduced: t0001
 ## Attested
 
 ## Witnessed
-- t0001 — The adventurer stands on a road running through wet grass.
+- t0001 — A road runs through wet grass.
 - t0001 — Fog stands close around the road on every side, hiding what lies beyond.
 - t0001 — The road runs away in two directions.
+- t0002 — The fog is equally close in both directions along the road, hiding any bend from view.
