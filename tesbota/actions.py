@@ -92,12 +92,20 @@ def say(text):
         model=MODELS["lore3"],
     )
 
+    lines = [line for line in reply.strip().splitlines() if line.strip()]
+    finished = bool(lines) and lines[-1].strip() == "RESOLVED"
+    if finished:
+        reply = "\n".join(reply.strip().splitlines()[:-1]).rstrip()
+
     with LOCK:
         campaign = load_campaign()
         campaign["sessions"]["lore3_sitting"] = session
         save_campaign(campaign)
         append_chat("lore master", reply)
-    return {"reply": reply}
+
+    if finished:
+        resolve()
+    return {"reply": reply, "resolved": finished}
 
 
 def resolve():

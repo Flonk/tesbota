@@ -163,9 +163,6 @@ export default function Page() {
                 >
                   {busy === "say" ? "thinking…" : "send"}
                 </button>
-                <button className="ghost" onClick={() => post("/api/resolve", null, "resolve")} disabled={!!busy}>
-                  resolve
-                </button>
               </div>
             </>
           )}
