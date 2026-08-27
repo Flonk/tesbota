@@ -44,34 +44,35 @@ export async function snapshot() {
     if (turn) turns.push(turn);
   }
 
-  const story = [];
-  const machinery = [];
+  const slides = [];
   for (const turn of turns) {
     const draft = turn.draft || {};
     let cue = null;
     if (turn.arrival) cue = `arrives at ${turn.arrival}`;
     else if (turn.event) cue = "something on the road";
 
-    if (turn.action || draft.narration || cue) {
-      story.push({ id: turn.turn_id, cue, action: turn.action, narration: draft.narration });
-    }
-    if ((draft.claims || []).length || (turn.verdicts || []).length || turn.correction || turn.roll) {
-      machinery.push({
-        id: turn.turn_id,
-        minutes: draft.minutes || 0,
-        fatigue: draft.fatigue || 0,
-        health: draft.health || 0,
-        roll: turn.roll || null,
-        risk: turn.risk || null,
-        calamity: !!turn.calamity,
-        claims: draft.claims || [],
-        verdicts: turn.verdicts || [],
-        quotes: draft.quotes || [],
-        correction: turn.correction,
-        retries: turn.gm_retries || 0,
-        travel: draft.travel || null,
-      });
-    }
+    const verdicts = {};
+    for (const v of turn.verdicts || []) verdicts[v.claim] = v;
+
+    if (!turn.action && !draft.narration && !cue) continue;
+
+    slides.push({
+      id: turn.turn_id,
+      state: turn.state,
+      cue,
+      action: turn.action,
+      narration: draft.narration,
+      claims: (draft.claims || []).map((c) => ({ ...c, verdict: verdicts[c.id] || null })),
+      quotes: draft.quotes || [],
+      minutes: draft.minutes || 0,
+      fatigue: draft.fatigue || 0,
+      health: draft.health || 0,
+      roll: turn.roll || null,
+      risk: turn.risk || null,
+      calamity: !!turn.calamity,
+      retries: turn.gm_retries || 0,
+      travel: draft.travel || null,
+    });
   }
 
   const current = turns.find((t) => t.turn_id === campaign.current_turn) || null;
@@ -88,7 +89,7 @@ export async function snapshot() {
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, story, machinery, gap, chat, vitals };
+  return { status, slides, gap, chat, vitals };
 }
 
 export async function tesbota(args, timeout = 900000) {

@@ -19,27 +19,66 @@ function Status({ status }) {
   if (status.state === "awaiting_clock") {
     return (
       <span className="muted">
-        on the road to {status.destination} — wakes in {status.wakesIn}
-        {status.events ? `, ${status.events} event(s) pending` : ""}
+        on the road{status.destination ? ` to ${status.destination}` : ""} — {status.wakesIn}
       </span>
     );
   }
   if (status.state === "awaiting_human") {
-    return <span style={{ color: "var(--warn)" }}>the lore master is waiting on you</span>;
+    return <span style={{ color: "var(--warn)" }}>the world is silent</span>;
   }
+  return <span className="muted">{status.state}</span>;
+}
+
+function Meta({ s }) {
+  const bits = [];
+  if (s.minutes) bits.push(`${s.minutes} min`);
+  if (s.fatigue) bits.push(`${s.fatigue > 0 ? "+" : ""}${s.fatigue} fatigue`);
+  if (s.health) bits.push(`${s.health} hp`);
+  if (s.roll) bits.push(`d100 ${s.roll} vs ${s.risk}`);
+  if (s.retries) bits.push(`${s.retries} redraft`);
+  if (!bits.length) return null;
+  return <div className="meta">{bits.join("  ·  ")}</div>;
+}
+
+function Lore({ gap, chat, busy, onSay }) {
+  const [text, setText] = useState("");
   return (
-    <span className="muted">
-      {status.state}
-      {status.held ? ` — journey to ${status.held} held` : ""}
-    </span>
+    <div className="lore">
+      <h2>the world is silent here</h2>
+      {chat.map((m, i) => (
+        <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={i}>
+          <span className="who">{m.role}</span>
+          {m.text}
+        </div>
+      ))}
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="talk it through…"
+        disabled={!!busy}
+      />
+      <div className="actions">
+        <button
+          onClick={async () => {
+            const t = text;
+            setText("");
+            await onSay(t);
+          }}
+          disabled={!!busy || !text.trim()}
+        >
+          {busy === "say" ? "thinking…" : "send"}
+        </button>
+      </div>
+    </div>
   );
 }
 
 export default function Page() {
   const [data, setData] = useState(null);
-  const [text, setText] = useState("");
   const [busy, setBusy] = useState(null);
-  const storyEnd = useRef(null);
+  const [at, setAt] = useState(0);
+  const deck = useRef(null);
+  const pinned = useRef(true);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/state", { cache: "no-store" });
@@ -52,9 +91,39 @@ export default function Page() {
     return () => clearInterval(id);
   }, [load]);
 
+  const count = data?.slides?.length ?? 0;
+
+  const go = useCallback(
+    (i) => {
+      const el = deck.current;
+      if (!el || !count) return;
+      const next = Math.max(0, Math.min(count - 1, i));
+      el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+    },
+    [count]
+  );
+
   useEffect(() => {
-    storyEnd.current?.scrollIntoView({ behavior: "smooth" });
-  }, [data?.story?.length]);
+    if (pinned.current && count) go(count - 1);
+  }, [count, go]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.target.tagName === "TEXTAREA") return;
+      if (e.key === "ArrowLeft") go(at - 1);
+      if (e.key === "ArrowRight") go(at + 1);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [at, go]);
+
+  function onScroll() {
+    const el = deck.current;
+    if (!el || !el.clientWidth) return;
+    const i = Math.round(el.scrollLeft / el.clientWidth);
+    setAt(i);
+    pinned.current = i >= count - 1;
+  }
 
   async function post(path, body, label) {
     setBusy(label);
@@ -70,129 +139,81 @@ export default function Page() {
     }
   }
 
-  if (!data) return <main><section><p className="empty">loading…</p></section></main>;
+  if (!data) return <div className="empty pad">loading…</div>;
 
-  const { status, story, machinery, gap, chat, vitals } = data;
+  const { status, slides, gap, chat, vitals } = data;
+  const blocked = status.state === "awaiting_human";
 
   return (
     <>
       <header>
         <h1>tesbota</h1>
-        <span className="muted">{status.turn}</span>
         <Status status={status} />
         <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
         <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
-        <span style={{ marginLeft: "auto" }}>
-          <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
-            {busy === "step" ? "stepping…" : "step"}
-          </button>
+        <span className="counter">
+          {count ? `${at + 1} / ${count}` : "—"}
         </span>
+        <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
+          {busy === "step" ? "…" : "step"}
+        </button>
       </header>
 
-      <main>
-        <section>
-          <h2>Explorer</h2>
-          {story.length === 0 && <p className="empty">nothing has happened yet</p>}
-          {story.map((t) => (
-            <div className="turn" key={t.id}>
-              <span className="tid">{t.id}</span>
-              {t.cue && <div className="cue">{t.cue}</div>}
-              {t.action && <div className="action">{t.action}</div>}
-              {t.narration && <div className="narration">{t.narration}</div>}
-            </div>
-          ))}
-          <div ref={storyEnd} />
-        </section>
+      <div className="deck" ref={deck} onScroll={onScroll}>
+        {slides.map((s, i) => (
+          <section className="slide" key={s.id}>
+            <article>
+              <div className="tid">
+                {s.id}
+                {s.cue ? ` · ${s.cue}` : ""}
+              </div>
 
-        <section>
-          <h2>Game master</h2>
-          {machinery.length === 0 && <p className="empty">no claims adjudicated yet</p>}
-          {machinery.map((m) => {
-            const verdicts = Object.fromEntries(m.verdicts.map((v) => [v.claim, v]));
-            return (
-              <div className="turn" key={m.id}>
-                <span className="tid">
-                  {m.id}
-                  {m.minutes ? ` · ${m.minutes}min` : ""}
-                  {m.fatigue ? ` · ${m.fatigue > 0 ? "+" : ""}${m.fatigue} fat` : ""}
-                  {m.health ? ` · ${m.health} hp` : ""}
-                  {m.roll ? ` · d100 ${m.roll}/${m.risk}` : ""}
-                  {m.retries > 0 ? ` · ${m.retries} redraft(s)` : ""}
-                </span>
-                {m.claims.map((c) => {
-                  const v = verdicts[c.id];
-                  return (
+              {s.action && <p className="action">{s.action}</p>}
+              {s.narration && <p className="narration">{s.narration}</p>}
+
+              <Meta s={s} />
+
+              {s.calamity && <div className="calamity">calamity — rolled {s.roll} against {s.risk}</div>}
+
+              {s.claims.length > 0 && (
+                <details className="claims">
+                  <summary>{s.claims.length} claim{s.claims.length > 1 ? "s" : ""}</summary>
+                  {s.claims.map((c) => (
                     <div className="claim" key={c.id}>
-                      <span className={`v ${v?.result || "UNRESOLVED"}`}>{v?.result || "—"}</span>
+                      <span className={`v ${c.verdict?.result || "UNRESOLVED"}`}>
+                        {c.verdict?.result || "—"}
+                      </span>
                       {c.text}
-                      {v?.why && <span className="why">{v.why}</span>}
-                      {v?.alternative && <span className="why">→ {v.alternative}</span>}
+                      {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
                     </div>
-                  );
-                })}
-                {m.quotes.map((q, i) => (
-                  <div className="claim" key={i}>
-                    <span className="v TRUE">QUOTED</span>
-                    {q.src}
-                  </div>
-                ))}
-                {m.travel && (
-                  <div className="claim">
-                    <span className="v FRICTION">TRAVEL</span>
-                    {m.travel.resume ? "resumes the road" : `${m.travel.destination}, ${m.travel.leagues} leagues`}
-                  </div>
-                )}
-                {m.calamity && (
-                  <div className="claim">
-                    <span className="v FALSE">CALAMITY</span>
-                    rolled {m.roll} against a risk of {m.risk}
-                  </div>
-                )}
-                {m.correction && (
-                  <div className="claim">
-                    <span className="v FALSE">REDRAFT</span>
-                    <span className="why">{m.correction}</span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </section>
+                  ))}
+                </details>
+              )}
 
-        <section>
-          <h2>Lore master</h2>
-          {!gap && <p className="empty">the world is not silent right now</p>}
-          {gap && (
-            <>
-              <div className="gapnote">{gap.turn} is blocked on the unresolved claims opposite</div>
-              {chat.map((m, i) => (
-                <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={i}>
-                  <span className="who">{m.role}</span>
-                  {m.text}
-                </div>
-              ))}
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="talk it through…"
-                disabled={!!busy}
-              />
-              <div className="actions">
-                <button
-                  onClick={async () => {
-                    const t = text;
-                    setText("");
-                    await post("/api/say", { text: t }, "say");
-                  }}
-                  disabled={!!busy || !text.trim()}
-                >
-                  {busy === "say" ? "thinking…" : "send"}
-                </button>
-              </div>
-            </>
-          )}
-        </section>
-      </main>
+              {blocked && i === count - 1 && (
+                <Lore
+                  gap={gap}
+                  chat={chat}
+                  busy={busy}
+                  onSay={(t) => post("/api/say", { text: t }, "say")}
+                />
+              )}
+            </article>
+          </section>
+        ))}
+        {count === 0 && <section className="slide"><article><p className="empty">nothing has happened yet</p></article></section>}
+      </div>
+
+      <nav className="dots">
+        {slides.map((s, i) => (
+          <button
+            key={s.id}
+            className={`dot ${i === at ? "on" : ""}`}
+            onClick={() => go(i)}
+            aria-label={s.id}
+          />
+        ))}
+      </nav>
     </>
   );
 }
