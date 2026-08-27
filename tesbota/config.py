@@ -14,6 +14,11 @@ WRITE_TOOLS = ["Read", "Glob", "Grep", "Write", "Edit"]
 
 MAX_GM_RETRIES = 3
 
+MODEL = "claude-sonnet-5"
+MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore3": MODEL}
+
+GODHEAD = "the godhead"
+
 DEFAULTS = {
     "hours_per_league": 1.5,
     "min_leg_minutes": 20,

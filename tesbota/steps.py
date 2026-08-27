@@ -1,7 +1,7 @@
 import json
 
 from . import canon, prompts, quotes
-from .config import MAX_GM_RETRIES, READ_TOOLS
+from .config import MAX_GM_RETRIES, MODELS, READ_TOOLS
 from .sdk import ask, extract_json
 
 
@@ -11,6 +11,7 @@ def step_explorer(campaign, turn):
         system=prompts.EXPLORER_SYSTEM,
         tools=[],
         session=campaign["sessions"]["explorer"],
+        model=MODELS["explorer"],
     )
     campaign["sessions"]["explorer"] = session
     turn["action"] = text
@@ -29,6 +30,7 @@ def step_gm(campaign, turn):
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
         session=campaign["sessions"]["gm"],
+        model=MODELS["gm"],
     )
     campaign["sessions"]["gm"] = session
     draft = extract_json(text)
@@ -52,6 +54,7 @@ def step_lore1(campaign, turn):
             system=prompts.LORE1_SYSTEM,
             tools=READ_TOOLS,
             session=None,
+            model=MODELS["lore1"],
         )
         verdicts = extract_json(text).get("verdicts", [])
     turn["verdicts"] = verdicts

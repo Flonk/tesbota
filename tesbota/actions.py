@@ -1,7 +1,7 @@
 import threading
 
 from . import driver, prompts, view
-from .config import STATE, WRITE_TOOLS
+from .config import MODELS, STATE, WRITE_TOOLS
 from .sdk import ask
 from .state import (
     all_turns,
@@ -84,7 +84,13 @@ def say(text):
         message = text if session else prompts.lore3_turn(turn.get("gap") or "") + "\n\n" + text
         append_chat("you", text)
 
-    reply, session = ask(message, system=prompts.LORE3_SYSTEM, tools=WRITE_TOOLS, session=session)
+    reply, session = ask(
+        message,
+        system=prompts.LORE3_SYSTEM,
+        tools=WRITE_TOOLS,
+        session=session,
+        model=MODELS["lore3"],
+    )
 
     with LOCK:
         campaign = load_campaign()

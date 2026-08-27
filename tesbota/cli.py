@@ -3,7 +3,7 @@ import json
 import sys
 
 from . import actions, canon, driver, prompts, view
-from .config import WRITE_TOOLS
+from .config import MODELS, WRITE_TOOLS
 from .sdk import ask
 from .state import all_turns, load_campaign, load_turn, now, parse, save_campaign
 
@@ -79,7 +79,11 @@ def cmd_lore(args):
     print("lore master. ctrl-d to end the sitting, /resolve when the silence is filled.")
     while True:
         reply, session = ask(
-            message, system=prompts.LORE3_SYSTEM, tools=WRITE_TOOLS, session=session
+            message,
+            system=prompts.LORE3_SYSTEM,
+            tools=WRITE_TOOLS,
+            session=session,
+            model=MODELS["lore3"],
         )
         campaign["sessions"]["lore3_sitting"] = session
         save_campaign(campaign)

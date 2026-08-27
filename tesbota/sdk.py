@@ -20,7 +20,7 @@ def extract_json(text):
         raise AgentError(f"agent did not return parseable json: {exc}\n\n{text}") from exc
 
 
-async def _ask(prompt, system, tools, session):
+async def _ask(prompt, system, tools, session, model):
     from claude_agent_sdk import (
         AssistantMessage,
         ClaudeAgentOptions,
@@ -35,6 +35,7 @@ async def _ask(prompt, system, tools, session):
         permission_mode="acceptEdits",
         resume=session,
         cwd=str(ROOT),
+        model=model,
     )
 
     chunks = []
@@ -47,5 +48,5 @@ async def _ask(prompt, system, tools, session):
     return "\n".join(chunks).strip(), session_id
 
 
-def ask(prompt, *, system, tools=(), session=None):
-    return asyncio.run(_ask(prompt, system, tools, session))
+def ask(prompt, *, system, tools=(), session=None, model=None):
+    return asyncio.run(_ask(prompt, system, tools, session, model))

@@ -1,6 +1,6 @@
 import re
 
-from .config import CANON, KINDS
+from .config import CANON, GODHEAD, KINDS
 
 LINK = re.compile(r"\[\[([^\]|#]+)")
 WITNESSED = "## Witnessed"
@@ -18,23 +18,61 @@ def find_entity(entity_id):
     return None
 
 
-def ensure_entity(kind, entity_id, name=None, turn_id=None):
+SECTIONS = {
+    "places": ["## Map", "## Attested", "## Witnessed"],
+    "books": ["## Text"],
+    "people": ["## Attested", "## Witnessed"],
+    "items": ["## Attested", "## Witnessed"],
+}
+
+
+def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
     path = entity_path(kind, entity_id)
     if path.exists():
         return path
     path.parent.mkdir(parents=True, exist_ok=True)
+
     front = [
         "---",
         f"id: {entity_id}",
         f"kind: {kind[:-1] if kind.endswith('s') else kind}",
         f"name: {name or entity_id.replace('-', ' ').title()}",
     ]
+    if kind == "books":
+        front.append(f"author: {author or 'unknown'}")
+    if kind == "places":
+        front += ["within:", "contains: []"]
     if turn_id:
         front.append(f"introduced: {turn_id}")
     front.append("---")
-    body = "\n".join(front) + "\n\n## Attested\n\n" + WITNESSED + "\n"
-    path.write_text(body, encoding="utf-8")
+
+    body = "\n".join(front) + "\n\n" + "\n\n".join(SECTIONS.get(kind, ["## Attested", "## Witnessed"]))
+    path.write_text(body + "\n", encoding="utf-8")
     return path
+
+
+def frontmatter(path):
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return {}
+    block = text.split("---", 2)[1]
+    out = {}
+    for line in block.splitlines():
+        if ":" in line:
+            key, _, value = line.partition(":")
+            out[key.strip()] = value.strip()
+    return out
+
+
+def is_godhead(path):
+    return frontmatter(path).get("author", "").strip().lower() == GODHEAD
+
+
+def godhead_books():
+    directory = CANON / "books"
+    if not directory.exists():
+        return []
+    return [p for p in sorted(directory.glob("*.md")) if is_godhead(p)]
 
 
 def append_witnessed(entity_id, turn_id, text, kind="places"):
