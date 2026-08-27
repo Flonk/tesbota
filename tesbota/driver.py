@@ -119,12 +119,13 @@ def run(limit=1):
             if completed >= limit:
                 return "done", turn
             turn = advance(campaign, turn)
-            completed += 1
             continue
 
         campaign, turn = STEPS[state](campaign, turn)
         save_turn(turn)
         save_campaign(campaign)
+        if turn["state"] == "done":
+            completed += 1
 
 
 def resolve_gap(campaign, turn):

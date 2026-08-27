@@ -1,17 +1,22 @@
 import argparse
 import sys
 
-from . import canon, driver, prompts
+from . import canon, driver, prompts, view
 from .config import WRITE_TOOLS
 from .sdk import ask
-from .state import load_campaign, load_turn, now, parse, save_campaign
+from .state import all_turns, load_campaign, load_turn, now, parse, save_campaign
 
 
 def cmd_init(args):
+    from .state import ensure_layout, new_turn
+
+    ensure_layout()
     campaign = load_campaign()
-    driver.run(limit=0)
-    save_campaign(campaign)
-    print(f"tesbota initialised. turn {campaign.get('current_turn') or 't0001'} awaits.")
+    if campaign.get("current_turn"):
+        print(f"already initialised — turn {campaign['current_turn']}")
+        return
+    turn = new_turn(campaign, state="explorer")
+    print(f"tesbota initialised. {turn['turn_id']} awaits — run: tesbota step")
 
 
 def cmd_step(args):
@@ -37,18 +42,24 @@ def cmd_status(args):
     if not campaign.get("current_turn"):
         print("no campaign yet. run: tesbota init")
         return
-    turn = load_turn(campaign["current_turn"])
-    print(f"turn      {turn['turn_id']}")
-    print(f"state     {turn['state']}")
-    if turn.get("wake_at"):
-        remaining = parse(turn["wake_at"]) - now()
-        print(f"wakes in  {max(0, int(remaining.total_seconds() // 60))} min")
-    pending = [e for e in turn.get("schedule", []) if not e["fired"]]
-    if pending:
-        print(f"events    {len(pending)} unfired")
-    if turn.get("gap"):
-        print()
-        print(turn["gap"].strip())
+    print(view.render_status(campaign, load_turn(campaign["current_turn"])))
+
+
+def cmd_log(args):
+    campaign = load_campaign()
+    turns = all_turns()
+    seen = campaign.get("last_seen")
+    if args.new:
+        turns = [t for t in turns if not seen or t["turn_id"] > seen]
+    elif args.n:
+        turns = turns[-args.n:]
+    if not turns:
+        print("nothing has happened yet")
+        return
+    print(view.render_log(turns, since=seen))
+    if turns:
+        campaign["last_seen"] = turns[-1]["turn_id"]
+        save_campaign(campaign)
 
 
 def cmd_lore(args):
@@ -106,6 +117,11 @@ def main(argv=None):
     step.set_defaults(func=cmd_step)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
+
+    log = sub.add_parser("log")
+    log.add_argument("-n", type=int, default=10)
+    log.add_argument("--new", action="store_true")
+    log.set_defaults(func=cmd_log)
     sub.add_parser("lore").set_defaults(func=cmd_lore)
     sub.add_parser("gaps").set_defaults(func=cmd_gaps)
 

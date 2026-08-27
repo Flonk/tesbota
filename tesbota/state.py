@@ -35,6 +35,7 @@ def new_campaign():
         "turn_counter": 0,
         "clock": dict(DEFAULTS),
         "last_narration": None,
+        "last_seen": None,
         "created": stamp(),
     }
 
@@ -53,6 +54,10 @@ def save_campaign(campaign):
 
 def turn_path(turn_id):
     return TURNS / f"{turn_id}.json"
+
+
+def all_turns():
+    return [read_json(p) for p in sorted(TURNS.glob("t*.json"))]
 
 
 def new_turn(campaign, state="explorer", **fields):

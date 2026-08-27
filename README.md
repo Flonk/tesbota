@@ -109,3 +109,15 @@ brain, is not a compromise.
 them. It is a valid Obsidian vault — open it as its own vault, not inside a
 synced one, and you get graph view of the world's growth. Keep it in git and
 `git log` becomes the history of reality.
+
+## Watching
+
+```
+tesbota status   # where things stand right now
+tesbota log      # the story so far; --new for only what you missed
+```
+
+`status` tells you which of the two suspends you are in — how long until the
+adventurer wakes, or what the lore master is waiting on — and how many turns
+have happened since you last looked. `log` marks unread turns with `*` and
+moves the watermark when you read it.
