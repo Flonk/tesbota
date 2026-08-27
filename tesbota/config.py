@@ -37,12 +37,16 @@ OPENING = {
     "minutes": 0,
     "fatigue": 0,
     "health": 0,
+    "risk": 0,
 }
 
 SPEED_FACTOR = 6000
 
 MAX_HEALTH = 100
 MAX_FATIGUE = 100
+
+BASE_RISK = 1
+MAX_RISK = 50
 
 DEFAULTS = {
     "hours_per_league": 1.5,

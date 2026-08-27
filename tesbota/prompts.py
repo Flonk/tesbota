@@ -78,7 +78,8 @@ Reply with a single fenced json block and nothing else:
   "travel": null,
   "minutes": 0,
   "fatigue": 0,
-  "health": 0
+  "health": 0,
+  "risk": 1
 }
 ```
 
@@ -101,6 +102,16 @@ down. Never let a single ordinary action cost more than about 30.
 
 `health` is almost always 0. Move it only when they are actually hurt or healed,
 and negatively for injury.
+
+`risk` is how many faces of a hundred bring calamity. Leave it at 1 for anything
+ordinary — a natural 100 can always go wrong, however careful they are. Raise it
+when they are being reckless and you would raise an eyebrow: walking on past
+fatigue 99, climbing wet rock in the dark, wading a river in spate, going armed
+at something larger than they are. 5 is unwise, 15 is foolish, 30 is asking for
+it. You are not punishing them, you are pricing the risk they chose.
+
+You never roll. Dice are rolled for you, and if they come up against you, you
+will be told and asked to narrate the same action going wrong.
 
 If their fatigue is already high, say so in the narration — let them feel it
 before they hit the wall.

@@ -115,6 +115,8 @@ export default function Page() {
                   {m.id}
                   {m.minutes ? ` · ${m.minutes}min` : ""}
                   {m.fatigue ? ` · ${m.fatigue > 0 ? "+" : ""}${m.fatigue} fat` : ""}
+                  {m.health ? ` · ${m.health} hp` : ""}
+                  {m.roll ? ` · d100 ${m.roll}/${m.risk}` : ""}
                   {m.retries > 0 ? ` · ${m.retries} redraft(s)` : ""}
                 </span>
                 {m.claims.map((c) => {
@@ -138,6 +140,12 @@ export default function Page() {
                   <div className="claim">
                     <span className="v FRICTION">TRAVEL</span>
                     {m.travel.resume ? "resumes the road" : `${m.travel.destination}, ${m.travel.leagues} leagues`}
+                  </div>
+                )}
+                {m.calamity && (
+                  <div className="claim">
+                    <span className="v FALSE">CALAMITY</span>
+                    rolled {m.roll} against a risk of {m.risk}
                   </div>
                 )}
                 {m.correction && (

@@ -55,11 +55,15 @@ export async function snapshot() {
     if (turn.action || draft.narration || cue) {
       story.push({ id: turn.turn_id, cue, action: turn.action, narration: draft.narration });
     }
-    if ((draft.claims || []).length || (turn.verdicts || []).length || turn.correction) {
+    if ((draft.claims || []).length || (turn.verdicts || []).length || turn.correction || turn.roll) {
       machinery.push({
         id: turn.turn_id,
         minutes: draft.minutes || 0,
         fatigue: draft.fatigue || 0,
+        health: draft.health || 0,
+        roll: turn.roll || null,
+        risk: turn.risk || null,
+        calamity: !!turn.calamity,
         claims: draft.claims || [],
         verdicts: turn.verdicts || [],
         quotes: draft.quotes || [],

@@ -1,7 +1,19 @@
 import json
 
 from . import canon, prompts, quotes
-from .config import MAX_FATIGUE, MAX_GM_RETRIES, MAX_HEALTH, MODELS, OPENING, READ_TOOLS, WRITE_TOOLS
+import random
+
+from .config import (
+    BASE_RISK,
+    MAX_FATIGUE,
+    MAX_GM_RETRIES,
+    MAX_HEALTH,
+    MAX_RISK,
+    MODELS,
+    OPENING,
+    READ_TOOLS,
+    WRITE_TOOLS,
+)
 from .sdk import ask, extract_json
 
 
@@ -48,6 +60,7 @@ def step_gm(campaign, turn):
     draft.setdefault("minutes", 0)
     draft.setdefault("fatigue", 0)
     draft.setdefault("health", 0)
+    draft.setdefault("risk", BASE_RISK)
     turn["draft"] = draft
     turn["correction"] = None
     turn["state"] = "lore1"
@@ -91,7 +104,7 @@ def step_lore1(campaign, turn):
     bad_quotes = quotes.verify(draft.get("quotes"))
 
     exhausted = too_tired(campaign, draft)
-    if exhausted and turn["gm_retries"] < MAX_GM_RETRIES:
+    if exhausted and not turn.get("calamity") and turn["gm_retries"] < MAX_GM_RETRIES:
         vitals = campaign.get("vitals") or {}
         turn["gm_retries"] += 1
         turn["correction"] = json.dumps({
@@ -107,6 +120,25 @@ def step_lore1(campaign, turn):
         }, indent=2)
         turn["state"] = "gm"
         return campaign, turn
+
+    if not (false_ones or bad_quotes) and not turn.get("rolled"):
+        if roll_for_calamity(turn):
+            turn["calamity"] = True
+            turn["correction"] = json.dumps({
+                "calamity": {
+                    "rolled": turn["roll"],
+                    "needed_above": 100 - turn["risk"],
+                    "risk": turn["risk"],
+                },
+                "instruction": (
+                    "The dice have gone against them. Renarrate this same action, but "
+                    "something goes badly wrong in the doing of it. Make it real and make "
+                    "it cost something — an injury, a loss, something breaking, something "
+                    "arriving. Do not soften it and do not undo the action."
+                ),
+            }, indent=2)
+            turn["state"] = "gm"
+            return campaign, turn
 
     if false_ones or bad_quotes:
         if turn["gm_retries"] >= MAX_GM_RETRIES:
@@ -136,6 +168,16 @@ def apply_vitals(campaign, draft):
     vitals["fatigue"] = max(0, min(MAX_FATIGUE, vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0)))
     vitals["health"] = max(0, min(MAX_HEALTH, vitals.get("health", MAX_HEALTH) + int(draft.get("health") or 0)))
     return campaign
+
+
+def roll_for_calamity(turn, rng=random):
+    draft = turn["draft"]
+    risk = max(BASE_RISK, min(MAX_RISK, int(draft.get("risk") or BASE_RISK)))
+    roll = rng.randint(1, 100)
+    turn["roll"] = roll
+    turn["risk"] = risk
+    turn["rolled"] = True
+    return roll > 100 - risk
 
 
 def deliver(campaign, turn):

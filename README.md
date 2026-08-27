@@ -159,3 +159,17 @@ Rest is negative fatigue, roughly -12 an hour of sleep.
 
 Health exists and is clamped the same way, but nothing spends it yet except
 injuries the game master narrates.
+
+## Calamity
+
+The game master never rolls. It sets `risk` — how many faces of a hundred bring
+calamity — and the driver rolls a d100 and records it on the turn. `risk` is 1
+for anything ordinary, so a natural 100 can always go wrong however careful the
+adventurer is; the game master raises it when they choose something reckless
+(walking on past fatigue 99, wet rock in the dark, a river in spate). Clamped to
+1–50.
+
+On a hit the draft is sent back with the numbers and an instruction to renarrate
+the same action going wrong — not to undo it. A calamity is exempt from the
+fatigue ceiling, because it is something happening to them rather than something
+they chose; its costs clamp instead of bouncing.
