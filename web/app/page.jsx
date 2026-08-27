@@ -139,7 +139,7 @@ export default function Page() {
           {!gap && <p className="empty">the world is not silent right now</p>}
           {gap && (
             <>
-              <div className="gap">{gap.text}</div>
+              <div className="gapnote">{gap.turn} is blocked on the unresolved claims opposite</div>
               {chat.map((m, i) => (
                 <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={i}>
                   <span className="who">{m.role}</span>

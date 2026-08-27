@@ -62,7 +62,7 @@ h2 { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color:
 .UNRESOLVED { color: var(--dim); border-color: var(--dim); }
 .why { color: var(--dim); display: block; margin-top: .2rem; }
 
-.gap { border: 1px solid var(--warn); padding: 1rem; margin-bottom: 1rem; white-space: pre-wrap; font-size: .9rem; }
+.gapnote { color: var(--warn); font: 11px ui-monospace, monospace; margin-bottom: 1.2rem; }
 .bubble { margin-bottom: 1rem; padding-left: .9rem; border-left: 2px solid var(--line); white-space: pre-wrap; }
 .bubble .who { font: 11px ui-monospace, monospace; color: var(--dim); display: block; }
 .bubble.you .who { color: var(--gold); }
