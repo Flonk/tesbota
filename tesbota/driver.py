@@ -4,6 +4,7 @@ from . import travel
 from .config import PENDING
 from .state import (
     ensure_layout,
+    stamp,
     load_campaign,
     load_turn,
     new_turn,
@@ -62,6 +63,15 @@ def advance(campaign, turn):
                 destination=held.get("destination"),
             )
 
+    minutes = int(turn.get("minutes") or 0)
+    if minutes > 0:
+        return new_turn(
+            campaign,
+            state="awaiting_clock",
+            wake_at=stamp(now() + travel.real_delay(campaign["clock"], minutes)),
+            schedule=[],
+        )
+
     return new_turn(campaign, state="explorer")
 
 
@@ -86,9 +96,13 @@ def tick_clock(turn, moment, campaign=None):
         turn["schedule"] = []
         return True
     if travel.arrived(turn, moment):
-        turn["arrival"] = turn.get("destination")
+        destination = turn.get("destination")
         turn["wake_at"] = None
-        turn["state"] = "gm"
+        if destination:
+            turn["arrival"] = destination
+            turn["state"] = "gm"
+        else:
+            turn["state"] = "explorer"
         return True
     return False
 

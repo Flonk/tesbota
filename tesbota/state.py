@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-from .config import CAMPAIGN, DEFAULTS, STATE, TURNS
+from .config import CAMPAIGN, DEFAULTS, MAX_FATIGUE, MAX_HEALTH, STATE, TURNS
 
 
 def now():
@@ -34,6 +34,7 @@ def new_campaign():
         "current_turn": None,
         "turn_counter": 0,
         "clock": dict(DEFAULTS),
+        "vitals": {"health": MAX_HEALTH, "fatigue": 0},
         "last_narration": None,
         "last_seen": None,
         "created": stamp(),
@@ -75,6 +76,7 @@ def new_turn(campaign, state="explorer", **fields):
         "gap": None,
         "wake_at": None,
         "schedule": [],
+        "minutes": 0,
     }
     turn.update(fields)
     campaign["current_turn"] = turn_id

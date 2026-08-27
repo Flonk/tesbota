@@ -58,6 +58,8 @@ export async function snapshot() {
     if ((draft.claims || []).length || (turn.verdicts || []).length || turn.correction) {
       machinery.push({
         id: turn.turn_id,
+        minutes: draft.minutes || 0,
+        fatigue: draft.fatigue || 0,
         claims: draft.claims || [],
         verdicts: turn.verdicts || [],
         quotes: draft.quotes || [],
@@ -77,10 +79,12 @@ export async function snapshot() {
   }
   if (campaign.suspended_journey) status.held = campaign.suspended_journey.destination;
 
+  const vitals = campaign.vitals || { health: 100, fatigue: 0 };
+
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, story, machinery, gap, chat };
+  return { status, story, machinery, gap, chat, vitals };
 }
 
 export async function tesbota(args, timeout = 900000) {

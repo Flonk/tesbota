@@ -142,3 +142,20 @@ commands work on their own from a terminal.
 `TESBOTA_KEY` gates every route. Open `https://host/?k=<key>` once and it sets a
 cookie; without it every path 404s. Expose it with
 `cloudflared tunnel --url http://127.0.0.1:3000`.
+
+## Time and vitals
+
+Every action the game master narrates carries `minutes` (how long it takes in the
+world) and `fatigue` (what it costs). Real elapsed time is in-world minutes
+divided by `speed_factor` — 6000 during development, so a night's sleep is five
+seconds and a day's march is under a minute. Set it to 1 and the world runs at
+wall-clock speed.
+
+100 fatigue is a full day of hard physical labour. The game master is told the
+adventurer's condition before it drafts, so it warns them as they tire; if it
+narrates an action that would take them past 100 anyway, the driver refuses the
+draft and sends it back to be renarrated as a refusal plus what resting costs.
+Rest is negative fatigue, roughly -12 an hour of sleep.
+
+Health exists and is clamped the same way, but nothing spends it yet except
+injuries the game master narrates.

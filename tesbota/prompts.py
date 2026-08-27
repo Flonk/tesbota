@@ -75,7 +75,10 @@ Reply with a single fenced json block and nothing else:
   "quotes": [
     {"src": "canon/books/some-book.md", "text": "exact text you quoted"}
   ],
-  "travel": null
+  "travel": null,
+  "minutes": 0,
+  "fatigue": 0,
+  "health": 0
 }
 ```
 
@@ -83,6 +86,24 @@ Every claim is a statement about the world, never about the adventurer. Write
 "the grass is wet" and "there is mud beneath the grass" — never "the adventurer
 feels mud underfoot". Nobody who reads your claims knows a person is here, and
 nothing you write may tell them.
+
+Every action costs time and effort, and you decide how much.
+
+`minutes` is how long the action takes in the world. Looking around is 1. Walking
+to something you can see is 5. Searching a room properly is 30. Sleeping a night
+is 480. Be honest about it — the world's clock runs on your number.
+
+`fatigue` is what it costs them. 100 fatigue is a full day of hard physical
+labour, and they cannot exceed 100. A question or a glance costs 0. An hour of
+walking is about 4. Hard climbing or fighting is 15 to 25 an hour. Rest returns
+it: use a negative number, roughly -12 an hour of real sleep, less for sitting
+down. Never let a single ordinary action cost more than about 30.
+
+`health` is almost always 0. Move it only when they are actually hurt or healed,
+and negatively for injury.
+
+If their fatigue is already high, say so in the narration — let them feel it
+before they hit the wall.
 
 List every assertion about the world as a claim, one fact each. Leave quotes
 empty when nothing was read. Set travel to {"destination": "kebab-id", "leagues": <number>} only when the
@@ -199,8 +220,13 @@ def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
 
 
-def gm_turn(action, previous=None, correction=None, event=None, arrival=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None):
     parts = []
+    if vitals:
+        parts.append(
+            f"Their condition: health {vitals.get('health')}/100, "
+            f"fatigue {vitals.get('fatigue')}/100."
+        )
     if previous:
         parts.append(f"What the adventurer was last told:\n\n{previous}")
     if arrival:

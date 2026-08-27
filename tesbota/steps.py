@@ -1,7 +1,7 @@
 import json
 
 from . import canon, prompts, quotes
-from .config import MAX_GM_RETRIES, MODELS, OPENING, READ_TOOLS, WRITE_TOOLS
+from .config import MAX_FATIGUE, MAX_GM_RETRIES, MAX_HEALTH, MODELS, OPENING, READ_TOOLS, WRITE_TOOLS
 from .sdk import ask, extract_json
 
 
@@ -30,6 +30,7 @@ def step_gm(campaign, turn):
         prompts.gm_turn(
             turn.get("action"),
             previous=campaign.get("last_narration"),
+            vitals=campaign.get("vitals"),
             correction=turn.get("correction"),
             event=turn.get("event"),
             arrival=turn.get("arrival"),
@@ -44,6 +45,9 @@ def step_gm(campaign, turn):
     draft.setdefault("claims", [])
     draft.setdefault("quotes", [])
     draft.setdefault("travel", None)
+    draft.setdefault("minutes", 0)
+    draft.setdefault("fatigue", 0)
+    draft.setdefault("health", 0)
     turn["draft"] = draft
     turn["correction"] = None
     turn["state"] = "lore1"
@@ -86,6 +90,24 @@ def step_lore1(campaign, turn):
 
     bad_quotes = quotes.verify(draft.get("quotes"))
 
+    exhausted = too_tired(campaign, draft)
+    if exhausted and turn["gm_retries"] < MAX_GM_RETRIES:
+        vitals = campaign.get("vitals") or {}
+        turn["gm_retries"] += 1
+        turn["correction"] = json.dumps({
+            "too_tired": {
+                "fatigue_now": vitals.get("fatigue", 0),
+                "this_action_would_add": draft.get("fatigue"),
+                "maximum": MAX_FATIGUE,
+            },
+            "instruction": (
+                "They are too worn out to do this. Do not narrate them doing it. "
+                "Narrate that they cannot, and what resting here would take."
+            ),
+        }, indent=2)
+        turn["state"] = "gm"
+        return campaign, turn
+
     if false_ones or bad_quotes:
         if turn["gm_retries"] >= MAX_GM_RETRIES:
             turn["gap"] = (
@@ -104,6 +126,18 @@ def step_lore1(campaign, turn):
     return deliver(campaign, turn)
 
 
+def too_tired(campaign, draft):
+    vitals = campaign.get("vitals") or {"fatigue": 0}
+    return vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0) > MAX_FATIGUE
+
+
+def apply_vitals(campaign, draft):
+    vitals = campaign.setdefault("vitals", {"health": MAX_HEALTH, "fatigue": 0})
+    vitals["fatigue"] = max(0, min(MAX_FATIGUE, vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0)))
+    vitals["health"] = max(0, min(MAX_HEALTH, vitals.get("health", MAX_HEALTH) + int(draft.get("health") or 0)))
+    return campaign
+
+
 def deliver(campaign, turn):
     draft = turn["draft"]
     kept = {v["claim"] for v in turn["verdicts"] if v.get("result") in ("TRUE", "FRICTION")}
@@ -112,7 +146,9 @@ def deliver(campaign, turn):
             canon.append_witnessed(
                 claim["entity"], turn["turn_id"], claim["text"], kind=claim.get("kind", "places")
             )
+    campaign = apply_vitals(campaign, draft)
     campaign["last_narration"] = draft.get("narration")
+    turn["minutes"] = int(draft.get("minutes") or 0)
     turn["state"] = "done"
     return campaign, turn
 

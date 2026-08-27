@@ -2,6 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+function Bar({ label, value, max, tone }) {
+  const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  return (
+    <span className="bar" title={`${label} ${value}/${max}`}>
+      <span className="barlabel">{label}</span>
+      <span className="bartrack">
+        <span className={`barfill ${tone}`} style={{ width: `${pct}%` }} />
+      </span>
+      <span className="barnum">{value}</span>
+    </span>
+  );
+}
+
 function Status({ status }) {
   if (status.state === "awaiting_clock") {
     return (
@@ -59,7 +72,7 @@ export default function Page() {
 
   if (!data) return <main><section><p className="empty">loading…</p></section></main>;
 
-  const { status, story, machinery, gap, chat } = data;
+  const { status, story, machinery, gap, chat, vitals } = data;
 
   return (
     <>
@@ -67,6 +80,8 @@ export default function Page() {
         <h1>tesbota</h1>
         <span className="muted">{status.turn}</span>
         <Status status={status} />
+        <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
+        <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
         <span style={{ marginLeft: "auto" }}>
           <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
             {busy === "step" ? "stepping…" : "step"}
@@ -98,6 +113,8 @@ export default function Page() {
               <div className="turn" key={m.id}>
                 <span className="tid">
                   {m.id}
+                  {m.minutes ? ` · ${m.minutes}min` : ""}
+                  {m.fatigue ? ` · ${m.fatigue > 0 ? "+" : ""}${m.fatigue} fat` : ""}
                   {m.retries > 0 ? ` · ${m.retries} redraft(s)` : ""}
                 </span>
                 {m.claims.map((c) => {

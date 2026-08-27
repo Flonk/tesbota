@@ -34,10 +34,19 @@ OPENING = {
     ],
     "quotes": [],
     "travel": None,
+    "minutes": 0,
+    "fatigue": 0,
+    "health": 0,
 }
+
+SPEED_FACTOR = 6000
+
+MAX_HEALTH = 100
+MAX_FATIGUE = 100
 
 DEFAULTS = {
     "hours_per_league": 1.5,
     "min_leg_minutes": 20,
     "encounter_chance_per_league": 0.25,
+    "speed_factor": SPEED_FACTOR,
 }

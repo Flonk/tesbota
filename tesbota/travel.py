@@ -3,6 +3,11 @@ from datetime import timedelta
 from .state import stamp
 
 
+def real_delay(clock, in_world_minutes):
+    factor = float(clock.get("speed_factor") or 1)
+    return timedelta(seconds=(float(in_world_minutes) * 60.0) / factor)
+
+
 def plan_journey(clock, leagues, rng, start):
     hours_per_league = clock["hours_per_league"]
     min_leg = int(clock["min_leg_minutes"])
@@ -21,10 +26,14 @@ def plan_journey(clock, leagues, rng, start):
             last = offset
 
     schedule = [
-        {"at": stamp(start + timedelta(minutes=offset)), "kind": "encounter", "fired": False}
+        {
+            "at": stamp(start + real_delay(clock, offset)),
+            "kind": "encounter",
+            "fired": False,
+        }
         for offset in picked
     ]
-    return stamp(start + timedelta(minutes=total)), schedule
+    return stamp(start + real_delay(clock, total)), schedule
 
 
 def due(turn, moment):
