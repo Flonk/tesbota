@@ -147,16 +147,18 @@ export default function Page() {
   return (
     <>
       <header>
-        <h1>tesbota</h1>
-        <Status status={status} />
-        <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
-        <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
-        <span className="counter">
-          {count ? `${at + 1} / ${count}` : "—"}
-        </span>
-        <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
-          {busy === "step" ? "…" : "step"}
-        </button>
+        <div className="hrow top">
+          <h1>tesbota</h1>
+          <Status status={status} />
+        </div>
+        <div className="hrow bottom">
+          <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
+          <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
+          <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
+          <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
+            {busy === "step" ? "…" : "step"}
+          </button>
+        </div>
       </header>
 
       <div className="deck" ref={deck} onScroll={onScroll}>

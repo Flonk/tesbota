@@ -20,25 +20,42 @@ body {
   color: var(--ink);
   font: 16px/1.65 ui-serif, Georgia, serif;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow-wrap: anywhere;
 }
 
 header {
+  flex: 0 0 auto;
   display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: .85rem 1.5rem;
+  flex-direction: column;
+  gap: .45rem;
+  padding: .7rem 1rem;
   border-bottom: 1px solid var(--line);
-  height: 56px;
+  min-width: 0;
 }
+
+.hrow {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  min-width: 0;
+}
+
+.hrow.top { justify-content: space-between; }
+.hrow.top .muted,
+.hrow.top span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow.bottom { flex-wrap: wrap; }
 
 h1 { font-size: 1rem; margin: 0; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
 .muted { color: var(--dim); font-size: .85rem; }
-.counter { margin-left: auto; font: 11px ui-monospace, monospace; color: var(--dim); }
+.counter { margin-left: auto; font: 11px ui-monospace, monospace; color: var(--dim); flex: 0 0 auto; }
 
 .deck {
   display: flex;
-  height: calc(100vh - 56px - 44px);
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -48,6 +65,7 @@ h1 { font-size: 1rem; margin: 0; letter-spacing: .16em; text-transform: uppercas
 
 .slide {
   flex: 0 0 100%;
+  min-width: 0;
   scroll-snap-align: center;
   scroll-snap-stop: always;
   overflow-y: auto;
@@ -100,6 +118,7 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .6rem; }
 
 .dots {
+  flex: 0 0 auto;
   height: 44px; display: flex; align-items: center; justify-content: center;
   gap: .4rem; border-top: 1px solid var(--line); overflow-x: auto; padding: 0 1rem;
 }
@@ -119,3 +138,16 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 
 .empty { color: var(--dim); font-style: italic; }
 .pad { padding: 2rem; }
+
+.meta, .claim, .tid { overflow-wrap: anywhere; }
+.claims summary { word-break: break-word; }
+
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+  header { padding: .6rem .9rem; }
+  .slide { padding: 1.5rem 1rem; }
+  .bartrack { width: 48px; }
+  .hrow { gap: .7rem; }
+  h1 { font-size: .85rem; letter-spacing: .12em; }
+  .dots { height: 38px; gap: .3rem; }
+}
