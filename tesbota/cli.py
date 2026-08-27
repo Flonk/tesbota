@@ -118,10 +118,13 @@ def cmd_resolve(args):
 
 
 def cmd_gaps(args):
+    orphans = canon.orphan_places()
     gaps = canon.dangling_links()
-    if not gaps:
-        print("no dangling links — the world has no frontier right now")
+    if not orphans and not gaps:
+        print("no open edges — every place is placed and no link dangles")
         return
+    for place in orphans:
+        print(f"{place}  (no parent place)")
     for target, sources in sorted(gaps.items()):
         print(f"{target}  <- {', '.join(sources)}")
 

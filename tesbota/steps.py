@@ -1,7 +1,7 @@
 import json
 
 from . import canon, prompts, quotes
-from .config import MAX_GM_RETRIES, MODELS, READ_TOOLS
+from .config import MAX_GM_RETRIES, MODELS, OPENING, READ_TOOLS, WRITE_TOOLS
 from .sdk import ask, extract_json
 
 
@@ -20,9 +20,16 @@ def step_explorer(campaign, turn):
 
 
 def step_gm(campaign, turn):
+    if not campaign["sessions"]["gm"] and not campaign.get("last_narration"):
+        turn["draft"] = json.loads(json.dumps(OPENING))
+        turn["opening"] = True
+        turn["state"] = "lore1"
+        return campaign, turn
+
     text, session = ask(
         prompts.gm_turn(
             turn.get("action"),
+            previous=campaign.get("last_narration"),
             correction=turn.get("correction"),
             event=turn.get("event"),
             arrival=turn.get("arrival"),
@@ -47,12 +54,18 @@ def step_lore1(campaign, turn):
     draft = turn["draft"]
     claims = draft.get("claims") or []
 
+    if turn.get("opening"):
+        turn["verdicts"] = [
+            {"claim": c["id"], "result": "TRUE", "why": "the world opens here"} for c in claims
+        ]
+        return deliver(campaign, turn)
+
     verdicts = []
     if claims:
         text, _ = ask(
             prompts.lore1_turn(claims),
             system=prompts.LORE1_SYSTEM,
-            tools=READ_TOOLS,
+            tools=WRITE_TOOLS,
             session=None,
             model=MODELS["lore1"],
         )

@@ -34,9 +34,9 @@ With one exception: a book whose frontmatter says `author: the godhead` is
 factually true. Those state the laws of this world, and you may not narrate
 anything that contradicts one. Every other author may be wrong.
 
-Places contain places, and each place file has a `## Map` of what is inside it
-and what it opens onto. Consult the map of where the adventurer is before you
-narrate what is around them.
+Places contain places, always: every place sits inside a larger one, and each
+place file has a `## Map` of what is inside it and what it opens onto. Consult the map of where the adventurer is before you
+narrate what is around them. You may read canon but never write to it.
 
 When the adventurer reads a book, you MUST reproduce its text verbatim from the
 file. You may choose which passage they read and describe the object itself
@@ -105,6 +105,13 @@ For each claim return one verdict:
 - FALSE: it contradicts something Witnessed. Supply an alternative that fits.
 - UNRESOLVED: no document speaks to this at all and you cannot settle it.
 
+You may write to canon/, but only to record what you have verified: keeping a
+place's `## Map` and its `within:`/`contains:` consistent with what is already
+established, and nothing more. Every place belongs inside exactly one parent
+place; if a place has no parent recorded and nothing establishes one, that is
+UNRESOLVED, not something for you to decide. You
+do not invent, you do not resolve, and you never add testimony of your own.
+
 Reply with a single fenced json block and nothing else:
 
 ```json
@@ -137,8 +144,11 @@ happen. Write one only when you are explicitly asked for one, keep it plain and
 declarative, and never hedge in it. Everything you write under any other name is
 fallible and may be wrong.
 
-Places nest. Every place has `within:` (the place containing it, or nothing) and
-`contains:` (the places inside it), and carries a `## Map` section. When you
+Places nest, always. Every place sits `within:` exactly one parent place — there
+is no such thing as a place that is nowhere — and lists what is inside it under
+`contains:`. A place file with an empty `within:` is an unanswered question, and
+answering it means deciding what larger thing that place is part of. Each place
+also carries a `## Map` section. When you
 touch a place and its map is thin, fill in what is known — what lies inside it,
 what it opens onto — as wikilinks. A map records only what is established; a
 dangling link is an honest way to mark an edge nobody has walked yet.
@@ -164,8 +174,10 @@ def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
 
 
-def gm_turn(action, correction=None, event=None, arrival=None):
+def gm_turn(action, previous=None, correction=None, event=None, arrival=None):
     parts = []
+    if previous:
+        parts.append(f"What the adventurer was last told:\n\n{previous}")
     if arrival:
         parts.append(f"The adventurer has arrived at {arrival}. Narrate the arrival.")
     if event:

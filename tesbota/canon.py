@@ -90,6 +90,18 @@ def append_witnessed(entity_id, turn_id, text, kind="places"):
     return path
 
 
+def orphan_places():
+    directory = CANON / "places"
+    if not directory.exists():
+        return []
+    out = []
+    for path in sorted(directory.glob("*.md")):
+        within = frontmatter(path).get("within", "").strip()
+        if not within:
+            out.append(path.stem)
+    return out
+
+
 def all_entities():
     found = {}
     for kind in KINDS:

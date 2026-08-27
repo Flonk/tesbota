@@ -19,6 +19,23 @@ MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore3": MODEL}
 
 GODHEAD = "the godhead"
 
+OPENING = {
+    "narration": (
+        "You are standing on a road in wet grass. Fog stands close on every side, "
+        "and the road runs away from you in two directions."
+    ),
+    "claims": [
+        {"id": "o1", "text": "The adventurer stands on a road running through wet grass.",
+         "entity": "the-road", "kind": "places"},
+        {"id": "o2", "text": "Fog stands close around the road on every side, hiding what lies beyond.",
+         "entity": "the-road", "kind": "places"},
+        {"id": "o3", "text": "The road runs away in two directions.",
+         "entity": "the-road", "kind": "places"},
+    ],
+    "quotes": [],
+    "travel": None,
+}
+
 DEFAULTS = {
     "hours_per_league": 1.5,
     "min_leg_minutes": 20,
