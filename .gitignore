@@ -5,3 +5,7 @@ uv.lock
 state/campaign.json
 state/turns/*.json
 pending/*.md
+state/secret.txt
+state/lore3.json
+web/node_modules/
+web/.next/

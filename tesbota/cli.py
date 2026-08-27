@@ -1,7 +1,8 @@
 import argparse
+import json
 import sys
 
-from . import canon, driver, prompts, view
+from . import actions, canon, driver, prompts, view
 from .config import WRITE_TOOLS
 from .sdk import ask
 from .state import all_turns, load_campaign, load_turn, now, parse, save_campaign
@@ -20,6 +21,9 @@ def cmd_init(args):
 
 
 def cmd_step(args):
+    if getattr(args, "json", False):
+        print(json.dumps(actions.step(), ensure_ascii=False))
+        return
     state, turn = driver.run(limit=args.limit)
     if state == "awaiting_human":
         print(f"[{turn['turn_id']}] the world is silent. run: tesbota lore")
@@ -97,6 +101,18 @@ def cmd_lore(args):
             message = "Go on."
 
 
+def cmd_snapshot(args):
+    print(json.dumps(actions.snapshot(), ensure_ascii=False))
+
+
+def cmd_say(args):
+    print(json.dumps(actions.say(args.text), ensure_ascii=False))
+
+
+def cmd_resolve(args):
+    print(json.dumps(actions.resolve(), ensure_ascii=False))
+
+
 def cmd_gaps(args):
     gaps = canon.dangling_links()
     if not gaps:
@@ -114,7 +130,16 @@ def main(argv=None):
 
     step = sub.add_parser("step")
     step.add_argument("--limit", type=int, default=1)
+    step.add_argument("--json", action="store_true")
     step.set_defaults(func=cmd_step)
+
+    sub.add_parser("snapshot").set_defaults(func=cmd_snapshot)
+
+    say = sub.add_parser("say")
+    say.add_argument("text")
+    say.set_defaults(func=cmd_say)
+
+    sub.add_parser("resolve").set_defaults(func=cmd_resolve)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
 

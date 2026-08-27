@@ -121,3 +121,24 @@ tesbota log      # the story so far; --new for only what you missed
 adventurer wakes, or what the lore master is waiting on — and how many turns
 have happened since you last looked. `log` marks unread turns with `*` and
 moves the watermark when you read it.
+
+## Web interface
+
+```
+nix-shell
+(cd web && npm install)
+TESBOTA_KEY=$(openssl rand -base64 18 | tr -d /+=) npm --prefix web run dev
+```
+
+Three panes: the **Explorer** story, the **Game master** machinery (every claim
+with its verdict, redrafts, quote checks), and the **Lore master** — the pending
+gap with a box to talk it through and a resolve button.
+
+Reads come straight off `state/` in the Next process, so the UI hot-reloads while
+you change it. Anything that needs the Agent SDK shells out to the CLI
+(`tesbota say`, `tesbota resolve`, `tesbota step --json`), which also means those
+commands work on their own from a terminal.
+
+`TESBOTA_KEY` gates every route. Open `https://host/?k=<key>` once and it sets a
+cookie; without it every path 404s. Expose it with
+`cloudflared tunnel --url http://127.0.0.1:3000`.

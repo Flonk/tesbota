@@ -4,6 +4,7 @@ mkShell {
   nativeBuildInputs = [
     python312
     uv
+    nodejs_24
   ];
 
   shellHook = ''
