@@ -74,9 +74,17 @@ textarea {
 
 button {
   background: transparent; color: var(--gold); border: 1px solid var(--gold);
-  padding: .45rem 1rem; font: inherit; font-size: .82rem; cursor: pointer; margin-right: .5rem;
+  padding: .45rem 1rem; font: inherit; font-size: .82rem; cursor: pointer;
 }
 button:hover:not(:disabled) { background: var(--gold); color: var(--bg); }
 button:disabled { opacity: .35; cursor: default; }
 button.ghost { color: var(--dim); border-color: var(--line); }
 .empty { color: var(--dim); font-style: italic; }
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  margin-top: .6rem;
+  padding-bottom: 2.5rem;
+}

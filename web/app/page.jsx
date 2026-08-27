@@ -152,7 +152,7 @@ export default function Page() {
                 placeholder="talk it through…"
                 disabled={!!busy}
               />
-              <div style={{ marginTop: ".6rem" }}>
+              <div className="actions">
                 <button
                   onClick={async () => {
                     const t = text;
