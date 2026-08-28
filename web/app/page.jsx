@@ -51,20 +51,32 @@ function cost(minutes) {
   return `${m} min`;
 }
 
+function toll(x) {
+  const bits = [];
+  if (x.minutes) bits.push(cost(x.minutes));
+  if (x.fatigue) bits.push(`${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue`);
+  if (x.roll) bits.push(`d400 ${x.roll}`);
+  if (x.risk > 1) bits.push(`risk ${x.risk}`);
+  return bits;
+}
+
+const SAID_LABEL = { action: "action", look: "looks", say: "says" };
+const GM_LABEL = { world: "what happens", answer: "the answer", outcome: "what happens" };
+
 function pairUp(phases) {
   const rows = [];
-  const list = phases || [];
+  const list = (phases || []).filter(
+    (x) => !["ready", "confirm", "proposal"].includes(x.kind)
+  );
   for (let i = 0; i < list.length; i++) {
-    const x = list[i];
-    const next = list[i + 1];
-    if (x.kind === "look" && next && next.who === "gm" && next.kind === "answer") {
-      rows.push({ key: x.n, look: x, answer: next });
-      i++;
-    } else if (x.kind === "look") {
-      rows.push({ key: x.n, look: x, answer: null });
-    } else {
-      rows.push({ key: x.n, x });
+    const said = list[i];
+    if (said.who !== "explorer") {
+      rows.push({ key: said.n, told: said });
+      continue;
     }
+    const told = list[i + 1]?.who === "gm" ? list[i + 1] : null;
+    if (told) i++;
+    rows.push({ key: said.n, said, told });
   }
   return rows;
 }
@@ -86,68 +98,43 @@ function Section({ mode, label, kind, children, open }) {
   );
 }
 
-const GM_LABEL = {
-  world: "what happens",
-  context: "the answer",
-  answer: "the answer",
-  outcome: "what happens",
-};
-
-const SAID_LABEL = { action: "action", look: "looks", say: "says" };
-
-function toll(x) {
-  const bits = [];
-  if (x.minutes) bits.push(cost(x.minutes));
-  if (x.fatigue) bits.push(`${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue`);
-  if (x.roll) bits.push(`d400 ${x.roll}`);
-  if (x.risk > 1) bits.push(`risk ${x.risk}`);
-  return bits.length ? bits.join(" · ") : null;
+function Checked({ x }) {
+  if (!x) return null;
+  if (x.status === "pending" && x.text) return <p className="sec-note">not yet checked</p>;
+  if (x.status === "blocked") {
+    return <p className="sec-note sec-blocked">the lore master has sent this back</p>;
+  }
+  return null;
 }
 
-function Pair({ look, answer }) {
-  const waiting = !answer || !answer.text;
+function Pair({ said, told }) {
+  const isAction = said.kind === "action";
+  const label = [SAID_LABEL[said.kind] || said.kind, ...(told ? toll(told) : [])].join(" · ");
   return (
-    <Section
-      mode="compact"
-      open={waiting}
-      label={
-        <>
-          <span className="sec-tag">{look.kind === "say" ? "says" : "looks"}</span>
-          {look.kind === "say" ? `“${look.text}”` : look.text}
-        </>
-      }
-    >
-      {waiting ? (
-        <p className="sec-body sec-waiting">waiting for an answer…</p>
+    <Section mode="compact" open={isAction || !told?.text} label={label}>
+      <p className="sec-body sec-asked">
+        {said.kind === "say" ? `“${said.text}”` : said.text}
+      </p>
+      {told?.text ? (
+        <p className="sec-body sec-told">{told.text}</p>
       ) : (
-        <p className="sec-body">{answer.text}</p>
+        <p className="sec-body sec-told sec-waiting">waiting for an answer…</p>
       )}
+      <Checked x={told} />
     </Section>
   );
 }
 
-function Phase({ x }) {
-  if (x.kind === "ready" || x.kind === "confirm" || x.kind === "proposal") return null;
-
-  if (x.who === "explorer") {
-    return (
-      <Section mode="explorer" kind={x.kind} label={SAID_LABEL[x.kind] || x.kind}>
-        <p className="sec-body">{x.kind === "say" ? `“${x.text}”` : x.text}</p>
-      </Section>
-    );
-  }
-
+function Alone({ x }) {
+  const label = [...toll(x)];
   return (
-    <Section mode="gm" kind={x.kind} label={toll(x) || GM_LABEL[x.kind] || x.kind}>
+    <Section mode="gm" kind={x.kind} label={label.length ? label.join(" · ") : GM_LABEL[x.kind]}>
       {x.text ? (
         <p className="sec-body">{x.text}</p>
       ) : (
         <p className="sec-body sec-waiting">waiting for an answer…</p>
       )}
-      {x.status === "pending" && x.text && <p className="sec-note">not yet checked</p>}
-      {x.status === "blocked" && (
-        <p className="sec-note sec-blocked">the lore master has sent this back</p>
-      )}
+      <Checked x={x} />
     </Section>
   );
 }
@@ -375,10 +362,10 @@ export default function Page() {
               </div>
 
               {pairUp(s.phases).map((r) =>
-                r.look ? (
-                  <Pair key={r.key} look={r.look} answer={r.answer} />
+                r.said ? (
+                  <Pair key={r.key} said={r.said} told={r.told} />
                 ) : (
-                  <Phase key={r.key} x={r.x} />
+                  <Alone key={r.key} x={r.told} />
                 )
               )}
 

@@ -353,16 +353,15 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   margin: .4rem 0 0;
 }
 .sec-blocked { color: var(--warn); }
-.sec-compact > .sec-label { cursor: pointer; list-style: none; text-transform: none; }
-.sec-tag { text-transform: uppercase; letter-spacing: .1em; margin-right: .7em; }
+.sec-compact > .sec-label { cursor: pointer; list-style: none; }
 .sec-compact > .sec-label::-webkit-details-marker { display: none; }
 .sec-compact > .sec-label::before { content: "\25B8  "; }
 .sec-compact[open] > .sec-label::before { content: "\25BE  "; }
 .sec-compact > .sec-label:hover { color: var(--ink); }
 .sec-fold {
-  border-left: 2px dotted var(--line);
+  border-left: 2px solid var(--line);
   padding-left: .9rem;
   margin: .5rem 0 0;
 }
-.sec-fold .sec-body { color: var(--dim); font-style: italic; }
-.sec-fold .sec-body + .sec-body { margin-top: .25rem; }
+.sec-asked { color: var(--gold); font-style: italic; }
+.sec-told { color: var(--ink); margin-top: .8rem; }
