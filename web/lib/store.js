@@ -61,7 +61,10 @@ export async function snapshot() {
       state: turn.state,
       cue,
       action: turn.action,
-      narration: draft.narration,
+      narration: turn.looking ? null : draft.narration,
+      pending: turn.looking
+        ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
+        : null,
       claims: (draft.claims || []).map((c) => ({ ...c, verdict: verdicts[c.id] || null })),
       quotes: draft.quotes || [],
       minutes: draft.minutes || 0,

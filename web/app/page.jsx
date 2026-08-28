@@ -238,6 +238,20 @@ export default function Page() {
                 </div>
               ))}
 
+              {s.pending && (
+                <div className={`look ${s.pending.mode === "say" ? "talk" : ""} pending`}>
+                  <p className="lookq">
+                    {s.pending.mode === "say" ? `“${s.pending.question}”` : s.pending.question}
+                  </p>
+                  {s.pending.answer ? (
+                    <p className="looka">{s.pending.answer}</p>
+                  ) : (
+                    <p className="looka waiting">waiting for an answer…</p>
+                  )}
+                  <p className="unchecked">not yet checked</p>
+                </div>
+              )}
+
               {s.action && <p className="action">{s.action}</p>}
               {s.narration && <p className="narration">{s.narration}</p>}
 

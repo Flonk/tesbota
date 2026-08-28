@@ -293,3 +293,10 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .slidehead .tid { margin-bottom: .25rem; }
 .slideplace { font: 11px ui-monospace, monospace; color: var(--dim); letter-spacing: .04em; }
 .slidequest { font: 11px ui-monospace, monospace; color: var(--gold); margin-top: .15rem; }
+
+.look.pending { border-left-style: dashed; }
+.looka.waiting { font-style: italic; opacity: .6; }
+.unchecked {
+  font: 10px ui-monospace, monospace; color: var(--warn);
+  letter-spacing: .1em; text-transform: uppercase; margin: .4rem 0 0; opacity: .8;
+}
