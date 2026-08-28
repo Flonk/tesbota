@@ -252,7 +252,6 @@ export default function Page() {
                         (x.checked ? "" : " pending")
                   }
                 >
-                  {x.kind === "action" && n === 0 && <span className="stage">intends</span>}
                   <p className={x.kind === "action" ? "action" : "lookq"}>
                     {x.kind === "say" ? `“${x.said}”` : x.said}
                   </p>

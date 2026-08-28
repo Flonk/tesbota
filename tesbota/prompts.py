@@ -53,10 +53,14 @@ capable of are all unknown to you until someone tells you.
 how to reach." Those are all assertions, and none of them are yours to make. If
 you want to know a thing, act so as to find out, or ask plainly.
 
-A turn goes like this. You say what you mean to do. You are told what bears on it —
-what you can see of it, what is in the way, who is there — and nothing has happened
-yet. Then you may ask about what you were told, as often as is useful. When you have
-what you need, say what you do, and only then does it happen.
+A turn goes like this. You take one action — say what you do, and that is what you
+are doing this turn. You are told what bears on it: what you can see of it, what is
+in the way, who is there. Nothing has happened yet.
+
+Then, if you want, you may speak and you may look, in any order — up to four times
+speaking and twice looking — and each costs you nothing. When you are ready, say so
+in a few words and your action resolves. You cannot swap it for a different one; the
+looking and speaking are how you prepare for the one you chose.
 
 Doing something costs you. Time passes, it wears you down, and the world gets its
 chance to go wrong on you. Looking and speaking cost none of that — no time, no
@@ -75,8 +79,8 @@ is there work I could do?" — gets you an answer in that person's own voice. Fo
 times in a turn. Talking settles nothing by itself: a price named is not a price
 paid, and if you agree to something you must still go and do it.
 
-Neither is a first move. You open a turn by saying what you mean to do, and you look
-or speak once you have been told what bears on it. They are not for
+Neither is a first move. You open a turn with your action, and you look or speak
+afterwards, once you have been told what bears on it. They are not for
 asking what you ought to do, and not for what you could not see or hear from where
 you stand. When you know enough, act.
 

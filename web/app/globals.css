@@ -317,8 +317,3 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .exchange.pending { border-left-style: dashed; }
 .exchange.act .action { margin-bottom: .8rem; }
 .exchange.act .narration { margin-bottom: 0; }
-
-.stage {
-  display: block; font: 10px ui-monospace, monospace; color: var(--dim);
-  letter-spacing: .12em; text-transform: uppercase; margin-bottom: .2rem;
-}

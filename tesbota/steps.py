@@ -117,9 +117,7 @@ def step_explorer(campaign, turn):
             stripped = stripped[len(prefix):].strip()
             break
 
-    if stripped and stripped != turn.get("action"):
-        turn["action"] = stripped
-        say(turn, "action", stripped)
+    turn["ready"] = stripped
     turn["state"] = "propose"
     return campaign, turn
 
