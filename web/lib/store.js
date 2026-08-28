@@ -67,6 +67,11 @@ export async function snapshot() {
       exchanges,
       action: turn.action,
       narration: turn.looking ? null : draft.narration,
+      outcome: (() => {
+        const act = exchanges.find((x) => x.kind === "action");
+        if (act) return act.reply || null;
+        return exchanges.length ? null : draft.narration || null;
+      })(),
       pending: turn.looking
         ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
         : null,

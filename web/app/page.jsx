@@ -296,34 +296,39 @@ export default function Page() {
                   className={
                     x.kind === "action"
                       ? "exchange act"
-                      : `exchange ${x.kind === "say" ? "talk" : "look"}` +
-                        (x.checked ? "" : " pending")
+                      : x.kind === "world"
+                        ? "exchange world"
+                        : `exchange ${x.kind === "say" ? "talk" : "look"}` +
+                          (x.checked ? "" : " pending")
                   }
                 >
-                  <p className={x.kind === "action" ? "action" : "lookq"}>
-                    {x.kind === "say" ? `“${x.said}”` : x.said}
-                  </p>
-                  {!x.reply ? (
-                    <p className="looka waiting">waiting for an answer…</p>
-                  ) : x.provisional ? (
+                  {x.said && (
+                    <p className={x.kind === "action" ? "action" : "lookq"}>
+                      {x.kind === "say" ? `“${x.said}”` : x.said}
+                    </p>
+                  )}
+                  {x.context && (
                     <div className="aside">
                       <p className="asidelabel">before you commit · nothing has happened yet</p>
-                      <p className="narration">{x.reply}</p>
+                      <p className="narration">{x.context}</p>
                     </div>
-                  ) : (
-                    <p className={x.kind === "action" ? "narration" : "looka"}>{x.reply}</p>
                   )}
-                  {!x.checked && x.reply && !x.provisional && (
-                    <p className="unchecked">not yet checked</p>
+                  {x.kind !== "action" &&
+                    (x.reply ? (
+                      <p className={x.kind === "world" ? "narration" : "looka"}>{x.reply}</p>
+                    ) : (
+                      <p className="looka waiting">waiting for an answer…</p>
+                    ))}
+                  {x.kind === "action" && !x.context && !x.reply && (
+                    <p className="looka waiting">waiting for an answer…</p>
                   )}
+                  {!x.checked && x.reply && <p className="unchecked">not yet checked</p>}
                 </div>
               ))}
 
-              {!s.exchanges?.length && s.narration && (
-                <p className="narration">{s.narration}</p>
-              )}
-
               {s.proposal && <Proposal p={s.proposal} confirmed={s.confirmed} />}
+
+              {s.outcome && <p className="narration outcome">{s.outcome}</p>}
 
               <Meta s={s} />
 

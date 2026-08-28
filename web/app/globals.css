@@ -358,6 +358,8 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   margin-bottom: 1.2rem;
 }
 .proposal.declined { border-left-color: var(--bad); }
+.exchange.world .narration { margin-bottom: 0; }
+.outcome { margin-top: 1.2rem; }
 .propsummary { margin-bottom: .25rem; }
 .proptarget { color: var(--dim); font-size: .85rem; margin-bottom: .25rem; }
 .propcost {

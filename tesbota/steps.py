@@ -712,9 +712,9 @@ def deliver(campaign, turn):
             {**claim, "verdict": by_verdict.get(claim.get("id"))}
             for claim in (draft.get("claims") or [])
         ]
-        exchanges[-1]["provisional"] = bool(
-            turn.get("looking") and turn.get("mode") == "context"
-        )
+        if turn.get("looking") and turn.get("mode") == "context":
+            exchanges[-1]["context"] = exchanges[-1]["reply"]
+            exchanges[-1]["reply"] = None
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None
@@ -729,6 +729,24 @@ def deliver(campaign, turn):
         turn["looking"] = False
         turn["mode"] = None
         turn["question"] = None
+        turn["draft"] = None
+        turn["verdicts"] = []
+        turn["gm_retries"] = 0
+        turn["state"] = "explorer"
+        return campaign, turn
+
+    if (turn.get("arrival") or turn.get("event")) and not turn.get("action"):
+        turn.setdefault("exchanges", []).append({
+            "kind": "world",
+            "said": None,
+            "reply": draft.get("narration"),
+            "checked": True,
+            "claims": [
+                {**claim, "verdict": by_verdict.get(claim.get("id"))}
+                for claim in (draft.get("claims") or [])
+            ],
+        })
+        turn["minutes"] = int(draft.get("minutes") or 0)
         turn["draft"] = None
         turn["verdicts"] = []
         turn["gm_retries"] = 0
