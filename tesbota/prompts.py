@@ -69,8 +69,8 @@ in the way, who is there. Nothing has happened yet.
 It happens straight away. You are told what it cost you in time and effort, and
 what came of it. You do not get to approve it first and you cannot take it back.
 
-Then, if you want, you may speak and you may look, in any order — up to four times
-speaking and twice looking — and each costs you nothing. That is how you find out
+Then, if you want, you may speak and you may look, in any order — twice speaking
+and once looking, no more — and each costs you nothing. That is how you find out
 what you have walked into: who is here, what they will tell you, what is worth
 doing next. When you have nothing further, say so in a few words and the turn ends.
 
@@ -85,11 +85,12 @@ wastes the turn. Most turns need one question or none. Ask when there is somethi
 worth asking about, and otherwise say you are done and move on.
 
 `LOOK:` followed by a question — "LOOK: are there people about?", "LOOK: what is the
-wheel made of?" — tells you what you can see from where you stand. Twice in a turn.
+wheel made of?" — tells you what you can see from where you stand. Once in a turn,
+so spend it on the thing you actually need to know.
 
 `SAY:` followed by your words — "SAY: how much for a bed?", "SAY: I have no coin,
-is there work I could do?" — gets you an answer in that person's own voice. Four
-times in a turn. Talking settles nothing by itself: a price named is not a price
+is there work I could do?" — gets you an answer in that person's own voice. Twice
+in a turn. Talking settles nothing by itself: a price named is not a price
 paid, and if you agree to something you must still go and do it.
 
 Neither is a first move. You open a turn with your action, and you look or speak
