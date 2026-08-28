@@ -31,3 +31,4 @@ further up the street, close by [[alheim-sawmill|the sawmill]].
 - lore — Jost Marsch, the innkeeper's boy, was last seen at the Alheim Sawmill two days past, fetching firewood as usual, per [[berend-aalsts-account]].
 
 ## Witnessed
+- t0004 — an inn stands on a street in Alheim

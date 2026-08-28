@@ -75,19 +75,6 @@ function Phase({ x, roll }) {
     );
   }
 
-  if (x.kind === "context") {
-    return (
-      <Fold label="before you commit">
-        {x.text ? (
-          <p className="narration">{x.text}</p>
-        ) : (
-          <p className="narration waiting">waiting for an answer…</p>
-        )}
-        {x.status === "blocked" && <p className="blocked">the lore master has sent this back</p>}
-      </Fold>
-    );
-  }
-
   if (x.kind === "ready") return null;
 
   if (x.kind === "confirm") {
@@ -110,7 +97,12 @@ function Phase({ x, roll }) {
     );
   }
 
-  const LABEL = { world: "what happens", answer: "the answer", outcome: "what happens" };
+  const LABEL = {
+    world: "what happens",
+    context: "the answer",
+    answer: "the answer",
+    outcome: "what happens",
+  };
   return (
     <div className={`phase gm ${x.kind} ${x.status}`}>
       <p className="philabel">{LABEL[x.kind] || x.kind}</p>

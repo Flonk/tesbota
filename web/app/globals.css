@@ -341,8 +341,6 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   margin-bottom: .35rem;
 }
 .phase .narration, .phase .action, .phase .lookq, .phase .looka { margin-bottom: 0; }
-.phase.said.look, .phase.said.say { border-left: 2px solid var(--gold); padding-left: .9rem; }
-.phase.said.ready .philabel, .phase.said.ready .lookq { color: var(--dim); }
 .narration.waiting { font-style: italic; opacity: .5; }
 .phase.confirm {
   font: 11px ui-monospace, monospace;
