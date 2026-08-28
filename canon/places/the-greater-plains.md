@@ -2,7 +2,7 @@
 id: the-greater-plains
 kind: place
 name: The Greater Plains
-within:
+within: $BOTA
 contains: [flotburg, alheim, the-road]
 introduced: t0003
 ---
