@@ -1,6 +1,6 @@
 import json
 
-from . import canon, prompts, quotes, sheet
+from . import canon, prompts, quotes, sheet, worldclock
 import random
 
 from .config import (
@@ -131,6 +131,8 @@ def step_context(campaign, turn):
             previous=campaign.get("last_narration"),
             vitals=campaign.get("vitals"),
             inventory=campaign.get("inventory") or [],
+        
+            now=worldclock.stamp(campaign.get("time")),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -194,6 +196,8 @@ def step_propose(campaign, turn):
             answers=turn.get("answers") or [],
             note=turn.get("note"),
             inventory=campaign.get("inventory") or [],
+        
+            now=worldclock.stamp(campaign.get("time")),
         ),
         system=prompts.GM_PROPOSE_SYSTEM,
         tools=READ_TOOLS,
@@ -302,6 +306,8 @@ def step_gm(campaign, turn):
             note=turn.get("note"),
             inventory=campaign.get("inventory") or [],
             quests=campaign.get("quests") or [],
+        
+            now=worldclock.stamp(campaign.get("time")),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -511,6 +517,7 @@ def apply_quests(campaign, draft, turn_id):
             continue
         quest = {
             "id": ident,
+            "at": worldclock.stamp(campaign.get("time")),
             "title": str(entry.get("title") or ident.replace("-", " ")),
             "detail": str(entry.get("detail") or ""),
             "giver": str(entry.get("giver") or ""),
@@ -532,6 +539,7 @@ def apply_quests(campaign, draft, turn_id):
             continue
         quest["status"] = outcome if outcome in CLOSED else "done"
         quest["closed"] = turn_id
+        quest["closed_at"] = worldclock.stamp(campaign.get("time"))
     return campaign
 
 
@@ -648,6 +656,8 @@ def deliver(campaign, turn):
         campaign["location"] = canon.slug(where.strip("[]"))
         campaign["location_path"] = canon.ancestry(campaign["location"])
 
+    campaign["time"] = worldclock.advance(campaign.get("time"), draft.get("minutes"))
+    turn["at"] = worldclock.stamp(campaign["time"])
     campaign["last_narration"] = draft.get("narration")
     reply(turn, draft.get("narration"), checked=True)
     turn["location_path"] = campaign.get("location_path") or []

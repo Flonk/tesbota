@@ -421,3 +421,17 @@ a no-op, and the turn that opened or closed each one is recorded.
 `tesbota quests` prints ongoing and finished. In the web UI the active quest sits
 under the location breadcrumb, and a `quests` button opens the full log with a count
 of what is still open.
+
+## The world clock
+
+The world runs on a 24-hour clock of 60-minute hours, starting at **4E202 13:04**.
+Every delivered action advances it by its `minutes`, days roll over at 1440, and the
+turn records the time it happened at.
+
+`tesbota time` prints it. The game master is told the time on every prompt — context,
+proposal and narration — so dusk, closing time and a shop being shut are its to
+notice. Quests record the world time they were opened and closed at, alongside the
+turn.
+
+The calendar beyond that is undecided: days count up, but nothing says how many make
+a year, so the year does not yet advance.

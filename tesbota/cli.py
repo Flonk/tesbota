@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from . import actions, canon, driver, prompts, sheet, view
+from . import actions, canon, driver, prompts, sheet, view, worldclock
 from .config import MODELS, WRITE_TOOLS
 from .sdk import ask
 from .state import all_turns, load_campaign, load_turn, now, parse, save_campaign
@@ -125,6 +125,12 @@ def cmd_inventory(args):
     print(sheet.render_inventory())
 
 
+def cmd_time(args):
+    campaign = load_campaign()
+    t = campaign.get("time")
+    print(f"{worldclock.long_stamp(t)}  ({worldclock.part_of_day(t)})")
+
+
 def cmd_quests(args):
     print(sheet.render_quest_log())
 
@@ -180,6 +186,7 @@ def main(argv=None):
     sub.add_parser("stats").set_defaults(func=cmd_stats)
     sub.add_parser("map").set_defaults(func=cmd_map)
     sub.add_parser("quests").set_defaults(func=cmd_quests)
+    sub.add_parser("time").set_defaults(func=cmd_time)
 
     note = sub.add_parser("note")
     note.add_argument("text")

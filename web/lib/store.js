@@ -81,6 +81,7 @@ export async function snapshot() {
       talks: turn.talks || [],
       where: turn.location_path || [],
       quest: turn.quest || null,
+      at: turn.at || null,
       note: turn.note || null,
       lore: turn.lore || [],
       loreGap: turn.lore_gap || null,
@@ -88,10 +89,19 @@ export async function snapshot() {
   }
 
   const current = turns.find((t) => t.turn_id === campaign.current_turn) || null;
+  const t = campaign.time || {};
+  const mins = Number(t.minute ?? 0);
+  const now =
+    t.era !== undefined
+      ? `${t.era}E${t.year} ${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`
+      : null;
+
   const status = {
     state: current?.state || "uninitialised",
     turn: campaign.current_turn || null,
     where: campaign.location_path || [],
+    now,
+    day: t.day ?? null,
   };
   if (current?.wake_at) {
     status.destination = current.destination;

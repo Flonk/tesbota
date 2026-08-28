@@ -45,6 +45,8 @@ OPENING = {
     "risk": 0,
 }
 
+WORLD_START = {"era": 4, "year": 202, "day": 1, "minute": 13 * 60 + 4}
+
 SPEED_FACTOR = 6000
 
 MAX_HEALTH = 100

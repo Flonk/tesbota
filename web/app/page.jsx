@@ -171,6 +171,7 @@ export default function Page() {
         <div className="hleft">
           <h1>tesbota</h1>
           <Status status={status} />
+          {status.now && <span className="worldtime">{status.now}</span>}
         </div>
 
         <div className="hmid">
@@ -217,6 +218,7 @@ export default function Page() {
               <div className="slidehead">
                 <div className="tid">
                   {s.id}
+                  {s.at ? ` · ${s.at}` : ""}
                   {s.cue ? ` · ${s.cue}` : ""}
                 </div>
                 {(s.where?.length ? s.where : status.where)?.length > 0 && (

@@ -551,8 +551,10 @@ def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
 
 
-def gm_context(action, previous=None, vitals=None, inventory=None):
+def gm_context(action, previous=None, vitals=None, inventory=None, now=None):
     parts = []
+    if now:
+        parts.append(f"The time is {now}.")
     if previous:
         parts.append(f"What they were last told:\n\n{previous}")
     if vitals:
@@ -604,8 +606,10 @@ def gm_answer(question, previous=None, mode="look", inventory=None):
     return "\n\n".join(parts)
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, inventory=None, quests=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, inventory=None, quests=None, now=None):
     parts = []
+    if now:
+        parts.append(f"The time is {now}.")
     if note:
         parts.append(
             "A note from the one who keeps this world. It is not spoken by anyone in "
@@ -672,8 +676,10 @@ def lore1_query(question):
     return f"{question}"
 
 
-def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inventory=None):
+def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inventory=None, now=None):
     parts = []
+    if now:
+        parts.append(f"The time is {now}.")
     if note:
         parts.append(
             "A note from the one who keeps this world. It is not spoken by anyone in "

@@ -10,6 +10,7 @@ from .config import (
     STARTING_INVENTORY,
     STARTING_SKILLS,
     STATE,
+    WORLD_START,
     TURNS,
 )
 
@@ -43,6 +44,7 @@ def new_campaign():
         "current_turn": None,
         "turn_counter": 0,
         "clock": dict(DEFAULTS),
+        "time": dict(WORLD_START),
         "vitals": {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0},
         "inventory": list(STARTING_INVENTORY),
         "notebook": [],
@@ -66,7 +68,7 @@ def load_campaign():
     campaign = read_json(CAMPAIGN)
     blank = new_campaign()
     changed = False
-    for key in ("note", "location", "location_path", "notebook", "quests"):
+    for key in ("note", "location", "location_path", "notebook", "quests", "time"):
         if key not in campaign:
             campaign[key] = blank[key]
             changed = True

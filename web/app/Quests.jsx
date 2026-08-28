@@ -21,7 +21,7 @@ export default function Quests({ quests = [], onClose }) {
             <div className="qtitle">{q.title}</div>
             {q.giver && <div className="qgiver">set by {q.giver}</div>}
             {q.detail && <div className="qdetail">{q.detail}</div>}
-            <div className="qmeta">opened {q.opened}</div>
+            <div className="qmeta">opened {q.at || q.opened}</div>
           </div>
         ))}
 
@@ -33,7 +33,7 @@ export default function Quests({ quests = [], onClose }) {
                 <div className="qtitle">{q.title}</div>
                 <div className="qmeta">
                   {WORDS[q.status] || q.status}
-                  {q.closed ? ` · ${q.closed}` : ""}
+                  {q.closed_at || q.closed ? ` · ${q.closed_at || q.closed}` : ""}
                 </div>
               </div>
             ))}
