@@ -382,6 +382,17 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   margin: .4rem 0 0;
 }
 .sec-blocked { color: var(--warn); }
+.sec-check {
+  font: 10px ui-monospace, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: .8rem 0 0;
+  padding-left: .6rem;
+  border-left: 2px solid var(--line);
+}
+.sec-check.made { color: var(--good); border-left-color: var(--good); }
+.sec-check.missed { color: var(--bad); border-left-color: var(--bad); }
+.sec-check + .sec-told { margin-top: .55rem; }
 .sec-compact > .sec-label { cursor: pointer; list-style: none; }
 .sec-compact > .sec-label::-webkit-details-marker { display: none; }
 .sec-compact > .sec-label::before { content: "\25B8  "; }

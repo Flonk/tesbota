@@ -109,6 +109,16 @@ function Checked({ x }) {
   return null;
 }
 
+function Check({ c }) {
+  const bonus = `${c.bonus >= 0 ? "+" : ""}${c.bonus}`;
+  return (
+    <p className={`sec-check ${c.passed ? "made" : "missed"}`}>
+      {c.skill} · d20 {c.roll} {bonus} = {c.total} vs dc {c.dc} ·{" "}
+      {c.passed ? "made it" : "fell short"}
+    </p>
+  );
+}
+
 function Pair({ said, told }) {
   const wide = said.kind === "action" || said.kind === "say";
   const label = [SAID_LABEL[said.kind] || said.kind, ...(told ? toll(told) : [])].join(" · ");
@@ -117,6 +127,7 @@ function Pair({ said, told }) {
       <p className="sec-body sec-asked">
         {said.kind === "say" ? `“${said.text}”` : said.text}
       </p>
+      {told?.check && <Check c={told.check} />}
       {told?.text ? (
         <p className="sec-body sec-told">{told.text}</p>
       ) : (
