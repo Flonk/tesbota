@@ -143,6 +143,63 @@ def mermaid():
     return "\n".join(out)
 
 
+def is_godhead(path):
+    return frontmatter(path).get("author", "").strip().lower() == GODHEAD
+
+
+def godhead_books():
+    directory = CANON / "books"
+    if not directory.exists():
+        return []
+    return [p for p in sorted(directory.glob("*.md")) if is_godhead(p)]
+
+
+def append_section(entity_id, turn_id, text, kind="places", section=WITNESSED):
+    path = find_entity(entity_id) or ensure_entity(kind, entity_id, turn_id=turn_id)
+    body = path.read_text(encoding="utf-8").rstrip("\n")
+    line = f"- {turn_id} — {text.strip()}"
+    if text.strip() in body:
+        return path
+    if section in body:
+        head, _, tail = body.partition(section)
+        rest = tail
+        following = None
+        for other in (WITNESSED, ATTESTED, "## Map"):
+            if other != section and other in rest:
+                at = rest.index(other)
+                if following is None or at < following:
+                    following = at
+        if following is None:
+            body = head + section + rest.rstrip("\n") + "\n" + line
+        else:
+            body = head + section + rest[:following].rstrip("\n") + "\n" + line + "\n\n" + rest[following:].rstrip("\n")
+    else:
+        body = body + "\n\n" + section + "\n" + line
+    path.write_text(body + "\n", encoding="utf-8")
+    return path
+
+
+def append_witnessed(entity_id, turn_id, text, kind="places"):
+    return append_section(entity_id, turn_id, text, kind=kind, section=WITNESSED)
+
+
+def append_attested(entity_id, turn_id, text, kind="places"):
+    return append_section(entity_id, turn_id, text, kind=kind, section=ATTESTED)
+
+
+def stubs():
+    out = []
+    for kind in KINDS:
+        directory = CANON / kind
+        if not directory.exists():
+            continue
+        for path in sorted(directory.glob("*.md")):
+            for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                if STUB in line:
+                    out.append((str(path.relative_to(CANON.parent)), n, line.strip()))
+    return out
+
+
 def illegal_books():
     directory = CANON / "books"
     if not directory.exists():
