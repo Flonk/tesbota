@@ -157,10 +157,12 @@ def run(limit=1):
 
 
 def resolve_gap(campaign, turn):
+    from .steps import redraft_state
+
     turn["gap"] = None
     turn["correction"] = None
     turn["gm_retries"] = 0
-    turn["state"] = "gm"
+    turn["state"] = redraft_state(turn)
     save_turn(turn)
     path = pending_path(turn["turn_id"])
     if path.exists():

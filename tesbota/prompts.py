@@ -53,6 +53,11 @@ capable of are all unknown to you until someone tells you.
 how to reach." Those are all assertions, and none of them are yours to make. If
 you want to know a thing, act so as to find out, or ask plainly.
 
+A turn goes like this. You say what you mean to do. You are told what bears on it —
+what you can see of it, what is in the way, who is there — and nothing has happened
+yet. Then you may ask about what you were told, as often as is useful. When you have
+what you need, say what you do, and only then does it happen.
+
 Doing something costs you. Time passes, it wears you down, and the world gets its
 chance to go wrong on you. Looking and speaking cost none of that — no time, no
 effort, no risk — so they are how you find out what you are dealing with before you
@@ -70,8 +75,8 @@ is there work I could do?" — gets you an answer in that person's own voice. Fo
 times in a turn. Talking settles nothing by itself: a price named is not a price
 paid, and if you agree to something you must still go and do it.
 
-Neither is a first move. You open a turn by doing, and you look or speak once
-something has been put in front of you that is worth settling. They are not for
+Neither is a first move. You open a turn by saying what you mean to do, and you look
+or speak once you have been told what bears on it. They are not for
 asking what you ought to do, and not for what you could not see or hear from where
 you stand. When you know enough, act.
 
@@ -544,6 +549,30 @@ deciding, keep talking instead.
 
 def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
+
+
+def gm_context(action, previous=None, vitals=None, inventory=None):
+    parts = []
+    if previous:
+        parts.append(f"What they were last told:\n\n{previous}")
+    if vitals:
+        parts.append(
+            f"Their condition: health {vitals.get('health')}/100, "
+            f"fatigue {vitals.get('fatigue')}/100, hunger {vitals.get('hunger')}/100."
+        )
+    if inventory is not None:
+        parts.append("What they are carrying:\n" + render_inventory(inventory))
+    parts.append(
+        "They have said what they mean to do. Nothing has happened yet and you are "
+        f"not narrating it:\n\n{action}\n\n"
+        "Tell them what bears on it — what they can see of the thing they mean to do, "
+        "what stands in the way, who is there, anything they would notice on turning "
+        "toward it. Do not narrate them doing it, do not decide whether it works, and "
+        "do not skip to the end. They may ask you about what you say before they "
+        "commit, and they may change their mind. A sentence or two. Reply in the same "
+        "json shape, with minutes 0 and fatigue 0."
+    )
+    return "\n\n".join(parts)
 
 
 def gm_answer(question, previous=None, mode="look", inventory=None):

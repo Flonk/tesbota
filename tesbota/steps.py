@@ -88,6 +88,14 @@ def step_explorer(campaign, turn):
     stripped = text.strip()
     upper = stripped.upper()
 
+    if not turn.get("action") and not upper.startswith(("LOOK:", "SAY:")):
+        turn["action"] = stripped
+        say(turn, "action", stripped)
+        turn["mode"] = "context"
+        turn["looking"] = True
+        turn["state"] = "context"
+        return campaign, turn
+
     if upper.startswith("LOOK:") and len(turn.get("looks") or []) < MAX_LOOKS:
         turn["question"] = stripped[5:].strip()
         turn["mode"] = "look"
@@ -109,9 +117,38 @@ def step_explorer(campaign, turn):
             stripped = stripped[len(prefix):].strip()
             break
 
-    turn["action"] = stripped
-    say(turn, "action", stripped)
+    if stripped and stripped != turn.get("action"):
+        turn["action"] = stripped
+        say(turn, "action", stripped)
     turn["state"] = "propose"
+    return campaign, turn
+
+
+def step_context(campaign, turn):
+    text, session = ask(
+        prompts.gm_context(
+            turn.get("action"),
+            previous=campaign.get("last_narration"),
+            vitals=campaign.get("vitals"),
+            inventory=campaign.get("inventory") or [],
+        ),
+        system=prompts.GM_SYSTEM,
+        tools=READ_TOOLS,
+        session=campaign["sessions"]["gm"],
+        model=MODELS["gm"],
+    )
+    campaign["sessions"]["gm"] = session
+    draft = extract_json(text)
+    draft.setdefault("claims", [])
+    draft.setdefault("quotes", [])
+    for zero in ("minutes", "fatigue", "health"):
+        draft[zero] = 0
+    draft["travel"] = None
+    draft["check"] = None
+    turn["draft"] = draft
+    reply(turn, draft.get("narration"))
+    turn["correction"] = None
+    turn["state"] = "lore1"
     return campaign, turn
 
 
@@ -351,7 +388,7 @@ def step_lore1(campaign, turn):
                 "Narrate that they cannot, and what resting here would take."
             ),
         }, indent=2)
-        turn["state"] = "gm"
+        turn["state"] = redraft_state(turn)
         return campaign, turn
 
     if not (false_ones or bad_quotes) and not turn.get("rolled") and not turn.get("looking"):
@@ -378,7 +415,7 @@ def step_lore1(campaign, turn):
 
         if "failed_check" in payload or fate:
             turn["correction"] = json.dumps(payload, indent=2)
-            turn["state"] = "gm"
+            turn["state"] = redraft_state(turn)
             return campaign, turn
 
     frictions = [v for v in verdicts if v.get("result") == "FRICTION"]
@@ -402,7 +439,7 @@ def step_lore1(campaign, turn):
                 "Do not silently differ. If you keep it, it stands."
             ),
         }, indent=2)
-        turn["state"] = "gm"
+        turn["state"] = redraft_state(turn)
         return campaign, turn
 
     if false_ones or bad_quotes:
@@ -417,7 +454,7 @@ def step_lore1(campaign, turn):
         turn["correction"] = json.dumps(
             {"contradicts_witnessed": false_ones, "bad_quotes": bad_quotes}, indent=2
         )
-        turn["state"] = "gm"
+        turn["state"] = redraft_state(turn)
         return campaign, turn
 
     return deliver(campaign, turn)
@@ -446,6 +483,12 @@ FATE_INSTRUCTIONS = {
         "unlooked-for kindness, a danger that passes them by entirely. Let it matter."
     ),
 }
+
+
+def redraft_state(turn):
+    if not turn.get("looking"):
+        return "gm"
+    return "context" if turn.get("mode") == "context" else "answer"
 
 
 def too_tired(campaign, draft):
@@ -612,7 +655,8 @@ def deliver(campaign, turn):
     turn["quest"] = active.get("title") if active else None
 
     if turn.get("looking"):
-        bucket = "talks" if turn.get("mode") == "say" else "looks"
+        mode = turn.get("mode")
+        bucket = {"say": "talks", "look": "looks"}.get(mode, "context")
         turn.setdefault(bucket, []).append({
             "question": turn.get("question"),
             "answer": draft.get("narration"),
@@ -634,6 +678,7 @@ def deliver(campaign, turn):
 
 STEPS = {
     "explorer": step_explorer,
+    "context": step_context,
     "answer": step_answer,
     "propose": step_propose,
     "confirm": step_confirm,
