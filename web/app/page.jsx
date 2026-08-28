@@ -180,14 +180,6 @@ export default function Page() {
 
         <div className="hright">
           {busy && <span className="working">working…</span>}
-          <span className="context">
-            <span className="place">
-              {status.where?.length
-                ? status.where.map((p) => p.name).join(" › ")
-                : "somewhere unrecorded"}
-            </span>
-            {activeQuest && <span className="questtag">{activeQuest.title}</span>}
-          </span>
           <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
           <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
             {busy === "step" ? "…" : "step"}
@@ -221,9 +213,15 @@ export default function Page() {
         {slides.map((s, i) => (
           <section className="slide" key={s.id}>
             <article>
-              <div className="tid">
-                {s.id}
-                {s.cue ? ` · ${s.cue}` : ""}
+              <div className="slidehead">
+                <div className="tid">
+                  {s.id}
+                  {s.cue ? ` · ${s.cue}` : ""}
+                </div>
+                {s.where?.length > 0 && (
+                  <div className="slideplace">{s.where.map((p) => p.name).join(" › ")}</div>
+                )}
+                {s.quest && <div className="slidequest">{s.quest}</div>}
               </div>
 
               {s.looks?.map((l, n) => (

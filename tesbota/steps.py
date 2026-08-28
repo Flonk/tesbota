@@ -587,6 +587,9 @@ def deliver(campaign, turn):
         campaign["location_path"] = canon.ancestry(campaign["location"])
 
     campaign["last_narration"] = draft.get("narration")
+    turn["location_path"] = campaign.get("location_path") or []
+    active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
+    turn["quest"] = active.get("title") if active else None
 
     if turn.get("looking"):
         bucket = "talks" if turn.get("mode") == "say" else "looks"

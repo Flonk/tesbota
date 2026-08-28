@@ -74,6 +74,8 @@ export async function snapshot() {
       travel: draft.travel || null,
       looks: turn.looks || [],
       talks: turn.talks || [],
+      where: turn.location_path || [],
+      quest: turn.quest || null,
       note: turn.note || null,
       lore: turn.lore || [],
       loreGap: turn.lore_gap || null,

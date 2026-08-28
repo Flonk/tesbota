@@ -288,3 +288,8 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   .hright { flex-wrap: wrap; justify-content: flex-end; }
   .context { flex: 1 0 100%; align-items: flex-end; }
 }
+
+.slidehead { margin-bottom: 1.5rem; }
+.slidehead .tid { margin-bottom: .25rem; }
+.slideplace { font: 11px ui-monospace, monospace; color: var(--dim); letter-spacing: .04em; }
+.slidequest { font: 11px ui-monospace, monospace; color: var(--gold); margin-top: .15rem; }
