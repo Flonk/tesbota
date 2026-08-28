@@ -142,10 +142,6 @@ function Alone({ x }) {
 function Meta({ s }) {
   const bits = [];
   if (s.health) bits.push(`${s.health} hp`);
-  if (!s.phases?.some((x) => x.kind === "proposal")) {
-    if (s.minutes) bits.push(`${s.minutes} min`);
-    if (s.roll) bits.push(`d400 ${s.roll}`);
-  }
   if (s.retries) bits.push(`${s.retries} redraft`);
   if (!bits.length) return null;
   return <div className="meta">{bits.join("  ·  ")}</div>;
