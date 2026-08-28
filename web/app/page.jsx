@@ -272,9 +272,9 @@ export default function Page() {
                   {s.at ? ` · ${s.at}` : ""}
                   {s.cue ? ` · ${s.cue}` : ""}
                 </div>
-                {(s.where?.length ? s.where : status.where)?.length > 0 && (
+                {s.where?.length > 0 && (
                   <div className="slideplace">
-                    {(s.where?.length ? s.where : status.where).map((p, n) => (
+                    {s.where.map((p, n) => (
                       <span key={p.id || n}>
                         {n > 0 && <span className="sep">›</span>}
                         {p.name}
