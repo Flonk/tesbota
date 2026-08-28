@@ -74,6 +74,25 @@ async def explorer_permission(tool_name, tool_input, context):
     )
 
 
+def first_utterance(text):
+    lines = (text or "").strip().splitlines()
+    kept = []
+    for line in lines:
+        bare = line.strip()
+        if not bare:
+            if kept:
+                break
+            continue
+        if normalise_command(bare).split()[:1] == ["tesbota"]:
+            continue
+        if bare.upper().startswith(("LOOK:", "SAY:")):
+            if kept:
+                break
+            return bare
+        kept.append(bare)
+    return " ".join(kept).strip()
+
+
 def step_explorer(campaign, turn):
     text, session = ask(
         prompts.explorer_turn(campaign.get("last_narration")),
@@ -85,8 +104,20 @@ def step_explorer(campaign, turn):
     )
     campaign["sessions"]["explorer"] = session
 
-    stripped = text.strip()
+    stripped = first_utterance(text)
     upper = stripped.upper()
+
+    if not stripped:
+        turn["blank"] = turn.get("blank", 0) + 1
+        if turn["blank"] >= MAX_ASKS:
+            turn["gap"] = (
+                "The adventurer has said nothing that can be acted on:\n\n"
+                + (text or "").strip()[:600]
+            )
+            turn["state"] = "awaiting_human"
+        else:
+            turn["state"] = "explorer"
+        return campaign, turn
 
     if not turn.get("action") and not upper.startswith(("LOOK:", "SAY:")):
         turn["action"] = stripped
