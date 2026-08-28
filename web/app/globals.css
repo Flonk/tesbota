@@ -282,6 +282,14 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .quest { margin-bottom: 1.1rem; padding-left: .9rem; border-left: 2px solid var(--gold); }
 .quest.past { border-left-color: var(--line); opacity: .6; }
 .qtitle { font-size: .95rem; }
+.qplace {
+  font: 11px ui-monospace, monospace;
+  letter-spacing: .06em;
+  color: var(--place);
+  margin: .2rem 0 .35rem;
+}
+.qplace .sep { opacity: .45; margin: 0 .45em; }
+.quest.past .qplace { opacity: .8; }
 .qgiver { color: var(--dim); font-size: .85rem; }
 .qdetail { color: var(--dim); font-size: .85rem; margin-top: .2rem; }
 .qmeta { font: 11px ui-monospace, monospace; color: var(--dim); margin-top: .25rem; }

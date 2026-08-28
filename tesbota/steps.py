@@ -522,6 +522,7 @@ def apply_quests(campaign, draft, turn_id):
             "status": "active",
             "opened": turn_id,
             "closed": None,
+            "where": list(campaign.get("location_path") or []),
         }
         quests.append(quest)
         by_id[ident] = quest
