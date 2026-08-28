@@ -342,18 +342,6 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .phase .narration, .phase .action, .phase .lookq, .phase .looka { margin-bottom: 0; }
 .phase.said.look, .phase.said.say { border-left: 2px solid var(--gold); padding-left: .9rem; }
 .phase.said.ready .philabel, .phase.said.ready .lookq { color: var(--dim); }
-.phase.gm.context { border-left: 2px dotted var(--line); padding-left: .9rem; }
-.phase.gm.context .narration { color: var(--dim); font-style: italic; }
-.phase.gm.answer { border-left: 2px solid var(--line); padding-left: .9rem; }
-.phase.gm.pending { opacity: .75; }
-.phase.gm.blocked { border-left: 2px solid var(--warn); padding-left: .9rem; }
-.blocked {
-  font: 10px ui-monospace, monospace;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--warn);
-  margin-top: .4rem;
-}
 .narration.waiting { font-style: italic; opacity: .5; }
 .phase.confirm {
   font: 11px ui-monospace, monospace;
@@ -361,31 +349,23 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   color: var(--dim);
 }
 .phase.confirm.no { color: var(--bad); }
-.proposal {
-  border: 1px solid var(--line);
-  border-left: 2px solid var(--place);
-  padding: .8rem .9rem;
-}
-.proplabel {
+.phase.fold { margin-bottom: .55rem; }
+.phase.fold summary {
   font: 10px ui-monospace, monospace;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--dim);
-  margin-bottom: .4rem;
+  cursor: pointer;
+  list-style: none;
 }
-.propsummary { margin-bottom: .25rem; }
-.proptarget { color: var(--dim); font-size: .85rem; margin-bottom: .25rem; }
-.propcost {
-  font: 11px ui-monospace, monospace;
-  letter-spacing: .06em;
-  color: var(--place);
-  margin-bottom: 0;
+.phase.fold summary::-webkit-details-marker { display: none; }
+.phase.fold summary::before { content: "▸ "; }
+.phase.fold[open] summary::before { content: "▾ "; }
+.phase.fold summary:hover { color: var(--ink); }
+.phase.fold .foldbody {
+  border-left: 2px dotted var(--line);
+  padding-left: .9rem;
+  margin: .5rem 0 .9rem;
 }
-.propsummary { margin-bottom: .25rem; }
-.proptarget { color: var(--dim); font-size: .85rem; margin-bottom: .25rem; }
-.propcost {
-  font: 11px ui-monospace, monospace;
-  letter-spacing: .06em;
-  color: var(--place);
-  margin-bottom: 0;
-}
+.phase.fold .narration, .phase.fold .lookq { color: var(--dim); font-style: italic; }
+.proptarget { color: var(--dim); font-size: .85rem; margin: .25rem 0 0; }

@@ -51,6 +51,15 @@ function cost(minutes) {
   return `${m} min`;
 }
 
+function Fold({ label, children }) {
+  return (
+    <details className="phase fold">
+      <summary>{label}</summary>
+      <div className="foldbody">{children}</div>
+    </details>
+  );
+}
+
 function Phase({ x }) {
   if (x.kind === "proposal") {
     const bits = [cost(x.minutes)];
@@ -58,12 +67,31 @@ function Phase({ x }) {
     if (x.risk > 1) bits.push(`risk ${x.risk}`);
     if (x.unpriced) bits.push("unpriced, guessed");
     return (
-      <div className="phase proposal">
-        <p className="proplabel">what it will take</p>
-        <p className="propsummary">{x.text}</p>
+      <Fold label={["what it will take", ...bits].join(" · ")}>
+        <p className="narration">{x.text}</p>
         {x.target && <p className="proptarget">toward {x.target}</p>}
-        <p className="propcost">{bits.join(" · ")}</p>
-      </div>
+      </Fold>
+    );
+  }
+
+  if (x.kind === "context") {
+    return (
+      <Fold label="before you commit">
+        {x.text ? (
+          <p className="narration">{x.text}</p>
+        ) : (
+          <p className="narration waiting">waiting for an answer…</p>
+        )}
+        {x.status === "blocked" && <p className="blocked">the lore master has sent this back</p>}
+      </Fold>
+    );
+  }
+
+  if (x.kind === "ready") {
+    return (
+      <Fold label="ready">
+        <p className="lookq">{x.text}</p>
+      </Fold>
     );
   }
 
@@ -87,12 +115,7 @@ function Phase({ x }) {
     );
   }
 
-  const LABEL = {
-    world: "what happens",
-    context: "before you commit · nothing has happened yet",
-    answer: "the answer",
-    outcome: "what happens",
-  };
+  const LABEL = { world: "what happens", answer: "the answer", outcome: "what happens" };
   return (
     <div className={`phase gm ${x.kind} ${x.status}`}>
       <p className="philabel">{LABEL[x.kind] || x.kind}</p>

@@ -25,3 +25,4 @@ crossing partway along carries [[the-crossing-signpost]].
 - t0001 — A road runs through wet grass.
 - t0001 — Fog stands close around the road on every side, hiding what lies beyond.
 - t0001 — The road runs away in two directions.
+- t0002 — the ground along the road firms up heading west
