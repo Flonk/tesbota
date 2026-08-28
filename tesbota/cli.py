@@ -135,6 +135,18 @@ def cmd_quests(args):
     print(sheet.render_quest_log())
 
 
+def cmd_library(args):
+    shelf = canon.library()
+    if not shelf:
+        print("no books")
+        return
+    width = max(len(b["name"]) for b in shelf)
+    for b in shelf:
+        when = b["written"] if b["written"] and "$BOTA" not in b["written"] else "—"
+        mark = " (godhead)" if b["godhead"] else ""
+        print(f"  {b['name']:<{width}}  {b['author']}{mark}  [{when}]  {b['rarity'] or '—'}")
+
+
 def cmd_notebook(args):
     print(sheet.write_note(args.text) if args.text else sheet.render_notebook())
 
@@ -186,6 +198,7 @@ def main(argv=None):
     sub.add_parser("stats").set_defaults(func=cmd_stats)
     sub.add_parser("map").set_defaults(func=cmd_map)
     sub.add_parser("quests").set_defaults(func=cmd_quests)
+    sub.add_parser("library").set_defaults(func=cmd_library)
     sub.add_parser("time").set_defaults(func=cmd_time)
 
     note = sub.add_parser("note")

@@ -3,6 +3,8 @@ id: the-blue-uprising-3
 kind: book
 name: The Blue Uprising, Vol. 3
 author: Thoneus
+written: $BOTA
+rarity: uncommon
 introduced: t0006
 ---
 

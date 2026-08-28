@@ -3,6 +3,8 @@ id: petra-volls-route-notes
 kind: book
 name: Petra Voll's Route Notes
 author: Petra Voll
+written: $BOTA
+rarity: unique
 introduced: t0014
 ---
 

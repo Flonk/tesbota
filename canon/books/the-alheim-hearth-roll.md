@@ -3,6 +3,8 @@ id: the-alheim-hearth-roll
 kind: book
 name: The Alheim Hearth Roll
 author: Ansel Krohn
+written: 4E202
+rarity: unique
 introduced: t0017
 ---
 

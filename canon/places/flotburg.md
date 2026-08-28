@@ -3,7 +3,7 @@ id: flotburg
 kind: place
 name: Flotburg
 within: the-greater-plains
-contains: []
+contains: [lower-flotburg]
 introduced: lore
 ---
 

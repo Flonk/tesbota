@@ -3,6 +3,8 @@ id: the-greater-plains-map-4e200
 kind: book
 name: The Greater Plains Map, 4E200
 author: The Greater Plains Council
+written: 4E200
+rarity: uncommon
 introduced: t0003
 ---
 

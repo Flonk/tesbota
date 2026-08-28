@@ -3,6 +3,8 @@ id: berend-aalsts-account
 kind: book
 name: Berend Aalst's Account
 author: Berend Aalst
+written: 4E202
+rarity: unique
 introduced: t0017
 ---
 

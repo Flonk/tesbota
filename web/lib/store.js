@@ -137,6 +137,47 @@ function alive(pid) {
   }
 }
 
+const BOOKS = path.join(ROOT, "canon", "books");
+
+function frontmatter(text) {
+  const match = /^---\n([\s\S]*?)\n---/.exec(text);
+  const out = {};
+  if (!match) return out;
+  for (const line of match[1].split("\n")) {
+    const at = line.indexOf(":");
+    if (at < 1) continue;
+    out[line.slice(0, at).trim()] = line
+      .slice(at + 1)
+      .trim()
+      .replace(/^["']|["']$/g, "");
+  }
+  return out;
+}
+
+export async function library() {
+  let names = [];
+  try {
+    names = (await fs.readdir(BOOKS)).filter((n) => n.endsWith(".md"));
+  } catch {
+    return [];
+  }
+  const shelf = [];
+  for (const name of names.sort()) {
+    const front = frontmatter(await fs.readFile(path.join(BOOKS, name), "utf8"));
+    const author = (front.author || "").trim();
+    shelf.push({
+      id: name.replace(/\.md$/, ""),
+      name: front.name || name.replace(/\.md$/, "").replace(/-/g, " "),
+      author,
+      written: (front.written || "").includes("$BOTA") ? "" : front.written || "",
+      rarity: (front.rarity || "").toLowerCase(),
+      godhead: author.toLowerCase() === "the godhead",
+    });
+  }
+  shelf.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  return shelf;
+}
+
 export async function job() {
   const j = await readJson(JOB, null);
   if (!j) return { running: false, label: null, error: null };

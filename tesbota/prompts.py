@@ -504,6 +504,18 @@ write to a "## Witnessed" section; that is not yours.
 Every book carries an `author:` in its frontmatter. No exceptions — an
 unattributed document is not a document, it is a rumour.
 
+Every book also carries `written:` and `rarity:`.
+
+`written:` is when it was set down, in this world's reckoning — `4E196`, or a full
+date if somebody bothered to record one. Write `$BOTA` if nobody knows.
+
+`rarity:` is how many copies are about, and it is one of `common`, `uncommon`,
+`rare` or `unique`. A printed guide or an almanac is common. A regional history or
+a surveyor's plate is uncommon. Something copied by hand a few times is rare. A
+ledger, a private account, a letter, anything of which there is one — unique. Most
+of what you write is rare or unique, because most writing in this world was never
+copied.
+
 Never write a book authored by "the explorer" or "the adventurer", and never
 attribute a document to whoever is moving through these places. Direct observation
 is not testimony and does not belong in a book; it is already recorded elsewhere

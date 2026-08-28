@@ -147,6 +147,25 @@ def is_godhead(path):
     return frontmatter(path).get("author", "").strip().lower() == GODHEAD
 
 
+def library():
+    directory = CANON / "books"
+    if not directory.exists():
+        return []
+    shelf = []
+    for path in sorted(directory.glob("*.md")):
+        front = frontmatter(path)
+        shelf.append({
+            "id": path.stem,
+            "name": str(front.get("name") or path.stem.replace("-", " ")),
+            "author": str(front.get("author") or "").strip(),
+            "written": str(front.get("written") or "").strip(),
+            "rarity": str(front.get("rarity") or "").strip().lower(),
+            "godhead": str(front.get("author") or "").strip().lower() == GODHEAD,
+        })
+    shelf.sort(key=lambda b: b["name"].lower())
+    return shelf
+
+
 def godhead_books():
     directory = CANON / "books"
     if not directory.exists():

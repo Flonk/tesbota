@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
 import Quests from "./Quests";
+import Library from "./Library";
 
 function Bar({ label, value, max, tone }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
@@ -190,6 +191,7 @@ export default function Page() {
   const [note, setNote] = useState("");
   const [noteOpen, setNoteOpen] = useState(false);
   const [questsOpen, setQuestsOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   const [at, setAt] = useState(0);
   const deck = useRef(null);
   const pinned = useRef(true);
@@ -309,6 +311,7 @@ export default function Page() {
           <button className="ghost" onClick={() => setQuestsOpen(true)}>
             quests{quests.filter((q) => q.status === "active").length ? ` (${quests.filter((q) => q.status === "active").length})` : ""}
           </button>
+          <button className="ghost" onClick={() => setLibraryOpen(true)}>library</button>
         </div>
       </header>
 
@@ -323,6 +326,8 @@ export default function Page() {
       )}
 
       {questsOpen && <Quests quests={quests} onClose={() => setQuestsOpen(false)} />}
+
+      {libraryOpen && <Library onClose={() => setLibraryOpen(false)} />}
 
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">

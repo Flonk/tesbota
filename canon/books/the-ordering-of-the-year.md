@@ -3,6 +3,8 @@ id: the-ordering-of-the-year
 kind: book
 name: The Ordering of the Year
 author: the godhead
+written: $BOTA
+rarity: common
 ---
 
 ## Text

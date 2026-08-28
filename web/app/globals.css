@@ -293,6 +293,35 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .qgiver { color: var(--dim); font-size: .85rem; }
 .qdetail { color: var(--dim); font-size: .85rem; margin-top: .2rem; }
 .qmeta { font: 11px ui-monospace, monospace; color: var(--dim); margin-top: .25rem; }
+.book { margin-bottom: 1.05rem; }
+.btitle { font-size: .95rem; }
+.godhead {
+  font: 9px ui-monospace, monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 2px;
+  padding: 0 .35em;
+  margin-left: .6em;
+  vertical-align: middle;
+}
+.bline {
+  font: 11px ui-monospace, monospace;
+  letter-spacing: .04em;
+  color: var(--dim);
+  margin-top: .2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7em;
+  align-items: baseline;
+}
+.bdate { color: var(--place); }
+.brarity { text-transform: uppercase; letter-spacing: .1em; font-size: 10px; }
+.r-unique { color: var(--gold); }
+.r-rare { color: var(--warn); }
+.r-uncommon { color: var(--good); }
+.r-common { color: var(--dim); }
 @media (max-width: 640px) {
   .hright { flex-wrap: wrap; justify-content: flex-end; }
   .context { flex: 1 0 100%; align-items: flex-end; }
