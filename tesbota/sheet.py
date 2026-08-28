@@ -75,9 +75,42 @@ def render_stats(campaign=None):
     return "\n".join(lines)
 
 
-def render_inventory(campaign=None):
+def as_item(entry):
+    if isinstance(entry, dict):
+        return {
+            "name": entry.get("name", "something"),
+            "qty": int(entry.get("qty") or 1),
+            "note": entry.get("note") or "",
+            "worn": bool(entry.get("worn")),
+        }
+    return {"name": str(entry), "qty": 1, "note": "", "worn": False}
+
+
+def items(campaign=None):
     campaign = campaign or load_campaign()
-    items = campaign.get("inventory") or []
-    if not items:
+    return [as_item(e) for e in (campaign.get("inventory") or [])]
+
+
+def render_inventory(campaign=None):
+    entries = items(campaign)
+    if not entries:
         return "you are carrying nothing"
-    return "you are carrying:\n" + "\n".join(f"  - {item}" for item in items)
+
+    worn = [e for e in entries if e["worn"]]
+    carried = [e for e in entries if not e["worn"]]
+
+    def line(e):
+        count = f" x{e['qty']}" if e["qty"] > 1 else ""
+        note = f"   ({e['note']})" if e["note"] else ""
+        return f"  {e['name']}{count}{note}"
+
+    out = []
+    if worn:
+        out.append("worn:")
+        out += [line(e) for e in worn]
+    if carried:
+        if out:
+            out.append("")
+        out.append("carried:")
+        out += [line(e) for e in carried]
+    return "\n".join(out)

@@ -65,6 +65,14 @@ def load_campaign():
         if not campaign.get(key):
             campaign[key] = blank[key]
             changed = True
+    inventory = campaign.get("inventory") or []
+    if inventory and any(isinstance(e, str) for e in inventory):
+        campaign["inventory"] = [
+            e if isinstance(e, dict) else {"name": e, "qty": 1, "note": "", "worn": False}
+            for e in inventory
+        ]
+        changed = True
+
     vitals = campaign.setdefault("vitals", blank["vitals"])
     for key, value in blank["vitals"].items():
         if key not in vitals:

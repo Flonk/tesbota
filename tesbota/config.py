@@ -85,8 +85,10 @@ STARTING_SKILLS = {
 SKILL_DIE = 20
 
 STARTING_INVENTORY = [
-    "a set of plain, hard-wearing clothes, none of them new",
-    "a pair of worn walking boots",
+    {"name": "travelling clothes", "qty": 1,
+     "note": "plain and hard-wearing, none of it new", "worn": True},
+    {"name": "walking boots", "qty": 1,
+     "note": "worn down at the heel but sound", "worn": True},
 ]
 
 TRIVIAL_MINUTES = 10

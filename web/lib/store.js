@@ -86,12 +86,18 @@ export async function snapshot() {
   }
   if (campaign.suspended_journey) status.held = campaign.suspended_journey.destination;
 
-  const vitals = campaign.vitals || { health: 100, fatigue: 0 };
+  const vitals = campaign.vitals || { health: 100, fatigue: 0, hunger: 0 };
+  const skills = campaign.skills || {};
+  const inventory = (campaign.inventory || []).map((e) =>
+    typeof e === "string"
+      ? { name: e, qty: 1, note: "", worn: false }
+      : { name: e.name || "something", qty: e.qty || 1, note: e.note || "", worn: !!e.worn }
+  );
 
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, slides, gap, chat, vitals };
+  return { status, slides, gap, chat, vitals, skills, inventory };
 }
 
 export async function tesbota(args, timeout = 900000) {

@@ -328,3 +328,12 @@ check.
 
 Checks and the d400 are resolved in the same pass, so an action needs at most one
 redraft even when both land.
+
+Inventory entries are objects — `name`, `qty`, `note`, and `worn` — so the
+adventurer's clothes sit apart from what it is carrying, and quantities and
+condition are recorded rather than baked into a sentence. String entries from
+older campaigns are converted on load.
+
+The web header keeps health, fatigue and hunger as bars; clicking them opens the
+character sheet — condition, ability scores, all eighteen skills with their
+bonuses, and the itemised inventory.

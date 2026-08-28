@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Sheet from "./Sheet";
 
 function Bar({ label, value, max, tone }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
@@ -77,6 +78,7 @@ export default function Page() {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [at, setAt] = useState(0);
   const deck = useRef(null);
   const pinned = useRef(true);
@@ -151,7 +153,7 @@ export default function Page() {
 
   if (!data) return <div className="empty pad">loading…</div>;
 
-  const { status, slides, gap, chat, vitals } = data;
+  const { status, slides, gap, chat, vitals, skills, inventory } = data;
   const blocked = status.state === "awaiting_human";
 
   return (
@@ -162,8 +164,11 @@ export default function Page() {
           <Status status={status} />
         </div>
         <div className="hrow bottom">
-          <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
-          <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
+          <button className="vitals" onClick={() => setSheetOpen(true)} title="open the character sheet">
+            <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
+            <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
+            <Bar label="hun" value={vitals?.hunger ?? 0} max={100} tone="hun" />
+          </button>
           {busy && <span className="working">working…</span>}
           <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
           <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
@@ -171,6 +176,15 @@ export default function Page() {
           </button>
         </div>
       </header>
+
+      {sheetOpen && (
+        <Sheet
+          vitals={vitals}
+          skills={skills}
+          inventory={inventory || []}
+          onClose={() => setSheetOpen(false)}
+        />
+      )}
 
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">
