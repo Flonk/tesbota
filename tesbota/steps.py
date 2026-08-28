@@ -6,6 +6,7 @@ import random
 from .config import (
     SPARK_DIE,
     SPARK_FACE,
+    SPARK_FLOOR,
     BASE_RISK,
     DIE,
     MAX_ASKS,
@@ -283,11 +284,12 @@ def step_propose(campaign, turn):
     return campaign, turn
 
 
-def roll_spark(turn, rng=random):
-    if "spark_roll" in turn:
-        return turn["spark_roll"] == SPARK_FACE
-    turn["spark_roll"] = rng.randint(1, SPARK_DIE)
-    return turn["spark_roll"] == SPARK_FACE
+def roll_spark(turn, campaign=None, rng=random):
+    quiet = (campaign or {}).get("quiet", 0)
+    if "spark_roll" not in turn:
+        turn["spark_roll"] = rng.randint(1, SPARK_DIE)
+        turn["spark_forced"] = quiet >= SPARK_FLOOR
+    return turn["spark_roll"] == SPARK_FACE or bool(turn.get("spark_forced"))
 
 
 def step_gm(campaign, turn):
@@ -307,7 +309,7 @@ def step_gm(campaign, turn):
             arrival=turn.get("arrival"),
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
             note=turn.get("note"),
-            spark=roll_spark(turn),
+            spark=roll_spark(turn, campaign),
             inventory=campaign.get("inventory") or [],
             quests=campaign.get("quests") or [],
         
@@ -397,6 +399,7 @@ def step_lore1(campaign, turn):
         blocked = open_phase(turn)
         if blocked:
             blocked["status"] = "blocked"
+        campaign["quiet"] = 0
         turn["state"] = "awaiting_human"
         return campaign, turn
 
@@ -734,6 +737,7 @@ def deliver(campaign, turn):
         return campaign, turn
 
     turn["minutes"] = int(draft.get("minutes") or 0)
+    campaign["quiet"] = campaign.get("quiet", 0) + 1
     turn["resolved"] = True
     turn["draft"] = None
     turn["verdicts"] = []

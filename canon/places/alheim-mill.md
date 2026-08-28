@@ -15,3 +15,4 @@ Stands at the edge of [[Alheim]] on the Aler, its wheel turned by the river.
 
 ## Witnessed
 - t0003 — a mill stands alongside the road at the edge of Alheim
+- t0016 — the mill's interior holds turning grinding machinery
