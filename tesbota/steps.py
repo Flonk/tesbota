@@ -358,6 +358,21 @@ def step_lore1(campaign, turn):
             model=MODELS["lore1"],
         )
         verdicts = extract_json(text).get("verdicts", [])
+        ruled = {v.get("claim") for v in verdicts if isinstance(v, dict)}
+        unruled = [c for c in claims if c["id"] not in ruled]
+        if unruled:
+            turn["lore1_retries"] = turn.get("lore1_retries", 0) + 1
+            if turn["lore1_retries"] < MAX_GM_RETRIES:
+                turn["state"] = "lore1"
+                return campaign, turn
+            verdicts = list(verdicts) + [
+                {
+                    "claim": c["id"],
+                    "result": "UNRESOLVED",
+                    "why": "the lore master returned no ruling on this claim",
+                }
+                for c in unruled
+            ]
     turn["verdicts"] = verdicts
 
     by_id = {c["id"]: c for c in claims}
@@ -692,6 +707,7 @@ def deliver(campaign, turn):
         turn["draft"] = None
         turn["verdicts"] = []
         turn["gm_retries"] = 0
+        turn["lore1_retries"] = 0
         turn["state"] = "explorer"
         return campaign, turn
 
@@ -700,6 +716,7 @@ def deliver(campaign, turn):
         turn["draft"] = None
         turn["verdicts"] = []
         turn["gm_retries"] = 0
+        turn["lore1_retries"] = 0
         turn["state"] = "explorer"
         return campaign, turn
 
