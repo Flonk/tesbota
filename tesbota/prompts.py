@@ -295,6 +295,36 @@ happen. Write one only when you are explicitly asked for one, keep it plain and
 declarative, and never hedge in it. Everything you write under any other name is
 fallible and may be wrong.
 
+Never leave a name with nothing behind it. The moment you mention something that
+has no file — a place, a person, an item, another book — create its file in the
+same breath, stubbed. A wikilink pointing at nothing is a loose end; a stub is a
+promise you can keep later.
+
+A stub is the frontmatter and nothing else but the marker:
+
+```
+---
+id: the-aler-bridge
+kind: place
+name: The Aler Bridge
+within: "[[alheim]]"
+contains: []
+introduced: t0012
+---
+
+## Map
+$BOTA
+
+## Attested
+$BOTA
+
+## Witnessed
+```
+
+Leave `## Witnessed` empty — that section is never yours. If you do not know what
+contains a new place, write `within: $BOTA` rather than guessing, and it will come
+back to you as something to settle.
+
 You may write $BOTA in place of anything not decided yet. A book whose later
 chapters do not matter to anyone yet, a custom named but not described, a lineage
 with a gap in it — mark it $BOTA and move on. It is not a failure to leave one; it

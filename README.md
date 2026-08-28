@@ -250,3 +250,9 @@ something here and has not written it yet, so:
 - a quotation containing `$BOTA` is rejected outright, so it can never be read out
 - the query lore master reports it by name rather than saying nothing is recorded
 - `tesbota gaps` lists every one with its file and line — it is your backlog
+
+The lore master stubs whatever it names: mentioning a place, person, item or book
+that has no file creates that file in the same breath, frontmatter plus `$BOTA`
+where the content will go. A wikilink pointing at nothing is a loose end; a stub is
+a promise. If it does not know what contains a new place it writes `within: $BOTA`
+rather than guessing, which brings the question back rather than settling it.
