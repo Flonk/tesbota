@@ -26,18 +26,39 @@ from .config import (
 from .sdk import ask, extract_json
 
 
-def say(turn, kind, text):
-    turn.setdefault("exchanges", []).append(
-        {"kind": kind, "said": text, "reply": None, "checked": False}
-    )
+def phase(turn, who, kind, text, **extra):
+    entries = turn.setdefault("phases", [])
+    entry = {
+        "n": len(entries) + 1,
+        "who": who,
+        "kind": kind,
+        "text": text,
+        "status": "said" if who == "explorer" else "pending",
+        "claims": [],
+    }
+    entry.update(extra)
+    entries.append(entry)
+    return entry
 
 
-def reply(turn, text, checked=False):
-    exchanges = turn.get("exchanges") or []
-    if not exchanges:
-        return
-    exchanges[-1]["reply"] = text
-    exchanges[-1]["checked"] = checked
+def gm_phase(turn, kind, text, **extra):
+    """Append what the game master said. A pending phase is rewritten in place —
+    that only happens when lore master 1 has sent it back."""
+    entries = turn.setdefault("phases", [])
+    if entries and entries[-1]["who"] == "gm" and entries[-1]["status"] == "pending":
+        entries[-1]["kind"] = kind
+        entries[-1]["text"] = text
+        entries[-1]["redrafts"] = entries[-1].get("redrafts", 0) + 1
+        entries[-1].update(extra)
+        return entries[-1]
+    return phase(turn, "gm", kind, text, **extra)
+
+
+def open_phase(turn):
+    entries = turn.get("phases") or []
+    if entries and entries[-1]["who"] == "gm" and entries[-1]["status"] == "pending":
+        return entries[-1]
+    return None
 
 
 EXPLORER_COMMANDS = ("tesbota stats", "tesbota inventory")
@@ -121,7 +142,7 @@ def step_explorer(campaign, turn):
 
     if not turn.get("action") and not upper.startswith(("LOOK:", "SAY:")):
         turn["action"] = stripped
-        say(turn, "action", stripped)
+        phase(turn, "explorer", "action", stripped)
         turn["mode"] = "context"
         turn["looking"] = True
         turn["state"] = "context"
@@ -133,7 +154,7 @@ def step_explorer(campaign, turn):
             turn["state"] = "explorer"
             return campaign, turn
         turn["action"] = stripped.split(":", 1)[1].strip()
-        say(turn, "action", turn["action"])
+        phase(turn, "explorer", "action", turn["action"])
         turn["mode"] = "context"
         turn["looking"] = True
         turn["state"] = "context"
@@ -143,7 +164,7 @@ def step_explorer(campaign, turn):
         turn["question"] = stripped[5:].strip()
         turn["mode"] = "look"
         turn["looking"] = True
-        say(turn, "look", turn["question"])
+        phase(turn, "explorer", "look", turn["question"])
         turn["state"] = "answer"
         return campaign, turn
 
@@ -151,7 +172,7 @@ def step_explorer(campaign, turn):
         turn["question"] = stripped[4:].strip()
         turn["mode"] = "say"
         turn["looking"] = True
-        say(turn, "say", turn["question"])
+        phase(turn, "explorer", "say", turn["question"])
         turn["state"] = "answer"
         return campaign, turn
 
@@ -161,6 +182,7 @@ def step_explorer(campaign, turn):
             break
 
     turn["ready"] = stripped
+    phase(turn, "explorer", "ready", stripped)
     turn["state"] = "propose"
     return campaign, turn
 
@@ -189,7 +211,7 @@ def step_context(campaign, turn):
     draft["travel"] = None
     draft["check"] = None
     turn["draft"] = draft
-    reply(turn, draft.get("narration"))
+    gm_phase(turn, "context", draft.get("narration"))
     turn["correction"] = None
     turn["state"] = "lore1"
     return campaign, turn
@@ -219,7 +241,7 @@ def step_answer(campaign, turn):
     draft["health"] = 0
     draft["check"] = None
     turn["draft"] = draft
-    reply(turn, draft.get("narration"))
+    gm_phase(turn, "answer", draft.get("narration"))
     turn["correction"] = None
     turn["state"] = "lore1"
     return campaign, turn
@@ -284,6 +306,18 @@ def step_propose(campaign, turn):
     proposal["fatigue"] = int(proposal.get("fatigue") or 0)
     proposal["risk"] = int(proposal.get("risk") or BASE_RISK)
     turn["proposal"] = proposal
+    phase(
+        turn,
+        "gm",
+        "proposal",
+        proposal["summary"],
+        status="checked",
+        minutes=proposal["minutes"],
+        fatigue=proposal["fatigue"],
+        risk=proposal["risk"],
+        target=proposal.get("target"),
+        unpriced=bool(proposal.get("unpriced")),
+    )
 
     trivial = (
         priced
@@ -309,6 +343,7 @@ def step_confirm(campaign, turn):
     first = text.strip().splitlines()[0].strip().upper() if text.strip() else ""
     yes = first.startswith("YES")
     turn["confirmed"] = yes
+    phase(turn, "explorer", "confirm", "yes" if yes else "no")
     if yes:
         turn["state"] = "gm"
         return campaign, turn
@@ -379,7 +414,8 @@ def step_gm(campaign, turn):
         draft["fatigue"] = agreed["fatigue"]
         draft["risk"] = max(draft.get("risk") or BASE_RISK, agreed.get("risk") or BASE_RISK)
     turn["draft"] = draft
-    reply(turn, draft.get("narration"))
+    world = (turn.get("arrival") or turn.get("event")) and not turn.get("action")
+    gm_phase(turn, "world" if world else "outcome", draft.get("narration"))
     turn["correction"] = None
     turn["state"] = "lore1"
     return campaign, turn
@@ -416,6 +452,9 @@ def step_lore1(campaign, turn):
             f"- {by_id.get(v['claim'], {}).get('text', v['claim'])}\n  ({v.get('why', '')})"
             for v in unresolved
         )
+        blocked = open_phase(turn)
+        if blocked:
+            blocked["status"] = "blocked"
         turn["state"] = "awaiting_human"
         return campaign, turn
 
@@ -704,17 +743,16 @@ def deliver(campaign, turn):
     campaign["time"]["long"] = worldclock.long_stamp(campaign["time"])
     turn["at"] = campaign["time"]["long"]
     campaign["last_narration"] = draft.get("narration")
-    reply(turn, draft.get("narration"), checked=True)
     by_verdict = {v["claim"]: v for v in turn["verdicts"]}
-    exchanges = turn.get("exchanges") or []
-    if exchanges:
-        exchanges[-1]["claims"] = [
+    current = open_phase(turn)
+    if current is None and draft.get("narration"):
+        current = phase(turn, "gm", "world", draft.get("narration"))
+    if current:
+        current["status"] = "checked"
+        current["claims"] = [
             {**claim, "verdict": by_verdict.get(claim.get("id"))}
             for claim in (draft.get("claims") or [])
         ]
-        if turn.get("looking") and turn.get("mode") == "context":
-            exchanges[-1]["context"] = exchanges[-1]["reply"]
-            exchanges[-1]["reply"] = None
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None
@@ -736,16 +774,6 @@ def deliver(campaign, turn):
         return campaign, turn
 
     if (turn.get("arrival") or turn.get("event")) and not turn.get("action"):
-        turn.setdefault("exchanges", []).append({
-            "kind": "world",
-            "said": None,
-            "reply": draft.get("narration"),
-            "checked": True,
-            "claims": [
-                {**claim, "verdict": by_verdict.get(claim.get("id"))}
-                for claim in (draft.get("claims") or [])
-            ],
-        })
         turn["minutes"] = int(draft.get("minutes") or 0)
         turn["draft"] = None
         turn["verdicts"] = []

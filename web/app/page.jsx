@@ -51,20 +51,58 @@ function cost(minutes) {
   return `${m} min`;
 }
 
-function Proposal({ p, confirmed }) {
-  const bits = [cost(p.minutes)];
-  if (p.fatigue) bits.push(`${p.fatigue > 0 ? "+" : ""}${p.fatigue} fatigue`);
-  else bits.push("no effort");
-  if (p.risk > 1) bits.push(`risk ${p.risk}`);
-  return (
-    <div className={`proposal${confirmed === false ? " declined" : ""}`}>
-      <p className="proplabel">
-        what it will take
-        {confirmed === true ? " · agreed" : confirmed === false ? " · turned down" : " · not yet answered"}
+function Phase({ x }) {
+  if (x.kind === "proposal") {
+    const bits = [cost(x.minutes)];
+    bits.push(x.fatigue ? `${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue` : "no effort");
+    if (x.risk > 1) bits.push(`risk ${x.risk}`);
+    if (x.unpriced) bits.push("unpriced, guessed");
+    return (
+      <div className="phase proposal">
+        <p className="proplabel">what it will take</p>
+        <p className="propsummary">{x.text}</p>
+        {x.target && <p className="proptarget">toward {x.target}</p>}
+        <p className="propcost">{bits.join(" · ")}</p>
+      </div>
+    );
+  }
+
+  if (x.kind === "confirm") {
+    return (
+      <p className={`phase confirm ${x.text}`}>
+        {x.text === "yes" ? "agreed to it" : "turned it down"}
       </p>
-      {p.summary && <p className="propsummary">{p.summary}</p>}
-      {p.target && <p className="proptarget">toward {p.target}</p>}
-      <p className="propcost">{bits.join(" · ")}{p.unpriced ? " · unpriced, guessed" : ""}</p>
+    );
+  }
+
+  if (x.who === "explorer") {
+    const label = { action: "action", look: "looks", say: "says", ready: "ready" }[x.kind];
+    return (
+      <div className={`phase said ${x.kind}`}>
+        <p className="philabel">{label}</p>
+        <p className={x.kind === "action" ? "action" : "lookq"}>
+          {x.kind === "say" ? `“${x.text}”` : x.text}
+        </p>
+      </div>
+    );
+  }
+
+  const LABEL = {
+    world: "what happens",
+    context: "before you commit · nothing has happened yet",
+    answer: "the answer",
+    outcome: "what happens",
+  };
+  return (
+    <div className={`phase gm ${x.kind} ${x.status}`}>
+      <p className="philabel">{LABEL[x.kind] || x.kind}</p>
+      {x.text ? (
+        <p className="narration">{x.text}</p>
+      ) : (
+        <p className="narration waiting">waiting for an answer…</p>
+      )}
+      {x.status === "pending" && x.text && <p className="unchecked">not yet checked</p>}
+      {x.status === "blocked" && <p className="blocked">the lore master has sent this back</p>}
     </div>
   );
 }
@@ -290,45 +328,9 @@ export default function Page() {
                 )}
               </div>
 
-              {s.exchanges?.map((x, n) => (
-                <div
-                  key={n}
-                  className={
-                    x.kind === "action"
-                      ? "exchange act"
-                      : x.kind === "world"
-                        ? "exchange world"
-                        : `exchange ${x.kind === "say" ? "talk" : "look"}` +
-                          (x.checked ? "" : " pending")
-                  }
-                >
-                  {x.said && (
-                    <p className={x.kind === "action" ? "action" : "lookq"}>
-                      {x.kind === "say" ? `“${x.said}”` : x.said}
-                    </p>
-                  )}
-                  {x.context && (
-                    <div className="aside">
-                      <p className="asidelabel">before you commit · nothing has happened yet</p>
-                      <p className="narration">{x.context}</p>
-                    </div>
-                  )}
-                  {x.kind !== "action" &&
-                    (x.reply ? (
-                      <p className={x.kind === "world" ? "narration" : "looka"}>{x.reply}</p>
-                    ) : (
-                      <p className="looka waiting">waiting for an answer…</p>
-                    ))}
-                  {x.kind === "action" && !x.context && !x.reply && (
-                    <p className="looka waiting">waiting for an answer…</p>
-                  )}
-                  {!x.checked && x.reply && <p className="unchecked">not yet checked</p>}
-                </div>
+              {s.phases?.map((x) => (
+                <Phase key={x.n} x={x} />
               ))}
-
-              {s.proposal && <Proposal p={s.proposal} confirmed={s.confirmed} />}
-
-              {s.outcome && <p className="narration outcome">{s.outcome}</p>}
 
               <Meta s={s} />
 

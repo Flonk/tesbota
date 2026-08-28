@@ -331,35 +331,56 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   margin-bottom: 1.2rem;
 }
 
-.exchange { margin-bottom: 1.2rem; }
-.exchange.look, .exchange.talk { border-left: 2px solid var(--line); padding-left: .9rem; }
-.exchange.talk { border-left-color: var(--gold); }
-.exchange.talk .looka { color: var(--ink); }
-.exchange.pending { border-left-style: dashed; }
-.exchange.act .action { margin-bottom: .8rem; }
-.exchange.act .narration { margin-bottom: 0; }
-.aside {
-  border-left: 2px dotted var(--line);
-  padding: .1rem 0 .1rem .9rem;
-  margin-top: .2rem;
+.phase { margin-bottom: 1.3rem; }
+.philabel {
+  font: 10px ui-monospace, monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: .35rem;
 }
-.aside .narration { color: var(--dim); font-style: italic; margin-bottom: 0; }
-.asidelabel, .proplabel {
+.phase .narration, .phase .action, .phase .lookq, .phase .looka { margin-bottom: 0; }
+.phase.said.look, .phase.said.say { border-left: 2px solid var(--gold); padding-left: .9rem; }
+.phase.said.ready .philabel, .phase.said.ready .lookq { color: var(--dim); }
+.phase.gm.context { border-left: 2px dotted var(--line); padding-left: .9rem; }
+.phase.gm.context .narration { color: var(--dim); font-style: italic; }
+.phase.gm.answer { border-left: 2px solid var(--line); padding-left: .9rem; }
+.phase.gm.pending { opacity: .75; }
+.phase.gm.blocked { border-left: 2px solid var(--warn); padding-left: .9rem; }
+.blocked {
   font: 10px ui-monospace, monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--dim);
-  margin-bottom: .4rem;
+  color: var(--warn);
+  margin-top: .4rem;
 }
+.narration.waiting { font-style: italic; opacity: .5; }
+.phase.confirm {
+  font: 11px ui-monospace, monospace;
+  letter-spacing: .06em;
+  color: var(--dim);
+}
+.phase.confirm.no { color: var(--bad); }
 .proposal {
   border: 1px solid var(--line);
   border-left: 2px solid var(--place);
   padding: .8rem .9rem;
-  margin-bottom: 1.2rem;
 }
-.proposal.declined { border-left-color: var(--bad); }
-.exchange.world .narration { margin-bottom: 0; }
-.outcome { margin-top: 1.2rem; }
+.proplabel {
+  font: 10px ui-monospace, monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: .4rem;
+}
+.propsummary { margin-bottom: .25rem; }
+.proptarget { color: var(--dim); font-size: .85rem; margin-bottom: .25rem; }
+.propcost {
+  font: 11px ui-monospace, monospace;
+  letter-spacing: .06em;
+  color: var(--place);
+  margin-bottom: 0;
+}
 .propsummary { margin-bottom: .25rem; }
 .proptarget { color: var(--dim); font-size: .85rem; margin-bottom: .25rem; }
 .propcost {

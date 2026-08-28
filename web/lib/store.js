@@ -57,36 +57,24 @@ export async function snapshot() {
     const verdicts = {};
     for (const v of turn.verdicts || []) verdicts[v.claim] = v;
 
-    const exchanges = turn.exchanges || [];
-    if (!exchanges.length && !turn.action && !draft.narration && !cue) continue;
+    const phases = turn.phases || [];
+    if (!phases.length && !turn.action && !draft.narration && !cue) continue;
 
     slides.push({
       id: turn.turn_id,
       state: turn.state,
       cue,
-      exchanges,
+      phases,
       action: turn.action,
       narration: turn.looking ? null : draft.narration,
-      outcome: (() => {
-        const act = exchanges.find((x) => x.kind === "action");
-        if (act) return act.reply || null;
-        return exchanges.length ? null : draft.narration || null;
-      })(),
       pending: turn.looking
         ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
         : null,
-      claims: (() => {
-        const settled = exchanges.flatMap((x) => x.claims || []);
-        const live = (draft.claims || []).map((c) => ({ ...c, verdict: verdicts[c.id] || null }));
-        if (turn.delivered) return settled.length ? settled : live;
-        return settled.concat(live);
-      })(),
+      claims: phases.flatMap((x) => x.claims || []),
       quotes: draft.quotes || [],
       minutes: draft.minutes || 0,
       fatigue: draft.fatigue || 0,
       health: draft.health || 0,
-      proposal: turn.proposal || null,
-      confirmed: turn.confirmed ?? null,
       roll: turn.roll || null,
       risk: turn.risk || null,
       calamity: !!turn.calamity,

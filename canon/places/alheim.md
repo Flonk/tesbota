@@ -21,3 +21,4 @@ Forest]] presses close against the village's northern fields.
 ## Witnessed
 - lore — The innkeeper's boy lives with his mother in a house with a blue door up the street from the inn.
 - lore — The last place anyone saw the boy was the woodstore past the mill.
+- t0003 — the houses in Alheim thin out toward the bank of the Aler

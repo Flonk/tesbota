@@ -161,6 +161,10 @@ def resolve_gap(campaign, turn):
 
     turn["gap"] = None
     turn["gm_retries"] = 0
+    for entry in reversed(turn.get("phases") or []):
+        if entry.get("status") == "blocked":
+            entry["status"] = "pending"
+            break
     turn["correction"] = json.dumps({
         "ruled": (
             "What was holding this up has been settled and canon has been written. "
