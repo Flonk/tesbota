@@ -78,7 +78,7 @@ function Lore({ gap, chat, busy, onSay }) {
 
 export default function Page() {
   const [data, setData] = useState(null);
-  const [busy, setBusy] = useState(null);
+  const [pending, setPending] = useState(null);
   const [error, setError] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -87,6 +87,9 @@ export default function Page() {
   const [at, setAt] = useState(0);
   const deck = useRef(null);
   const pinned = useRef(true);
+  const shown = useRef(null);
+
+  const busy = pending || (data?.job?.running ? data.job.label || "step" : null);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/state", { cache: "no-store" });
@@ -98,6 +101,17 @@ export default function Page() {
     const id = setInterval(load, 4000);
     return () => clearInterval(id);
   }, [load]);
+
+  useEffect(() => {
+    if (!data) return;
+    if (!data.job?.running) setPending(null);
+    const failed = data.job?.error || null;
+    if (failed && failed !== shown.current) {
+      shown.current = failed;
+      setError(failed);
+    }
+    if (!failed) shown.current = null;
+  }, [data]);
 
   const count = data?.slides?.length ?? 0;
 
@@ -134,8 +148,9 @@ export default function Page() {
   }
 
   async function post(path, body, label) {
-    setBusy(label);
+    setPending(label);
     setError(null);
+    shown.current = null;
     try {
       const res = await fetch(path, {
         method: "POST",
@@ -146,14 +161,13 @@ export default function Page() {
       try {
         payload = await res.json();
       } catch {}
-      if (!res.ok) setError(`${res.status} — the step did not complete`);
-      else if (payload?.error === "nothing is pending") setError(null);
-      else if (payload?.error) setError(payload.error);
+      if (!res.ok) setError(`${res.status} — ${label} did not start`);
+      else if (payload?.busy) setError(`already running: ${payload.label || "a step"}`);
+      else if (payload?.error && payload.error !== "nothing is pending") setError(payload.error);
       await load();
     } catch (err) {
+      setPending(null);
       setError(String(err));
-    } finally {
-      setBusy(null);
     }
   }
 

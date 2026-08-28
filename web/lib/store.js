@@ -1,5 +1,6 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 
@@ -8,6 +9,8 @@ const run = promisify(execFile);
 export const ROOT = path.resolve(process.cwd(), "..");
 const STATE = path.join(ROOT, "state");
 const TURNS = path.join(STATE, "turns");
+const JOB = path.join(STATE, "job.json");
+const JOB_LOG = path.join(STATE, "job.log");
 
 async function readJson(file, fallback = null) {
   try {
@@ -119,7 +122,66 @@ export async function snapshot() {
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, slides, gap, chat, vitals, skills, inventory, notebook, quests, note: campaign.note || null };
+  return { status, slides, gap, chat, vitals, skills, inventory, notebook, quests, job: await job(), note: campaign.note || null };
+}
+
+function alive(pid) {
+  if (!pid) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function job() {
+  const j = await readJson(JOB, null);
+  if (!j) return { running: false, label: null, error: null };
+  const running = alive(j.pid);
+  return { running, label: j.label || null, error: running ? null : j.error || null };
+}
+
+export async function launch(args, label) {
+  const current = await readJson(JOB, null);
+  if (current && alive(current.pid)) return { busy: true, label: current.label || null };
+
+  const log = fsSync.openSync(JOB_LOG, "w");
+  const child = spawn("uv", ["run", "--directory", ROOT, "tesbota", ...args], {
+    cwd: ROOT,
+    stdio: ["ignore", log, log],
+    detached: true,
+  });
+  child.unref();
+
+  const record = { pid: child.pid, label, since: new Date().toISOString(), error: null };
+  await fs.writeFile(JOB, JSON.stringify(record, null, 2) + "\n");
+
+  child.on("exit", async (code) => {
+    let out = "";
+    try {
+      out = await fs.readFile(JOB_LOG, "utf8");
+    } catch {}
+    let error = null;
+    if (code !== 0) {
+      error = out.trim().slice(-700) || `${label} exited with ${code}`;
+    } else {
+      try {
+        const parsed = JSON.parse(out.trim().split("\n").pop() || "");
+        if (parsed?.error && parsed.error !== "nothing is pending") {
+          error = String(parsed.error).slice(-700);
+        }
+      } catch {}
+    }
+    try {
+      fsSync.closeSync(log);
+    } catch {}
+    await fs
+      .writeFile(JOB, JSON.stringify({ ...record, pid: null, code, error }, null, 2) + "\n")
+      .catch(() => {});
+  });
+
+  return { started: true, label };
 }
 
 export async function tesbota(args, timeout = 900000) {

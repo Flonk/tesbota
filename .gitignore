@@ -9,3 +9,5 @@ state/secret.txt
 state/lore3.json
 web/node_modules/
 web/.next/
+state/job.json
+state/job.log

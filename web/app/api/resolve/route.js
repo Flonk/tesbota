@@ -1,7 +1,7 @@
-import { tesbota } from "../../../lib/store";
+import { launch } from "../../../lib/store";
 
 export const dynamic = "force-dynamic";
 
 export async function POST() {
-  return Response.json(await tesbota(["resolve"]));
+  return Response.json(await launch(["resolve"], "resolve"));
 }

@@ -1,8 +1,7 @@
-import { tesbota } from "../../../lib/store";
+import { launch } from "../../../lib/store";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 900;
 
 export async function POST() {
-  return Response.json(await tesbota(["step", "--json"]));
+  return Response.json(await launch(["step", "--json"], "step"));
 }
