@@ -124,7 +124,7 @@ header {
 .WITHIN_BOUNDS { color: var(--good); border-color: var(--good); }
 .FRICTION { color: var(--warn); border-color: var(--warn); }
 .FALSE { color: var(--bad); border-color: var(--bad); }
-.UNRESOLVED { color: var(--warn); border-color: var(--warn); }
+.UNRESOLVED { color: var(--place); border-color: var(--place); }
 .why { color: var(--dim); display: block; margin-top: .25rem; }
 
 .lore { margin-top: 2.5rem; border-top: 1px solid var(--warn); padding-top: 1.5rem; }
