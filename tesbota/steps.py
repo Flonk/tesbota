@@ -26,6 +26,20 @@ from .config import (
 from .sdk import ask, extract_json
 
 
+def say(turn, kind, text):
+    turn.setdefault("exchanges", []).append(
+        {"kind": kind, "said": text, "reply": None, "checked": False}
+    )
+
+
+def reply(turn, text, checked=False):
+    exchanges = turn.get("exchanges") or []
+    if not exchanges:
+        return
+    exchanges[-1]["reply"] = text
+    exchanges[-1]["checked"] = checked
+
+
 EXPLORER_COMMANDS = ("tesbota stats", "tesbota inventory")
 
 
@@ -78,6 +92,7 @@ def step_explorer(campaign, turn):
         turn["question"] = stripped[5:].strip()
         turn["mode"] = "look"
         turn["looking"] = True
+        say(turn, "look", turn["question"])
         turn["state"] = "answer"
         return campaign, turn
 
@@ -85,6 +100,7 @@ def step_explorer(campaign, turn):
         turn["question"] = stripped[4:].strip()
         turn["mode"] = "say"
         turn["looking"] = True
+        say(turn, "say", turn["question"])
         turn["state"] = "answer"
         return campaign, turn
 
@@ -94,6 +110,7 @@ def step_explorer(campaign, turn):
             break
 
     turn["action"] = stripped
+    say(turn, "action", stripped)
     turn["state"] = "propose"
     return campaign, turn
 
@@ -121,6 +138,7 @@ def step_answer(campaign, turn):
     draft["health"] = 0
     draft["check"] = None
     turn["draft"] = draft
+    reply(turn, draft.get("narration"))
     turn["correction"] = None
     turn["state"] = "lore1"
     return campaign, turn
@@ -276,6 +294,7 @@ def step_gm(campaign, turn):
         draft["fatigue"] = agreed["fatigue"]
         draft["risk"] = max(draft.get("risk") or BASE_RISK, agreed.get("risk") or BASE_RISK)
     turn["draft"] = draft
+    reply(turn, draft.get("narration"))
     turn["correction"] = None
     turn["state"] = "lore1"
     return campaign, turn
@@ -587,6 +606,7 @@ def deliver(campaign, turn):
         campaign["location_path"] = canon.ancestry(campaign["location"])
 
     campaign["last_narration"] = draft.get("narration")
+    reply(turn, draft.get("narration"), checked=True)
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None

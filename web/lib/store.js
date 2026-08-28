@@ -54,12 +54,14 @@ export async function snapshot() {
     const verdicts = {};
     for (const v of turn.verdicts || []) verdicts[v.claim] = v;
 
-    if (!turn.action && !draft.narration && !cue) continue;
+    const exchanges = turn.exchanges || [];
+    if (!exchanges.length && !turn.action && !draft.narration && !cue) continue;
 
     slides.push({
       id: turn.turn_id,
       state: turn.state,
       cue,
+      exchanges,
       action: turn.action,
       narration: turn.looking ? null : draft.narration,
       pending: turn.looking

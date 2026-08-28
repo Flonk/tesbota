@@ -241,60 +241,27 @@ export default function Page() {
                 </div>
               ))}
 
-              {s.pending && (
-                <div className={`look ${s.pending.mode === "say" ? "talk" : ""} pending`}>
-                  <p className="lookq">
-                    {s.pending.mode === "say" ? `“${s.pending.question}”` : s.pending.question}
+              {s.exchanges?.map((x, n) => (
+                <div
+                  key={n}
+                  className={
+                    x.kind === "action"
+                      ? "exchange act"
+                      : `exchange ${x.kind === "say" ? "talk" : "look"}` +
+                        (x.checked ? "" : " pending")
+                  }
+                >
+                  <p className={x.kind === "action" ? "action" : "lookq"}>
+                    {x.kind === "say" ? `“${x.said}”` : x.said}
                   </p>
-                  {s.pending.answer ? (
-                    <p className="looka">{s.pending.answer}</p>
+                  {x.reply ? (
+                    <p className={x.kind === "action" ? "narration" : "looka"}>{x.reply}</p>
                   ) : (
                     <p className="looka waiting">waiting for an answer…</p>
                   )}
-                  <p className="unchecked">not yet checked</p>
+                  {!x.checked && x.reply && <p className="unchecked">not yet checked</p>}
                 </div>
-              )}
-
-              {s.action && <p className="action">{s.action}</p>}
-              {s.narration && <p className="narration">{s.narration}</p>}
-
-              <Meta s={s} />
-
-              {s.fate && (
-                <div className={`fate ${s.fate.endsWith("fortune") ? "good" : "bad"}`}>
-                  {s.fate.replace("_", " ")} — rolled {s.roll} of 400
-                </div>
-              )}
-
-              {s.claims.length > 0 && (
-                <details className="claims" open={blocked && i === count - 1}>
-                  <summary>{s.claims.length} claim{s.claims.length > 1 ? "s" : ""}</summary>
-                  {s.claims.map((c) => (
-                    <div className="claim" key={c.id}>
-                      <span className={`v ${c.verdict?.result || "UNRESOLVED"}`}>
-                        {c.verdict?.result || "—"}
-                      </span>
-                      {c.text}
-                      {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
-                    </div>
-                  ))}
-                </details>
-              )}
-
-              {s.lore.length > 0 && (
-                <details className="claims lorelog">
-                  <summary>
-                    lore session — {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
-                  </summary>
-                  {s.loreGap && <div className="loregap">{s.loreGap}</div>}
-                  {s.lore.map((m, n) => (
-                    <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={n}>
-                      <span className="who">{m.role}</span>
-                      {m.text}
-                    </div>
-                  ))}
-                </details>
-              )}
+              ))}
 
               {s.note && (
                 <div className="notewas">

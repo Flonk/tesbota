@@ -309,3 +309,11 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   padding-left: .9rem;
   margin-bottom: 1.2rem;
 }
+
+.exchange { margin-bottom: 1.2rem; }
+.exchange.look, .exchange.talk { border-left: 2px solid var(--line); padding-left: .9rem; }
+.exchange.talk { border-left-color: var(--gold); }
+.exchange.talk .looka { color: var(--ink); }
+.exchange.pending { border-left-style: dashed; }
+.exchange.act .action { margin-bottom: .8rem; }
+.exchange.act .narration { margin-bottom: 0; }
