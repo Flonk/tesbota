@@ -95,6 +95,7 @@ export async function snapshot() {
 
   const vitals = campaign.vitals || { health: 100, fatigue: 0, hunger: 0 };
   const skills = campaign.skills || {};
+  const notebook = campaign.notebook || [];
   const inventory = (campaign.inventory || []).map((e) =>
     typeof e === "string"
       ? { name: e, qty: 1, note: "", worn: false }
@@ -104,7 +105,7 @@ export async function snapshot() {
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, slides, gap, chat, vitals, skills, inventory, note: campaign.note || null };
+  return { status, slides, gap, chat, vitals, skills, inventory, notebook, note: campaign.note || null };
 }
 
 export async function tesbota(args, timeout = 900000) {

@@ -12,12 +12,16 @@ exits:
   - to: alheim-mill
     bearing: north
     distance: a short walk back up the road
+  - to: the-marsch-house
+    bearing: south
+    distance: a short walk up the street
 ---
 
 ## Map
 Stands on [[the-road]] where it enters [[alheim]], the first building past
 [[alheim-mill]] and before the road loses itself among the village's other
-houses.
+houses. [[the-marsch-house|The house with the blue door]] is a short walk
+further up the street.
 
 ## Attested
 - t0014 — The Inn sits on the road just past the mill, the first building a traveler reaches before the road becomes a village street, per [[petra-volls-route-notes]].

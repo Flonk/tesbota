@@ -26,7 +26,7 @@ const ABILITIES = ["str", "dex", "con", "int", "wis", "cha"];
 const mod = (score) => Math.floor((Number(score ?? 10) - 10) / 2);
 const sign = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
-export default function Sheet({ vitals, skills, inventory, onClose }) {
+export default function Sheet({ vitals, skills, inventory, notebook = [], onClose }) {
   const abilities = skills?.abilities || {};
   const proficient = new Set(skills?.proficient || []);
   const bonus = Number(skills?.proficiency || 0);
@@ -79,6 +79,12 @@ export default function Sheet({ vitals, skills, inventory, onClose }) {
           </div>
 
           <div>
+            <h3>notebook</h3>
+            {notebook.length === 0 && <p className="empty">nothing written</p>}
+            {notebook.map((n, i) => (
+              <div className="item" key={i}>{n}</div>
+            ))}
+
             <h3>skills</h3>
             {Object.keys(SKILL_ABILITY).sort().map((name) => {
               const trained = proficient.has(name);

@@ -388,3 +388,21 @@ coin is never invented into their hand. When something actually changes hands it
 records `gain` (name, qty, note) and `lose` (name, qty), applied by the driver.
 Quantities stack case-insensitively, losing more than is held empties the entry
 rather than going negative, and losing something unheld is a no-op.
+
+## The notebook
+
+The adventurer carries a notebook and can write to it itself:
+
+```
+tesbota notebook          read it back
+tesbota notebook "…"      write a line
+```
+
+Lines are capped at 120 characters and the last 24 are kept, so it stays a list of
+short reminders rather than a diary. It appears in the character sheet alongside
+condition, abilities and inventory.
+
+The permission callback allows `tesbota notebook` with free text, so it first
+rejects any command containing shell metacharacters — `; | & $ backtick > <` or a
+newline — before matching the verb. Everything else the adventurer might type is
+still denied.

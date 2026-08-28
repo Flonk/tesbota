@@ -1,4 +1,13 @@
-from .config import ABILITIES, MAX_FATIGUE, MAX_HEALTH, MAX_HUNGER, SKILL_ABILITY
+from .config import (
+    ABILITIES,
+    MAX_FATIGUE,
+    MAX_HEALTH,
+    MAX_HUNGER,
+    NOTEBOOK_MAX_CHARS,
+    NOTEBOOK_MAX_NOTES,
+    SKILL_ABILITY,
+)
+from .state import save_campaign
 from .state import load_campaign
 
 HEALTH_WORDS = [(90, "unhurt"), (70, "bruised"), (45, "hurt"), (20, "badly hurt"), (0, "failing")]
@@ -19,6 +28,26 @@ def ascend(value, table):
         if value >= threshold:
             word = name
     return word
+
+
+def render_notebook(campaign=None):
+    campaign = campaign or load_campaign()
+    notes = campaign.get("notebook") or []
+    if not notes:
+        return "your notebook is empty"
+    return "your notebook:\n" + "\n".join(f"  - {n}" for n in notes)
+
+
+def write_note(text):
+    campaign = load_campaign()
+    note = " ".join((text or "").split())[:NOTEBOOK_MAX_CHARS]
+    if not note:
+        return "nothing written"
+    notes = campaign.setdefault("notebook", [])
+    notes.append(note)
+    del notes[:-NOTEBOOK_MAX_NOTES]
+    save_campaign(campaign)
+    return f"written: {note}"
 
 
 def modifier(score):

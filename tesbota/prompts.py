@@ -19,6 +19,14 @@ You do have your own body, and two things you can consult about it:
 
   tesbota stats       what condition you are in, and what you know you are good at
   tesbota inventory   what you are carrying
+  tesbota notebook    read back what you have written down
+  tesbota notebook "…" write a line in it
+
+You carry a notebook and a pencil stub. Write in it whatever you would not want to
+lose — an errand somebody has set you, a name, a direction, a thing you mean to come
+back to. One short line at a time, the way a person actually writes standing up:
+"innkeeper wants firewood + word on her boy", not a paragraph. Your memory of what
+was said will fade; the notebook will not.
 
 Run them whenever you would plausibly check — before something strenuous, when you
 wonder whether you can go on, when you need to know if you have a thing. They tell

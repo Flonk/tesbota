@@ -144,6 +144,7 @@ export default function Page() {
         payload = await res.json();
       } catch {}
       if (!res.ok) setError(`${res.status} — the step did not complete`);
+      else if (payload?.error === "nothing is pending") setError(null);
       else if (payload?.error) setError(payload.error);
       await load();
     } catch (err) {
@@ -193,6 +194,7 @@ export default function Page() {
           vitals={vitals}
           skills={skills}
           inventory={inventory || []}
+          notebook={data.notebook || []}
           onClose={() => setSheetOpen(false)}
         />
       )}

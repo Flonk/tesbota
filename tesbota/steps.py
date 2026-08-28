@@ -43,13 +43,19 @@ async def explorer_permission(tool_name, tool_input, context):
         return PermissionResultDeny(
             message="You have no such power. You may run tesbota stats or tesbota inventory."
         )
-    command = normalise_command((tool_input or {}).get("command"))
+    raw = (tool_input or {}).get("command") or ""
+    if any(ch in raw for ch in ";|&$`><\n"):
+        return PermissionResultDeny(message="Nothing happens.")
+
+    command = normalise_command(raw)
     if command in EXPLORER_COMMANDS:
+        return PermissionResultAllow()
+    if command.split()[:2] == ["tesbota", "notebook"]:
         return PermissionResultAllow()
     return PermissionResultDeny(
         message=(
-            "Nothing happens. The only things you can do are `tesbota stats` and "
-            "`tesbota inventory`."
+            "Nothing happens. The only things you can do are `tesbota stats`, "
+            "`tesbota inventory` and `tesbota notebook`."
         )
     )
 

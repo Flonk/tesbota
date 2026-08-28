@@ -125,6 +125,10 @@ def cmd_inventory(args):
     print(sheet.render_inventory())
 
 
+def cmd_notebook(args):
+    print(sheet.write_note(args.text) if args.text else sheet.render_notebook())
+
+
 def cmd_note(args):
     print(json.dumps(actions.set_note(args.text), ensure_ascii=False))
 
@@ -176,6 +180,10 @@ def main(argv=None):
     note.add_argument("text")
     note.set_defaults(func=cmd_note)
     sub.add_parser("inventory").set_defaults(func=cmd_inventory)
+
+    notebook = sub.add_parser("notebook")
+    notebook.add_argument("text", nargs="?")
+    notebook.set_defaults(func=cmd_notebook)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
 
