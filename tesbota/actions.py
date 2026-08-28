@@ -132,11 +132,20 @@ def resolve():
         write_json(CHAT_FILE, [])
 
     with LOCK:
-        state, turn = driver.run(limit=1)
+        try:
+            state, turn = driver.run(limit=1)
+        except Exception as exc:
+            campaign = load_campaign()
+            return {"ok": True, "error": f"{type(exc).__name__}: {exc}"[:600],
+                    "turn": campaign.get("current_turn")}
     return {"ok": True, "state": state, "turn": turn["turn_id"]}
 
 
 def step():
     with LOCK:
-        state, turn = driver.run(limit=1)
+        try:
+            state, turn = driver.run(limit=1)
+        except Exception as exc:
+            campaign = load_campaign()
+            return {"error": f"{type(exc).__name__}: {exc}"[:600], "turn": campaign.get("current_turn")}
     return {"state": state, "turn": turn["turn_id"]}

@@ -93,15 +93,22 @@ export async function snapshot() {
 }
 
 export async function tesbota(args, timeout = 900000) {
-  const { stdout } = await run("uv", ["run", "--directory", ROOT, "tesbota", ...args], {
-    cwd: ROOT,
-    timeout,
-    maxBuffer: 1024 * 1024 * 16,
-  });
+  let stdout;
+  try {
+    ({ stdout } = await run("uv", ["run", "--directory", ROOT, "tesbota", ...args], {
+      cwd: ROOT,
+      timeout,
+      maxBuffer: 1024 * 1024 * 16,
+    }));
+  } catch (err) {
+    const detail = (err.stderr || err.message || String(err)).trim();
+    return { error: detail.slice(-700) };
+  }
+
   const line = stdout.trim().split("\n").pop();
   try {
     return JSON.parse(line);
   } catch {
-    return { output: stdout.trim() };
+    return { error: stdout.trim().slice(-700) || "the step produced no result" };
   }
 }

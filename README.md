@@ -222,3 +222,16 @@ the text is wrong, out of date, or its author lied.
 It bounces exactly once. If the game master stands by the claim after being shown
 what it contradicts, the contradiction is taken as intended and recorded under
 `## Attested`.
+
+## When an agent call fails
+
+Agent calls retry once before giving up — the bundled Claude Code subprocess
+occasionally exits badly mid-call, and a single retry recovers it.
+
+If both attempts fail, the failure is reported rather than swallowed: the CLI and
+both API routes return `{"error": ...}`, and the web page shows it as a red band
+you can click to dismiss. The turn stays checkpointed wherever it got to, so
+pressing step again resumes from there rather than repeating work.
+
+The header shows `working…` while a call is in flight, so a turn that is waiting
+for you is distinguishable from one that is running.

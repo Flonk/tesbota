@@ -151,3 +151,16 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   h1 { font-size: 1.3rem; letter-spacing: .22em; }
   .dots { height: 38px; gap: .3rem; }
 }
+
+.working { font: 11px ui-monospace, monospace; color: var(--gold); }
+.error {
+  flex: 0 0 auto;
+  padding: .6rem 1rem;
+  border-bottom: 1px solid var(--bad);
+  color: var(--bad);
+  font: 11px/1.5 ui-monospace, monospace;
+  max-height: 7rem;
+  overflow-y: auto;
+  cursor: pointer;
+  white-space: pre-wrap;
+}

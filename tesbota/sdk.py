@@ -1,6 +1,7 @@
 import asyncio
 import json
 import re
+import time
 
 from .config import ROOT
 
@@ -48,5 +49,13 @@ async def _ask(prompt, system, tools, session, model):
     return "\n".join(chunks).strip(), session_id
 
 
-def ask(prompt, *, system, tools=(), session=None, model=None):
-    return asyncio.run(_ask(prompt, system, tools, session, model))
+def ask(prompt, *, system, tools=(), session=None, model=None, attempts=2):
+    last = None
+    for attempt in range(attempts):
+        try:
+            return asyncio.run(_ask(prompt, system, tools, session, model))
+        except Exception as exc:
+            last = exc
+            if attempt + 1 < attempts:
+                time.sleep(2)
+    raise AgentError(f"agent call failed after {attempts} attempts: {last}") from last

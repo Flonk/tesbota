@@ -24,8 +24,8 @@ Distances are given in kilometers from the post.
 Toward Flotburg the road is not marked again before the town. The surveyor's note
 appended to this entry records thirty kilometers of open plain and unbroken road,
 without habitation or landmark, until the road meets the outer wall at [[Lower
-Flotburg]]. Toward Alheim the post is the last marker before arrival; the town's
-gate stands five kilometers on.
+Flotburg]]. Toward Alheim the post is the last marker before arrival, the town
+lying five kilometers on.
 
 The Council does not warrant the road's condition underfoot, nor the weather upon
 it, only its measured length and the placement of its markers.

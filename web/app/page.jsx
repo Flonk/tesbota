@@ -76,6 +76,7 @@ function Lore({ gap, chat, busy, onSay }) {
 export default function Page() {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(null);
+  const [error, setError] = useState(null);
   const [at, setAt] = useState(0);
   const deck = useRef(null);
   const pinned = useRef(true);
@@ -127,13 +128,22 @@ export default function Page() {
 
   async function post(path, body, label) {
     setBusy(label);
+    setError(null);
     try {
-      await fetch(path, {
+      const res = await fetch(path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body || {}),
       });
+      let payload = null;
+      try {
+        payload = await res.json();
+      } catch {}
+      if (!res.ok) setError(`${res.status} — the step did not complete`);
+      else if (payload?.error) setError(payload.error);
       await load();
+    } catch (err) {
+      setError(String(err));
     } finally {
       setBusy(null);
     }
@@ -154,12 +164,19 @@ export default function Page() {
         <div className="hrow bottom">
           <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
           <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
+          {busy && <span className="working">working…</span>}
           <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
           <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
             {busy === "step" ? "…" : "step"}
           </button>
         </div>
       </header>
+
+      {error && (
+        <div className="error" onClick={() => setError(null)} title="click to dismiss">
+          {error}
+        </div>
+      )}
 
       <div className="deck" ref={deck} onScroll={onScroll}>
         {slides.map((s, i) => (
