@@ -81,10 +81,12 @@ h1 { font-size: 1.6rem; margin: 0; letter-spacing: .3em; text-transform: upperca
 .narration { margin: 0 0 1.6rem; white-space: pre-wrap; }
 .meta { font: 11px ui-monospace, monospace; color: var(--dim); border-top: 1px solid var(--line); padding-top: .8rem; }
 
-.calamity {
-  margin-top: 1rem; padding: .5rem .8rem; border-left: 2px solid var(--bad);
-  color: var(--bad); font: 11px ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase;
+.fate {
+  margin-top: 1rem; padding: .5rem .8rem; border-left: 2px solid;
+  font: 11px ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase;
 }
+.fate.bad { border-color: var(--bad); color: var(--bad); }
+.fate.good { border-color: var(--good); color: var(--good); }
 
 .claims { margin-top: 1.2rem; }
 .claims summary { font: 11px ui-monospace, monospace; color: var(--dim); cursor: pointer; }

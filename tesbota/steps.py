@@ -5,6 +5,7 @@ import random
 
 from .config import (
     BASE_RISK,
+    DIE,
     MAX_ASKS,
     MAX_FATIGUE,
     MAX_GM_RETRIES,
@@ -209,7 +210,7 @@ def step_lore1(campaign, turn):
     bad_quotes = quotes.verify(draft.get("quotes"))
 
     exhausted = too_tired(campaign, draft)
-    if exhausted and not turn.get("calamity") and turn["gm_retries"] < MAX_GM_RETRIES:
+    if exhausted and not turn.get("fate") and turn["gm_retries"] < MAX_GM_RETRIES:
         vitals = campaign.get("vitals") or {}
         turn["gm_retries"] += 1
         turn["correction"] = json.dumps({
@@ -227,20 +228,14 @@ def step_lore1(campaign, turn):
         return campaign, turn
 
     if not (false_ones or bad_quotes) and not turn.get("rolled"):
-        if roll_for_calamity(turn):
-            turn["calamity"] = True
+        fate = roll_fate(turn)
+        if fate:
             turn["correction"] = json.dumps({
-                "calamity": {
-                    "rolled": turn["roll"],
-                    "needed_above": 100 - turn["risk"],
-                    "risk": turn["risk"],
-                },
-                "instruction": (
-                    "The dice have gone against them. Renarrate this same action, but "
-                    "something goes badly wrong in the doing of it. Make it real and make "
-                    "it cost something — an injury, a loss, something breaking, something "
-                    "arriving. Do not soften it and do not undo the action."
-                ),
+                "fate": fate,
+                "rolled": turn["roll"],
+                "die": DIE,
+                "risk": turn["risk"],
+                "instruction": FATE_INSTRUCTIONS[fate],
             }, indent=2)
             turn["state"] = "gm"
             return campaign, turn
@@ -287,6 +282,31 @@ def step_lore1(campaign, turn):
     return deliver(campaign, turn)
 
 
+FATE_INSTRUCTIONS = {
+    "greater_calamity": (
+        "The dice have gone hard against them. Renarrate this same action, but "
+        "something goes badly and lastingly wrong in the doing of it — a real injury, "
+        "something lost or broken beyond mending, something dangerous arriving. Do not "
+        "soften it and do not undo the action."
+    ),
+    "lesser_calamity": (
+        "The dice have gone against them. Renarrate this same action, but it goes "
+        "wrong in a small way — a setback, a fumble, time or effort spent for nothing, "
+        "a minor hurt. It should sting, not maim. Do not undo the action."
+    ),
+    "lesser_fortune": (
+        "The dice have favoured them a little. Renarrate this same action, but "
+        "something small goes better than it had any right to — a thing noticed that "
+        "would have been missed, an easier way, a stroke of ordinary luck."
+    ),
+    "greater_fortune": (
+        "The dice have favoured them greatly. Renarrate this same action, but "
+        "something genuinely lucky happens in the doing of it — a real find, an "
+        "unlooked-for kindness, a danger that passes them by entirely. Let it matter."
+    ),
+}
+
+
 def too_tired(campaign, draft):
     vitals = campaign.get("vitals") or {"fatigue": 0}
     return vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0) > MAX_FATIGUE
@@ -299,14 +319,27 @@ def apply_vitals(campaign, draft):
     return campaign
 
 
-def roll_for_calamity(turn, rng=random):
+def roll_fate(turn, rng=random):
     draft = turn["draft"]
     risk = max(BASE_RISK, min(MAX_RISK, int(draft.get("risk") or BASE_RISK)))
-    roll = rng.randint(1, 100)
+    roll = rng.randint(1, DIE)
     turn["roll"] = roll
     turn["risk"] = risk
     turn["rolled"] = True
-    return roll > 100 - risk
+
+    if roll <= risk:
+        fate = "greater_calamity"
+    elif roll <= 2 * risk:
+        fate = "lesser_calamity"
+    elif roll > DIE - 1:
+        fate = "greater_fortune"
+    elif roll > DIE - 2:
+        fate = "lesser_fortune"
+    else:
+        fate = None
+
+    turn["fate"] = fate
+    return fate
 
 
 def deliver(campaign, turn):

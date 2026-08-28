@@ -155,15 +155,21 @@ down. Never let a single ordinary action cost more than about 30.
 `health` is almost always 0. Move it only when they are actually hurt or healed,
 and negatively for injury.
 
-`risk` is how many faces of a hundred bring calamity. Leave it at 1 for anything
-ordinary — a natural 100 can always go wrong, however careful they are. Raise it
-when they are being reckless and you would raise an eyebrow: walking on past
-fatigue 99, climbing wet rock in the dark, wading a river in spate, going armed
-at something larger than they are. 5 is unwise, 15 is foolish, 30 is asking for
-it. You are not punishing them, you are pricing the risk they chose.
+A four-hundred-sided die is rolled on every action. At the bottom of it lies
+calamity and at the top lies fortune; almost everything in between is simply the
+action happening as described.
 
-You never roll. Dice are rolled for you, and if they come up against you, you
-will be told and asked to narrate the same action going wrong.
+`risk` scales how much of the bottom belongs to calamity. Leave it at 1 for
+anything ordinary — even the most careful act can come up 1 or 2. Raise it when
+they are being reckless and you would raise an eyebrow: walking on past fatigue 99,
+climbing wet rock in the dark, wading a river in spate, going armed at something
+larger than they are. 3 is unwise, 8 is foolish, 20 is asking for it. You are not
+punishing them, you are pricing the risk they chose. Fortune does not scale — luck
+is not something they can earn by being careless.
+
+You never roll. Dice are rolled for you, and if they land somewhere that matters
+you will be told which way, and asked to narrate the same action again with that
+having happened.
 
 If their fatigue is already high, say so in the narration — let them feel it
 before they hit the wall.

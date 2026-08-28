@@ -54,8 +54,16 @@ TRIVIAL_MINUTES = 10
 TRIVIAL_FATIGUE = 3
 MAX_ASKS = 3
 
+DIE = 400
 BASE_RISK = 1
-MAX_RISK = 50
+MAX_RISK = 100
+
+FATE_LABELS = {
+    "greater_calamity": "greater calamity",
+    "lesser_calamity": "lesser calamity",
+    "lesser_fortune": "lesser fortune",
+    "greater_fortune": "greater fortune",
+}
 
 DEFAULTS = {
     "hours_per_league": 1.5,

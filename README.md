@@ -276,3 +276,20 @@ filled the conversation moves from the live chat into the turn record, along wit
 the gap that prompted it, and appears on that turn's slide as a collapsed
 `lore session` — so the reasoning behind a ruling stays readable next to the
 narration it produced.
+
+## The die
+
+A d400 is rolled on every action. `risk` scales how much of the bottom belongs to
+calamity; fortune does not scale, because luck is not earned by being careless.
+
+| roll | outcome |
+|---|---|
+| ≤ risk | greater calamity |
+| ≤ 2 × risk | lesser calamity |
+| 399 | lesser fortune |
+| 400 | greater fortune |
+| anything else | the action as narrated |
+
+At the base risk of 1 that is a quarter of a percent each way. The game master
+never rolls; it is told which way the die landed and asked to renarrate the same
+action with that having happened — never to undo it.

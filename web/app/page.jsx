@@ -34,7 +34,7 @@ function Meta({ s }) {
   if (s.minutes) bits.push(`${s.minutes} min`);
   if (s.fatigue) bits.push(`${s.fatigue > 0 ? "+" : ""}${s.fatigue} fatigue`);
   if (s.health) bits.push(`${s.health} hp`);
-  if (s.roll) bits.push(`d100 ${s.roll} vs ${s.risk}`);
+  if (s.roll) bits.push(`d400 ${s.roll}` + (s.risk > 1 ? ` at risk ${s.risk}` : ""));
   if (s.retries) bits.push(`${s.retries} redraft`);
   if (!bits.length) return null;
   return <div className="meta">{bits.join("  ·  ")}</div>;
@@ -192,7 +192,11 @@ export default function Page() {
 
               <Meta s={s} />
 
-              {s.calamity && <div className="calamity">calamity — rolled {s.roll} against {s.risk}</div>}
+              {s.fate && (
+                <div className={`fate ${s.fate.endsWith("fortune") ? "good" : "bad"}`}>
+                  {s.fate.replace("_", " ")} — rolled {s.roll} of 400
+                </div>
+              )}
 
               {s.claims.length > 0 && (
                 <details className="claims">
