@@ -122,7 +122,10 @@ def cmd_resolve(args):
 def cmd_gaps(args):
     orphans = canon.orphan_places()
     gaps = canon.dangling_links()
-    if not orphans and not gaps:
+    illegal = canon.illegal_books()
+    for book in illegal:
+        print(f"{book}  (authored by the adventurer — not a valid author)")
+    if not orphans and not gaps and not illegal:
         print("no open edges — every place is placed and no link dangles")
         return
     for place in orphans:

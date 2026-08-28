@@ -1,9 +1,10 @@
 import re
 
-from .config import CANON, GODHEAD, KINDS
+from .config import CANON, FORBIDDEN_AUTHORS, GODHEAD, KINDS
 
 LINK = re.compile(r"\[\[([^\]|#]+)")
 WITNESSED = "## Witnessed"
+ATTESTED = "## Attested"
 
 
 def entity_path(kind, entity_id):
@@ -75,19 +76,49 @@ def godhead_books():
     return [p for p in sorted(directory.glob("*.md")) if is_godhead(p)]
 
 
-def append_witnessed(entity_id, turn_id, text, kind="places"):
+def append_section(entity_id, turn_id, text, kind="places", section=WITNESSED):
     path = find_entity(entity_id) or ensure_entity(kind, entity_id, turn_id=turn_id)
     body = path.read_text(encoding="utf-8").rstrip("\n")
     line = f"- {turn_id} — {text.strip()}"
     if text.strip() in body:
         return path
-    if WITNESSED in body:
-        head, _, tail = body.partition(WITNESSED)
-        body = head + WITNESSED + tail.rstrip("\n") + "\n" + line
+    if section in body:
+        head, _, tail = body.partition(section)
+        rest = tail
+        following = None
+        for other in (WITNESSED, ATTESTED, "## Map"):
+            if other != section and other in rest:
+                at = rest.index(other)
+                if following is None or at < following:
+                    following = at
+        if following is None:
+            body = head + section + rest.rstrip("\n") + "\n" + line
+        else:
+            body = head + section + rest[:following].rstrip("\n") + "\n" + line + "\n\n" + rest[following:].rstrip("\n")
     else:
-        body = body + "\n\n" + WITNESSED + "\n" + line
+        body = body + "\n\n" + section + "\n" + line
     path.write_text(body + "\n", encoding="utf-8")
     return path
+
+
+def append_witnessed(entity_id, turn_id, text, kind="places"):
+    return append_section(entity_id, turn_id, text, kind=kind, section=WITNESSED)
+
+
+def append_attested(entity_id, turn_id, text, kind="places"):
+    return append_section(entity_id, turn_id, text, kind=kind, section=ATTESTED)
+
+
+def illegal_books():
+    directory = CANON / "books"
+    if not directory.exists():
+        return []
+    out = []
+    for path in sorted(directory.glob("*.md")):
+        author = frontmatter(path).get("author", "").strip().lower()
+        if author in FORBIDDEN_AUTHORS:
+            out.append(path.stem)
+    return out
 
 
 def orphan_places():

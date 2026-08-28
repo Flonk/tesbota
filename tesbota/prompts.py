@@ -173,6 +173,13 @@ First, the "## Witnessed" section of an entity file. Those lines record what has
 been directly observed rather than merely reported, and they cannot be
 contradicted.
 
+A Witnessed line about a thing covers that thing's properties, not merely its
+existence. If it is Witnessed that a stone is carved with two names, then a claim
+that it is carved with a different name contradicts it — that is FALSE, not
+FRICTION. What a thing says, reads, looks like, or is made of is as fixed as the
+fact that it is there. FRICTION is for disagreeing with somebody's testimony, never
+for overwriting what was seen.
+
 Second, any book in canon/books/ whose frontmatter says `author: the godhead`.
 These are not testimony and their author is not fallible. They state the laws of
 the world — how it works, what exists, what is possible — and they are
@@ -220,6 +227,12 @@ write to a "## Witnessed" section; that is not yours.
 
 Every book carries an `author:` in its frontmatter. No exceptions — an
 unattributed document is not a document, it is a rumour.
+
+Never write a book authored by "the explorer" or "the adventurer", and never
+attribute a document to whoever is moving through these places. Direct observation
+is not testimony and does not belong in a book; it is already recorded elsewhere
+and is not yours to write down. Every author you invent is a person who lives in
+this world and had a reason to pick up a pen.
 
 One author is unlike the rest. A book whose `author:` is `the godhead` is
 factually true, and every other layer treats it as law rather than opinion. It is

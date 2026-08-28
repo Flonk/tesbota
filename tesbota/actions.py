@@ -1,6 +1,6 @@
 import threading
 
-from . import driver, prompts, view
+from . import canon, driver, prompts, view
 from .config import MODELS, STATE, WRITE_TOOLS
 from .sdk import ask
 from .state import (
@@ -102,6 +102,18 @@ def say(text):
         campaign["sessions"]["lore3_sitting"] = session
         save_campaign(campaign)
         append_chat("lore master", reply)
+
+    illegal = canon.illegal_books()
+    if finished and illegal:
+        finished = False
+        note = (
+            "Not resolved. These books are attributed to the one moving through this "
+            "world, which is not an author: " + ", ".join(illegal) + ". "
+            "Direct observation is not testimony. Remove or reattribute them, then finish."
+        )
+        with LOCK:
+            append_chat("driver", note)
+        return {"reply": reply, "resolved": False, "rejected": note}
 
     if finished:
         resolve()

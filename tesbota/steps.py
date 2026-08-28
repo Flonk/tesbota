@@ -286,13 +286,23 @@ def roll_for_calamity(turn, rng=random):
 
 
 def deliver(campaign, turn):
+    if turn.get("delivered"):
+        turn["state"] = "done"
+        return campaign, turn
+
     draft = turn["draft"]
-    kept = {v["claim"] for v in turn["verdicts"] if v.get("result") in ("TRUE", "FRICTION")}
+    results = {v["claim"]: v.get("result") for v in turn["verdicts"]}
     for claim in draft.get("claims") or []:
-        if claim["id"] in kept and claim.get("entity"):
-            canon.append_witnessed(
-                claim["entity"], turn["turn_id"], claim["text"], kind=claim.get("kind", "places")
-            )
+        result = results.get(claim["id"])
+        if not claim.get("entity"):
+            continue
+        kind = claim.get("kind", "places")
+        if result == "TRUE":
+            canon.append_witnessed(claim["entity"], turn["turn_id"], claim["text"], kind=kind)
+        elif result == "FRICTION":
+            canon.append_attested(claim["entity"], turn["turn_id"], claim["text"], kind=kind)
+
+    turn["delivered"] = True
     campaign = apply_vitals(campaign, draft)
     campaign["last_narration"] = draft.get("narration")
     turn["minutes"] = int(draft.get("minutes") or 0)

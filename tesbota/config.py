@@ -19,6 +19,8 @@ MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore3": MODEL}
 
 GODHEAD = "the godhead"
 
+FORBIDDEN_AUTHORS = ("the explorer", "the adventurer", "explorer", "adventurer")
+
 OPENING = {
     "narration": (
         "You are standing on a road in wet grass. Fog stands close on every side, "

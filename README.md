@@ -193,3 +193,20 @@ intent; after three refusals the turn escalates to you.
 
 Once confirmed, the agreed minutes and fatigue are stamped onto the draft by the
 driver, so the narration cannot quietly re-price what was agreed.
+
+## What can become true
+
+`## Witnessed` is ground truth and covers a thing's properties, not just its
+existence — if it is Witnessed that a stone is carved with two names, a claim
+that it reads something else is FALSE, not FRICTION. Only `TRUE` claims are
+written there. `FRICTION` claims land under `## Attested`, because a claim that
+rubs against the record is disputed by definition and must not become ground
+truth.
+
+The one moving through this world is never an author. Its observations are
+Witnessed; they do not belong in a book. A lore master that writes a document
+attributed to it cannot close its gap until the document is removed or
+reattributed, and `tesbota gaps` lists any that exist.
+
+Delivery is idempotent — a turn stamps itself once delivered, so a re-run after a
+crashed agent call cannot write a second, contradictory set of facts.
