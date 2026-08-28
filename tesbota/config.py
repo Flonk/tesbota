@@ -118,6 +118,10 @@ STARTING_INVENTORY = [
      "note": "plain and hard-wearing, none of it new", "worn": True},
     {"name": "walking boots", "qty": 1,
      "note": "worn down at the heel but sound", "worn": True},
+    {"name": "notebook", "qty": 1,
+     "note": "small, softbound, most of its pages still blank", "worn": False},
+    {"name": "pencil stub", "qty": 1,
+     "note": "blunt, sharpened with a knife more than once", "worn": False},
 ]
 
 TRIVIAL_MINUTES = 10
