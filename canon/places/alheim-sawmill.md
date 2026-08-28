@@ -4,7 +4,7 @@ kind: place
 name: The Alheim Sawmill
 within: alheim
 contains: []
-introduced: t0016
+introduced: lore
 exits:
   - to: alheim
     bearing: south
@@ -27,7 +27,7 @@ walk short of [[alheim-mill]] on the river. Run by [[Berend Aalst]], it
 supplies cut wood to the village.
 
 ## Attested
-- t0017 — The Alheim Sawmill stands among Alheim's houses, a couple of minutes' walk from the mill on the river, run by Berend Aalst, per [[berend-aalsts-account]].
-- t0017 — Jost Marsch came to the Alheim Sawmill for firewood two days past and has not been seen since, per [[berend-aalsts-account]].
+- lore — The Alheim Sawmill stands among Alheim's houses, a couple of minutes' walk from the mill on the river, run by Berend Aalst, per [[berend-aalsts-account]].
+- lore — Jost Marsch came to the Alheim Sawmill for firewood two days past and has not been seen since, per [[berend-aalsts-account]].
 
 ## Witnessed

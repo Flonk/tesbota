@@ -4,7 +4,7 @@ kind: place
 name: The Aler
 within: $BOTA
 contains: []
-introduced: t0006
+introduced: lore
 ---
 
 ## Map

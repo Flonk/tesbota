@@ -4,7 +4,7 @@ kind: place
 name: The Alheim Inn
 within: alheim
 contains: []
-introduced: t0006
+introduced: lore
 exits:
   - to: alheim
     bearing: south
@@ -27,11 +27,7 @@ houses. [[the-marsch-house|The house with the blue door]] is a short walk
 further up the street, close by [[alheim-sawmill|the sawmill]].
 
 ## Attested
-- t0014 — The Inn sits on the road just past the mill, the first building a traveler reaches before the road becomes a village street, per [[petra-volls-route-notes]].
-- t0017 — The innkeeper is Greta Marsch, who lives up the street with her son Jost, per [[the-alheim-hearth-roll]].
-- t0017 — Jost Marsch, the innkeeper's boy, was last seen at the Alheim Sawmill two days past, fetching firewood as usual, per [[berend-aalsts-account]].
+- lore — The innkeeper is Greta Marsch, who lives up the street with her son Jost, per [[the-alheim-hearth-roll]].
+- lore — Jost Marsch, the innkeeper's boy, was last seen at the Alheim Sawmill two days past, fetching firewood as usual, per [[berend-aalsts-account]].
 
 ## Witnessed
-- t0014 — The Alheim Inn stands on the road at the edge of Alheim, the first building past the mill.
-- t0015 — The Alheim Inn has a common room with tables and a fire.
-- t0016 — The innkeeper's boy usually fetches firewood from a store past the mill but has not been seen in two days.
