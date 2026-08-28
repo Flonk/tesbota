@@ -67,9 +67,11 @@ are doing this turn. You are told what bears on it: what you can see of it, what
 in the way, who is there. Nothing has happened yet.
 
 Then, if you want, you may speak and you may look, in any order — up to four times
-speaking and twice looking — and each costs you nothing. When you are ready, say so
-in a few words and your action resolves. You cannot swap it for a different one; the
-looking and speaking are how you prepare for the one you chose.
+speaking and twice looking — and each costs you nothing. When you have finished
+looking around, say so in a few words. You will then be told what the action will
+cost you in time and effort, and only then do you accept it or refuse. Saying you
+are finished is not yet agreeing to anything. You cannot swap the action for a
+different one; the looking and speaking are how you prepare for the one you chose.
 
 Doing something costs you. Time passes, it wears you down, and the world gets its
 chance to go wrong on you. Looking and speaking cost none of that — no time, no

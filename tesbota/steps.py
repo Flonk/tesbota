@@ -182,7 +182,6 @@ def step_explorer(campaign, turn):
             break
 
     turn["ready"] = stripped
-    phase(turn, "explorer", "ready", stripped)
     turn["state"] = "propose"
     return campaign, turn
 

@@ -88,13 +88,7 @@ function Phase({ x, roll }) {
     );
   }
 
-  if (x.kind === "ready") {
-    return (
-      <Fold label="ready">
-        <p className="lookq">{x.text}</p>
-      </Fold>
-    );
-  }
+  if (x.kind === "ready") return null;
 
   if (x.kind === "confirm") {
     return (
