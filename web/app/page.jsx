@@ -60,11 +60,12 @@ function Fold({ label, children }) {
   );
 }
 
-function Phase({ x }) {
+function Phase({ x, roll }) {
   if (x.kind === "proposal") {
     const bits = [cost(x.minutes)];
     bits.push(x.fatigue ? `${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue` : "no effort");
     if (x.risk > 1) bits.push(`risk ${x.risk}`);
+    if (roll) bits.push(`d400 ${roll}`);
     if (x.unpriced) bits.push("unpriced, guessed");
     return (
       <Fold label={["what it will take", ...bits].join(" · ")}>
@@ -132,10 +133,11 @@ function Phase({ x }) {
 
 function Meta({ s }) {
   const bits = [];
-  if (s.minutes) bits.push(`${s.minutes} min`);
-  if (s.fatigue) bits.push(`${s.fatigue > 0 ? "+" : ""}${s.fatigue} fatigue`);
   if (s.health) bits.push(`${s.health} hp`);
-  if (s.roll) bits.push(`d400 ${s.roll}` + (s.risk > 1 ? ` at risk ${s.risk}` : ""));
+  if (!s.phases?.some((x) => x.kind === "proposal")) {
+    if (s.minutes) bits.push(`${s.minutes} min`);
+    if (s.roll) bits.push(`d400 ${s.roll}`);
+  }
   if (s.retries) bits.push(`${s.retries} redraft`);
   if (!bits.length) return null;
   return <div className="meta">{bits.join("  ·  ")}</div>;
@@ -352,7 +354,7 @@ export default function Page() {
               </div>
 
               {s.phases?.map((x) => (
-                <Phase key={x.n} x={x} />
+                <Phase key={x.n} x={x} roll={s.roll} />
               ))}
 
               <Meta s={s} />
