@@ -79,8 +79,8 @@ function Phase({ x, roll }) {
 
   if (x.kind === "confirm") {
     return (
-      <p className={`phase confirm ${x.text}`}>
-        {x.text === "yes" ? "agreed to it" : "turned it down"}
+      <p className={`phase philabel confirm ${x.text}`}>
+        {x.text === "yes" ? "ok" : "turned it down"}
       </p>
     );
   }

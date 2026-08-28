@@ -342,11 +342,7 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 }
 .phase .narration, .phase .action, .phase .lookq, .phase .looka { margin-bottom: 0; }
 .narration.waiting { font-style: italic; opacity: .5; }
-.phase.confirm {
-  font: 11px ui-monospace, monospace;
-  letter-spacing: .06em;
-  color: var(--dim);
-}
+.phase.confirm { padding-left: 1.1ch; }
 .phase.confirm.no { color: var(--bad); }
 .phase.fold { margin-bottom: .55rem; }
 .phase.fold summary {
