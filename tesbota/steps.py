@@ -701,6 +701,8 @@ def deliver(campaign, turn):
             current["roll"] = turn.get("roll")
             current["risk"] = turn.get("risk")
             current["spark"] = turn.get("spark_roll")
+            current["gain"] = draft.get("gain") or []
+            current["lose"] = draft.get("lose") or []
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None
