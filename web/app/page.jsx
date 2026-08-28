@@ -374,8 +374,10 @@ export default function Page() {
               )}
 
               {s.claims.length > 0 && (
-                <details className="claims" open={blocked && i === count - 1}>
-                  <summary>{s.claims.length} claim{s.claims.length > 1 ? "s" : ""}</summary>
+                <details className="sec sec-compact claims" open={blocked && i === count - 1}>
+                  <summary className="sec-label">
+                    {s.claims.length} claim{s.claims.length > 1 ? "s" : ""}
+                  </summary>
                   {s.claims.map((c) => (
                     <div className="claim" key={c.id}>
                       <span className={`v ${c.verdict?.result || "UNRESOLVED"}`}>
@@ -389,9 +391,9 @@ export default function Page() {
               )}
 
               {s.lore.length > 0 && (
-                <details className="claims lorelog">
-                  <summary>
-                    lore session — {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
+                <details className="sec sec-compact claims lorelog">
+                  <summary className="sec-label">
+                    lore session · {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
                   </summary>
                   {s.loreGap && <div className="loregap">{s.loreGap}</div>}
                   {s.lore.map((m, n) => (

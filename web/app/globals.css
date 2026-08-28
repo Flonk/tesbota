@@ -118,7 +118,6 @@ header {
 .fate.good { border-color: var(--good); color: var(--good); }
 
 .claims { margin-top: 1.2rem; }
-.claims summary { font: 11px ui-monospace, monospace; color: var(--dim); cursor: pointer; }
 .claim { font-size: .85rem; margin: .8rem 0; font-family: ui-monospace, monospace; }
 .v { display: inline-block; font-size: .66rem; padding: 0 .4rem; border: 1px solid; border-radius: 2px; margin-right: .45rem; }
 .TRUE { color: var(--good); border-color: var(--good); }
@@ -173,7 +172,7 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .pad { padding: 2rem; }
 
 .meta, .claim, .tid { overflow-wrap: anywhere; }
-.claims summary { word-break: break-word; }
+.claims > .sec-label { word-break: break-word; }
 
 @media (max-width: 640px) {
   body { font-size: 15px; }
@@ -202,7 +201,7 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 }
 
 .lorelog { margin-top: 1.4rem; border-top: 1px solid var(--line); padding-top: 1rem; }
-.lorelog summary { color: var(--warn); }
+.lorelog > .sec-label { color: var(--warn); }
 .lorelog .bubble { margin-top: .9rem; font-size: .88rem; }
 .loregap {
   color: var(--dim); font: 11px/1.6 ui-monospace, monospace;
