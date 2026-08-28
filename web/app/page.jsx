@@ -379,7 +379,7 @@ export default function Page() {
                     {s.claims.length} claim{s.claims.length > 1 ? "s" : ""}
                   </summary>
                   {s.claims.map((c) => (
-                    <div className="claim" key={c.id}>
+                    <div className="claim" key={c.key || c.id}>
                       <span className={`v ${c.verdict?.result || "UNRESOLVED"}`}>
                         {c.verdict?.result || "—"}
                       </span>

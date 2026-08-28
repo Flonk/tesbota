@@ -70,7 +70,9 @@ export async function snapshot() {
       pending: turn.looking
         ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
         : null,
-      claims: phases.flatMap((x) => x.claims || []),
+      claims: phases.flatMap((x) =>
+        (x.claims || []).map((c) => ({ ...c, key: `${x.n}-${c.id}` }))
+      ),
       quotes: draft.quotes || [],
       minutes: draft.minutes || 0,
       fatigue: draft.fatigue || 0,
