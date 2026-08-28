@@ -4,6 +4,8 @@ from . import canon, prompts, quotes, sheet, worldclock
 import random
 
 from .config import (
+    SPARK_DIE,
+    SPARK_FACE,
     BASE_RISK,
     DIE,
     MAX_ASKS,
@@ -281,6 +283,13 @@ def step_propose(campaign, turn):
     return campaign, turn
 
 
+def roll_spark(turn, rng=random):
+    if "spark_roll" in turn:
+        return turn["spark_roll"] == SPARK_FACE
+    turn["spark_roll"] = rng.randint(1, SPARK_DIE)
+    return turn["spark_roll"] == SPARK_FACE
+
+
 def step_gm(campaign, turn):
     if not campaign["sessions"]["gm"] and not campaign.get("last_narration"):
         turn["draft"] = json.loads(json.dumps(OPENING))
@@ -298,6 +307,7 @@ def step_gm(campaign, turn):
             arrival=turn.get("arrival"),
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
             note=turn.get("note"),
+            spark=roll_spark(turn),
             inventory=campaign.get("inventory") or [],
             quests=campaign.get("quests") or [],
         
@@ -690,6 +700,7 @@ def deliver(campaign, turn):
             current["fatigue"] = int(draft.get("fatigue") or 0)
             current["roll"] = turn.get("roll")
             current["risk"] = turn.get("risk")
+            current["spark"] = turn.get("spark_roll")
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None

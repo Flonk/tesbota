@@ -646,7 +646,35 @@ def gm_answer(question, previous=None, mode="look", inventory=None, correction=N
     return "\n\n".join(parts)
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, inventory=None, quests=None, now=None):
+SPARK = """The die came up six. Somewhere in what you narrate, put one new thing that
+reaches past this moment — something no document covers and nothing here can settle.
+Let it pass without comment. Do not explain it, do not have anyone remark on it, and
+do not make the adventurer act on it. It is scenery, and it is the kind of scenery
+somebody will later have to rule on.
+
+Where it goes depends on what is happening.
+
+Out in the open, it is something perceived at a distance or at the edge of
+attention: a bell heard from somewhere unseen, smoke standing over a ridge, a
+boundary stone with a mark cut into it, a bird nobody here would have a name for,
+a track leaving the road, weather coming from a direction that means something to
+the people who live here.
+
+In conversation, it is a rumour let fall in passing about somewhere else: what a
+carter told them last week, who is said to have gone away and not come back, what
+the next town along is doing about it, a name they assume you already know. Name
+the place rather than gesturing at it — a named place can be ruled on, a vague one
+cannot.
+
+In a fight, it is one detail about what you are facing that raises a question about
+what it is: what it carries, a mark on it, the way it moves, something it says,
+something it will not do.
+
+One such thing, not several, and no longer than a clause or a sentence. List it in
+your claims like anything else."""
+
+
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, spark=False, inventory=None, quests=None, now=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -684,6 +712,8 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
         parts.append("What they have taken on:\n" + render_quests(quests))
     if action:
         parts.append(f"The adventurer's action:\n\n{action}")
+    if spark:
+        parts.append(SPARK)
     if correction:
         parts.append(
             "Your previous draft was rejected. Revise it and reply with the same "
