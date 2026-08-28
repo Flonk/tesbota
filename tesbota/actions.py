@@ -128,6 +128,12 @@ def resolve():
             return {"error": "nothing is pending"}
         campaign["sessions"]["lore3_sitting"] = None
         save_campaign(campaign)
+
+        transcript = chat_log()
+        if transcript:
+            turn["lore"] = (turn.get("lore") or []) + transcript
+        turn["lore_gap"] = turn.get("gap") or turn.get("lore_gap")
+
         driver.resolve_gap(campaign, turn)
         write_json(CHAT_FILE, [])
 

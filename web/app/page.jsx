@@ -209,6 +209,21 @@ export default function Page() {
                 </details>
               )}
 
+              {s.lore.length > 0 && (
+                <details className="claims lorelog">
+                  <summary>
+                    lore session — {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
+                  </summary>
+                  {s.loreGap && <div className="loregap">{s.loreGap}</div>}
+                  {s.lore.map((m, n) => (
+                    <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={n}>
+                      <span className="who">{m.role}</span>
+                      {m.text}
+                    </div>
+                  ))}
+                </details>
+              )}
+
               {blocked && i === count - 1 && (
                 <Lore
                   gap={gap}

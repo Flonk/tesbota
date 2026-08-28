@@ -270,3 +270,9 @@ rather than guessing, which brings the question back rather than settling it.
 
 TRUE and WITHIN_BOUNDS both deliver and are recorded under `## Witnessed`; only
 FRICTION and FALSE cost a redraft.
+
+A lore session is archived onto the turn that triggered it. When the silence is
+filled the conversation moves from the live chat into the turn record, along with
+the gap that prompted it, and appears on that turn's slide as a collapsed
+`lore session` — so the reasoning behind a ruling stays readable next to the
+narration it produced.

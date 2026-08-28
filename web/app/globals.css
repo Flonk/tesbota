@@ -165,3 +165,12 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   cursor: pointer;
   white-space: pre-wrap;
 }
+
+.lorelog { margin-top: 1.4rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.lorelog summary { color: var(--warn); }
+.lorelog .bubble { margin-top: .9rem; font-size: .88rem; }
+.loregap {
+  color: var(--dim); font: 11px/1.6 ui-monospace, monospace;
+  white-space: pre-wrap; margin: .8rem 0 .2rem; padding-left: .9rem;
+  border-left: 2px solid var(--warn);
+}
