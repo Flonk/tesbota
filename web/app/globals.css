@@ -338,3 +338,11 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .exchange.pending { border-left-style: dashed; }
 .exchange.act .action { margin-bottom: .8rem; }
 .exchange.act .narration { margin-bottom: 0; }
+.provisional {
+  font: 10px ui-monospace, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: .5rem;
+}
+.exchange.act:has(.provisional) .narration { color: var(--dim); font-style: italic; }

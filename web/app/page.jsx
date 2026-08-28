@@ -17,6 +17,17 @@ function Bar({ label, value, max, tone }) {
   );
 }
 
+const PHASE = {
+  explorer: "deciding",
+  context: "sizing it up",
+  answer: "answering",
+  propose: "working out the cost",
+  confirm: "weighing it",
+  gm: "it happens",
+  lore1: "checking the record",
+  done: "done",
+};
+
 function Status({ status }) {
   if (status.state === "awaiting_clock") {
     return (
@@ -28,7 +39,7 @@ function Status({ status }) {
   if (status.state === "awaiting_human") {
     return <span style={{ color: "var(--warn)" }}>the world is silent</span>;
   }
-  return <span className="muted">{status.state}</span>;
+  return <span className="muted">{PHASE[status.state] || status.state}</span>;
 }
 
 function Meta({ s }) {
@@ -269,6 +280,9 @@ export default function Page() {
                     <p className={x.kind === "action" ? "narration" : "looka"}>{x.reply}</p>
                   ) : (
                     <p className="looka waiting">waiting for an answer…</p>
+                  )}
+                  {x.provisional && x.reply && (
+                    <p className="provisional">before you commit — nothing has happened yet</p>
                   )}
                   {!x.checked && x.reply && <p className="unchecked">not yet checked</p>}
                 </div>

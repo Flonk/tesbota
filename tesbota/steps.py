@@ -712,6 +712,9 @@ def deliver(campaign, turn):
             {**claim, "verdict": by_verdict.get(claim.get("id"))}
             for claim in (draft.get("claims") or [])
         ]
+        exchanges[-1]["provisional"] = bool(
+            turn.get("looking") and turn.get("mode") == "context"
+        )
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None
