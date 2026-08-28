@@ -28,3 +28,4 @@ further up the street.
 
 ## Witnessed
 - t0014 — The Alheim Inn stands on the road at the edge of Alheim, the first building past the mill.
+- t0015 — The Alheim Inn has a common room with tables and a fire.

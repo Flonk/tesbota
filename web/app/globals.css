@@ -317,5 +317,3 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .exchange.pending { border-left-style: dashed; }
 .exchange.act .action { margin-bottom: .8rem; }
 .exchange.act .narration { margin-bottom: 0; }
-
-.worldtime { font: 12px ui-monospace, monospace; color: var(--gold); opacity: .85; }

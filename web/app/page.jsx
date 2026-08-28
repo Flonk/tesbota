@@ -171,7 +171,6 @@ export default function Page() {
         <div className="hleft">
           <h1>tesbota</h1>
           <Status status={status} />
-          {status.now && <span className="worldtime">{status.now}</span>}
         </div>
 
         <div className="hmid">
