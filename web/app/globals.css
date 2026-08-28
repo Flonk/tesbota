@@ -300,3 +300,12 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   font: 10px ui-monospace, monospace; color: var(--warn);
   letter-spacing: .1em; text-transform: uppercase; margin: .4rem 0 0; opacity: .8;
 }
+
+.gaptext {
+  white-space: pre-wrap;
+  font: 12px/1.6 ui-monospace, monospace;
+  color: var(--ink);
+  border-left: 2px solid var(--warn);
+  padding-left: .9rem;
+  margin-bottom: 1.2rem;
+}

@@ -47,6 +47,7 @@ function Lore({ gap, chat, busy, onSay }) {
   return (
     <div className="lore">
       <h2>the world is silent here</h2>
+      {gap?.text && <div className="gaptext">{gap.text}</div>}
       {chat.map((m, i) => (
         <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={i}>
           <span className="who">{m.role}</span>
@@ -218,8 +219,10 @@ export default function Page() {
                   {s.id}
                   {s.cue ? ` · ${s.cue}` : ""}
                 </div>
-                {s.where?.length > 0 && (
-                  <div className="slideplace">{s.where.map((p) => p.name).join(" › ")}</div>
+                {(s.where?.length ? s.where : status.where)?.length > 0 && (
+                  <div className="slideplace">
+                    {(s.where?.length ? s.where : status.where).map((p) => p.name).join(" › ")}
+                  </div>
                 )}
                 {s.quest && <div className="slidequest">{s.quest}</div>}
               </div>
@@ -264,7 +267,7 @@ export default function Page() {
               )}
 
               {s.claims.length > 0 && (
-                <details className="claims">
+                <details className="claims" open={blocked && i === count - 1}>
                   <summary>{s.claims.length} claim{s.claims.length > 1 ? "s" : ""}</summary>
                   {s.claims.map((c) => (
                     <div className="claim" key={c.id}>
