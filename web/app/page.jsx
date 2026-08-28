@@ -242,20 +242,6 @@ export default function Page() {
                 {s.quest && <div className="slidequest">{s.quest}</div>}
               </div>
 
-              {s.looks?.map((l, n) => (
-                <div className="look" key={n}>
-                  <p className="lookq">{l.question}</p>
-                  <p className="looka">{l.answer}</p>
-                </div>
-              ))}
-
-              {s.talks?.map((t, n) => (
-                <div className="look talk" key={`t${n}`}>
-                  <p className="lookq">“{t.question}”</p>
-                  <p className="looka">{t.answer}</p>
-                </div>
-              ))}
-
               {s.exchanges?.map((x, n) => (
                 <div
                   key={n}

@@ -80,8 +80,6 @@ export async function snapshot() {
       calamity: !!turn.calamity,
       retries: turn.gm_retries || 0,
       travel: draft.travel || null,
-      looks: turn.looks || [],
-      talks: turn.talks || [],
       where: turn.location_path || [],
       quest: turn.quest || null,
       at: turn.at || null,
