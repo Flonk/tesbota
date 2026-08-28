@@ -332,6 +332,7 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 }
 
 .phase { margin-bottom: 1.3rem; }
+.phase.gm.outcome, .phase.gm.world { margin-top: 1.6rem; }
 .philabel {
   font: 10px ui-monospace, monospace;
   letter-spacing: .1em;
