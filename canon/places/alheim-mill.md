@@ -19,3 +19,6 @@ Stands at the edge of [[Alheim]] on the Aler, its wheel turned by the river.
 ## Witnessed
 - t0009 — Alheim Mill stands on the river, its wheel turning.
 - t0009 — A plaque stands by the mill's entrance.
+- t0010 — The plaque by Alheim Mill's entrance is bronze and dusty.
+- t0011 — A miller answers the door at Alheim Mill.
+- t0012 — The miller confirms the road past his mill leads into Alheim, close by.

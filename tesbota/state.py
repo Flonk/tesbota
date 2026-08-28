@@ -2,7 +2,15 @@ import json
 import os
 from datetime import datetime, timezone
 
-from .config import CAMPAIGN, DEFAULTS, MAX_FATIGUE, MAX_HEALTH, STATE, TURNS
+from .config import (
+    CAMPAIGN,
+    DEFAULTS,
+    MAX_FATIGUE,
+    MAX_HEALTH,
+    STARTING_INVENTORY,
+    STATE,
+    TURNS,
+)
 
 
 def now():
@@ -34,7 +42,9 @@ def new_campaign():
         "current_turn": None,
         "turn_counter": 0,
         "clock": dict(DEFAULTS),
-        "vitals": {"health": MAX_HEALTH, "fatigue": 0},
+        "vitals": {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0},
+        "inventory": list(STARTING_INVENTORY),
+        "skills": {},
         "last_narration": None,
         "last_seen": None,
         "created": stamp(),
@@ -46,7 +56,22 @@ def load_campaign():
         campaign = new_campaign()
         write_json(CAMPAIGN, campaign)
         return campaign
-    return read_json(CAMPAIGN)
+
+    campaign = read_json(CAMPAIGN)
+    blank = new_campaign()
+    changed = False
+    for key in ("inventory", "skills", "clock"):
+        if key not in campaign:
+            campaign[key] = blank[key]
+            changed = True
+    vitals = campaign.setdefault("vitals", blank["vitals"])
+    for key, value in blank["vitals"].items():
+        if key not in vitals:
+            vitals[key] = value
+            changed = True
+    if changed:
+        write_json(CAMPAIGN, campaign)
+    return campaign
 
 
 def save_campaign(campaign):

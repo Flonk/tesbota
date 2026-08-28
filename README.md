@@ -293,3 +293,21 @@ calamity; fortune does not scale, because luck is not earned by being careless.
 At the base risk of 1 that is a quarter of a percent each way. The game master
 never rolls; it is told which way the die landed and asked to renarrate the same
 action with that having happened — never to undo it.
+
+## The adventurer's own body
+
+Two commands, and the adventurer may run them itself:
+
+```
+tesbota stats       health, fatigue, hunger, and the skill sheet
+tesbota inventory   what it is carrying
+```
+
+It is given `Bash` for this and nothing else — a permission callback denies every
+command but those two, so it can consult itself without being able to read canon.
+Command chaining is denied too, since the match is on the whole normalised line.
+It starts in plain hard-wearing clothes and worn boots.
+
+Hunger accrues with in-world time (about 4 an hour) rather than being narrated into
+existence; the game master overrides it only when the adventurer actually eats, by
+setting `hunger` on the draft.

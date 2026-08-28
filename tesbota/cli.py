@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from . import actions, canon, driver, prompts, view
+from . import actions, canon, driver, prompts, sheet, view
 from .config import MODELS, WRITE_TOOLS
 from .sdk import ask
 from .state import all_turns, load_campaign, load_turn, now, parse, save_campaign
@@ -117,6 +117,14 @@ def cmd_resolve(args):
     print(json.dumps(actions.resolve(), ensure_ascii=False))
 
 
+def cmd_stats(args):
+    print(sheet.render_stats())
+
+
+def cmd_inventory(args):
+    print(sheet.render_inventory())
+
+
 def cmd_gaps(args):
     orphans = canon.orphan_places()
     gaps = canon.dangling_links()
@@ -153,6 +161,8 @@ def main(argv=None):
     say.set_defaults(func=cmd_say)
 
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
+    sub.add_parser("stats").set_defaults(func=cmd_stats)
+    sub.add_parser("inventory").set_defaults(func=cmd_inventory)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
 

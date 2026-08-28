@@ -9,7 +9,9 @@ from .config import (
     MAX_ASKS,
     MAX_FATIGUE,
     MAX_GM_RETRIES,
+    HUNGER_PER_HOUR,
     MAX_HEALTH,
+    MAX_HUNGER,
     MAX_RISK,
     MODELS,
     OPENING,
@@ -21,13 +23,42 @@ from .config import (
 from .sdk import ask, extract_json
 
 
+EXPLORER_COMMANDS = ("tesbota stats", "tesbota inventory")
+
+
+def normalise_command(text):
+    parts = (text or "").strip().split()
+    if parts[:2] == ["uv", "run"]:
+        parts = parts[2:]
+    return " ".join(parts)
+
+
+async def explorer_permission(tool_name, tool_input, context):
+    from claude_agent_sdk import PermissionResultAllow, PermissionResultDeny
+
+    if tool_name != "Bash":
+        return PermissionResultDeny(
+            message="You have no such power. You may run tesbota stats or tesbota inventory."
+        )
+    command = normalise_command((tool_input or {}).get("command"))
+    if command in EXPLORER_COMMANDS:
+        return PermissionResultAllow()
+    return PermissionResultDeny(
+        message=(
+            "Nothing happens. The only things you can do are `tesbota stats` and "
+            "`tesbota inventory`."
+        )
+    )
+
+
 def step_explorer(campaign, turn):
     text, session = ask(
         prompts.explorer_turn(campaign.get("last_narration")),
         system=prompts.EXPLORER_SYSTEM,
-        tools=[],
+        tools=["Bash"],
         session=campaign["sessions"]["explorer"],
         model=MODELS["explorer"],
+        permission=explorer_permission,
     )
     campaign["sessions"]["explorer"] = session
     turn["action"] = text
@@ -101,9 +132,10 @@ def step_confirm(campaign, turn):
     text, session = ask(
         prompts.explorer_confirm(turn["proposal"]),
         system=prompts.EXPLORER_SYSTEM,
-        tools=[],
+        tools=["Bash"],
         session=campaign["sessions"]["explorer"],
         model=MODELS["explorer"],
+        permission=explorer_permission,
     )
     campaign["sessions"]["explorer"] = session
     turn["answer"] = text
@@ -160,6 +192,7 @@ def step_gm(campaign, turn):
     draft.setdefault("minutes", 0)
     draft.setdefault("fatigue", 0)
     draft.setdefault("health", 0)
+    draft.setdefault("hunger", None)
     draft.setdefault("risk", BASE_RISK)
 
     agreed = turn.get("proposal") if turn.get("confirmed") else None
@@ -313,9 +346,14 @@ def too_tired(campaign, draft):
 
 
 def apply_vitals(campaign, draft):
-    vitals = campaign.setdefault("vitals", {"health": MAX_HEALTH, "fatigue": 0})
+    vitals = campaign.setdefault("vitals", {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0})
     vitals["fatigue"] = max(0, min(MAX_FATIGUE, vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0)))
     vitals["health"] = max(0, min(MAX_HEALTH, vitals.get("health", MAX_HEALTH) + int(draft.get("health") or 0)))
+
+    stated = draft.get("hunger")
+    drift = (int(draft.get("minutes") or 0) / 60.0) * HUNGER_PER_HOUR
+    change = drift if stated is None else int(stated)
+    vitals["hunger"] = max(0, min(MAX_HUNGER, round(vitals.get("hunger", 0) + change)))
     return campaign
 
 

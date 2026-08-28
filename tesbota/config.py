@@ -49,6 +49,14 @@ SPEED_FACTOR = 6000
 
 MAX_HEALTH = 100
 MAX_FATIGUE = 100
+MAX_HUNGER = 100
+
+HUNGER_PER_HOUR = 4
+
+STARTING_INVENTORY = [
+    "a set of plain, hard-wearing clothes, none of them new",
+    "a pair of worn walking boots",
+]
 
 TRIVIAL_MINUTES = 10
 TRIVIAL_FATIGUE = 3
