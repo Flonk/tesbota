@@ -24,3 +24,6 @@ houses.
 
 ## Witnessed
 - t0014 — The Alheim Inn stands on the road at the edge of Alheim, the first building past the mill.
+- t0015 — The Alheim Inn has a common room with tables and a fire.
+- t0016 — A woman tends the counter at the Alheim Inn.
+- t0017 — The innkeeper's boy usually fetches firewood from a store past the mill but has not been seen in two days.
