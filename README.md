@@ -210,3 +210,15 @@ reattributed, and `tesbota gaps` lists any that exist.
 
 Delivery is idempotent — a turn stamps itself once delivered, so a re-run after a
 crashed agent call cannot write a second, contradictory set of facts.
+
+## Friction goes back to the game master
+
+A `FRICTION` verdict no longer passes straight through. The claim and the text it
+rubs against are sent back to the game master once, with the standing instruction
+that contradiction is allowed here but must be deliberate: either renarrate so it
+sits with the record, or keep it and make the discrepancy part of what happens —
+the text is wrong, out of date, or its author lied.
+
+It bounces exactly once. If the game master stands by the claim after being shown
+what it contradicts, the contradiction is taken as intended and recorded under
+`## Attested`.

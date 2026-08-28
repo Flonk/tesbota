@@ -199,7 +199,9 @@ For each claim return one verdict:
 
 - TRUE: nothing contradicts it.
 - FRICTION: it contradicts a document, but not anything Witnessed. This is
-  allowed and interesting. Say which text it rubs against.
+  allowed and interesting. Say which text it rubs against, and who wrote it — the
+  game master will be shown your reason and asked to make the disagreement
+  deliberate rather than accidental.
 - FALSE: it contradicts something Witnessed. Supply an alternative that fits.
 - UNRESOLVED: it cannot stand until somebody rules on it. This is rare.
 
