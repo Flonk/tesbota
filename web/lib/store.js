@@ -70,13 +70,12 @@ export async function snapshot() {
       pending: turn.looking
         ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
         : null,
-      claims: exchanges
-        .flatMap((x) => x.claims || [])
-        .concat(
-          turn.delivered
-            ? []
-            : (draft.claims || []).map((c) => ({ ...c, verdict: verdicts[c.id] || null }))
-        ),
+      claims: (() => {
+        const settled = exchanges.flatMap((x) => x.claims || []);
+        const live = (draft.claims || []).map((c) => ({ ...c, verdict: verdicts[c.id] || null }));
+        if (turn.delivered) return settled.length ? settled : live;
+        return settled.concat(live);
+      })(),
       quotes: draft.quotes || [],
       minutes: draft.minutes || 0,
       fatigue: draft.fatigue || 0,
