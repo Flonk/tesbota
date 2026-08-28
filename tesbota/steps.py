@@ -425,7 +425,12 @@ def step_lore1(campaign, turn):
 
     if unresolved:
         turn["gap"] = "\n".join(
-            f"- {by_id.get(v['claim'], {}).get('text', v['claim'])}\n  ({v.get('why', '')})"
+            "- "
+            + (
+                (v.get("question") or "").strip()
+                or by_id.get(v["claim"], {}).get("text", v["claim"])
+            )
+            + f"\n  ({v.get('why', '')})"
             for v in unresolved
         )
         blocked = open_phase(turn)
