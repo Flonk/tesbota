@@ -244,8 +244,17 @@ For each claim return one verdict:
 
 $BOTA marks lore deliberately left unwritten. It is not the same as silence: silence
 means the subject never came up and ordinary detail may fill it, whereas $BOTA means
-somebody decided there would be something here and has not written it yet. Any claim
-that rests on a passage marked $BOTA is UNRESOLVED, however small it looks. Say which
+somebody decided there would be something here and has not written it yet.
+
+A $BOTA mark blocks claims about what the thing IS — what it can do, where it came
+from, what it believes, what its markings mean, what it is for. It does not block
+claims about how it LOOKS right now. A stub is a promise that something exists;
+seeing it is not the same as settling it. That a chain is dark with age, that it
+hangs at a waist, that the marks on it are angular — all of that is being observed,
+and observing is how a stub gets filled in. Rule those WITHIN_BOUNDS.
+
+Escalate only when the claim would settle the thing itself: what the markings say,
+what the chain is for, who made it, what it means that they wear one. Say which
 document and which passage.
 
 Silence is not contradiction. If no document mentions a thing, the record does not

@@ -159,6 +159,17 @@ def run(limit=1):
 def resolve_gap(campaign, turn):
     from .steps import redraft_state
 
+    blocked_texts = [
+        (turn.get("draft") or {}).get("claims") or [],
+    ][0]
+    unresolved = {v.get("claim") for v in (turn.get("verdicts") or [])
+                  if v.get("result") == "UNRESOLVED"}
+    settled = campaign.setdefault("settled", [])
+    for claim in blocked_texts:
+        if claim.get("id") in unresolved and claim.get("text") not in settled:
+            settled.append(claim["text"])
+    del settled[:-60]
+
     turn["gap"] = None
     turn["gm_retries"] = 0
     for entry in reversed(turn.get("phases") or []):

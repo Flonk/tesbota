@@ -433,6 +433,10 @@ def step_gm(campaign, turn):
     return campaign, turn
 
 
+def plain(text):
+    return " ".join((text or "").lower().split()).strip(" .,;:!?\u2014-")
+
+
 def match_verdicts(verdicts, claims):
     """Tie each verdict to a claim. The lore master keys them by id when it
     remembers to and by the claim's own text when it does not."""
@@ -467,7 +471,14 @@ def step_lore1(campaign, turn):
         ]
         return deliver(campaign, turn)
 
-    verdicts = []
+    settled = {plain(t) for t in (campaign.get("settled") or [])}
+    already = [c for c in claims if plain(c.get("text")) in settled]
+    claims = [c for c in claims if plain(c.get("text")) not in settled]
+
+    verdicts = [
+        {"claim": c["id"], "result": "WITHIN_BOUNDS", "why": "already ruled on"}
+        for c in already
+    ]
     if claims:
         text, _ = ask(
             prompts.lore1_turn(claims),
@@ -476,7 +487,7 @@ def step_lore1(campaign, turn):
             session=None,
             model=MODELS["lore1"],
         )
-        verdicts = match_verdicts(extract_json(text).get("verdicts", []), claims)
+        verdicts += match_verdicts(extract_json(text).get("verdicts", []), claims)
         ruled = {v["claim"] for v in verdicts}
         unruled = [c for c in claims if c["id"] not in ruled]
         if unruled:
@@ -494,7 +505,7 @@ def step_lore1(campaign, turn):
             ]
     turn["verdicts"] = verdicts
 
-    by_id = {c["id"]: c for c in claims}
+    by_id = {c["id"]: c for c in claims + already}
     false_ones = [v for v in verdicts if v.get("result") == "FALSE"]
     unresolved = [v for v in verdicts if v.get("result") == "UNRESOLVED"]
 
