@@ -252,6 +252,7 @@ export default function Page() {
                         (x.checked ? "" : " pending")
                   }
                 >
+                  {x.kind === "action" && n === 0 && <span className="stage">intends</span>}
                   <p className={x.kind === "action" ? "action" : "lookq"}>
                     {x.kind === "say" ? `“${x.said}”` : x.said}
                   </p>
@@ -263,6 +264,44 @@ export default function Page() {
                   {!x.checked && x.reply && <p className="unchecked">not yet checked</p>}
                 </div>
               ))}
+
+              <Meta s={s} />
+
+              {s.fate && (
+                <div className={`fate ${s.fate.endsWith("fortune") ? "good" : "bad"}`}>
+                  {s.fate.replace("_", " ")} — rolled {s.roll} of 400
+                </div>
+              )}
+
+              {s.claims.length > 0 && (
+                <details className="claims" open={blocked && i === count - 1}>
+                  <summary>{s.claims.length} claim{s.claims.length > 1 ? "s" : ""}</summary>
+                  {s.claims.map((c) => (
+                    <div className="claim" key={c.id}>
+                      <span className={`v ${c.verdict?.result || "UNRESOLVED"}`}>
+                        {c.verdict?.result || "—"}
+                      </span>
+                      {c.text}
+                      {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
+                    </div>
+                  ))}
+                </details>
+              )}
+
+              {s.lore.length > 0 && (
+                <details className="claims lorelog">
+                  <summary>
+                    lore session — {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
+                  </summary>
+                  {s.loreGap && <div className="loregap">{s.loreGap}</div>}
+                  {s.lore.map((m, n) => (
+                    <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={n}>
+                      <span className="who">{m.role}</span>
+                      {m.text}
+                    </div>
+                  ))}
+                </details>
+              )}
 
               {s.note && (
                 <div className="notewas">
