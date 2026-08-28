@@ -132,7 +132,7 @@ def step_context(campaign, turn):
             vitals=campaign.get("vitals"),
             inventory=campaign.get("inventory") or [],
         
-            now=worldclock.stamp(campaign.get("time")),
+            now=worldclock.long_stamp(campaign.get("time")),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -197,7 +197,7 @@ def step_propose(campaign, turn):
             note=turn.get("note"),
             inventory=campaign.get("inventory") or [],
         
-            now=worldclock.stamp(campaign.get("time")),
+            now=worldclock.long_stamp(campaign.get("time")),
         ),
         system=prompts.GM_PROPOSE_SYSTEM,
         tools=READ_TOOLS,
@@ -307,7 +307,7 @@ def step_gm(campaign, turn):
             inventory=campaign.get("inventory") or [],
             quests=campaign.get("quests") or [],
         
-            now=worldclock.stamp(campaign.get("time")),
+            now=worldclock.long_stamp(campaign.get("time")),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -657,7 +657,9 @@ def deliver(campaign, turn):
         campaign["location_path"] = canon.ancestry(campaign["location"])
 
     campaign["time"] = worldclock.advance(campaign.get("time"), draft.get("minutes"))
-    turn["at"] = worldclock.stamp(campaign["time"])
+    campaign["time"]["stamp"] = worldclock.stamp(campaign["time"])
+    campaign["time"]["long"] = worldclock.long_stamp(campaign["time"])
+    turn["at"] = campaign["time"]["stamp"]
     campaign["last_narration"] = draft.get("narration")
     reply(turn, draft.get("narration"), checked=True)
     turn["location_path"] = campaign.get("location_path") or []

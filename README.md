@@ -435,3 +435,8 @@ turn.
 
 The calendar beyond that is undecided: days count up, but nothing says how many make
 a year, so the year does not yet advance.
+
+The calendar is law, not convention: `canon/books/the-ordering-of-the-year.md` is a
+godhead book, so the lore master treats it as ground truth and no in-world text may
+contradict it. Seven days a week, four weeks a month, eight months a year — 28 days
+per month, 224 per year, every month beginning on a Firstday.

@@ -90,11 +90,7 @@ export async function snapshot() {
 
   const current = turns.find((t) => t.turn_id === campaign.current_turn) || null;
   const t = campaign.time || {};
-  const mins = Number(t.minute ?? 0);
-  const now =
-    t.era !== undefined
-      ? `${t.era}E${t.year} ${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`
-      : null;
+  const now = t.stamp || null;
 
   const status = {
     state: current?.state || "uninitialised",

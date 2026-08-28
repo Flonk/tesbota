@@ -45,6 +45,33 @@ OPENING = {
     "risk": 0,
 }
 
+DAYS_PER_WEEK = 7
+WEEKS_PER_MONTH = 4
+MONTHS_PER_YEAR = 8
+DAYS_PER_MONTH = DAYS_PER_WEEK * WEEKS_PER_MONTH
+DAYS_PER_YEAR = DAYS_PER_MONTH * MONTHS_PER_YEAR
+
+MONTH_NAMES = (
+    "Frostfall",
+    "Deepfrost",
+    "Frostbreak",
+    "Seedwake",
+    "Longlight",
+    "Highsun",
+    "Reaptide",
+    "Emberwane",
+)
+
+DAY_NAMES = (
+    "Firstday",
+    "Millday",
+    "Waterday",
+    "Midweek",
+    "Marketday",
+    "Restday",
+    "Lastday",
+)
+
 WORLD_START = {"era": 4, "year": 202, "day": 1, "minute": 13 * 60 + 4}
 
 SPEED_FACTOR = 6000
