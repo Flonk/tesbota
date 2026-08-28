@@ -121,10 +121,10 @@ header {
 .claim { font-size: .85rem; margin: .8rem 0; font-family: ui-monospace, monospace; }
 .v { display: inline-block; font-size: .66rem; padding: 0 .4rem; border: 1px solid; border-radius: 2px; margin-right: .45rem; }
 .TRUE { color: var(--good); border-color: var(--good); }
-.WITHIN_BOUNDS { color: var(--dim); border-color: var(--line); }
+.WITHIN_BOUNDS { color: var(--good); border-color: var(--good); }
 .FRICTION { color: var(--warn); border-color: var(--warn); }
 .FALSE { color: var(--bad); border-color: var(--bad); }
-.UNRESOLVED { color: var(--dim); border-color: var(--dim); }
+.UNRESOLVED { color: var(--warn); border-color: var(--warn); }
 .why { color: var(--dim); display: block; margin-top: .25rem; }
 
 .lore { margin-top: 2.5rem; border-top: 1px solid var(--warn); padding-top: 1.5rem; }
