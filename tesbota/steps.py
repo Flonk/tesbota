@@ -1,6 +1,6 @@
 import json
 
-from . import canon, prompts, quotes
+from . import canon, prompts, quotes, sheet
 import random
 
 from .config import (
@@ -14,6 +14,7 @@ from .config import (
     MAX_HUNGER,
     MAX_RISK,
     MODELS,
+    SKILL_DIE,
     OPENING,
     READ_TOOLS,
     TRIVIAL_FATIGUE,
@@ -193,6 +194,7 @@ def step_gm(campaign, turn):
     draft.setdefault("fatigue", 0)
     draft.setdefault("health", 0)
     draft.setdefault("hunger", None)
+    draft.setdefault("check", None)
     draft.setdefault("risk", BASE_RISK)
 
     agreed = turn.get("proposal") if turn.get("confirmed") else None
@@ -261,15 +263,29 @@ def step_lore1(campaign, turn):
         return campaign, turn
 
     if not (false_ones or bad_quotes) and not turn.get("rolled"):
+        check = roll_check(campaign, turn)
         fate = roll_fate(turn)
+        payload = {}
+
+        if check and not check["passed"]:
+            payload["failed_check"] = check
+            payload["check_instruction"] = (
+                f"They tried and fell short: a {check['skill']} check, rolled "
+                f"{check['roll']} plus {check['bonus']:+d} against a difficulty of "
+                f"{check['dc']}. Renarrate the same attempt not working. They may try "
+                "something else afterwards, but this attempt failed."
+            )
+        elif check:
+            payload["passed_check"] = check
+
         if fate:
-            turn["correction"] = json.dumps({
-                "fate": fate,
-                "rolled": turn["roll"],
-                "die": DIE,
-                "risk": turn["risk"],
-                "instruction": FATE_INSTRUCTIONS[fate],
-            }, indent=2)
+            payload["fate"] = fate
+            payload["rolled"] = turn["roll"]
+            payload["die"] = DIE
+            payload["fate_instruction"] = FATE_INSTRUCTIONS[fate]
+
+        if "failed_check" in payload or fate:
+            turn["correction"] = json.dumps(payload, indent=2)
             turn["state"] = "gm"
             return campaign, turn
 
@@ -355,6 +371,26 @@ def apply_vitals(campaign, draft):
     change = drift if stated is None else int(stated)
     vitals["hunger"] = max(0, min(MAX_HUNGER, round(vitals.get("hunger", 0) + change)))
     return campaign
+
+
+def roll_check(campaign, turn, rng=random):
+    check = (turn["draft"] or {}).get("check") or {}
+    skill = (check.get("skill") or "").strip().lower()
+    bonus = sheet.skill_bonus(campaign, skill)
+    if bonus is None:
+        return None
+    dc = int(check.get("dc") or 10)
+    roll = rng.randint(1, SKILL_DIE)
+    outcome = {
+        "skill": skill,
+        "dc": dc,
+        "roll": roll,
+        "bonus": bonus,
+        "total": roll + bonus,
+        "passed": roll + bonus >= dc,
+    }
+    turn["check"] = outcome
+    return outcome
 
 
 def roll_fate(turn, rng=random):

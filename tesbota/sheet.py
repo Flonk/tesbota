@@ -1,4 +1,4 @@
-from .config import MAX_FATIGUE, MAX_HEALTH, MAX_HUNGER
+from .config import ABILITIES, MAX_FATIGUE, MAX_HEALTH, MAX_HUNGER, SKILL_ABILITY
 from .state import load_campaign
 
 HEALTH_WORDS = [(90, "unhurt"), (70, "bruised"), (45, "hurt"), (20, "badly hurt"), (0, "failing")]
@@ -21,6 +21,22 @@ def ascend(value, table):
     return word
 
 
+def modifier(score):
+    return (int(score) - 10) // 2
+
+
+def skill_bonus(campaign, skill):
+    skills = campaign.get("skills") or {}
+    abilities = skills.get("abilities") or {}
+    ability = SKILL_ABILITY.get(skill)
+    if ability is None:
+        return None
+    total = modifier(abilities.get(ability, 10))
+    if skill in set(skills.get("proficient") or []):
+        total += int(skills.get("proficiency") or 0)
+    return total
+
+
 def render_stats(campaign=None):
     campaign = campaign or load_campaign()
     v = campaign.get("vitals") or {}
@@ -36,11 +52,26 @@ def render_stats(campaign=None):
         "skills",
     ]
     skills = campaign.get("skills") or {}
-    if not skills:
+    abilities = skills.get("abilities") or {}
+    if not abilities:
         lines.append("  you have not found out what you are good at")
-    else:
-        for name in sorted(skills):
-            lines.append(f"  {name} — {skills[name]}")
+        return "\n".join(lines)
+
+    lines[-1] = "abilities"
+    lines.append("  " + "   ".join(
+        f"{name} {abilities.get(name, 10):2} ({modifier(abilities.get(name, 10)):+d})"
+        for name in ABILITIES
+    ))
+    lines += ["", "skills"]
+    proficient = set(skills.get("proficient") or [])
+    bonus = int(skills.get("proficiency") or 0)
+    for name in sorted(SKILL_ABILITY):
+        ability = SKILL_ABILITY[name]
+        total = modifier(abilities.get(ability, 10)) + (bonus if name in proficient else 0)
+        mark = "*" if name in proficient else " "
+        lines.append(f"  {mark} {name:16} {ability}  {total:+d}")
+    lines.append("")
+    lines.append("  * trained")
     return "\n".join(lines)
 
 

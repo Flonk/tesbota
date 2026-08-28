@@ -140,7 +140,8 @@ Reply with a single fenced json block and nothing else:
   "minutes": 0,
   "fatigue": 0,
   "health": 0,
-  "risk": 1
+  "risk": 1,
+  "check": null
 }
 ```
 
@@ -175,6 +176,12 @@ climbing wet rock in the dark, wading a river in spate, going armed at something
 larger than they are. 3 is unwise, 8 is foolish, 20 is asking for it. You are not
 punishing them, you are pricing the risk they chose. Fortune does not scale — luck
 is not something they can earn by being careless.
+
+When an action could plainly fail — climbing, sneaking past someone, spotting what
+is hidden, talking someone round, holding a heavy thing shut — call for a check.
+Set `"check": {"skill": "athletics", "dc": 12}` on your reply. Difficulty 10 is
+something most people manage, 15 takes some doing, 20 is a long shot. Do not call
+for one when the action would simply work; most actions need no check at all.
 
 You never roll. Dice are rolled for you, and if they land somewhere that matters
 you will be told which way, and asked to narrate the same action again with that

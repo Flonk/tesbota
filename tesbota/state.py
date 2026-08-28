@@ -8,6 +8,7 @@ from .config import (
     MAX_FATIGUE,
     MAX_HEALTH,
     STARTING_INVENTORY,
+    STARTING_SKILLS,
     STATE,
     TURNS,
 )
@@ -44,7 +45,7 @@ def new_campaign():
         "clock": dict(DEFAULTS),
         "vitals": {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0},
         "inventory": list(STARTING_INVENTORY),
-        "skills": {},
+        "skills": json.loads(json.dumps(STARTING_SKILLS)),
         "last_narration": None,
         "last_seen": None,
         "created": stamp(),
@@ -61,7 +62,7 @@ def load_campaign():
     blank = new_campaign()
     changed = False
     for key in ("inventory", "skills", "clock"):
-        if key not in campaign:
+        if not campaign.get(key):
             campaign[key] = blank[key]
             changed = True
     vitals = campaign.setdefault("vitals", blank["vitals"])

@@ -311,3 +311,20 @@ It starts in plain hard-wearing clothes and worn boots.
 Hunger accrues with in-world time (about 4 an hour) rather than being narrated into
 existence; the game master overrides it only when the adventurer actually eats, by
 setting `hunger` on the draft.
+
+## Checks
+
+The adventurer has six ability scores and a proficiency bonus. A skill's bonus is
+its ability modifier plus proficiency if trained; the sheet starts trained in
+perception and survival, with otherwise unremarkable scores.
+
+When an action could plainly fail, the game master sets
+`"check": {"skill": "athletics", "dc": 12}` on its reply — 10 is something most
+people manage, 15 takes doing, 20 is a long shot — and the driver rolls a d20,
+adds the bonus and compares. A pass delivers. A failure sends the draft back with
+the numbers and an instruction to renarrate the attempt not working, without
+undoing the attempt itself. The game master never rolls, and most actions need no
+check.
+
+Checks and the d400 are resolved in the same pass, so an action needs at most one
+redraft even when both land.

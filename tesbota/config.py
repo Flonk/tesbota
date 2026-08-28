@@ -53,6 +53,37 @@ MAX_HUNGER = 100
 
 HUNGER_PER_HOUR = 4
 
+ABILITIES = ("str", "dex", "con", "int", "wis", "cha")
+
+SKILL_ABILITY = {
+    "acrobatics": "dex",
+    "animal handling": "wis",
+    "arcana": "int",
+    "athletics": "str",
+    "deception": "cha",
+    "history": "int",
+    "insight": "wis",
+    "intimidation": "cha",
+    "investigation": "int",
+    "medicine": "wis",
+    "nature": "int",
+    "perception": "wis",
+    "performance": "cha",
+    "persuasion": "cha",
+    "religion": "int",
+    "sleight of hand": "dex",
+    "stealth": "dex",
+    "survival": "wis",
+}
+
+STARTING_SKILLS = {
+    "abilities": {"str": 10, "dex": 11, "con": 12, "int": 11, "wis": 12, "cha": 9},
+    "proficiency": 2,
+    "proficient": ["perception", "survival"],
+}
+
+SKILL_DIE = 20
+
 STARTING_INVENTORY = [
     "a set of plain, hard-wearing clothes, none of them new",
     "a pair of worn walking boots",
