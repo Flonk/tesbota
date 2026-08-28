@@ -7,6 +7,7 @@ from .config import (
     BASE_RISK,
     DIE,
     MAX_ASKS,
+    MAX_LOOKS,
     MAX_FATIGUE,
     MAX_GM_RETRIES,
     HUNGER_PER_HOUR,
@@ -62,8 +63,40 @@ def step_explorer(campaign, turn):
         permission=explorer_permission,
     )
     campaign["sessions"]["explorer"] = session
-    turn["action"] = text
+
+    stripped = text.strip()
+    asking = stripped.upper().startswith("LOOK:")
+    if asking and len(turn.get("looks") or []) < MAX_LOOKS:
+        turn["question"] = stripped[5:].strip()
+        turn["looking"] = True
+        turn["state"] = "answer"
+        return campaign, turn
+
+    turn["action"] = stripped[5:].strip() if asking else stripped
     turn["state"] = "propose"
+    return campaign, turn
+
+
+def step_answer(campaign, turn):
+    text, session = ask(
+        prompts.gm_answer(turn.get("question"), previous=campaign.get("last_narration")),
+        system=prompts.GM_SYSTEM,
+        tools=READ_TOOLS,
+        session=campaign["sessions"]["gm"],
+        model=MODELS["gm"],
+    )
+    campaign["sessions"]["gm"] = session
+    draft = extract_json(text)
+    draft.setdefault("claims", [])
+    draft.setdefault("quotes", [])
+    draft["travel"] = None
+    draft["minutes"] = 0
+    draft["fatigue"] = 0
+    draft["health"] = 0
+    draft["check"] = None
+    turn["draft"] = draft
+    turn["correction"] = None
+    turn["state"] = "lore1"
     return campaign, turn
 
 
@@ -263,7 +296,7 @@ def step_lore1(campaign, turn):
         turn["state"] = "gm"
         return campaign, turn
 
-    if not (false_ones or bad_quotes) and not turn.get("rolled"):
+    if not (false_ones or bad_quotes) and not turn.get("rolled") and not turn.get("looking"):
         check = roll_check(campaign, turn)
         fate = roll_fate(turn)
         payload = {}
@@ -434,7 +467,6 @@ def deliver(campaign, turn):
         elif result == "FRICTION":
             canon.append_attested(claim["entity"], turn["turn_id"], claim["text"], kind=kind)
 
-    turn["delivered"] = True
     campaign = apply_vitals(campaign, draft)
 
     where = (draft.get("location") or "").strip() if isinstance(draft.get("location"), str) else ""
@@ -443,13 +475,29 @@ def deliver(campaign, turn):
         campaign["location_path"] = canon.ancestry(campaign["location"])
 
     campaign["last_narration"] = draft.get("narration")
+
+    if turn.get("looking"):
+        turn.setdefault("looks", []).append({
+            "question": turn.get("question"),
+            "answer": draft.get("narration"),
+        })
+        turn["looking"] = False
+        turn["question"] = None
+        turn["draft"] = None
+        turn["verdicts"] = []
+        turn["gm_retries"] = 0
+        turn["state"] = "explorer"
+        return campaign, turn
+
     turn["minutes"] = int(draft.get("minutes") or 0)
+    turn["delivered"] = True
     turn["state"] = "done"
     return campaign, turn
 
 
 STEPS = {
     "explorer": step_explorer,
+    "answer": step_answer,
     "propose": step_propose,
     "confirm": step_confirm,
     "gm": step_gm,

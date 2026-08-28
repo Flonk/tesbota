@@ -209,6 +209,13 @@ export default function Page() {
                 {s.cue ? ` · ${s.cue}` : ""}
               </div>
 
+              {s.looks?.map((l, n) => (
+                <div className="look" key={n}>
+                  <p className="lookq">{l.question}</p>
+                  <p className="looka">{l.answer}</p>
+                </div>
+              ))}
+
               {s.action && <p className="action">{s.action}</p>}
               {s.narration && <p className="narration">{s.narration}</p>}
 

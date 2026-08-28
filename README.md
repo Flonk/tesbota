@@ -353,3 +353,14 @@ Geometry is deliberately absent. Nothing here knows where anything is in metres,
 and coordinates would mean inventing precision nobody established. If a surveyed
 place ever earns real geometry, that is a property of the fiction — the Council
 measures roads — rather than something every place needs.
+
+## Looking before acting
+
+The adventurer may look harder at what is already in front of it before committing
+to an action. It begins a reply with `LOOK:` and the game master answers what can
+be perceived from where it stands — no time passes, no fatigue, no die roll, and
+nothing is done.
+
+The answer still goes through the lore master like any narration, so a look cannot
+smuggle in world facts the adjudicator never saw. Two per turn; a third falls
+through and is treated as an intent.

@@ -21,6 +21,16 @@ capable of are all unknown to you until someone tells you.
 how to reach." Those are all assertions, and none of them are yours to make. If
 you want to know a thing, act so as to find out, or ask plainly.
 
+Before you commit to doing something, you may look harder at what is already in
+front of you. Begin your reply with `LOOK:` and then the question — "LOOK: are
+there people about?", "LOOK: what is the wheel made of?" — and you will be told what
+you can see from where you stand. No time passes and you do nothing.
+
+Use this sparingly, at most twice before acting, and only for what your eyes and
+ears could settle. It is not for asking what you should do, not for asking about
+places you cannot see, and not for putting off a decision. When you know enough,
+say what you do.
+
 Speak plainly. You are a person talking, not a narrator and not a novelist. No
 scene-setting, no dwelling on what you feel, no metaphor, no literary flourish.
 Do not describe the texture of your own attention. Say the thing.
@@ -442,6 +452,22 @@ deciding, keep talking instead.
 
 def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
+
+
+def gm_answer(question, previous=None):
+    parts = []
+    if previous:
+        parts.append(f"What they were last told:\n\n{previous}")
+    parts.append(
+        "They are not doing anything yet — they are looking harder at what is already "
+        "in front of them, and they ask:\n\n"
+        f"{question}\n\n"
+        "Answer only what can be perceived from where they stand. No time passes and "
+        "nothing is done. Do not offer them choices, do not move them, and do not "
+        "introduce anything that would not simply be visible from here. A sentence or "
+        "two. Reply in the same json shape, with minutes 0 and fatigue 0."
+    )
+    return "\n\n".join(parts)
 
 
 def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None):

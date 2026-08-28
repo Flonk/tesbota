@@ -72,6 +72,7 @@ export async function snapshot() {
       calamity: !!turn.calamity,
       retries: turn.gm_retries || 0,
       travel: draft.travel || null,
+      looks: turn.looks || [],
       lore: turn.lore || [],
       loreGap: turn.lore_gap || null,
     });
