@@ -63,11 +63,9 @@ nothing at all — you must actually run it, and then it is not your utterance
 either. Look at your sheet as much as you like; you still owe a reply afterwards.
 
 A turn goes like this. You take one action — say what you do, and that is what you
-are doing this turn. You are told what bears on it: what you can see of it, what is
-in the way, who is there. Nothing has happened yet.
-
-It happens straight away. You are told what it cost you in time and effort, and
-what came of it. You do not get to approve it first and you cannot take it back.
+are doing this turn. It happens straight away: you are told what it cost you in time
+and effort, and what came of it. You do not get to approve it first and you cannot
+take it back.
 
 Then, if you want, you may speak and you may look, in any order — twice speaking
 and once looking, no more — and each costs you nothing. That is how you find out
