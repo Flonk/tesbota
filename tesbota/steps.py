@@ -358,6 +358,30 @@ def step_gm(campaign, turn):
     return campaign, turn
 
 
+def match_verdicts(verdicts, claims):
+    """Tie each verdict to a claim. The lore master keys them by id when it
+    remembers to and by the claim's own text when it does not."""
+    ids = {c["id"] for c in claims}
+    by_text = {(c.get("text") or "").strip().lower(): c["id"] for c in claims}
+    seen, out = set(), []
+    for v in verdicts:
+        if not isinstance(v, dict):
+            continue
+        key = str(v.get("claim") or "").strip()
+        ident = key if key in ids else by_text.get(key.lower())
+        if not ident and key:
+            low = key.lower().rstrip("… .")
+            for text, cid in by_text.items():
+                if text.startswith(low) or low.startswith(text):
+                    ident = cid
+                    break
+        if not ident or ident in seen:
+            continue
+        seen.add(ident)
+        out.append({**v, "claim": ident})
+    return out
+
+
 def step_lore1(campaign, turn):
     draft = turn["draft"]
     claims = draft.get("claims") or []
@@ -377,8 +401,8 @@ def step_lore1(campaign, turn):
             session=None,
             model=MODELS["lore1"],
         )
-        verdicts = extract_json(text).get("verdicts", [])
-        ruled = {v.get("claim") for v in verdicts if isinstance(v, dict)}
+        verdicts = match_verdicts(extract_json(text).get("verdicts", []), claims)
+        ruled = {v["claim"] for v in verdicts}
         unruled = [c for c in claims if c["id"] not in ruled]
         if unruled:
             turn["lore1_retries"] = turn.get("lore1_retries", 0) + 1

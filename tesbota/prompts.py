@@ -516,7 +516,9 @@ place; if a place has no parent recorded and nothing establishes one, that is
 UNRESOLVED, not something for you to decide. You
 do not invent, you do not resolve, and you never add testimony of your own.
 
-Reply with a single fenced json block and nothing else:
+Reply with a single fenced json block and nothing else. `claim` is the claim's id —
+`c1`, `c2` — never the claim's text, and every claim you were given gets exactly one
+verdict:
 
 ```json
 {"verdicts": [{"claim": "c1", "result": "TRUE", "why": "", "alternative": "", "sources": []}]}
