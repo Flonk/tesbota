@@ -173,3 +173,23 @@ On a hit the draft is sent back with the numbers and an instruction to renarrate
 the same action going wrong — not to undo it. A calamity is exempt from the
 fatigue ceiling, because it is something happening to them rather than something
 they chose; its costs clamp instead of bouncing.
+
+## Proposals
+
+An intent is not narrated straight away. The game master prices it first — how
+long it takes and what it costs — and the adventurer confirms before anything
+happens.
+
+The game master does not know the world's distances and must not invent them, so
+it asks: it puts a question in `ask`, the driver routes it to a lore master in
+query mode (read-only, forbidden to invent, allowed to answer "nothing records
+that"), and the answer comes back before it prices anything. Up to three
+questions per intent.
+
+Trivial things — under 10 minutes and under 3 fatigue — skip the confirmation and
+are narrated directly. Anything larger goes to the adventurer as a summary with
+its cost, and it answers YES or NO. On a refusal its alternative becomes the new
+intent; after three refusals the turn escalates to you.
+
+Once confirmed, the agreed minutes and fatigue are stamped onto the draft by the
+driver, so the narration cannot quietly re-price what was agreed.

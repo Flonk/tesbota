@@ -1,3 +1,4 @@
+import json
 import random
 
 from . import travel
@@ -35,6 +36,19 @@ def write_pending(turn):
         encoding="utf-8",
     )
     return path
+
+
+def open_world(campaign):
+    from .config import OPENING
+    from .steps import step_lore1
+
+    turn = new_turn(campaign, state="lore1")
+    turn["draft"] = json.loads(json.dumps(OPENING))
+    turn["opening"] = True
+    campaign, turn = step_lore1(campaign, turn)
+    save_turn(turn)
+    save_campaign(campaign)
+    return turn
 
 
 def advance(campaign, turn):

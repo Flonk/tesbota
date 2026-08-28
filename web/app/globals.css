@@ -43,14 +43,14 @@ header {
   min-width: 0;
 }
 
-.hrow.top { justify-content: space-between; }
+.hrow.top { flex-direction: column; align-items: center; gap: .25rem; text-align: center; }
 .hrow.top .muted,
 .hrow.top span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hrow.bottom { flex-wrap: wrap; }
+.hrow.bottom { flex-wrap: wrap; justify-content: center; }
 
-h1 { font-size: 1rem; margin: 0; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+h1 { font-size: 1.6rem; margin: 0; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); font-weight: 400; }
 .muted { color: var(--dim); font-size: .85rem; }
-.counter { margin-left: auto; font: 11px ui-monospace, monospace; color: var(--dim); flex: 0 0 auto; }
+.counter { font: 11px ui-monospace, monospace; color: var(--dim); flex: 0 0 auto; }
 
 .deck {
   display: flex;
@@ -148,6 +148,6 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   .slide { padding: 1.5rem 1rem; }
   .bartrack { width: 48px; }
   .hrow { gap: .7rem; }
-  h1 { font-size: .85rem; letter-spacing: .12em; }
+  h1 { font-size: 1.3rem; letter-spacing: .22em; }
   .dots { height: 38px; gap: .3rem; }
 }

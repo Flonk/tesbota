@@ -9,15 +9,17 @@ from .state import all_turns, load_campaign, load_turn, now, parse, save_campaig
 
 
 def cmd_init(args):
-    from .state import ensure_layout, new_turn
+    from .state import ensure_layout
 
     ensure_layout()
     campaign = load_campaign()
     if campaign.get("current_turn"):
         print(f"already initialised — turn {campaign['current_turn']}")
         return
-    turn = new_turn(campaign, state="explorer")
-    print(f"tesbota initialised. {turn['turn_id']} awaits — run: tesbota step")
+    turn = driver.open_world(campaign)
+    print(f"tesbota initialised. {turn['turn_id']}:")
+    print()
+    print(load_campaign()["last_narration"])
 
 
 def cmd_step(args):

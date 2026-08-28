@@ -25,6 +25,44 @@ own action — you do not know it yet. Never describe a thing before it has been
 shown to you.
 """
 
+GM_PROPOSE_SYSTEM = """You are the game master of a world that does not yet fully exist.
+
+The adventurer has said what they intend to do. You do not narrate it yet. You
+price it: how long it will take, and what it will cost them.
+
+You do not know the world's distances by instinct, and you must not invent them.
+If the intent involves going somewhere, or anything whose cost depends on a
+distance or a route you are unsure of, ask. Put your question in `ask` and you
+will be told what the record says before you price anything.
+
+Ask about what you actually need — "how far is the ferry at Karth from the
+crossroads, and what lies between" — not about the world in general. If the record
+turns out to establish nothing, price it as a stretch of road that goes on until
+something interrupts it, and be honest in the summary that the distance is unknown.
+
+When you are ready, reply with a single fenced json block and nothing else:
+
+```json
+{
+  "ask": null,
+  "proposal": {
+    "summary": "what they are about to commit to, one plain sentence, second person",
+    "target": "kebab-id or null",
+    "minutes": 0,
+    "fatigue": 0,
+    "risk": 1
+  }
+}
+```
+
+To ask instead, set `"ask"` to your question and leave `proposal` null.
+
+An hour of walking is about 4 fatigue. 100 is a full day of hard labour. Do not
+propose something that would take them past 100 — propose the rest they need
+first. If what they intend is trivial (a glance, a question, a step), price it
+honestly small and it will be waved through without troubling them to confirm.
+"""
+
 GM_SYSTEM = """You are the game master of a world that does not yet fully exist.
 
 You narrate what the adventurer perceives. Where the world is silent you may
@@ -231,8 +269,16 @@ def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None):
     parts = []
+    if agreed:
+        parts.append(
+            "They agreed to this, and it is settled — narrate it as happening, "
+            f"and do not re-price it:\n\n{agreed['summary']}\n\n"
+            f"It takes {agreed['minutes']} minutes and costs {agreed['fatigue']} fatigue. "
+            "Narrate where it actually gets them. If the target was reachable in that "
+            "time, they arrive. Do not tell them they are still nowhere."
+        )
     if vitals:
         parts.append(
             f"Their condition: health {vitals.get('health')}/100, "
@@ -255,6 +301,50 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
             f"json shape:\n\n{correction}"
         )
     return "\n\n".join(parts)
+
+
+LORE1_QUERY_SYSTEM = """You answer questions about what a world's documents establish.
+
+The canon lives in canon/ as markdown. Read it with Read, Glob and Grep, narrowly.
+Places nest: each has `within:`, `contains:` and a `## Map`. Distances and routes,
+where they are known at all, are known only because some document says so.
+
+Two things are established fact: any "## Witnessed" line, and any book whose
+frontmatter says `author: the godhead`. Everything else is somebody's testimony —
+report it as such, and say who.
+
+Answer plainly and briefly. If the documents do not settle the question, say so in
+as many words. Never invent a distance, a direction, a route or a place. "Nothing
+records how far that is" is a complete and useful answer.
+"""
+
+
+def lore1_query(question):
+    return f"{question}"
+
+
+def gm_propose(action, previous=None, vitals=None, answers=None):
+    parts = []
+    if previous:
+        parts.append(f"What the adventurer was last told:\n\n{previous}")
+    if vitals:
+        parts.append(
+            f"Their condition: health {vitals.get('health')}/100, "
+            f"fatigue {vitals.get('fatigue')}/100."
+        )
+    parts.append(f"What they intend to do:\n\n{action}")
+    for question, answer in answers or []:
+        parts.append(f"You asked: {question}\n\nThe record says: {answer}")
+    return "\n\n".join(parts)
+
+
+def explorer_confirm(proposal):
+    return (
+        f"Before you begin: {proposal['summary']}\n\n"
+        f"It will take about {proposal['minutes']} minutes and cost you "
+        f"{proposal['fatigue']} fatigue.\n\n"
+        "Answer YES or NO on the first line. If no, say briefly what you would rather do."
+    )
 
 
 def lore1_turn(claims):

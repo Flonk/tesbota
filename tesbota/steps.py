@@ -5,6 +5,7 @@ import random
 
 from .config import (
     BASE_RISK,
+    MAX_ASKS,
     MAX_FATIGUE,
     MAX_GM_RETRIES,
     MAX_HEALTH,
@@ -12,6 +13,8 @@ from .config import (
     MODELS,
     OPENING,
     READ_TOOLS,
+    TRIVIAL_FATIGUE,
+    TRIVIAL_MINUTES,
     WRITE_TOOLS,
 )
 from .sdk import ask, extract_json
@@ -27,7 +30,102 @@ def step_explorer(campaign, turn):
     )
     campaign["sessions"]["explorer"] = session
     turn["action"] = text
-    turn["state"] = "gm"
+    turn["state"] = "propose"
+    return campaign, turn
+
+
+def step_propose(campaign, turn):
+    text, session = ask(
+        prompts.gm_propose(
+            turn.get("action"),
+            previous=campaign.get("last_narration"),
+            vitals=campaign.get("vitals"),
+            answers=turn.get("answers") or [],
+        ),
+        system=prompts.GM_PROPOSE_SYSTEM,
+        tools=READ_TOOLS,
+        session=None,
+        model=MODELS["gm"],
+    )
+    out = extract_json(text)
+
+    question = (out.get("ask") or "").strip() if isinstance(out.get("ask"), str) else None
+    answers = turn.setdefault("answers", [])
+    if question and len(answers) < MAX_ASKS:
+        reply, _ = ask(
+            prompts.lore1_query(question),
+            system=prompts.LORE1_QUERY_SYSTEM,
+            tools=READ_TOOLS,
+            session=None,
+            model=MODELS["lore1"],
+        )
+        answers.append([question, reply.strip()])
+        turn["state"] = "propose"
+        return campaign, turn
+
+    proposal = out.get("proposal")
+    priced = isinstance(proposal, dict) and "minutes" in proposal
+
+    if not priced:
+        turn["propose_retries"] = turn.get("propose_retries", 0) + 1
+        if turn["propose_retries"] < 2:
+            turn["state"] = "propose"
+            return campaign, turn
+        proposal = {
+            "summary": turn.get("action") or "",
+            "target": None,
+            "minutes": TRIVIAL_MINUTES,
+            "fatigue": TRIVIAL_FATIGUE,
+            "risk": BASE_RISK,
+            "unpriced": True,
+        }
+
+    proposal.setdefault("summary", turn.get("action") or "")
+    proposal["minutes"] = int(proposal.get("minutes") or 0)
+    proposal["fatigue"] = int(proposal.get("fatigue") or 0)
+    proposal["risk"] = int(proposal.get("risk") or BASE_RISK)
+    turn["proposal"] = proposal
+
+    trivial = (
+        priced
+        and proposal["minutes"] < TRIVIAL_MINUTES
+        and abs(proposal["fatigue"]) < TRIVIAL_FATIGUE
+    )
+    turn["confirmed"] = True if trivial else None
+    turn["state"] = "gm" if trivial else "confirm"
+    return campaign, turn
+
+
+def step_confirm(campaign, turn):
+    text, session = ask(
+        prompts.explorer_confirm(turn["proposal"]),
+        system=prompts.EXPLORER_SYSTEM,
+        tools=[],
+        session=campaign["sessions"]["explorer"],
+        model=MODELS["explorer"],
+    )
+    campaign["sessions"]["explorer"] = session
+    turn["answer"] = text
+    first = text.strip().splitlines()[0].strip().upper() if text.strip() else ""
+    yes = first.startswith("YES")
+    turn["confirmed"] = yes
+    if yes:
+        turn["state"] = "gm"
+        return campaign, turn
+
+    turn["declines"] = turn.get("declines", 0) + 1
+    if turn["declines"] >= MAX_ASKS:
+        turn["gap"] = (
+            "The adventurer has refused every proposal put to them:\n\n"
+            + text.strip()
+        )
+        turn["state"] = "awaiting_human"
+        return campaign, turn
+
+    turn["action"] = text
+    turn["proposal"] = None
+    turn["answers"] = []
+    turn["state"] = "propose"
     return campaign, turn
 
 
@@ -46,6 +144,7 @@ def step_gm(campaign, turn):
             correction=turn.get("correction"),
             event=turn.get("event"),
             arrival=turn.get("arrival"),
+            agreed=turn.get("proposal") if turn.get("confirmed") else None,
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -61,6 +160,12 @@ def step_gm(campaign, turn):
     draft.setdefault("fatigue", 0)
     draft.setdefault("health", 0)
     draft.setdefault("risk", BASE_RISK)
+
+    agreed = turn.get("proposal") if turn.get("confirmed") else None
+    if agreed:
+        draft["minutes"] = agreed["minutes"]
+        draft["fatigue"] = agreed["fatigue"]
+        draft["risk"] = max(draft.get("risk") or BASE_RISK, agreed.get("risk") or BASE_RISK)
     turn["draft"] = draft
     turn["correction"] = None
     turn["state"] = "lore1"
@@ -197,6 +302,8 @@ def deliver(campaign, turn):
 
 STEPS = {
     "explorer": step_explorer,
+    "propose": step_propose,
+    "confirm": step_confirm,
     "gm": step_gm,
     "lore1": step_lore1,
 }
