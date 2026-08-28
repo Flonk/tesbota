@@ -256,3 +256,17 @@ that has no file creates that file in the same breath, frontmatter plus `$BOTA`
 where the content will go. A wikilink pointing at nothing is a loose end; a stub is
 a promise. If it does not know what contains a new place it writes `within: $BOTA`
 rather than guessing, which brings the question back rather than settling it.
+
+## Verdicts
+
+- **TRUE** — the record affirms it: a Witnessed line or a godhead book says so.
+- **WITHIN_BOUNDS** — nothing establishes it, but it is mundane or the only sensible
+  reading of what is written. It stands. This is the ordinary verdict for the
+  ordinary world and should be the common one.
+- **FRICTION** — contradicts testimony. Goes back to the game master once to make
+  the disagreement deliberate.
+- **FALSE** — contradicts something Witnessed or a godhead book. Redraft.
+- **UNRESOLVED** — the claim constrains the world. Escalates to you.
+
+TRUE and WITHIN_BOUNDS both deliver and are recorded under `## Witnessed`; only
+FRICTION and FALSE cost a redraft.

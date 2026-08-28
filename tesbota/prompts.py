@@ -204,7 +204,10 @@ other author. Testimony may be contradicted freely, and often should be.
 
 For each claim return one verdict:
 
-- TRUE: nothing contradicts it.
+- TRUE: the record actually affirms it — a Witnessed line or a godhead book says so.
+- WITHIN_BOUNDS: nothing establishes it, but it is mundane, or it is the only
+  sensible reading of what is already written. It stands, and nothing needs doing
+  about it. Use this freely: it is the ordinary verdict for the ordinary world.
 - FRICTION: it contradicts a document, but not anything Witnessed. This is
   allowed and interesting. Say which text it rubs against, and who wrote it — the
   game master will be shown your reason and asked to make the disagreement
@@ -258,7 +261,13 @@ A figure stepping out of the fog and challenging someone is happening: TRUE. Tha
 the town keeps gatekeepers who challenge travellers is what the town is:
 UNRESOLVED. The same sentence can do both — when it does, it needs a ruling.
 
-Everything merely unrecorded and merely momentary is TRUE. If you find yourself
+Most claims are WITHIN_BOUNDS. Reach for it whenever a claim neither contradicts
+anything nor decides anything — that is the common case, and treating it as a hard
+question wastes everyone's time. Save TRUE for when a document genuinely backs the
+claim, FRICTION and FALSE for real conflict, and UNRESOLVED for claims that
+constrain the world.
+
+Everything merely unrecorded and merely momentary is WITHIN_BOUNDS or TRUE. If you find yourself
 writing "no document mentions this" as your only reason for a passing detail, the
 verdict is TRUE, not UNRESOLVED.
 

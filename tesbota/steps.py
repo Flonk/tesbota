@@ -321,7 +321,7 @@ def deliver(campaign, turn):
         if not claim.get("entity"):
             continue
         kind = claim.get("kind", "places")
-        if result == "TRUE":
+        if result in ("TRUE", "WITHIN_BOUNDS"):
             canon.append_witnessed(claim["entity"], turn["turn_id"], claim["text"], kind=kind)
         elif result == "FRICTION":
             canon.append_attested(claim["entity"], turn["turn_id"], claim["text"], kind=kind)

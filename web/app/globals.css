@@ -91,6 +91,7 @@ h1 { font-size: 1.6rem; margin: 0; letter-spacing: .3em; text-transform: upperca
 .claim { font-size: .85rem; margin: .8rem 0; font-family: ui-monospace, monospace; }
 .v { display: inline-block; font-size: .66rem; padding: 0 .4rem; border: 1px solid; border-radius: 2px; margin-right: .45rem; }
 .TRUE { color: var(--good); border-color: var(--good); }
+.WITHIN_BOUNDS { color: var(--dim); border-color: var(--line); }
 .FRICTION { color: var(--warn); border-color: var(--warn); }
 .FALSE { color: var(--bad); border-color: var(--bad); }
 .UNRESOLVED { color: var(--dim); border-color: var(--dim); }
