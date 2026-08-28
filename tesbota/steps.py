@@ -95,7 +95,7 @@ def first_utterance(text):
 
 def step_explorer(campaign, turn):
     text, session = ask(
-        prompts.explorer_turn(campaign.get("last_narration")),
+        prompts.explorer_turn(campaign.get("last_narration"), nudge=turn.get("nudge")),
         system=prompts.EXPLORER_SYSTEM,
         tools=["Bash"],
         session=campaign["sessions"]["explorer"],
@@ -122,6 +122,18 @@ def step_explorer(campaign, turn):
     if not turn.get("action") and not upper.startswith(("LOOK:", "SAY:")):
         turn["action"] = stripped
         say(turn, "action", stripped)
+        turn["mode"] = "context"
+        turn["looking"] = True
+        turn["state"] = "context"
+        return campaign, turn
+
+    if not turn.get("action") and upper.startswith(("LOOK:", "SAY:")):
+        turn["nudge"] = turn.get("nudge", 0) + 1
+        if turn["nudge"] < MAX_ASKS:
+            turn["state"] = "explorer"
+            return campaign, turn
+        turn["action"] = stripped.split(":", 1)[1].strip()
+        say(turn, "action", turn["action"])
         turn["mode"] = "context"
         turn["looking"] = True
         turn["state"] = "context"

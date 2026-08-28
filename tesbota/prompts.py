@@ -560,8 +560,15 @@ deciding, keep talking instead.
 """
 
 
-def explorer_turn(narration):
-    return narration or "You become aware. That is all, for now."
+def explorer_turn(narration, nudge=None):
+    text = narration or "You become aware. That is all, for now."
+    if nudge:
+        text += (
+            "\n\nYou have not said what you are doing this turn. Looking and speaking "
+            "come after that, never before it — there is nothing yet for them to "
+            "prepare. Say what you do."
+        )
+    return text
 
 
 REDRAFT = (
