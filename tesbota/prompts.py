@@ -145,9 +145,15 @@ Reply with a single fenced json block and nothing else:
   "fatigue": 0,
   "health": 0,
   "risk": 1,
-  "check": null
+  "check": null,
+  "location": "kebab-id of where they are now"
 }
 ```
+
+`location` is the id of the place the adventurer is in at the end of this turn —
+the smallest place that contains them, so the mill rather than the village if they
+are inside the mill. Set it every turn, even when it has not changed. If they are
+somewhere with no file yet, name the smallest place that does exist.
 
 Every claim is a statement about the world, never about the adventurer. Write
 "the grass is wet" and "there is mud beneath the grass" — never "the adventurer

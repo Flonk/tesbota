@@ -47,6 +47,8 @@ def new_campaign():
         "inventory": list(STARTING_INVENTORY),
         "skills": json.loads(json.dumps(STARTING_SKILLS)),
         "last_narration": None,
+        "location": None,
+        "location_path": [],
         "last_seen": None,
         "created": stamp(),
     }
@@ -61,6 +63,10 @@ def load_campaign():
     campaign = read_json(CAMPAIGN)
     blank = new_campaign()
     changed = False
+    for key in ("location", "location_path"):
+        if key not in campaign:
+            campaign[key] = blank[key]
+            changed = True
     for key in ("inventory", "skills", "clock"):
         if not campaign.get(key):
             campaign[key] = blank[key]

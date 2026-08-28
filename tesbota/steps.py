@@ -195,6 +195,7 @@ def step_gm(campaign, turn):
     draft.setdefault("health", 0)
     draft.setdefault("hunger", None)
     draft.setdefault("check", None)
+    draft.setdefault("location", None)
     draft.setdefault("risk", BASE_RISK)
 
     agreed = turn.get("proposal") if turn.get("confirmed") else None
@@ -435,6 +436,12 @@ def deliver(campaign, turn):
 
     turn["delivered"] = True
     campaign = apply_vitals(campaign, draft)
+
+    where = (draft.get("location") or "").strip() if isinstance(draft.get("location"), str) else ""
+    if where:
+        campaign["location"] = canon.slug(where.strip("[]"))
+        campaign["location_path"] = canon.ancestry(campaign["location"])
+
     campaign["last_narration"] = draft.get("narration")
     turn["minutes"] = int(draft.get("minutes") or 0)
     turn["state"] = "done"

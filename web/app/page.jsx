@@ -172,6 +172,11 @@ export default function Page() {
 
         <div className="hright">
           {busy && <span className="working">working…</span>}
+          <span className="place">
+            {status.where?.length
+              ? status.where.map((p) => p.name).join(" › ")
+              : "somewhere unrecorded"}
+          </span>
           <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
           <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
             {busy === "step" ? "…" : "step"}

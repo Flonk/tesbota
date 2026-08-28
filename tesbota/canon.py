@@ -200,6 +200,25 @@ def stubs():
     return out
 
 
+def ancestry(place_id):
+    chain = []
+    seen = set()
+    current = slug(str(place_id or "").strip("[]"))
+    while current and current not in seen:
+        seen.add(current)
+        path = entity_path("places", current)
+        if not path.exists():
+            chain.append({"id": current, "name": current.replace("-", " ")})
+            break
+        data = frontmatter(path)
+        chain.append({"id": current, "name": str(data.get("name") or current)})
+        within = str(data.get("within") or "").strip().strip("[]")
+        if not within or within == STUB:
+            break
+        current = slug(within)
+    return list(reversed(chain))
+
+
 def illegal_books():
     directory = CANON / "books"
     if not directory.exists():

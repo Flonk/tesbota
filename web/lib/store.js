@@ -78,7 +78,11 @@ export async function snapshot() {
   }
 
   const current = turns.find((t) => t.turn_id === campaign.current_turn) || null;
-  const status = { state: current?.state || "uninitialised", turn: campaign.current_turn || null };
+  const status = {
+    state: current?.state || "uninitialised",
+    turn: campaign.current_turn || null,
+    where: campaign.location_path || [],
+  };
   if (current?.wake_at) {
     status.destination = current.destination;
     status.wakesIn = duration(minutesUntil(current.wake_at));
