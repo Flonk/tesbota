@@ -79,6 +79,8 @@ export default function Page() {
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [noteOpen, setNoteOpen] = useState(false);
   const [at, setAt] = useState(0);
   const deck = useRef(null);
   const pinned = useRef(true);
@@ -154,6 +156,7 @@ export default function Page() {
   if (!data) return <div className="empty pad">loading…</div>;
 
   const { status, slides, gap, chat, vitals, skills, inventory } = data;
+  const pendingNote = data.note;
   const blocked = status.state === "awaiting_human";
 
   return (
@@ -255,6 +258,51 @@ export default function Page() {
                     </div>
                   ))}
                 </details>
+              )}
+
+              {s.note && (
+                <div className="notewas">
+                  <span className="who">your note</span>
+                  {s.note}
+                </div>
+              )}
+
+              {i === count - 1 && !blocked && (
+                <div className="steer">
+                  {!noteOpen && (
+                    <button className="ghost" onClick={() => { setNoteOpen(true); setNote(pendingNote || ""); }}>
+                      {pendingNote ? "note queued — edit" : "note for the next turn"}
+                    </button>
+                  )}
+                  {noteOpen && (
+                    <>
+                      <textarea
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder="steer the game master — they will read this and the adventurer will not…"
+                        disabled={!!busy}
+                      />
+                      <div className="actions">
+                        <button
+                          className="ghost"
+                          onClick={() => { setNoteOpen(false); setNote(""); }}
+                          disabled={!!busy}
+                        >
+                          cancel
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await post("/api/note", { text: note }, "note");
+                            setNoteOpen(false);
+                          }}
+                          disabled={!!busy}
+                        >
+                          {busy === "note" ? "saving…" : "queue note"}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
 
               {blocked && i === count - 1 && (

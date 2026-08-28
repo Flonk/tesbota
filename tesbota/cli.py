@@ -125,6 +125,10 @@ def cmd_inventory(args):
     print(sheet.render_inventory())
 
 
+def cmd_note(args):
+    print(json.dumps(actions.set_note(args.text), ensure_ascii=False))
+
+
 def cmd_map(args):
     print(canon.mermaid())
 
@@ -167,6 +171,10 @@ def main(argv=None):
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
     sub.add_parser("stats").set_defaults(func=cmd_stats)
     sub.add_parser("map").set_defaults(func=cmd_map)
+
+    note = sub.add_parser("note")
+    note.add_argument("text")
+    note.set_defaults(func=cmd_note)
     sub.add_parser("inventory").set_defaults(func=cmd_inventory)
 
     sub.add_parser("status").set_defaults(func=cmd_status)

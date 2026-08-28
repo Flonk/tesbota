@@ -364,3 +364,14 @@ nothing is done.
 The answer still goes through the lore master like any narration, so a look cannot
 smuggle in world facts the adjudicator never saw. Two per turn; a third falls
 through and is treated as an intent.
+
+## Steering
+
+You can queue a note for the game master from the current turn's slide. It reaches
+the game master on its next turn — both when pricing the intent and when narrating
+the outcome — framed as direction rather than as an event, with the standing rule
+that nobody in the story says it and the adventurer never learns of it.
+
+A note is consumed once: `step_propose` moves it from the campaign onto the turn it
+steers, where it stays visible on that slide afterwards. `tesbota note "..."` does
+the same from a terminal, and an empty string clears a queued one.

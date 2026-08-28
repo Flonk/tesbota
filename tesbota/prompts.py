@@ -470,8 +470,14 @@ def gm_answer(question, previous=None):
     return "\n\n".join(parts)
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None):
     parts = []
+    if note:
+        parts.append(
+            "A note from the one who keeps this world. It is not spoken by anyone in "
+            "the story and the adventurer must never learn of it — take it as "
+            f"direction, not as an event:\n\n{note}"
+        )
     if agreed:
         parts.append(
             "They agreed to this, and it is settled — narrate it as happening, "
@@ -528,8 +534,14 @@ def lore1_query(question):
     return f"{question}"
 
 
-def gm_propose(action, previous=None, vitals=None, answers=None):
+def gm_propose(action, previous=None, vitals=None, answers=None, note=None):
     parts = []
+    if note:
+        parts.append(
+            "A note from the one who keeps this world. It is not spoken by anyone in "
+            "the story and the adventurer must never learn of it — take it as "
+            f"direction, not as an event:\n\n{note}"
+        )
     if previous:
         parts.append(f"What the adventurer was last told:\n\n{previous}")
     if vitals:

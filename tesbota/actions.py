@@ -120,6 +120,14 @@ def say(text):
     return {"reply": reply, "resolved": finished}
 
 
+def set_note(text):
+    with LOCK:
+        campaign = load_campaign()
+        campaign["note"] = (text or "").strip() or None
+        save_campaign(campaign)
+    return {"ok": True, "note": campaign["note"]}
+
+
 def resolve():
     with LOCK:
         campaign = load_campaign()

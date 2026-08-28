@@ -101,12 +101,17 @@ def step_answer(campaign, turn):
 
 
 def step_propose(campaign, turn):
+    if campaign.get("note") and not turn.get("note"):
+        turn["note"] = campaign["note"]
+        campaign["note"] = None
+
     text, session = ask(
         prompts.gm_propose(
             turn.get("action"),
             previous=campaign.get("last_narration"),
             vitals=campaign.get("vitals"),
             answers=turn.get("answers") or [],
+            note=turn.get("note"),
         ),
         system=prompts.GM_PROPOSE_SYSTEM,
         tools=READ_TOOLS,
@@ -212,6 +217,7 @@ def step_gm(campaign, turn):
             event=turn.get("event"),
             arrival=turn.get("arrival"),
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
+            note=turn.get("note"),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,

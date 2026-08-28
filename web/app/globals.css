@@ -262,3 +262,10 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .look { border-left: 2px solid var(--line); padding-left: .9rem; margin-bottom: 1.1rem; }
 .lookq { color: var(--gold); font-style: italic; opacity: .75; margin: 0 0 .3rem; font-size: .92rem; }
 .looka { margin: 0; color: var(--dim); font-size: .92rem; white-space: pre-wrap; }
+
+.steer { margin-top: 1.6rem; border-top: 1px dashed var(--line); padding-top: 1rem; }
+.notewas {
+  margin-top: 1.2rem; padding-left: .9rem; border-left: 2px dashed var(--gold);
+  color: var(--dim); font-size: .88rem; white-space: pre-wrap;
+}
+.notewas .who { display: block; font: 11px ui-monospace, monospace; color: var(--gold); margin-bottom: .2rem; }

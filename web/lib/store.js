@@ -73,6 +73,7 @@ export async function snapshot() {
       retries: turn.gm_retries || 0,
       travel: draft.travel || null,
       looks: turn.looks || [],
+      note: turn.note || null,
       lore: turn.lore || [],
       loreGap: turn.lore_gap || null,
     });
@@ -102,7 +103,7 @@ export async function snapshot() {
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, slides, gap, chat, vitals, skills, inventory };
+  return { status, slides, gap, chat, vitals, skills, inventory, note: campaign.note || null };
 }
 
 export async function tesbota(args, timeout = 900000) {
