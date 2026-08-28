@@ -1,6 +1,6 @@
 import re
 
-from .config import ROOT
+from .config import ROOT, STUB
 
 WS = re.compile(r"\s+")
 
@@ -27,6 +27,12 @@ def verify(quotes):
             failures.append({"src": src, "reason": "no such file"})
             continue
         body = path.read_text(encoding="utf-8")
+        if STUB in text:
+            failures.append({
+                "src": src,
+                "reason": f"the quoted passage is marked {STUB} — it is not written yet and cannot be read out",
+            })
+            continue
         if normalise(text) not in normalise(body):
             failures.append({"src": src, "reason": "quoted text is not verbatim in the source"})
     return failures

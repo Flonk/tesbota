@@ -19,6 +19,8 @@ MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore3": MODEL}
 
 GODHEAD = "the godhead"
 
+STUB = "$BOTA"
+
 FORBIDDEN_AUTHORS = ("the explorer", "the adventurer", "explorer", "adventurer")
 
 OPENING = {

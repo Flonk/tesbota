@@ -235,3 +235,18 @@ pressing step again resumes from there rather than repeating work.
 
 The header shows `working…` while a call is in flight, so a turn that is waiting
 for you is distinguishable from one that is running.
+
+## $BOTA
+
+Write `$BOTA` anywhere in canon to mark lore you have deliberately left unwritten —
+a book whose later chapters nobody needs yet, a custom named but not described, a
+gap in a lineage.
+
+It is not the same as silence. Silence means the subject never came up, and
+ordinary detail may fill it. `$BOTA` means somebody decided there would be
+something here and has not written it yet, so:
+
+- any claim resting on a `$BOTA` passage is UNRESOLVED, however small
+- a quotation containing `$BOTA` is rejected outright, so it can never be read out
+- the query lore master reports it by name rather than saying nothing is recorded
+- `tesbota gaps` lists every one with its file and line — it is your backlog

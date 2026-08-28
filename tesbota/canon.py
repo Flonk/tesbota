@@ -1,6 +1,6 @@
 import re
 
-from .config import CANON, FORBIDDEN_AUTHORS, GODHEAD, KINDS
+from .config import CANON, FORBIDDEN_AUTHORS, GODHEAD, KINDS, STUB
 
 LINK = re.compile(r"\[\[([^\]|#]+)")
 WITNESSED = "## Witnessed"
@@ -109,6 +109,19 @@ def append_attested(entity_id, turn_id, text, kind="places"):
     return append_section(entity_id, turn_id, text, kind=kind, section=ATTESTED)
 
 
+def stubs():
+    out = []
+    for kind in KINDS:
+        directory = CANON / kind
+        if not directory.exists():
+            continue
+        for path in sorted(directory.glob("*.md")):
+            for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                if STUB in line:
+                    out.append((str(path.relative_to(CANON.parent)), n, line.strip()))
+    return out
+
+
 def illegal_books():
     directory = CANON / "books"
     if not directory.exists():
@@ -144,12 +157,19 @@ def all_entities():
     return found
 
 
+def slug(text):
+    return "-".join(text.split()).strip("-").lower()
+
+
 def dangling_links():
     entities = all_entities()
+    known = {slug(name) for name in entities}
     gaps = {}
     for entity_id, path in entities.items():
         for target in LINK.findall(path.read_text(encoding="utf-8")):
-            target = target.strip()
-            if target and target not in entities:
-                gaps.setdefault(target, []).append(entity_id)
+            target = slug(target)
+            if target and target not in known:
+                sources = gaps.setdefault(target, [])
+                if entity_id not in sources:
+                    sources.append(entity_id)
     return gaps
