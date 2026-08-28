@@ -254,6 +254,20 @@ When something actually changes hands, record it: `gain` takes objects with a
 name, a qty and an optional note; `lose` takes a name and a qty. Nothing moves
 until the deed is done — agreeing a price changes nothing, paying it does.
 
+A thing owed is a thing carried. When somebody grants the adventurer something to
+be taken later — a night's bed, a meal, passage, a favour, safe conduct, credit at
+a stall — hand it over as an item there and then, or the adventurer will not
+remember it exists. Name it for what it entitles them to and say who owes it and
+where, because they will have to find their way back:
+
+    {"name": "a night's bed at the Alheim Inn", "qty": 1,
+     "note": "owed by Greta Marsch, to be claimed at the inn"}
+
+Give one per use — two nights is qty 2 — and `lose` it the moment it is taken up.
+Somebody who has spent their night's bed no longer has one. The adventurer can read
+their own inventory, so this is the only way a promise made to them survives the
+turn it was made in.
+
 `location` is the id of the place the adventurer is in at the end of this turn —
 the smallest place that contains them, so the mill rather than the village if they
 are inside the mill. Set it every turn, even when it has not changed. If they are
