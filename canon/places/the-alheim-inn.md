@@ -33,3 +33,5 @@ further up the street, close by [[alheim-sawmill|the sawmill]].
 ## Witnessed
 - t0004 — an inn stands on a street in Alheim
 - t0005 — the inn is open with people inside
+- t0006 — the Alheim Inn has a common room with a hearth
+- t0006 — a woman tends the bar at the Alheim Inn

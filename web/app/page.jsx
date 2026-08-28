@@ -108,10 +108,10 @@ function Checked({ x }) {
 }
 
 function Pair({ said, told }) {
-  const isAction = said.kind === "action";
+  const wide = said.kind === "action" || said.kind === "say";
   const label = [SAID_LABEL[said.kind] || said.kind, ...(told ? toll(told) : [])].join(" · ");
   return (
-    <Section mode="compact" open={isAction || !told?.text} label={label}>
+    <Section mode="compact" open={wide || !told?.text} label={label}>
       <p className="sec-body sec-asked">
         {said.kind === "say" ? `“${said.text}”` : said.text}
       </p>
