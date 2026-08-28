@@ -257,7 +257,7 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   white-space: nowrap;
 }
 .hright { flex-wrap: nowrap; }
-@media (max-width: 640px) { .place { display: none; } }
+
 
 .look { border-left: 2px solid var(--line); padding-left: .9rem; margin-bottom: 1.1rem; }
 .lookq { color: var(--gold); font-style: italic; opacity: .75; margin: 0 0 .3rem; font-size: .92rem; }
@@ -272,3 +272,19 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 
 .look.talk { border-left-color: var(--gold); }
 .look.talk .looka { color: var(--ink); }
+
+.context { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; gap: .1rem; }
+.questtag {
+  font: 11px ui-monospace, monospace; color: var(--gold);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+.quest { margin-bottom: 1.1rem; padding-left: .9rem; border-left: 2px solid var(--gold); }
+.quest.past { border-left-color: var(--line); opacity: .6; }
+.qtitle { font-size: .95rem; }
+.qgiver { color: var(--dim); font-size: .85rem; }
+.qdetail { color: var(--dim); font-size: .85rem; margin-top: .2rem; }
+.qmeta { font: 11px ui-monospace, monospace; color: var(--dim); margin-top: .25rem; }
+@media (max-width: 640px) {
+  .hright { flex-wrap: wrap; justify-content: flex-end; }
+  .context { flex: 1 0 100%; align-items: flex-end; }
+}

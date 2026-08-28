@@ -246,6 +246,7 @@ def step_gm(campaign, turn):
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
             note=turn.get("note"),
             inventory=campaign.get("inventory") or [],
+            quests=campaign.get("quests") or [],
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -265,6 +266,8 @@ def step_gm(campaign, turn):
     draft.setdefault("location", None)
     draft.setdefault("gain", [])
     draft.setdefault("lose", [])
+    draft.setdefault("quest_open", [])
+    draft.setdefault("quest_close", [])
     draft.setdefault("risk", BASE_RISK)
 
     agreed = turn.get("proposal") if turn.get("confirmed") else None
@@ -431,6 +434,45 @@ def too_tired(campaign, draft):
     return vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0) > MAX_FATIGUE
 
 
+CLOSED = ("done", "failed", "abandoned")
+
+
+def apply_quests(campaign, draft, turn_id):
+    quests = campaign.setdefault("quests", [])
+    by_id = {q["id"]: q for q in quests}
+
+    for entry in draft.get("quest_open") or []:
+        if not isinstance(entry, dict) or not entry.get("id"):
+            continue
+        ident = canon.slug(str(entry["id"]))
+        if ident in by_id:
+            continue
+        quest = {
+            "id": ident,
+            "title": str(entry.get("title") or ident.replace("-", " ")),
+            "detail": str(entry.get("detail") or ""),
+            "giver": str(entry.get("giver") or ""),
+            "status": "active",
+            "opened": turn_id,
+            "closed": None,
+        }
+        quests.append(quest)
+        by_id[ident] = quest
+
+    for entry in draft.get("quest_close") or []:
+        if isinstance(entry, dict):
+            ident = canon.slug(str(entry.get("id") or ""))
+            outcome = str(entry.get("outcome") or "done").lower()
+        else:
+            ident, outcome = canon.slug(str(entry)), "done"
+        quest = by_id.get(ident)
+        if not quest or quest["status"] != "active":
+            continue
+        quest["status"] = outcome if outcome in CLOSED else "done"
+        quest["closed"] = turn_id
+    return campaign
+
+
 def apply_inventory(campaign, draft):
     items = campaign.setdefault("inventory", [])
 
@@ -537,6 +579,7 @@ def deliver(campaign, turn):
 
     campaign = apply_vitals(campaign, draft)
     campaign = apply_inventory(campaign, draft)
+    campaign = apply_quests(campaign, draft, turn["turn_id"])
 
     where = (draft.get("location") or "").strip() if isinstance(draft.get("location"), str) else ""
     if where:

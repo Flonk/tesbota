@@ -125,6 +125,10 @@ def cmd_inventory(args):
     print(sheet.render_inventory())
 
 
+def cmd_quests(args):
+    print(sheet.render_quest_log())
+
+
 def cmd_notebook(args):
     print(sheet.write_note(args.text) if args.text else sheet.render_notebook())
 
@@ -175,6 +179,7 @@ def main(argv=None):
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
     sub.add_parser("stats").set_defaults(func=cmd_stats)
     sub.add_parser("map").set_defaults(func=cmd_map)
+    sub.add_parser("quests").set_defaults(func=cmd_quests)
 
     note = sub.add_parser("note")
     note.add_argument("text")

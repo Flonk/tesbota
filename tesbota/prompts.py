@@ -1,3 +1,15 @@
+def render_quests(quests):
+    lines = []
+    for q in quests or []:
+        if q.get("status") != "active":
+            continue
+        giver = f", set by {q['giver']}" if q.get("giver") else ""
+        lines.append(f"  [{q['id']}] {q.get('title')}{giver}")
+        if q.get("detail"):
+            lines.append(f"      {q['detail']}")
+    return "\n".join(lines) or "  (nothing)"
+
+
 def render_inventory(items):
     lines = []
     for item in items or []:
@@ -190,9 +202,22 @@ Reply with a single fenced json block and nothing else:
   "check": null,
   "location": "kebab-id of where they are now",
   "gain": [],
-  "lose": []
+  "lose": [],
+  "quest_open": [],
+  "quest_close": []
 }
 ```
+
+You keep their quest log. When somebody sets them a task they accept, open it:
+`quest_open` takes an id, a title, a detail and the giver — one entry per errand,
+so "fetch wood" and "find out what happened to the boy" are two, not one. When a
+task is finished, given up, or has plainly failed, close it: `quest_close` takes an
+id and an outcome of `done`, `failed` or `abandoned`.
+
+Open one only when they have actually agreed to it. A thing somebody mentions is
+not a quest; a thing they said they would do is. You are shown the open ones each
+turn — do not re-open what is already there, and do not let a finished errand sit
+open.
 
 You are shown what the adventurer is carrying, and it is the truth. They cannot
 hand over, spend or use a thing that is not on that list — if they try, narrate
@@ -550,7 +575,7 @@ def gm_answer(question, previous=None, mode="look", inventory=None):
     return "\n\n".join(parts)
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, inventory=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, inventory=None, quests=None):
     parts = []
     if note:
         parts.append(
@@ -582,6 +607,8 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
         )
     if inventory is not None:
         parts.append("What they are carrying:\n" + render_inventory(inventory))
+    if quests:
+        parts.append("What they have taken on:\n" + render_quests(quests))
     if action:
         parts.append(f"The adventurer's action:\n\n{action}")
     if correction:

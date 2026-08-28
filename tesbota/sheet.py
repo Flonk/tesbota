@@ -50,6 +50,31 @@ def write_note(text):
     return f"written: {note}"
 
 
+def render_quest_log(campaign=None):
+    campaign = campaign or load_campaign()
+    quests = campaign.get("quests") or []
+    if not quests:
+        return "you have taken nothing on"
+
+    active = [q for q in quests if q.get("status") == "active"]
+    past = [q for q in quests if q.get("status") != "active"]
+
+    out = []
+    if active:
+        out.append("ongoing:")
+        for q in active:
+            out.append(f"  {q.get('title')}" + (f"  ({q['giver']})" if q.get("giver") else ""))
+            if q.get("detail"):
+                out.append(f"      {q['detail']}")
+    if past:
+        if out:
+            out.append("")
+        out.append("finished:")
+        for q in past:
+            out.append(f"  {q.get('title')} — {q.get('status')}")
+    return "\n".join(out)
+
+
 def modifier(score):
     return (int(score) - 10) // 2
 

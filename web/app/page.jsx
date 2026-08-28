@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
+import Quests from "./Quests";
 
 function Bar({ label, value, max, tone }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
@@ -81,6 +82,7 @@ export default function Page() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [note, setNote] = useState("");
   const [noteOpen, setNoteOpen] = useState(false);
+  const [questsOpen, setQuestsOpen] = useState(false);
   const [at, setAt] = useState(0);
   const deck = useRef(null);
   const pinned = useRef(true);
@@ -158,6 +160,8 @@ export default function Page() {
 
   const { status, slides, gap, chat, vitals, skills, inventory } = data;
   const pendingNote = data.note;
+  const quests = data.quests || [];
+  const activeQuest = quests.find((q) => q.status === "active");
   const blocked = status.state === "awaiting_human";
 
   return (
@@ -176,16 +180,22 @@ export default function Page() {
 
         <div className="hright">
           {busy && <span className="working">working…</span>}
-          <span className="place">
-            {status.where?.length
-              ? status.where.map((p) => p.name).join(" › ")
-              : "somewhere unrecorded"}
+          <span className="context">
+            <span className="place">
+              {status.where?.length
+                ? status.where.map((p) => p.name).join(" › ")
+                : "somewhere unrecorded"}
+            </span>
+            {activeQuest && <span className="questtag">{activeQuest.title}</span>}
           </span>
           <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
           <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
             {busy === "step" ? "…" : "step"}
           </button>
           <button className="ghost" onClick={() => setSheetOpen(true)}>stats</button>
+          <button className="ghost" onClick={() => setQuestsOpen(true)}>
+            quests{quests.filter((q) => q.status === "active").length ? ` (${quests.filter((q) => q.status === "active").length})` : ""}
+          </button>
         </div>
       </header>
 
@@ -198,6 +208,8 @@ export default function Page() {
           onClose={() => setSheetOpen(false)}
         />
       )}
+
+      {questsOpen && <Quests quests={quests} onClose={() => setQuestsOpen(false)} />}
 
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">

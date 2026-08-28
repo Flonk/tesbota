@@ -406,3 +406,18 @@ The permission callback allows `tesbota notebook` with free text, so it first
 rejects any command containing shell metacharacters — `; | & $ backtick > <` or a
 newline — before matching the verb. Everything else the adventurer might type is
 still denied.
+
+## Quests
+
+The game master keeps the log. `quest_open` takes an id, title, detail and giver;
+`quest_close` takes an id and an outcome of `done`, `failed` or `abandoned`. It is
+shown the open ones every turn, so it will not re-open what already stands, and it
+is told to open one only when the adventurer has actually agreed — a thing somebody
+mentions is not a quest, a thing they said they would do is. One entry per errand.
+
+Re-opening an existing id is ignored, closing an already-closed or unknown quest is
+a no-op, and the turn that opened or closed each one is recorded.
+
+`tesbota quests` prints ongoing and finished. In the web UI the active quest sits
+under the location breadcrumb, and a `quests` button opens the full log with a count
+of what is still open.
