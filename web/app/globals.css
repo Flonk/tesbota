@@ -338,11 +338,31 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .exchange.pending { border-left-style: dashed; }
 .exchange.act .action { margin-bottom: .8rem; }
 .exchange.act .narration { margin-bottom: 0; }
-.provisional {
+.aside {
+  border-left: 2px dotted var(--line);
+  padding: .1rem 0 .1rem .9rem;
+  margin-top: .2rem;
+}
+.aside .narration { color: var(--dim); font-style: italic; margin-bottom: 0; }
+.asidelabel, .proplabel {
   font: 10px ui-monospace, monospace;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--dim);
-  margin-top: .5rem;
+  margin-bottom: .4rem;
 }
-.exchange.act:has(.provisional) .narration { color: var(--dim); font-style: italic; }
+.proposal {
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--place);
+  padding: .8rem .9rem;
+  margin-bottom: 1.2rem;
+}
+.proposal.declined { border-left-color: var(--bad); }
+.propsummary { margin-bottom: .25rem; }
+.proptarget { color: var(--dim); font-size: .85rem; margin-bottom: .25rem; }
+.propcost {
+  font: 11px ui-monospace, monospace;
+  letter-spacing: .06em;
+  color: var(--place);
+  margin-bottom: 0;
+}

@@ -80,6 +80,8 @@ export async function snapshot() {
       minutes: draft.minutes || 0,
       fatigue: draft.fatigue || 0,
       health: draft.health || 0,
+      proposal: turn.proposal || null,
+      confirmed: turn.confirmed ?? null,
       roll: turn.roll || null,
       risk: turn.risk || null,
       calamity: !!turn.calamity,

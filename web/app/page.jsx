@@ -42,6 +42,33 @@ function Status({ status }) {
   return <span className="muted">{PHASE[status.state] || status.state}</span>;
 }
 
+function cost(minutes) {
+  if (!minutes) return "no time";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h && m) return `${h}h ${m}m`;
+  if (h) return `${h}h`;
+  return `${m} min`;
+}
+
+function Proposal({ p, confirmed }) {
+  const bits = [cost(p.minutes)];
+  if (p.fatigue) bits.push(`${p.fatigue > 0 ? "+" : ""}${p.fatigue} fatigue`);
+  else bits.push("no effort");
+  if (p.risk > 1) bits.push(`risk ${p.risk}`);
+  return (
+    <div className={`proposal${confirmed === false ? " declined" : ""}`}>
+      <p className="proplabel">
+        what it will take
+        {confirmed === true ? " · agreed" : confirmed === false ? " · turned down" : " · not yet answered"}
+      </p>
+      {p.summary && <p className="propsummary">{p.summary}</p>}
+      {p.target && <p className="proptarget">toward {p.target}</p>}
+      <p className="propcost">{bits.join(" · ")}{p.unpriced ? " · unpriced, guessed" : ""}</p>
+    </div>
+  );
+}
+
 function Meta({ s }) {
   const bits = [];
   if (s.minutes) bits.push(`${s.minutes} min`);
@@ -276,17 +303,23 @@ export default function Page() {
                   <p className={x.kind === "action" ? "action" : "lookq"}>
                     {x.kind === "say" ? `“${x.said}”` : x.said}
                   </p>
-                  {x.reply ? (
-                    <p className={x.kind === "action" ? "narration" : "looka"}>{x.reply}</p>
-                  ) : (
+                  {!x.reply ? (
                     <p className="looka waiting">waiting for an answer…</p>
+                  ) : x.provisional ? (
+                    <div className="aside">
+                      <p className="asidelabel">before you commit · nothing has happened yet</p>
+                      <p className="narration">{x.reply}</p>
+                    </div>
+                  ) : (
+                    <p className={x.kind === "action" ? "narration" : "looka"}>{x.reply}</p>
                   )}
-                  {x.provisional && x.reply && (
-                    <p className="provisional">before you commit — nothing has happened yet</p>
+                  {!x.checked && x.reply && !x.provisional && (
+                    <p className="unchecked">not yet checked</p>
                   )}
-                  {!x.checked && x.reply && <p className="unchecked">not yet checked</p>}
                 </div>
               ))}
+
+              {s.proposal && <Proposal p={s.proposal} confirmed={s.confirmed} />}
 
               <Meta s={s} />
 
