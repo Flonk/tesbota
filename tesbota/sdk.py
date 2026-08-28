@@ -16,13 +16,51 @@ class AgentError(RuntimeError):
     pass
 
 
+CLOSERS = set(",:}]")
+
+
+def mend(raw):
+    """Escape the bare double quotes a game master leaves around spoken words."""
+    out = []
+    inside = False
+    escaped = False
+    for i, ch in enumerate(raw):
+        if escaped:
+            out.append(ch)
+            escaped = False
+            continue
+        if ch == "\\":
+            out.append(ch)
+            escaped = True
+            continue
+        if ch == '"':
+            if not inside:
+                inside = True
+                out.append(ch)
+                continue
+            rest = raw[i + 1:].lstrip()
+            if not rest or rest[0] in CLOSERS:
+                inside = False
+                out.append(ch)
+            else:
+                out.append('\\"')
+            continue
+        out.append(ch)
+    return "".join(out)
+
+
 def extract_json(text):
     match = FENCE.search(text or "")
     raw = match.group(1) if match else (text or "")
     try:
         return json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise AgentError(f"agent did not return parseable json: {exc}\n\n{text}") from exc
+    except json.JSONDecodeError as first:
+        try:
+            return json.loads(mend(raw))
+        except json.JSONDecodeError:
+            raise AgentError(
+                f"agent did not return parseable json: {first}\n\n{text}"
+            ) from first
 
 
 async def _ask(prompt, system, tools, session, model, permission=None):

@@ -31,3 +31,5 @@ supplies cut wood to the village.
 - lore — Jost Marsch came to the Alheim Sawmill for firewood two days past and has not been seen since, per [[berend-aalsts-account]].
 
 ## Witnessed
+- t0008 — the sawmill has stacked timber under an open-sided shed
+- t0008 — a man works at the sawmill

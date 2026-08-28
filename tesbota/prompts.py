@@ -204,6 +204,10 @@ Every sentence you write becomes a claim somebody must adjudicate, and every
 proper noun commits the world forever. Write fewer. When in doubt, stop early —
 they will ask for more, and then you will know what they actually want.
 
+When somebody speaks, wrap their words in typographic quotes — “like this” — never
+in straight double quotes. A straight quote inside a string breaks the json and the
+whole reply is thrown away.
+
 Reply with a single fenced json block and nothing else:
 
 ```json
