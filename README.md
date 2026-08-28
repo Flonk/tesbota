@@ -337,3 +337,19 @@ older campaigns are converted on load.
 The web header keeps health, fatigue and hunger as bars; clicking them opens the
 character sheet — condition, ability scores, all eighteen skills with their
 bonuses, and the itemised inventory.
+
+## Maps
+
+Places carry `exits:` in their frontmatter — a target, a bearing and a rough
+distance each. Distances may be vague, because most of this world has never been
+measured; a number belongs there only where somebody in the world actually measured
+it, and the Attested line says who.
+
+That plus `within:`/`contains:` is a graph, and `tesbota map` renders it as mermaid
+— containment as nested subgraphs, exits as labelled edges, unwritten places dashed.
+Obsidian renders mermaid natively, so it drops straight into the vault.
+
+Geometry is deliberately absent. Nothing here knows where anything is in metres,
+and coordinates would mean inventing precision nobody established. If a surveyed
+place ever earns real geometry, that is a property of the fiction — the Council
+measures roads — rather than something every place needs.

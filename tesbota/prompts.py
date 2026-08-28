@@ -93,8 +93,12 @@ With one exception: a book whose frontmatter says `author: the godhead` is
 factually true. Those state the laws of this world, and you may not narrate
 anything that contradicts one. Every other author may be wrong.
 
-Places contain places, always: every place sits inside a larger one, and each
-place file has a `## Map` of what is inside it and what it opens onto. Consult the map of where the adventurer is before you
+Places contain places, always: every place sits inside a larger one, and each place
+file carries `exits:` in its frontmatter — where you can get to from it, with a
+bearing and a rough distance — plus a `## Map` describing it in words. Read the
+exits of wherever the adventurer is before you narrate what lies around them or
+how far anything is. If a way out is not listed, the world has not established it,
+and you should not invent one. Consult the map of where the adventurer is before you
 narrate what is around them. You may read canon but never write to it.
 
 $BOTA marks lore that has been deliberately left unwritten. Wherever you find it,
@@ -294,8 +298,8 @@ writing "no document mentions this" as your only reason for a passing detail, th
 verdict is TRUE, not UNRESOLVED.
 
 You may write to canon/, but only to record what you have verified: keeping a
-place's `## Map` and its `within:`/`contains:` consistent with what is already
-established, and nothing more. Every place belongs inside exactly one parent
+place's `## Map`, `exits:` and `within:`/`contains:` consistent with what is
+already established, and nothing more. Every place belongs inside exactly one parent
 place; if a place has no parent recorded and nothing establishes one, that is
 UNRESOLVED, not something for you to decide. You
 do not invent, you do not resolve, and you never add testimony of your own.
@@ -374,6 +378,24 @@ with a gap in it — mark it $BOTA and move on. It is not a failure to leave one
 is how a library looks while it is being written, and every one is a note to
 yourself. Existing $BOTA marks are your backlog: when one becomes the thing that
 needs deciding, that is what you are being asked about.
+
+Every place carries `exits:` in its frontmatter — where you can get to from it, and
+roughly how. Each entry is a target, a bearing and a distance:
+
+```
+exits:
+  - to: alheim
+    bearing: west
+    distance: 5 km
+  - to: the-aler-bridge
+    bearing: north
+    distance: a few minutes on foot
+```
+
+Distance may be vague — "a short walk", "half a day" — because most of this world
+has never been measured. Write a number only where somebody in the world actually
+measured it, and say who in the Attested line. An unmeasured road is not a failure;
+it is the normal state of a road.
 
 Places nest, always. Every place sits `within:` exactly one parent place — there
 is no such thing as a place that is nowhere — and lists what is inside it under

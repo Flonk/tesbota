@@ -4,6 +4,13 @@ kind: place
 name: The Road
 within: the-greater-plains
 contains: [the-crossing-signpost]
+exits:
+  - to: alheim
+    bearing: west
+    distance: 5 km
+  - to: flotburg
+    bearing: east
+    distance: 30 km
 introduced: t0001
 ---
 

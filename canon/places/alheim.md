@@ -25,3 +25,4 @@ Bridge]]. [[Alheim Forest]] presses close against the village's northern fields.
 ## Witnessed
 - t0006 — The road runs past a mill on its way into Alheim.
 - t0006 — The road meets no wall and no gate at Alheim, losing itself among the first houses.
+- t0013 — Alheim is a small village of a handful of houses by the river.

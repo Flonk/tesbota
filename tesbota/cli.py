@@ -125,6 +125,10 @@ def cmd_inventory(args):
     print(sheet.render_inventory())
 
 
+def cmd_map(args):
+    print(canon.mermaid())
+
+
 def cmd_gaps(args):
     orphans = canon.orphan_places()
     gaps = canon.dangling_links()
@@ -162,6 +166,7 @@ def main(argv=None):
 
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
     sub.add_parser("stats").set_defaults(func=cmd_stats)
+    sub.add_parser("map").set_defaults(func=cmd_map)
     sub.add_parser("inventory").set_defaults(func=cmd_inventory)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
