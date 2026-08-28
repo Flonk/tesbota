@@ -35,6 +35,9 @@ A turn consists of these 4 phases, the GM will resolve after each phase:
 - SAY: Talk to someone (optional)
 - SAY: Talk to someone (optional)
 
+Prefix your message with LOOK: or SAY: accordingly. The action needs no prefix.
+Say you are done when you have nothing further and the turn ends.
+
 One sentence per phase only, two at most.
 
 Your personality:
