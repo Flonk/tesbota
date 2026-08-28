@@ -137,6 +137,7 @@ DIE = 400
 SPARK_DIE = 6
 SPARK_FACE = 6
 SPARK_FLOOR = 4
+PRESS_FLOOR = 3
 
 RARITIES = ("common", "uncommon", "rare", "unique")
 BASE_RISK = 1

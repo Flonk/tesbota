@@ -699,6 +699,28 @@ def gm_answer(question, previous=None, mode="look", inventory=None, correction=N
     return "\n\n".join(parts)
 
 
+PRESS = """The world does not wait, and this turn it moves.
+
+Between one action and the next, things have been going on without the adventurer:
+people went where they were going, what was following kept following, whoever was
+deciding something about them decided it. Now one of those arrives.
+
+Somebody acts. Something that was waiting stops waiting. A thread already on the
+table pays out — the person they were warned about finds them, the errand turns
+out to have been a pretext, what was missing turns up somewhere it should not be,
+what was in the trees comes out of the trees.
+
+Use what is already there: an open quest, a name somebody let slip, a warning they
+walked past, whatever the last few turns set up and left hanging. Do not start a
+fresh mystery — move the one they are standing in.
+
+It happens whether or not their action invited it, and it costs them something or
+demands an answer. Nobody warns them first. This is not bad luck and not weather —
+the dice handle those. This is somebody in the world doing something on purpose.
+
+Narrate it as part of the same turn, after what they did."""
+
+
 SPARK = """The die came up six. Somewhere in what you narrate, put one new thing that
 reaches past this moment — something no document covers and nothing here can settle.
 Let it pass without comment. Do not explain it, do not have anyone remark on it, and
@@ -727,7 +749,7 @@ One such thing, not several, and no longer than a clause or a sentence. List it 
 your claims like anything else."""
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, spark=False, inventory=None, quests=None, now=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, spark=False, press=False, inventory=None, quests=None, now=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -765,6 +787,8 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
         parts.append("What they have taken on:\n" + render_quests(quests))
     if action:
         parts.append(f"The adventurer's action:\n\n{action}")
+    if press:
+        parts.append(PRESS)
     if spark:
         parts.append(SPARK)
     if correction:

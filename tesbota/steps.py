@@ -7,6 +7,7 @@ from .config import (
     SPARK_DIE,
     SPARK_FACE,
     SPARK_FLOOR,
+    PRESS_FLOOR,
     BASE_RISK,
     DIE,
     MAX_ASKS,
@@ -284,6 +285,12 @@ def step_propose(campaign, turn):
     return campaign, turn
 
 
+def due_press(turn, campaign=None):
+    if "pressed" not in turn:
+        turn["pressed"] = (campaign or {}).get("calm", 0) >= PRESS_FLOOR
+    return turn["pressed"]
+
+
 def roll_spark(turn, campaign=None, rng=random):
     quiet = (campaign or {}).get("quiet", 0)
     if "spark_roll" not in turn:
@@ -310,6 +317,7 @@ def step_gm(campaign, turn):
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
             note=turn.get("note"),
             spark=roll_spark(turn, campaign),
+            press=due_press(turn, campaign),
             inventory=campaign.get("inventory") or [],
             quests=campaign.get("quests") or [],
         
@@ -738,6 +746,7 @@ def deliver(campaign, turn):
 
     turn["minutes"] = int(draft.get("minutes") or 0)
     campaign["quiet"] = campaign.get("quiet", 0) + 1
+    campaign["calm"] = 0 if turn.get("pressed") else campaign.get("calm", 0) + 1
     turn["resolved"] = True
     turn["draft"] = None
     turn["verdicts"] = []
