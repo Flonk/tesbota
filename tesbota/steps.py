@@ -118,6 +118,47 @@ def first_utterance(text):
     return " ".join(kept).strip()
 
 
+DONE_WORDS = (
+    "done", "nothing further", "nothing else", "nothing more", "that is all",
+    "that's all", "thats all", "ready", "no more", "move on", "finished",
+    "i'm good", "im good", "carry on", "let's go", "lets go",
+)
+
+QUOTES = "\"'\u201c\u2018\u201e\u00ab"
+
+
+def classify(text, turn):
+    """Work out whether an utterance is a look, a say, or the end of the turn.
+    The prefixes are honoured when given; otherwise a question is a look and
+    speech is a say, so the explorer need not remember the syntax."""
+    stripped = (text or "").strip()
+    upper = stripped.upper()
+
+    if upper.startswith("LOOK:"):
+        return "look", stripped[5:].strip()
+    if upper.startswith("SAY:"):
+        return "say", stripped[4:].strip()
+
+    bare = stripped.lower().strip(".!\u2026 ")
+    if any(bare == w or bare.startswith(w + " ") or bare.startswith("i am " + w)
+           for w in DONE_WORDS):
+        return "done", stripped
+    if len(bare) <= 48 and any(w in bare for w in DONE_WORDS):
+        return "done", stripped
+
+    looks_left = len(turn.get("looks") or []) < MAX_LOOKS
+    talks_left = len(turn.get("talks") or []) < MAX_TALKS
+
+    if stripped[:1] in QUOTES and talks_left:
+        return "say", stripped.strip(QUOTES + "\u201d\u2019\u00bb")
+    if stripped.endswith("?"):
+        if looks_left:
+            return "look", stripped
+        if talks_left:
+            return "say", stripped
+    return "done", stripped
+
+
 def step_explorer(campaign, turn):
     text, session = ask(
         prompts.explorer_turn(campaign.get("last_narration"), nudge=turn.get("nudge")),
@@ -160,26 +201,19 @@ def step_explorer(campaign, turn):
         turn["state"] = "propose"
         return campaign, turn
 
-    if upper.startswith("LOOK:") and len(turn.get("looks") or []) < MAX_LOOKS:
-        turn["question"] = stripped[5:].strip()
-        turn["mode"] = "look"
+    kind, said = classify(stripped, turn)
+    caps = {"look": MAX_LOOKS, "say": MAX_TALKS}
+    buckets = {"look": "looks", "say": "talks"}
+
+    if kind in caps and len(turn.get(buckets[kind]) or []) < caps[kind]:
+        turn["question"] = said
+        turn["mode"] = kind
         turn["looking"] = True
-        phase(turn, "explorer", "look", turn["question"])
+        phase(turn, "explorer", kind, said)
         turn["state"] = "answer"
         return campaign, turn
 
-    if upper.startswith("SAY:") and len(turn.get("talks") or []) < MAX_TALKS:
-        turn["question"] = stripped[4:].strip()
-        turn["mode"] = "say"
-        turn["looking"] = True
-        phase(turn, "explorer", "say", turn["question"])
-        turn["state"] = "answer"
-        return campaign, turn
-
-    for prefix in ("LOOK:", "SAY:"):
-        if upper.startswith(prefix):
-            stripped = stripped[len(prefix):].strip()
-            break
+    stripped = said
 
     turn["ready"] = stripped
     if turn.get("resolved"):
