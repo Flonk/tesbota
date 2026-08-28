@@ -125,6 +125,7 @@ header {
 .FRICTION { color: var(--warn); border-color: var(--warn); }
 .FALSE { color: var(--bad); border-color: var(--bad); }
 .UNRESOLVED { color: var(--place); border-color: var(--place); }
+.UNRULED { color: var(--dim); border-color: var(--line); border-style: dashed; }
 .why { color: var(--dim); display: block; margin-top: .25rem; }
 
 .lore { margin-top: 2.5rem; border-top: 1px solid var(--warn); padding-top: 1.5rem; }

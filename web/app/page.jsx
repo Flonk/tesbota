@@ -380,8 +380,8 @@ export default function Page() {
                   </summary>
                   {s.claims.map((c) => (
                     <div className="claim" key={c.key || c.id}>
-                      <span className={`v ${c.verdict?.result || "UNRESOLVED"}`}>
-                        {c.verdict?.result || "—"}
+                      <span className={`v ${c.verdict?.result || "UNRULED"}`}>
+                        {c.verdict?.result || "unruled"}
                       </span>
                       {c.text}
                       {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
