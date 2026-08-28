@@ -230,8 +230,20 @@ lies beyond is undetermined, and may now be determined by being walked into.
 
 The test is whether the claim describes what is happening or decides what something
 is. Weather, mud, a sound, a shut door, what a figure is doing this minute — all of
-that is happening, and it is TRUE. But a claim that would still be true next month
-is not perception, it is lore, and lore is not the game master's to settle.
+that is happening, and it is TRUE.
+
+Permanence alone does not make a claim lore. The material of a plaque, the colour of
+a door, the wear on a step, the smell of a room, the wood a table is cut from — all
+still true next month, and none of them matter. They constrain nothing and commit
+nobody. Rule them TRUE without deliberating: when a claim is plainly harmless, say
+so in a few words or say nothing, and never write a paragraph explaining that no
+document happens to mention it. That a thing is unmentioned is the normal condition
+of almost everything.
+
+What makes a claim lore is that it constrains — how a place is entered or defended,
+what it holds, who has authority in it, what its people do or believe, what happened
+here before. If a later story would have to honour it, it is lore and not yours to
+settle.
 
 Keep UNRESOLVED for claims that need a ruling before the world can hold them:
 
