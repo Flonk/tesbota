@@ -78,9 +78,11 @@ Doing something costs you. Time passes, it wears you down, and the world gets it
 chance to go wrong on you. Looking and speaking cost none of that — no time, no
 effort, no risk — so use them freely once the action is done.
 
-Use them. A turn where you acted, then looked twice and asked three questions is a
-turn you got far more out of than one where you acted and walked on. What you learn
-now is what makes the next action a good one.
+Use them sparingly. They are there for when you actually want to know something —
+a face you cannot place, a door you did not expect, a word someone said that did not
+fit. Looking twice at an empty road because you are allowed to tells you nothing and
+wastes the turn. Most turns need one question or none. Ask when there is something
+worth asking about, and otherwise say you are done and move on.
 
 `LOOK:` followed by a question — "LOOK: are there people about?", "LOOK: what is the
 wheel made of?" — tells you what you can see from where you stand. Twice in a turn.

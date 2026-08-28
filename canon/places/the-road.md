@@ -26,3 +26,7 @@ crossing partway along carries [[the-crossing-signpost]].
 - t0001 — Fog stands close around the road on every side, hiding what lies beyond.
 - t0001 — The road runs away in two directions.
 - t0002 — the ground along the road firms up heading west
+- t0001 — fog limits visibility along the road to a short distance
+- t0001 — the air is still at the road
+- t0001 — the road is level where it crosses this stretch
+- t0002 — no tracks mark the ground beside the road at this stretch

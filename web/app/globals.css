@@ -353,7 +353,8 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   margin: .4rem 0 0;
 }
 .sec-blocked { color: var(--warn); }
-.sec-compact > .sec-label { cursor: pointer; list-style: none; }
+.sec-compact > .sec-label { cursor: pointer; list-style: none; text-transform: none; }
+.sec-tag { text-transform: uppercase; letter-spacing: .1em; margin-right: .7em; }
 .sec-compact > .sec-label::-webkit-details-marker { display: none; }
 .sec-compact > .sec-label::before { content: "\25B8  "; }
 .sec-compact[open] > .sec-label::before { content: "\25BE  "; }

@@ -51,10 +51,28 @@ function cost(minutes) {
   return `${m} min`;
 }
 
-function Section({ mode, label, kind, children }) {
+function pairUp(phases) {
+  const rows = [];
+  const list = phases || [];
+  for (let i = 0; i < list.length; i++) {
+    const x = list[i];
+    const next = list[i + 1];
+    if (x.kind === "look" && next && next.who === "gm" && next.kind === "answer") {
+      rows.push({ key: x.n, look: x, answer: next });
+      i++;
+    } else if (x.kind === "look") {
+      rows.push({ key: x.n, look: x, answer: null });
+    } else {
+      rows.push({ key: x.n, x });
+    }
+  }
+  return rows;
+}
+
+function Section({ mode, label, kind, children, open }) {
   if (mode === "compact") {
     return (
-      <details className="sec sec-compact">
+      <details className="sec sec-compact" open={open}>
         <summary className="sec-label">{label}</summary>
         <div className="sec-fold">{children}</div>
       </details>
@@ -84,6 +102,28 @@ function toll(x) {
   if (x.roll) bits.push(`d400 ${x.roll}`);
   if (x.risk > 1) bits.push(`risk ${x.risk}`);
   return bits.length ? bits.join(" · ") : null;
+}
+
+function Pair({ look, answer }) {
+  const waiting = !answer || !answer.text;
+  return (
+    <Section
+      mode="compact"
+      open={waiting}
+      label={
+        <>
+          <span className="sec-tag">{look.kind === "say" ? "says" : "looks"}</span>
+          {look.kind === "say" ? `“${look.text}”` : look.text}
+        </>
+      }
+    >
+      {waiting ? (
+        <p className="sec-body sec-waiting">waiting for an answer…</p>
+      ) : (
+        <p className="sec-body">{answer.text}</p>
+      )}
+    </Section>
+  );
 }
 
 function Phase({ x }) {
@@ -334,9 +374,13 @@ export default function Page() {
                 )}
               </div>
 
-              {s.phases?.map((x) => (
-                <Phase key={x.n} x={x} />
-              ))}
+              {pairUp(s.phases).map((r) =>
+                r.look ? (
+                  <Pair key={r.key} look={r.look} answer={r.answer} />
+                ) : (
+                  <Phase key={r.key} x={r.x} />
+                )
+              )}
 
               <Meta s={s} />
 
