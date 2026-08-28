@@ -219,6 +219,13 @@ export default function Page() {
                 </div>
               ))}
 
+              {s.talks?.map((t, n) => (
+                <div className="look talk" key={`t${n}`}>
+                  <p className="lookq">“{t.question}”</p>
+                  <p className="looka">{t.answer}</p>
+                </div>
+              ))}
+
               {s.action && <p className="action">{s.action}</p>}
               {s.narration && <p className="narration">{s.narration}</p>}
 

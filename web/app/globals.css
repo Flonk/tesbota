@@ -269,3 +269,6 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   color: var(--dim); font-size: .88rem; white-space: pre-wrap;
 }
 .notewas .who { display: block; font: 11px ui-monospace, monospace; color: var(--gold); margin-bottom: .2rem; }
+
+.look.talk { border-left-color: var(--gold); }
+.look.talk .looka { color: var(--ink); }

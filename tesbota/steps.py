@@ -8,6 +8,7 @@ from .config import (
     DIE,
     MAX_ASKS,
     MAX_LOOKS,
+    MAX_TALKS,
     MAX_FATIGUE,
     MAX_GM_RETRIES,
     HUNGER_PER_HOUR,
@@ -65,21 +66,40 @@ def step_explorer(campaign, turn):
     campaign["sessions"]["explorer"] = session
 
     stripped = text.strip()
-    asking = stripped.upper().startswith("LOOK:")
-    if asking and len(turn.get("looks") or []) < MAX_LOOKS:
+    upper = stripped.upper()
+
+    if upper.startswith("LOOK:") and len(turn.get("looks") or []) < MAX_LOOKS:
         turn["question"] = stripped[5:].strip()
+        turn["mode"] = "look"
         turn["looking"] = True
         turn["state"] = "answer"
         return campaign, turn
 
-    turn["action"] = stripped[5:].strip() if asking else stripped
+    if upper.startswith("SAY:") and len(turn.get("talks") or []) < MAX_TALKS:
+        turn["question"] = stripped[4:].strip()
+        turn["mode"] = "say"
+        turn["looking"] = True
+        turn["state"] = "answer"
+        return campaign, turn
+
+    for prefix in ("LOOK:", "SAY:"):
+        if upper.startswith(prefix):
+            stripped = stripped[len(prefix):].strip()
+            break
+
+    turn["action"] = stripped
     turn["state"] = "propose"
     return campaign, turn
 
 
 def step_answer(campaign, turn):
     text, session = ask(
-        prompts.gm_answer(turn.get("question"), previous=campaign.get("last_narration")),
+        prompts.gm_answer(
+            turn.get("question"),
+            previous=campaign.get("last_narration"),
+            mode=turn.get("mode") or "look",
+            inventory=campaign.get("inventory") or [],
+        ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
         session=campaign["sessions"]["gm"],
@@ -112,6 +132,7 @@ def step_propose(campaign, turn):
             vitals=campaign.get("vitals"),
             answers=turn.get("answers") or [],
             note=turn.get("note"),
+            inventory=campaign.get("inventory") or [],
         ),
         system=prompts.GM_PROPOSE_SYSTEM,
         tools=READ_TOOLS,
@@ -218,6 +239,7 @@ def step_gm(campaign, turn):
             arrival=turn.get("arrival"),
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
             note=turn.get("note"),
+            inventory=campaign.get("inventory") or [],
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -235,6 +257,8 @@ def step_gm(campaign, turn):
     draft.setdefault("hunger", None)
     draft.setdefault("check", None)
     draft.setdefault("location", None)
+    draft.setdefault("gain", [])
+    draft.setdefault("lose", [])
     draft.setdefault("risk", BASE_RISK)
 
     agreed = turn.get("proposal") if turn.get("confirmed") else None
@@ -401,6 +425,38 @@ def too_tired(campaign, draft):
     return vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0) > MAX_FATIGUE
 
 
+def apply_inventory(campaign, draft):
+    items = campaign.setdefault("inventory", [])
+
+    for entry in draft.get("lose") or []:
+        name = (entry.get("name") if isinstance(entry, dict) else str(entry) or "").strip().lower()
+        qty = int((entry.get("qty") if isinstance(entry, dict) else 1) or 1)
+        for held in list(items):
+            if str(held.get("name", "")).strip().lower() != name:
+                continue
+            held["qty"] = int(held.get("qty") or 1) - qty
+            if held["qty"] <= 0:
+                items.remove(held)
+            break
+
+    for entry in draft.get("gain") or []:
+        if not isinstance(entry, dict) or not entry.get("name"):
+            continue
+        name = str(entry["name"]).strip()
+        qty = int(entry.get("qty") or 1)
+        existing = next((h for h in items if str(h.get("name", "")).strip().lower() == name.lower()), None)
+        if existing:
+            existing["qty"] = int(existing.get("qty") or 1) + qty
+        else:
+            items.append({
+                "name": name,
+                "qty": qty,
+                "note": str(entry.get("note") or ""),
+                "worn": bool(entry.get("worn")),
+            })
+    return campaign
+
+
 def apply_vitals(campaign, draft):
     vitals = campaign.setdefault("vitals", {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0})
     vitals["fatigue"] = max(0, min(MAX_FATIGUE, vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0)))
@@ -474,6 +530,7 @@ def deliver(campaign, turn):
             canon.append_attested(claim["entity"], turn["turn_id"], claim["text"], kind=kind)
 
     campaign = apply_vitals(campaign, draft)
+    campaign = apply_inventory(campaign, draft)
 
     where = (draft.get("location") or "").strip() if isinstance(draft.get("location"), str) else ""
     if where:
@@ -483,11 +540,13 @@ def deliver(campaign, turn):
     campaign["last_narration"] = draft.get("narration")
 
     if turn.get("looking"):
-        turn.setdefault("looks", []).append({
+        bucket = "talks" if turn.get("mode") == "say" else "looks"
+        turn.setdefault(bucket, []).append({
             "question": turn.get("question"),
             "answer": draft.get("narration"),
         })
         turn["looking"] = False
+        turn["mode"] = None
         turn["question"] = None
         turn["draft"] = None
         turn["verdicts"] = []

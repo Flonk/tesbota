@@ -375,3 +375,16 @@ that nobody in the story says it and the adventurer never learns of it.
 A note is consumed once: `step_propose` moves it from the campaign onto the turn it
 steers, where it stays visible on that slide afterwards. `tesbota note "..."` does
 the same from a terminal, and an empty string clears a queued one.
+
+## Talking and trading
+
+`SAY:` opens an exchange — the game master answers in the other person's own voice
+and nothing else happens. Up to four before acting, against two for `LOOK:`.
+Talking settles nothing: a price named is not a price paid.
+
+The game master is shown what the adventurer carries on every turn and is told the
+list is the truth — they cannot hand over, spend or use what is not on it, and a
+coin is never invented into their hand. When something actually changes hands it
+records `gain` (name, qty, note) and `lose` (name, qty), applied by the driver.
+Quantities stack case-insensitively, losing more than is held empties the entry
+rather than going negative, and losing something unheld is a no-op.

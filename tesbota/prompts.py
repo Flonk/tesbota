@@ -1,3 +1,15 @@
+def render_inventory(items):
+    lines = []
+    for item in items or []:
+        if isinstance(item, dict):
+            count = f" x{item.get('qty')}" if int(item.get("qty") or 1) > 1 else ""
+            where = " (worn)" if item.get("worn") else ""
+            lines.append(f"  - {item.get('name')}{count}{where}")
+        else:
+            lines.append(f"  - {item}")
+    return "\n".join(lines) or "  (nothing)"
+
+
 EXPLORER_SYSTEM = """You are a person who has just become aware.
 
 You perceive the world only through what is narrated to you. You have no files, no
@@ -26,7 +38,13 @@ front of you. Begin your reply with `LOOK:` and then the question — "LOOK: are
 there people about?", "LOOK: what is the wheel made of?" — and you will be told what
 you can see from where you stand. No time passes and you do nothing.
 
-Use this sparingly, at most twice before acting, and only for what your eyes and
+You may also speak without committing to anything. Begin with `SAY:` and then your
+words — "SAY: how much for a bed?" — and you will get an answer in that person's own
+voice. Up to four exchanges before you act. Talking settles nothing on its own: a
+price named is not a price paid, and if you agree to something you must then
+actually do it.
+
+Use looking sparingly, at most twice before acting, and only for what your eyes and
 ears could settle. It is not for asking what you should do, not for asking about
 places you cannot see, and not for putting off a decision. When you know enough,
 say what you do.
@@ -156,9 +174,20 @@ Reply with a single fenced json block and nothing else:
   "health": 0,
   "risk": 1,
   "check": null,
-  "location": "kebab-id of where they are now"
+  "location": "kebab-id of where they are now",
+  "gain": [],
+  "lose": []
 }
 ```
+
+You are shown what the adventurer is carrying, and it is the truth. They cannot
+hand over, spend or use a thing that is not on that list — if they try, narrate
+them finding they have not got it, and let whoever they are dealing with react.
+Never invent a coin into their hand.
+
+When something actually changes hands, record it: `gain` takes objects with a
+name, a qty and an optional note; `lose` takes a name and a qty. Nothing moves
+until the deed is done — agreeing a price changes nothing, paying it does.
 
 `location` is the id of the place the adventurer is in at the end of this turn —
 the smallest place that contains them, so the mill rather than the village if they
@@ -454,23 +483,36 @@ def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
 
 
-def gm_answer(question, previous=None):
+def gm_answer(question, previous=None, mode="look", inventory=None):
     parts = []
     if previous:
         parts.append(f"What they were last told:\n\n{previous}")
-    parts.append(
-        "They are not doing anything yet — they are looking harder at what is already "
-        "in front of them, and they ask:\n\n"
-        f"{question}\n\n"
-        "Answer only what can be perceived from where they stand. No time passes and "
-        "nothing is done. Do not offer them choices, do not move them, and do not "
-        "introduce anything that would not simply be visible from here. A sentence or "
-        "two. Reply in the same json shape, with minutes 0 and fatigue 0."
-    )
+    if inventory:
+        parts.append("What they are carrying:\n" + render_inventory(inventory))
+
+    if mode == "say":
+        parts.append(
+            "They are speaking. Nothing else is happening, and they have not committed "
+            f"to any action. They say:\n\n{question}\n\n"
+            "Answer as whoever they are talking to would answer, in that person's own "
+            "voice, and narrate nothing but the reply and how it is given. Nobody "
+            "moves and no bargain is struck by talking about it. If they are speaking "
+            "to no one, say so. A sentence or two."
+        )
+    else:
+        parts.append(
+            "They are not doing anything yet — they are looking harder at what is "
+            f"already in front of them, and they ask:\n\n{question}\n\n"
+            "Answer only what can be perceived from where they stand. No time passes "
+            "and nothing is done. Do not offer them choices, do not move them, and do "
+            "not introduce anything that would not simply be visible from here. A "
+            "sentence or two."
+        )
+    parts.append("Reply in the same json shape, with minutes 0 and fatigue 0.")
     return "\n\n".join(parts)
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, inventory=None):
     parts = []
     if note:
         parts.append(
@@ -500,6 +542,8 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
             "Something interrupts the journey here. Invent what, and narrate it. "
             "The adventurer has been travelling and does not know how long."
         )
+    if inventory is not None:
+        parts.append("What they are carrying:\n" + render_inventory(inventory))
     if action:
         parts.append(f"The adventurer's action:\n\n{action}")
     if correction:
@@ -534,7 +578,7 @@ def lore1_query(question):
     return f"{question}"
 
 
-def gm_propose(action, previous=None, vitals=None, answers=None, note=None):
+def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inventory=None):
     parts = []
     if note:
         parts.append(
@@ -549,6 +593,8 @@ def gm_propose(action, previous=None, vitals=None, answers=None, note=None):
             f"Their condition: health {vitals.get('health')}/100, "
             f"fatigue {vitals.get('fatigue')}/100."
         )
+    if inventory is not None:
+        parts.append("What they are carrying:\n" + render_inventory(inventory))
     parts.append(f"What they intend to do:\n\n{action}")
     for question, answer in answers or []:
         parts.append(f"You asked: {question}\n\nThe record says: {answer}")
