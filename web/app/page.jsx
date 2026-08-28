@@ -159,21 +159,24 @@ export default function Page() {
   return (
     <>
       <header>
-        <div className="hrow top">
+        <div className="hleft">
           <h1>tesbota</h1>
           <Status status={status} />
         </div>
-        <div className="hrow bottom">
-          <button className="vitals" onClick={() => setSheetOpen(true)} title="open the character sheet">
-            <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
-            <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
-            <Bar label="hun" value={vitals?.hunger ?? 0} max={100} tone="hun" />
-          </button>
+
+        <div className="hmid">
+          <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
+          <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
+          <Bar label="hun" value={vitals?.hunger ?? 0} max={100} tone="hun" />
+        </div>
+
+        <div className="hright">
           {busy && <span className="working">working…</span>}
           <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
           <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
             {busy === "step" ? "…" : "step"}
           </button>
+          <button className="ghost" onClick={() => setSheetOpen(true)}>stats</button>
         </div>
       </header>
 
