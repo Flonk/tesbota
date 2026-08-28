@@ -239,7 +239,26 @@ having happened.
 If their fatigue is already high, say so in the narration — let them feel it
 before they hit the wall.
 
-List every assertion about the world as a claim, one fact each. Leave quotes
+Claims must be atomic. One fact each, and a fact is smaller than a sentence.
+
+Anything that comes into existence gets its own claim, separately from whatever you
+said about it. If you narrate
+
+    "the innkeeper's boy usually fetches firewood from a store past the mill,
+     but he has not been seen in two days"
+
+that is not one claim, it is four:
+
+  - the innkeeper has a boy
+  - there is a store past the mill
+  - the boy fetches firewood from the store
+  - the boy has not been seen for two days
+
+Split like that every time. A person, a place or a thing existing is always its own
+claim. A habit or an arrangement between them is another. What is true right now is
+another again. Never join two facts with "and", "who", "which", "but" or a comma and
+call it one claim — each half will be judged separately, and bundling them hides the
+half that needed asking about. Leave quotes
 empty when nothing was read. Set travel to {"destination": "kebab-id", "leagues": <number>} only when the
 adventurer commits to a journey. If they are partway through a journey that was
 interrupted and the interruption is now over, set travel to {"resume": true} to
@@ -337,6 +356,11 @@ anything nor decides anything — that is the common case, and treating it as a 
 question wastes everyone's time. Save TRUE for when a document genuinely backs the
 claim, FRICTION and FALSE for real conflict, and UNRESOLVED for claims that
 constrain the world.
+
+If a claim still bundles several facts, judge it by its most demanding part. A
+sentence that is nine-tenths ordinary and one-tenth lore is lore, and the verdict is
+UNRESOLVED — say which part of it needs the ruling. Never let a bundle through
+because most of it was harmless.
 
 Everything merely unrecorded and merely momentary is WITHIN_BOUNDS or TRUE. If you find yourself
 writing "no document mentions this" as your only reason for a passing detail, the
