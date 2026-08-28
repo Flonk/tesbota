@@ -77,23 +77,17 @@ const GM_LABEL = {
 
 const SAID_LABEL = { action: "action", look: "looks", say: "says" };
 
-function Phase({ x, roll, ok }) {
-  if (x.kind === "ready" || x.kind === "confirm") return null;
+function toll(x) {
+  const bits = [];
+  if (x.minutes) bits.push(cost(x.minutes));
+  if (x.fatigue) bits.push(`${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue`);
+  if (x.roll) bits.push(`d400 ${x.roll}`);
+  if (x.risk > 1) bits.push(`risk ${x.risk}`);
+  return bits.length ? bits.join(" · ") : null;
+}
 
-  if (x.kind === "proposal") {
-    const bits = [cost(x.minutes)];
-    bits.push(x.fatigue ? `${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue` : "no effort");
-    if (x.risk > 1) bits.push(`risk ${x.risk}`);
-    if (roll) bits.push(`d400 ${roll}`);
-    if (x.unpriced) bits.push("unpriced, guessed");
-    if (ok) bits.push(ok === "yes" ? "ok" : "turned down");
-    return (
-      <Section mode="compact" label={["what it will take", ...bits].join(" · ")}>
-        <p className="sec-body">{x.text}</p>
-        {x.target && <p className="sec-body">toward {x.target}</p>}
-      </Section>
-    );
-  }
+function Phase({ x }) {
+  if (x.kind === "ready" || x.kind === "confirm" || x.kind === "proposal") return null;
 
   if (x.who === "explorer") {
     return (
@@ -104,7 +98,7 @@ function Phase({ x, roll, ok }) {
   }
 
   return (
-    <Section mode="gm" kind={x.kind} label={GM_LABEL[x.kind] || x.kind}>
+    <Section mode="gm" kind={x.kind} label={toll(x) || GM_LABEL[x.kind] || x.kind}>
       {x.text ? (
         <p className="sec-body">{x.text}</p>
       ) : (
@@ -341,12 +335,7 @@ export default function Page() {
               </div>
 
               {s.phases?.map((x) => (
-                <Phase
-                  key={x.n}
-                  x={x}
-                  roll={s.roll}
-                  ok={s.phases.find((p) => p.kind === "confirm")?.text}
-                />
+                <Phase key={x.n} x={x} />
               ))}
 
               <Meta s={s} />

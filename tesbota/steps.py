@@ -143,9 +143,7 @@ def step_explorer(campaign, turn):
     if not turn.get("action") and not upper.startswith(("LOOK:", "SAY:")):
         turn["action"] = stripped
         phase(turn, "explorer", "action", stripped)
-        turn["mode"] = "context"
-        turn["looking"] = True
-        turn["state"] = "context"
+        turn["state"] = "propose"
         return campaign, turn
 
     if not turn.get("action") and upper.startswith(("LOOK:", "SAY:")):
@@ -155,9 +153,7 @@ def step_explorer(campaign, turn):
             return campaign, turn
         turn["action"] = stripped.split(":", 1)[1].strip()
         phase(turn, "explorer", "action", turn["action"])
-        turn["mode"] = "context"
-        turn["looking"] = True
-        turn["state"] = "context"
+        turn["state"] = "propose"
         return campaign, turn
 
     if upper.startswith("LOOK:") and len(turn.get("looks") or []) < MAX_LOOKS:
@@ -182,37 +178,11 @@ def step_explorer(campaign, turn):
             break
 
     turn["ready"] = stripped
-    turn["state"] = "propose"
-    return campaign, turn
-
-
-def step_context(campaign, turn):
-    text, session = ask(
-        prompts.gm_context(
-            turn.get("action"),
-            previous=campaign.get("last_narration"),
-            vitals=campaign.get("vitals"),
-            inventory=campaign.get("inventory") or [],
-            correction=turn.get("correction"),
-            now=worldclock.long_stamp(campaign.get("time")),
-        ),
-        system=prompts.GM_SYSTEM,
-        tools=READ_TOOLS,
-        session=campaign["sessions"]["gm"],
-        model=MODELS["gm"],
-    )
-    campaign["sessions"]["gm"] = session
-    draft = extract_json(text)
-    draft.setdefault("claims", [])
-    draft.setdefault("quotes", [])
-    for zero in ("minutes", "fatigue", "health"):
-        draft[zero] = 0
-    draft["travel"] = None
-    draft["check"] = None
-    turn["draft"] = draft
-    gm_phase(turn, "context", draft.get("narration"))
-    turn["correction"] = None
-    turn["state"] = "lore1"
+    if turn.get("resolved"):
+        turn["delivered"] = True
+        turn["state"] = "done"
+    else:
+        turn["state"] = "propose"
     return campaign, turn
 
 
@@ -305,61 +275,9 @@ def step_propose(campaign, turn):
     proposal["fatigue"] = int(proposal.get("fatigue") or 0)
     proposal["risk"] = int(proposal.get("risk") or BASE_RISK)
     turn["proposal"] = proposal
-    phase(
-        turn,
-        "gm",
-        "proposal",
-        proposal["summary"],
-        status="checked",
-        minutes=proposal["minutes"],
-        fatigue=proposal["fatigue"],
-        risk=proposal["risk"],
-        target=proposal.get("target"),
-        unpriced=bool(proposal.get("unpriced")),
-    )
 
-    trivial = (
-        priced
-        and proposal["minutes"] < TRIVIAL_MINUTES
-        and abs(proposal["fatigue"]) < TRIVIAL_FATIGUE
-    )
-    turn["confirmed"] = True if trivial else None
-    turn["state"] = "gm" if trivial else "confirm"
-    return campaign, turn
-
-
-def step_confirm(campaign, turn):
-    text, session = ask(
-        prompts.explorer_confirm(turn["proposal"]),
-        system=prompts.EXPLORER_SYSTEM,
-        tools=["Bash"],
-        session=campaign["sessions"]["explorer"],
-        model=MODELS["explorer"],
-        permission=explorer_permission,
-    )
-    campaign["sessions"]["explorer"] = session
-    turn["answer"] = text
-    first = text.strip().splitlines()[0].strip().upper() if text.strip() else ""
-    yes = first.startswith("YES")
-    turn["confirmed"] = yes
-    phase(turn, "explorer", "confirm", "yes" if yes else "no")
-    if yes:
-        turn["state"] = "gm"
-        return campaign, turn
-
-    turn["declines"] = turn.get("declines", 0) + 1
-    if turn["declines"] >= MAX_ASKS:
-        turn["gap"] = (
-            "The adventurer has refused every proposal put to them:\n\n"
-            + text.strip()
-        )
-        turn["state"] = "awaiting_human"
-        return campaign, turn
-
-    turn["action"] = text
-    turn["proposal"] = None
-    turn["answers"] = []
-    turn["state"] = "propose"
+    turn["confirmed"] = True
+    turn["state"] = "gm"
     return campaign, turn
 
 
@@ -574,7 +492,7 @@ FATE_INSTRUCTIONS = {
 def redraft_state(turn):
     if not turn.get("looking"):
         return "gm"
-    return "context" if turn.get("mode") == "context" else "answer"
+    return "answer"
 
 
 def too_tired(campaign, draft):
@@ -752,6 +670,11 @@ def deliver(campaign, turn):
             {**claim, "verdict": by_verdict.get(claim.get("id"))}
             for claim in (draft.get("claims") or [])
         ]
+        if current["kind"] in ("outcome", "world"):
+            current["minutes"] = int(draft.get("minutes") or 0)
+            current["fatigue"] = int(draft.get("fatigue") or 0)
+            current["roll"] = turn.get("roll")
+            current["risk"] = turn.get("risk")
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None
@@ -781,17 +704,18 @@ def deliver(campaign, turn):
         return campaign, turn
 
     turn["minutes"] = int(draft.get("minutes") or 0)
-    turn["delivered"] = True
-    turn["state"] = "done"
+    turn["resolved"] = True
+    turn["draft"] = None
+    turn["verdicts"] = []
+    turn["gm_retries"] = 0
+    turn["state"] = "explorer"
     return campaign, turn
 
 
 STEPS = {
     "explorer": step_explorer,
-    "context": step_context,
     "answer": step_answer,
     "propose": step_propose,
-    "confirm": step_confirm,
     "gm": step_gm,
     "lore1": step_lore1,
 }

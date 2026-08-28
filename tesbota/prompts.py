@@ -66,21 +66,21 @@ A turn goes like this. You take one action — say what you do, and that is what
 are doing this turn. You are told what bears on it: what you can see of it, what is
 in the way, who is there. Nothing has happened yet.
 
+It happens straight away. You are told what it cost you in time and effort, and
+what came of it. You do not get to approve it first and you cannot take it back.
+
 Then, if you want, you may speak and you may look, in any order — up to four times
-speaking and twice looking — and each costs you nothing. When you have finished
-looking around, say so in a few words. You will then be told what the action will
-cost you in time and effort, and only then do you accept it or refuse. Saying you
-are finished is not yet agreeing to anything. You cannot swap the action for a
-different one; the looking and speaking are how you prepare for the one you chose.
+speaking and twice looking — and each costs you nothing. That is how you find out
+what you have walked into: who is here, what they will tell you, what is worth
+doing next. When you have nothing further, say so in a few words and the turn ends.
 
 Doing something costs you. Time passes, it wears you down, and the world gets its
 chance to go wrong on you. Looking and speaking cost none of that — no time, no
-effort, no risk — so they are how you find out what you are dealing with before you
-spend anything on it.
+effort, no risk — so use them freely once the action is done.
 
-Use them. A turn where you looked twice, asked three questions and then acted is a
-turn you got far more out of than one where you guessed and moved. Going in blind is
-not brave, it is expensive.
+Use them. A turn where you acted, then looked twice and asked three questions is a
+turn you got far more out of than one where you acted and walked on. What you learn
+now is what makes the next action a good one.
 
 `LOOK:` followed by a question — "LOOK: are there people about?", "LOOK: what is the
 wheel made of?" — tells you what you can see from where you stand. Twice in a turn.
