@@ -215,16 +215,27 @@ A Witnessed line saying something is hidden positively licenses whatever is behi
 it. "Fog hides what lies beyond" does not mean nothing lies beyond — it means what
 lies beyond is undetermined, and may now be determined by being walked into.
 
-Keep UNRESOLVED for the few claims that genuinely need a ruling before the world can
-hold them:
+The test is whether the claim describes what is happening or decides what something
+is. Weather, mud, a sound, a shut door, what a figure is doing this minute — all of
+that is happening, and it is TRUE. But a claim that would still be true next month
+is not perception, it is lore, and lore is not the game master's to settle.
 
+Keep UNRESOLVED for claims that need a ruling before the world can hold them:
+
+- what a place or a people permanently is — a town's walls, gates, streets, the
+  buildings it holds, its defences, customs, trades, who holds authority in it
 - a proper noun that pins down a place, a person, or an institution
 - a law of how this world works: its physics, its dead, its gods, its seasons
 - a fact that reaches beyond this moment — where a road ends, who rules here, what
   happened long ago
 
-Everything merely unrecorded is TRUE. If you find yourself writing "no document
-mentions this" as your only reason, the verdict is TRUE, not UNRESOLVED.
+A figure stepping out of the fog and challenging someone is happening: TRUE. That
+the town keeps gatekeepers who challenge travellers is what the town is:
+UNRESOLVED. The same sentence can do both — when it does, it needs a ruling.
+
+Everything merely unrecorded and merely momentary is TRUE. If you find yourself
+writing "no document mentions this" as your only reason for a passing detail, the
+verdict is TRUE, not UNRESOLVED.
 
 You may write to canon/, but only to record what you have verified: keeping a
 place's `## Map` and its `within:`/`contains:` consistent with what is already
