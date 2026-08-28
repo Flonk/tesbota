@@ -44,6 +44,11 @@ voice. Up to four exchanges before you act. Talking settles nothing on its own: 
 price named is not a price paid, and if you agree to something you must then
 actually do it.
 
+Neither is ever a first move. You do not open by looking and you do not open by
+speaking — you open by doing, and you look or speak afterwards, when something has
+been put in front of you that you need to settle before choosing what to do next.
+A turn that begins with a question is a turn spent stalling.
+
 Use looking sparingly, at most twice before acting, and only for what your eyes and
 ears could settle. It is not for asking what you should do, not for asking about
 places you cannot see, and not for putting off a decision. When you know enough,
