@@ -134,8 +134,8 @@ NOTEBOOK_MAX_CHARS = 120
 NOTEBOOK_MAX_NOTES = 24
 
 DIE = 400
-SPARK_DIE = 6
-SPARK_FACE = 6
+BANDS = ("common", "common", "rare", "rare", "very_rare", "very_rare")
+BAND_WEIGHT = {"common": 0.35, "rare": 0.12, "very_rare": 0.03}
 SPARK_FLOOR = 4
 PRESS_FLOOR = 3
 

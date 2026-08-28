@@ -393,6 +393,22 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 .sec-check.made { color: var(--good); border-left-color: var(--good); }
 .sec-check.missed { color: var(--bad); border-left-color: var(--bad); }
 .sec-check + .sec-told { margin-top: .55rem; }
+.sec-table { margin: .8rem 0 0; }
+.outrow {
+  font: 11px ui-monospace, monospace;
+  color: var(--dim);
+  margin: 0 0 .35rem;
+  display: grid;
+  grid-template-columns: 5.5rem 3.2rem 1fr;
+  gap: .6rem;
+  align-items: baseline;
+}
+.outband { text-transform: uppercase; letter-spacing: .08em; font-size: 10px; }
+.outp { text-align: right; }
+.outrow.band-very_rare .outband { color: var(--place); }
+.outrow.band-rare .outband { color: var(--warn); }
+.outrow.hit { color: var(--ink); }
+.outrow.hit .outtext { color: var(--gold); }
 .sec-compact > .sec-label { cursor: pointer; list-style: none; }
 .sec-compact > .sec-label::-webkit-details-marker { display: none; }
 .sec-compact > .sec-label::before { content: "\25B8  "; }

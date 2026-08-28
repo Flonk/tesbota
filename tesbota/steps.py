@@ -4,8 +4,8 @@ from . import canon, prompts, quotes, sheet, worldclock
 import random
 
 from .config import (
-    SPARK_DIE,
-    SPARK_FACE,
+    BANDS,
+    BAND_WEIGHT,
     SPARK_FLOOR,
     PRESS_FLOOR,
     BASE_RISK,
@@ -314,6 +314,14 @@ def step_propose(campaign, turn):
     proposal["risk"] = int(proposal.get("risk") or BASE_RISK)
     turn["proposal"] = proposal
 
+    outcomes = weigh_outcomes(out.get("outcomes"))
+    if outcomes:
+        strange = campaign.get("quiet", 0) >= SPARK_FLOOR
+        turn["outcomes"] = outcomes
+        turn["fortune"] = random.random()
+        turn["chosen"] = spin(outcomes, turn["fortune"], only="very_rare" if strange else None)
+        turn["forced_strange"] = strange
+
     turn["confirmed"] = True
     turn["state"] = "gm"
     return campaign, turn
@@ -325,12 +333,45 @@ def due_press(turn, campaign=None):
     return turn["pressed"]
 
 
-def roll_spark(turn, campaign=None, rng=random):
-    quiet = (campaign or {}).get("quiet", 0)
-    if "spark_roll" not in turn:
-        turn["spark_roll"] = rng.randint(1, SPARK_DIE)
-        turn["spark_forced"] = quiet >= SPARK_FLOOR
-    return turn["spark_roll"] == SPARK_FACE or bool(turn.get("spark_forced"))
+def weigh_outcomes(raw):
+    """Six ways it could go, two to a band, with the weights made to add up.
+    A malformed table is thrown away; a missing weight falls back to its band."""
+    entries = [e for e in (raw or []) if isinstance(e, dict) and (e.get("text") or "").strip()]
+    kept, used = [], []
+    for band in BANDS:
+        match = next(
+            (e for e in entries if e.get("band") == band and id(e) not in used), None
+        )
+        if match is None:
+            return []
+        used.append(id(match))
+        kept.append(match)
+    out = []
+    for entry in kept:
+        try:
+            weight = float(entry.get("p"))
+        except (TypeError, ValueError):
+            weight = 0
+        if not weight > 0:
+            weight = BAND_WEIGHT[entry["band"]]
+        out.append({"band": entry["band"], "text": entry["text"].strip(), "p": weight})
+    total = sum(e["p"] for e in out)
+    for entry in out:
+        entry["p"] = entry["p"] / total
+    return out
+
+
+def spin(outcomes, fortune, only=None):
+    pool = [e for e in outcomes if e["band"] == only] if only else list(outcomes)
+    if not pool:
+        pool = list(outcomes)
+    total = sum(e["p"] for e in pool)
+    edge, running = fortune * total, 0.0
+    for entry in pool:
+        running += entry["p"]
+        if edge < running:
+            return entry
+    return pool[-1]
 
 
 def step_gm(campaign, turn):
@@ -350,7 +391,7 @@ def step_gm(campaign, turn):
             arrival=turn.get("arrival"),
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
             note=turn.get("note"),
-            spark=roll_spark(turn, campaign),
+            chosen=turn.get("chosen"),
             press=due_press(turn, campaign),
             inventory=campaign.get("inventory") or [],
             quests=campaign.get("quests") or [],
@@ -774,7 +815,9 @@ def deliver(campaign, turn):
             current["fatigue"] = int(draft.get("fatigue") or 0)
             current["roll"] = turn.get("roll")
             current["risk"] = turn.get("risk")
-            current["spark"] = turn.get("spark_roll")
+            current["outcomes"] = turn.get("outcomes") or []
+            current["chosen"] = turn.get("chosen")
+            current["fortune"] = turn.get("fortune")
             current["gain"] = draft.get("gain") or []
             current["lose"] = draft.get("lose") or []
             current["check"] = turn.get("check")

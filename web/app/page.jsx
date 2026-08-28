@@ -109,6 +109,31 @@ function Checked({ x }) {
   return null;
 }
 
+const BAND = { common: "common", rare: "rare", very_rare: "very rare" };
+
+function Table({ rows, chosen, fortune }) {
+  return (
+    <details className="sec sec-compact sec-table">
+      <summary className="sec-label">
+        six ways it could go
+        {typeof fortune === "number" ? ` · rolled ${fortune.toFixed(3)}` : ""}
+      </summary>
+      <div className="sec-fold">
+        {rows.map((r, n) => {
+          const hit = chosen && r.text === chosen.text && r.band === chosen.band;
+          return (
+            <p key={n} className={`outrow band-${r.band}${hit ? " hit" : ""}`}>
+              <span className="outband">{BAND[r.band] || r.band}</span>
+              <span className="outp">{(r.p * 100).toFixed(1)}%</span>
+              <span className="outtext">{r.text}</span>
+            </p>
+          );
+        })}
+      </div>
+    </details>
+  );
+}
+
 function Check({ c }) {
   const bonus = `${c.bonus >= 0 ? "+" : ""}${c.bonus}`;
   return (
@@ -128,6 +153,9 @@ function Pair({ said, told }) {
         {said.kind === "say" ? `“${said.text}”` : said.text}
       </p>
       {told?.check && <Check c={told.check} />}
+      {told?.outcomes?.length > 0 && (
+        <Table rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
+      )}
       {told?.text ? (
         <p className="sec-body sec-told">{told.text}</p>
       ) : (

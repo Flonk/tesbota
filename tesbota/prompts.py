@@ -79,9 +79,33 @@ When you are ready, reply with a single fenced json block and nothing else:
     "minutes": 0,
     "fatigue": 0,
     "risk": 1
-  }
+  },
+  "outcomes": [
+    {"band": "common",    "p": 0.35, "text": "…"},
+    {"band": "common",    "p": 0.35, "text": "…"},
+    {"band": "rare",      "p": 0.12, "text": "…"},
+    {"band": "rare",      "p": 0.12, "text": "…"},
+    {"band": "very_rare", "p": 0.03, "text": "…"},
+    {"band": "very_rare", "p": 0.03, "text": "…"}
+  ]
 }
 ```
+
+`outcomes` is six ways this action could go, and one of them will be rolled for and
+become what actually happened. Write each as a clause or a sentence — what happens,
+not how you would narrate it. Exactly two of each band, and `p` is your own estimate
+of how likely that one is; they are normalised for you, so approximate is fine.
+
+None of the six is a reward or a punishment. This is not a scale from good to bad —
+it is a scale from ordinary to strange. A common outcome is the action simply
+working out, in the two most obvious ways it could. A rare one is a turn you would
+not have predicted but would accept without blinking.
+
+The two very rare ones are the point of the whole table. Each must put something in
+front of them that no document in this world can account for: a thing where nothing
+should be, somebody who should not be here, a mark or a word or a custom nobody has
+written down, a way through that is not on any map. Not danger — strangeness. Make
+them specific enough that somebody would have to sit down and decide what they mean.
 
 To ask instead, set `"ask"` to your question and leave `proposal` null.
 
@@ -566,35 +590,23 @@ the dice handle those. This is somebody in the world doing something on purpose.
 Narrate it as part of the same turn, after what they did."""
 
 
-SPARK = """The die came up six. Somewhere in what you narrate, put one new thing that
-reaches past this moment — something no document covers and nothing here can settle.
-Let it pass without comment. Do not explain it, do not have anyone remark on it, and
-do not make the adventurer act on it. It is scenery, and it is the kind of scenery
-somebody will later have to rule on.
+CHOSEN = """This is how the action turns out. It was rolled for, out of six ways it could
+have gone, and this is the one that came up:
 
-Where it goes depends on what is happening.
+    {text}
 
-Out in the open, it is something perceived at a distance or at the edge of
-attention: a bell heard from somewhere unseen, smoke standing over a ridge, a
-boundary stone with a mark cut into it, a bird nobody here would have a name for,
-a track leaving the road, weather coming from a direction that means something to
-the people who live here.
+Narrate it as what happens. Do not hedge it, do not offer it as a possibility, and
+do not mention that anything was rolled — to the explorer this is simply what
+occurred. Keep the rest of the turn as it was; this replaces the outcome, not the
+action."""
 
-In conversation, it is a rumour let fall in passing about somewhere else: what a
-carter told them last week, who is said to have gone away and not come back, what
-the next town along is doing about it, a name they assume you already know. Name
-the place rather than gesturing at it — a named place can be ruled on, a vague one
-cannot.
-
-In a fight, it is one detail about what you are facing that raises a question about
-what it is: what it carries, a mark on it, the way it moves, something it says,
-something it will not do.
-
-One such thing, not several, and no longer than a clause or a sentence. List it in
-your claims like anything else."""
+STRANGE = """This one is strange, and that is deliberate. Put the thing in front of them
+plainly and without explanation. Nobody in the scene remarks on it, nothing accounts
+for it, and you do not hint at what it means — you do not know. Write it as a claim
+like any other and let it be ruled on."""
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, spark=False, press=False, inventory=None, quests=None, now=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, quests=None, now=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -634,8 +646,10 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
         parts.append(f"The adventurer's action:\n\n{action}")
     if press:
         parts.append(PRESS)
-    if spark:
-        parts.append(SPARK)
+    if chosen:
+        parts.append(CHOSEN.format(text=chosen["text"]))
+        if chosen.get("band") == "very_rare":
+            parts.append(STRANGE)
     if correction:
         parts.append(
             "Your previous draft was rejected. Revise it and reply with the same "
