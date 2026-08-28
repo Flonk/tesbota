@@ -129,7 +129,7 @@ def step_context(campaign, turn):
             previous=campaign.get("last_narration"),
             vitals=campaign.get("vitals"),
             inventory=campaign.get("inventory") or [],
-        
+            correction=turn.get("correction"),
             now=worldclock.long_stamp(campaign.get("time")),
         ),
         system=prompts.GM_SYSTEM,
@@ -159,6 +159,7 @@ def step_answer(campaign, turn):
             previous=campaign.get("last_narration"),
             mode=turn.get("mode") or "look",
             inventory=campaign.get("inventory") or [],
+            correction=turn.get("correction"),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,

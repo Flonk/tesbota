@@ -555,7 +555,15 @@ def explorer_turn(narration):
     return narration or "You become aware. That is all, for now."
 
 
-def gm_context(action, previous=None, vitals=None, inventory=None, now=None):
+REDRAFT = (
+    "Your previous draft was rejected. Revise it and reply with the same json "
+    "shape. Keep everything in it that still stands — a redraft is a correction, "
+    "not a retreat, and an answer that says less than the one before it is a worse "
+    "answer, not a safer one:\n\n"
+)
+
+
+def gm_context(action, previous=None, vitals=None, inventory=None, now=None, correction=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -578,10 +586,12 @@ def gm_context(action, previous=None, vitals=None, inventory=None, now=None):
         "commit, and they may change their mind. A sentence or two. Reply in the same "
         "json shape, with minutes 0 and fatigue 0."
     )
+    if correction:
+        parts.append(REDRAFT + correction)
     return "\n\n".join(parts)
 
 
-def gm_answer(question, previous=None, mode="look", inventory=None):
+def gm_answer(question, previous=None, mode="look", inventory=None, correction=None):
     parts = []
     if previous:
         parts.append(f"What they were last told:\n\n{previous}")
@@ -607,6 +617,8 @@ def gm_answer(question, previous=None, mode="look", inventory=None):
             "sentence or two."
         )
     parts.append("Reply in the same json shape, with minutes 0 and fatigue 0.")
+    if correction:
+        parts.append(REDRAFT + correction)
     return "\n\n".join(parts)
 
 

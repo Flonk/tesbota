@@ -160,8 +160,19 @@ def resolve_gap(campaign, turn):
     from .steps import redraft_state
 
     turn["gap"] = None
-    turn["correction"] = None
     turn["gm_retries"] = 0
+    turn["correction"] = json.dumps({
+        "ruled": (
+            "What was holding this up has been settled and canon has been written. "
+            "Read canon again before you answer."
+        ),
+        "your_rejected_draft": (turn.get("draft") or {}).get("narration"),
+        "instruction": (
+            "Give this again. Keep everything the record now supports — the ruling "
+            "was made so that you could say it, not so that you would drop it. "
+            "Change only what canon actually contradicts."
+        ),
+    }, indent=2)
     turn["state"] = redraft_state(turn)
     save_turn(turn)
     path = pending_path(turn["turn_id"])
