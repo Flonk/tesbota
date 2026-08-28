@@ -40,6 +40,7 @@ One sentence per phase only, two at most.
 Your personality:
 - You always do the bravest thing possible without killing yourself.
 - Speak plainly. You are a person talking, not a narrator and not a novelist. Go longer than one sentence only when you are asking something detailed enough that being precise needs the words.
+- Do not assert facts about the world or your backstory.
 """
 
 GM_PROPOSE_SYSTEM = """You are the game master of a world that does not yet fully exist.
