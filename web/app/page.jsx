@@ -51,69 +51,70 @@ function cost(minutes) {
   return `${m} min`;
 }
 
-function Fold({ label, children }) {
+function Section({ mode, label, kind, children }) {
+  if (mode === "compact") {
+    return (
+      <details className="sec sec-compact">
+        <summary className="sec-label">{label}</summary>
+        <div className="sec-fold">{children}</div>
+      </details>
+    );
+  }
   return (
-    <details className="phase fold">
-      <summary>{label}</summary>
-      <div className="foldbody">{children}</div>
-    </details>
+    <div className={`sec sec-${mode}${kind ? ` sec-${kind}` : ""}`}>
+      <p className="sec-label">{label}</p>
+      {children}
+    </div>
   );
 }
 
-function Phase({ x, roll }) {
+const GM_LABEL = {
+  world: "what happens",
+  context: "the answer",
+  answer: "the answer",
+  outcome: "what happens",
+};
+
+const SAID_LABEL = { action: "action", look: "looks", say: "says" };
+
+function Phase({ x, roll, ok }) {
+  if (x.kind === "ready" || x.kind === "confirm") return null;
+
   if (x.kind === "proposal") {
     const bits = [cost(x.minutes)];
     bits.push(x.fatigue ? `${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue` : "no effort");
     if (x.risk > 1) bits.push(`risk ${x.risk}`);
     if (roll) bits.push(`d400 ${roll}`);
     if (x.unpriced) bits.push("unpriced, guessed");
+    if (ok) bits.push(ok === "yes" ? "ok" : "turned down");
     return (
-      <Fold label={["what it will take", ...bits].join(" · ")}>
-        <p className="narration">{x.text}</p>
-        {x.target && <p className="proptarget">toward {x.target}</p>}
-      </Fold>
-    );
-  }
-
-  if (x.kind === "ready") return null;
-
-  if (x.kind === "confirm") {
-    return (
-      <p className={`phase philabel confirm ${x.text}`}>
-        {x.text === "yes" ? "ok" : "turned it down"}
-      </p>
+      <Section mode="compact" label={["what it will take", ...bits].join(" · ")}>
+        <p className="sec-body">{x.text}</p>
+        {x.target && <p className="sec-body">toward {x.target}</p>}
+      </Section>
     );
   }
 
   if (x.who === "explorer") {
-    const label = { action: "action", look: "looks", say: "says", ready: "ready" }[x.kind];
     return (
-      <div className={`phase said ${x.kind}`}>
-        <p className="philabel">{label}</p>
-        <p className={x.kind === "action" ? "action" : "lookq"}>
-          {x.kind === "say" ? `“${x.text}”` : x.text}
-        </p>
-      </div>
+      <Section mode="explorer" kind={x.kind} label={SAID_LABEL[x.kind] || x.kind}>
+        <p className="sec-body">{x.kind === "say" ? `“${x.text}”` : x.text}</p>
+      </Section>
     );
   }
 
-  const LABEL = {
-    world: "what happens",
-    context: "the answer",
-    answer: "the answer",
-    outcome: "what happens",
-  };
   return (
-    <div className={`phase gm ${x.kind} ${x.status}`}>
-      <p className="philabel">{LABEL[x.kind] || x.kind}</p>
+    <Section mode="gm" kind={x.kind} label={GM_LABEL[x.kind] || x.kind}>
       {x.text ? (
-        <p className="narration">{x.text}</p>
+        <p className="sec-body">{x.text}</p>
       ) : (
-        <p className="narration waiting">waiting for an answer…</p>
+        <p className="sec-body sec-waiting">waiting for an answer…</p>
       )}
-      {x.status === "pending" && x.text && <p className="unchecked">not yet checked</p>}
-      {x.status === "blocked" && <p className="blocked">the lore master has sent this back</p>}
-    </div>
+      {x.status === "pending" && x.text && <p className="sec-note">not yet checked</p>}
+      {x.status === "blocked" && (
+        <p className="sec-note sec-blocked">the lore master has sent this back</p>
+      )}
+    </Section>
   );
 }
 
@@ -340,7 +341,12 @@ export default function Page() {
               </div>
 
               {s.phases?.map((x) => (
-                <Phase key={x.n} x={x} roll={s.roll} />
+                <Phase
+                  key={x.n}
+                  x={x}
+                  roll={s.roll}
+                  ok={s.phases.find((p) => p.kind === "confirm")?.text}
+                />
               ))}
 
               <Meta s={s} />
