@@ -2,8 +2,12 @@ import asyncio
 import json
 import re
 import time
+import warnings
 
 from .config import ROOT
+
+warnings.filterwarnings("ignore", message=".*can_use_tool.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="claude_agent_sdk.*")
 
 FENCE = re.compile(r"```(?:json)?\s*(.*?)```", re.S)
 

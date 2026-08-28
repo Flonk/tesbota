@@ -70,7 +70,13 @@ export async function snapshot() {
       pending: turn.looking
         ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
         : null,
-      claims: (draft.claims || []).map((c) => ({ ...c, verdict: verdicts[c.id] || null })),
+      claims: exchanges
+        .flatMap((x) => x.claims || [])
+        .concat(
+          turn.delivered
+            ? []
+            : (draft.claims || []).map((c) => ({ ...c, verdict: verdicts[c.id] || null }))
+        ),
       quotes: draft.quotes || [],
       minutes: draft.minutes || 0,
       fatigue: draft.fatigue || 0,
@@ -155,14 +161,21 @@ export async function launch(args, label) {
   const record = { pid: child.pid, label, since: new Date().toISOString(), error: null };
   await fs.writeFile(JOB, JSON.stringify(record, null, 2) + "\n");
 
-  child.on("exit", async (code) => {
+  child.on("exit", async (code, signal) => {
     let out = "";
     try {
       out = await fs.readFile(JOB_LOG, "utf8");
     } catch {}
     let error = null;
-    if (code !== 0) {
-      error = out.trim().slice(-700) || `${label} exited with ${code}`;
+    if (signal) {
+      error = null;
+    } else if (code !== 0) {
+      const real = out
+        .split("\n")
+        .filter((l) => l.trim() && !/Warning:|^\s+\w|^\s*$/.test(l))
+        .join("\n")
+        .trim();
+      error = (real || out.trim()).slice(-700) || `${label} exited with ${code}`;
     } else {
       try {
         const parsed = JSON.parse(out.trim().split("\n").pop() || "");

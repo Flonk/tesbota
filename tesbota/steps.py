@@ -705,6 +705,13 @@ def deliver(campaign, turn):
     turn["at"] = campaign["time"]["long"]
     campaign["last_narration"] = draft.get("narration")
     reply(turn, draft.get("narration"), checked=True)
+    by_verdict = {v["claim"]: v for v in turn["verdicts"]}
+    exchanges = turn.get("exchanges") or []
+    if exchanges:
+        exchanges[-1]["claims"] = [
+            {**claim, "verdict": by_verdict.get(claim.get("id"))}
+            for claim in (draft.get("claims") or [])
+        ]
     turn["location_path"] = campaign.get("location_path") or []
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None
