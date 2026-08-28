@@ -90,7 +90,7 @@ export async function snapshot() {
 
   const current = turns.find((t) => t.turn_id === campaign.current_turn) || null;
   const t = campaign.time || {};
-  const now = t.stamp || null;
+  const now = t.long || t.stamp || null;
 
   const status = {
     state: current?.state || "uninitialised",

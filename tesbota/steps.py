@@ -659,7 +659,7 @@ def deliver(campaign, turn):
     campaign["time"] = worldclock.advance(campaign.get("time"), draft.get("minutes"))
     campaign["time"]["stamp"] = worldclock.stamp(campaign["time"])
     campaign["time"]["long"] = worldclock.long_stamp(campaign["time"])
-    turn["at"] = campaign["time"]["stamp"]
+    turn["at"] = campaign["time"]["long"]
     campaign["last_narration"] = draft.get("narration")
     reply(turn, draft.get("narration"), checked=True)
     turn["location_path"] = campaign.get("location_path") or []
