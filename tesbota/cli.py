@@ -98,10 +98,8 @@ def cmd_lore(args):
             print()
             break
         if message in ("/resolve", "/done"):
-            campaign["sessions"]["lore3_sitting"] = None
-            save_campaign(campaign)
-            driver.resolve_gap(campaign, turn)
-            print("silence filled. run: tesbota step")
+            print("silence filled — carrying on…")
+            print(json.dumps(actions.resolve(), ensure_ascii=False))
             return
         if not message:
             message = "Go on."

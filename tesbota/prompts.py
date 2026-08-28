@@ -201,7 +201,28 @@ For each claim return one verdict:
 - FRICTION: it contradicts a document, but not anything Witnessed. This is
   allowed and interesting. Say which text it rubs against.
 - FALSE: it contradicts something Witnessed. Supply an alternative that fits.
-- UNRESOLVED: no document speaks to this at all and you cannot settle it.
+- UNRESOLVED: it cannot stand until somebody rules on it. This is rare.
+
+Silence is not contradiction. If no document mentions a thing, the record does not
+forbid it — the subject has simply never come up. The world is mostly unwritten and
+is meant to be. Ordinary detail encountered now becomes fact by being encountered: a
+stand of trees at the roadside, mud in a rut, a bird going over, a door that is
+shut. Rule those TRUE. Nothing needs a document's permission to exist.
+
+A Witnessed line saying something is hidden positively licenses whatever is behind
+it. "Fog hides what lies beyond" does not mean nothing lies beyond — it means what
+lies beyond is undetermined, and may now be determined by being walked into.
+
+Keep UNRESOLVED for the few claims that genuinely need a ruling before the world can
+hold them:
+
+- a proper noun that pins down a place, a person, or an institution
+- a law of how this world works: its physics, its dead, its gods, its seasons
+- a fact that reaches beyond this moment — where a road ends, who rules here, what
+  happened long ago
+
+Everything merely unrecorded is TRUE. If you find yourself writing "no document
+mentions this" as your only reason, the verdict is TRUE, not UNRESOLVED.
 
 You may write to canon/, but only to record what you have verified: keeping a
 place's `## Map` and its `within:`/`contains:` consistent with what is already

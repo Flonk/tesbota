@@ -130,7 +130,10 @@ def resolve():
         save_campaign(campaign)
         driver.resolve_gap(campaign, turn)
         write_json(CHAT_FILE, [])
-    return {"ok": True}
+
+    with LOCK:
+        state, turn = driver.run(limit=1)
+    return {"ok": True, "state": state, "turn": turn["turn_id"]}
 
 
 def step():
