@@ -3,7 +3,7 @@ id: alheim
 kind: place
 name: Alheim
 within: the-greater-plains
-contains: [alheim-mill, the-marsch-house]
+contains: [alheim-mill, the-marsch-house, alheim-sawmill]
 introduced: t0003
 ---
 
@@ -13,8 +13,8 @@ A small farming village on [[the Aler]], reached by [[the-road]] from the crossi
 The road runs in past [[alheim-mill]] and loses itself among the houses without a
 wall or a gate to mark the edge. Also within: [[the Alheim Inn]] and [[the Aler
 Bridge]]. Up the street from the inn stands [[the-marsch-house|the house with
-the blue door]]. [[Alheim Forest]] presses close against the village's
-northern fields.
+the blue door]], and close by it [[alheim-sawmill|the sawmill]]. [[Alheim
+Forest]] presses close against the village's northern fields.
 
 ## Attested
 - t0003 — Alheim lies five kilometers from the crossing on [[the-road]], per [[the-greater-plains-map-4e200]].
@@ -28,3 +28,5 @@ northern fields.
 - t0006 — The road runs past a mill on its way into Alheim.
 - t0006 — The road meets no wall and no gate at Alheim, losing itself among the first houses.
 - t0013 — Alheim is a small village of a handful of houses by the river.
+- t0016 — The innkeeper's boy lives with his mother in a house with a blue door up the street from the inn.
+- t0016 — The last place anyone saw the boy was the woodstore past the mill.

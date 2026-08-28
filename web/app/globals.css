@@ -7,6 +7,7 @@
   --gold: #c8a24a;
   --warn: #d98b4a;
   --good: #7f9c6b;
+  --place: #7d93a6;
   --bad: #b5573f;
 }
 
@@ -289,10 +290,22 @@ button.ghost { color: var(--dim); border-color: var(--line); }
   .context { flex: 1 0 100%; align-items: flex-end; }
 }
 
-.slidehead { margin-bottom: 1.5rem; }
-.slidehead .tid { margin-bottom: .25rem; }
-.slideplace { font: 11px ui-monospace, monospace; color: var(--dim); letter-spacing: .04em; }
-.slidequest { font: 11px ui-monospace, monospace; color: var(--gold); margin-top: .15rem; }
+.slidehead {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin-bottom: 1.5rem;
+  font: 11px ui-monospace, monospace;
+  letter-spacing: .06em;
+}
+.slidehead .tid,
+.slidehead .slideplace,
+.slidehead .slidequest { font: inherit; letter-spacing: inherit; margin: 0; }
+.slidehead .tid { color: var(--dim); }
+.slidehead .slideplace { color: var(--place); }
+.slidehead .slideplace .sep { opacity: .45; margin: 0 .45em; }
+.slidehead .slidequest { color: var(--gold); }
+.slidehead .slidequest .qmark { opacity: .55; margin-right: .5em; }
 
 .look.pending { border-left-style: dashed; }
 .looka.waiting { font-style: italic; opacity: .6; }

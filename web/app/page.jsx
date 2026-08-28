@@ -236,10 +236,20 @@ export default function Page() {
                 </div>
                 {(s.where?.length ? s.where : status.where)?.length > 0 && (
                   <div className="slideplace">
-                    {(s.where?.length ? s.where : status.where).map((p) => p.name).join(" › ")}
+                    {(s.where?.length ? s.where : status.where).map((p, n) => (
+                      <span key={p.id || n}>
+                        {n > 0 && <span className="sep">›</span>}
+                        {p.name}
+                      </span>
+                    ))}
                   </div>
                 )}
-                {s.quest && <div className="slidequest">{s.quest}</div>}
+                {s.quest && (
+                  <div className="slidequest">
+                    <span className="qmark">◆</span>
+                    {s.quest}
+                  </div>
+                )}
               </div>
 
               {s.exchanges?.map((x, n) => (
