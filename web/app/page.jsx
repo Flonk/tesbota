@@ -319,6 +319,10 @@ export default function Page() {
                 </div>
               ))}
 
+              {!s.exchanges?.length && s.narration && (
+                <p className="narration">{s.narration}</p>
+              )}
+
               {s.proposal && <Proposal p={s.proposal} confirmed={s.confirmed} />}
 
               <Meta s={s} />

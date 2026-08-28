@@ -51,7 +51,7 @@ export async function snapshot() {
   for (const turn of turns) {
     const draft = turn.draft || {};
     let cue = null;
-    if (turn.arrival) cue = `arrives at ${turn.arrival}`;
+    if (turn.arrival) cue = `arrives at ${turn.arrival.replace(/-/g, " ")}`;
     else if (turn.event) cue = "something on the road";
 
     const verdicts = {};
