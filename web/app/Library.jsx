@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
 
-export default function Library({ onClose }) {
+export default function Library() {
   const [books, setBooks] = useState(null);
 
   useEffect(() => {
@@ -24,30 +24,23 @@ export default function Library({ onClose }) {
   );
 
   return (
-    <div className="scrim" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheethead">
-          <h2>the library</h2>
-          <button className="ghost" onClick={onClose}>close</button>
-        </div>
+    <div className="shelf">
+      {books === null && <p className="empty">reading the shelves…</p>}
+      {books !== null && shelf.length === 0 && <p className="empty">nothing written yet</p>}
 
-        {books === null && <p className="empty">reading the shelves…</p>}
-        {books !== null && shelf.length === 0 && <p className="empty">nothing written yet</p>}
-
-        {sorted.map((b) => (
-          <div className="book" key={b.id}>
-            <div className="btitle">
-              {b.name}
-              {b.godhead && <span className="godhead">godhead</span>}
-            </div>
-            <div className="bline">
-              <span className="bauthor">{b.author || "unattributed"}</span>
-              <span className="bdate">[{b.written || "—"}]</span>
-              {b.rarity && <span className={`brarity r-${b.rarity}`}>{b.rarity}</span>}
-            </div>
+      {sorted.map((b) => (
+        <div className="book" key={b.id}>
+          <div className="btitle">
+            {b.name}
+            {b.godhead && <span className="godhead">godhead</span>}
           </div>
-        ))}
-      </div>
+          <div className="bline">
+            <span className="bauthor">{b.author || "unattributed"}</span>
+            <span className="bdate">[{b.written || "—"}]</span>
+            {b.rarity && <span className={`brarity r-${b.rarity}`}>{b.rarity}</span>}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

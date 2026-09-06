@@ -833,6 +833,7 @@ def deliver(campaign, turn):
             current["lose"] = draft.get("lose") or []
             current["check"] = turn.get("check")
     turn["location_path"] = campaign.get("location_path") or []
+    turn["vitals"] = dict(campaign.get("vitals") or {})
     active = next((q for q in campaign.get("quests") or [] if q.get("status") == "active"), None)
     turn["quest"] = active.get("title") if active else None
 

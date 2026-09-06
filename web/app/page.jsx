@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
 import Quests from "./Quests";
 import Library from "./Library";
+import Lore from "./Lore";
+import Map from "./Map";
 
 function Bar({ label, value, max, tone }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
@@ -20,10 +22,7 @@ function Bar({ label, value, max, tone }) {
 
 const PHASE = {
   explorer: "deciding",
-  context: "sizing it up",
   answer: "answering",
-  propose: "working out the cost",
-  confirm: "weighing it",
   gm: "it happens",
   lore1: "checking the record",
   done: "done",
@@ -57,7 +56,6 @@ function toll(x) {
   if (x.minutes) bits.push(cost(x.minutes));
   if (x.fatigue) bits.push(`${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue`);
   if (x.roll) bits.push(`d400 ${x.roll}`);
-  if (x.spark) bits.push(`d6 ${x.spark}`);
   if (x.risk > 1) bits.push(`risk ${x.risk}`);
   return bits;
 }
@@ -180,61 +178,61 @@ function Alone({ x }) {
   );
 }
 
-function Meta({ s }) {
-  const bits = [];
-  if (s.health) bits.push(`${s.health} hp`);
-  if (s.retries) bits.push(`${s.retries} redraft`);
-  if (!bits.length) return null;
-  return <div className="meta">{bits.join("  ·  ")}</div>;
-}
-
-function Lore({ gap, chat, busy, onSay }) {
-  const [text, setText] = useState("");
+function Head({ s, vitals }) {
+  const v = s.vitals || vitals || {};
   return (
-    <div className="lore">
-      <h2>the world is silent here</h2>
-      {gap?.text && <div className="gaptext">{gap.text}</div>}
-      {chat.map((m, i) => (
-        <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={i}>
-          <span className="who">{m.role}</span>
-          {m.text}
+    <div className="thead">
+      <div className="theadl">
+        <div className="tid">
+          {s.id}
+          {s.at ? ` · ${s.at}` : ""}
+          {s.cue ? ` · ${s.cue}` : ""}
         </div>
-      ))}
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="talk it through…"
-        disabled={!!busy}
-      />
-      <div className="actions">
-        <button
-          onClick={async () => {
-            const t = text;
-            setText("");
-            await onSay(t);
-          }}
-          disabled={!!busy || !text.trim()}
-        >
-          {busy === "say" ? "thinking…" : "send"}
-        </button>
+        {s.where?.length > 0 && (
+          <div className="tplace">
+            {s.where.map((p, n) => (
+              <span key={p.id || n}>
+                {n > 0 && <span className="sep">›</span>}
+                {p.name}
+              </span>
+            ))}
+          </div>
+        )}
+        {s.quest && (
+          <div className="tquest">
+            <span className="qmark">◆</span>
+            {s.quest}
+          </div>
+        )}
+      </div>
+      <div className="theadr">
+        <Bar label="hp" value={v.health ?? 100} max={100} tone="hp" />
+        <Bar label="fat" value={v.fatigue ?? 0} max={100} tone="fat" />
+        <Bar label="hun" value={v.hunger ?? 0} max={100} tone="hun" />
       </div>
     </div>
   );
 }
 
+const TABS = [
+  { id: "lore", label: "lore master" },
+  { id: "stats", label: "stats" },
+  { id: "quests", label: "quests" },
+  { id: "library", label: "library" },
+];
+
 export default function Page() {
   const [data, setData] = useState(null);
   const [pending, setPending] = useState(null);
   const [error, setError] = useState(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [note, setNote] = useState("");
   const [noteOpen, setNoteOpen] = useState(false);
-  const [questsOpen, setQuestsOpen] = useState(false);
-  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [tab, setTab] = useState("lore");
   const [at, setAt] = useState(0);
   const deck = useRef(null);
   const pinned = useRef(true);
   const shown = useRef(null);
+  const wasBlocked = useRef(false);
 
   const busy = pending || (data?.job?.running ? data.job.label || "step" : null);
 
@@ -258,6 +256,9 @@ export default function Page() {
       setError(failed);
     }
     if (!failed) shown.current = null;
+    const stuck = data.status?.state === "awaiting_human";
+    if (stuck && !wasBlocked.current) setTab("lore");
+    wasBlocked.current = stuck;
   }, [data]);
 
   const count = data?.slides?.length ?? 0;
@@ -323,202 +324,199 @@ export default function Page() {
   const { status, slides, gap, chat, vitals, skills, inventory } = data;
   const pendingNote = data.note;
   const quests = data.quests || [];
-  const activeQuest = quests.find((q) => q.status === "active");
   const blocked = status.state === "awaiting_human";
+  const open = quests.filter((q) => q.status === "active").length;
 
   return (
-    <>
-      <header>
-        <div className="hleft">
-          <h1>tesbota</h1>
-          <Status status={status} />
-        </div>
-
-        <div className="hmid">
-          <Bar label="hp" value={vitals?.health ?? 100} max={100} tone="hp" />
-          <Bar label="fat" value={vitals?.fatigue ?? 0} max={100} tone="fat" />
-          <Bar label="hun" value={vitals?.hunger ?? 0} max={100} tone="hun" />
-        </div>
-
-        <div className="hright">
-          {busy && <span className="working">working…</span>}
-          <span className="counter">{count ? `${at + 1} / ${count}` : "—"}</span>
-          <button className="ghost" onClick={() => post("/api/step", null, "step")} disabled={!!busy}>
-            {busy === "step" ? "…" : "step"}
-          </button>
-          <button className="ghost" onClick={() => setSheetOpen(true)}>stats</button>
-          <button className="ghost" onClick={() => setQuestsOpen(true)}>
-            quests{quests.filter((q) => q.status === "active").length ? ` (${quests.filter((q) => q.status === "active").length})` : ""}
-          </button>
-          <button className="ghost" onClick={() => setLibraryOpen(true)}>library</button>
-        </div>
-      </header>
-
-      {sheetOpen && (
-        <Sheet
-          vitals={vitals}
-          skills={skills}
-          inventory={inventory || []}
-          notebook={data.notebook || []}
-          onClose={() => setSheetOpen(false)}
-        />
-      )}
-
-      {questsOpen && <Quests quests={quests} onClose={() => setQuestsOpen(false)} />}
-
-      {libraryOpen && <Library onClose={() => setLibraryOpen(false)} />}
-
+    <div className="app">
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">
           {error}
         </div>
       )}
 
-      <div className="deck" ref={deck} onScroll={onScroll}>
-        {slides.map((s, i) => (
-          <section className="slide" key={s.id}>
-            <article>
-              <div className="slidehead">
-                <div className="tid">
-                  {s.id}
-                  {s.at ? ` · ${s.at}` : ""}
-                  {s.cue ? ` · ${s.cue}` : ""}
-                </div>
-                {s.where?.length > 0 && (
-                  <div className="slideplace">
-                    {s.where.map((p, n) => (
-                      <span key={p.id || n}>
-                        {n > 0 && <span className="sep">›</span>}
-                        {p.name}
-                      </span>
-                    ))}
+      <section className="band turns">
+        <div className="deck" ref={deck} onScroll={onScroll}>
+          {slides.map((s, i) => (
+            <section className="slide" key={s.id}>
+              <article>
+                <Head s={s} vitals={vitals} />
+
+                {pairUp(s.phases).map((r) =>
+                  r.said ? (
+                    <Pair key={r.key} said={r.said} told={r.told} />
+                  ) : (
+                    <Alone key={r.key} x={r.told} />
+                  )
+                )}
+
+                {s.fate && (
+                  <div className={`fate ${s.fate.endsWith("fortune") ? "good" : "bad"}`}>
+                    {s.fate.replace("_", " ")} — rolled {s.roll} of 400
                   </div>
                 )}
-                {s.quest && (
-                  <div className="slidequest">
-                    <span className="qmark">◆</span>
-                    {s.quest}
-                  </div>
-                )}
-              </div>
 
-              {pairUp(s.phases).map((r) =>
-                r.said ? (
-                  <Pair key={r.key} said={r.said} told={r.told} />
-                ) : (
-                  <Alone key={r.key} x={r.told} />
-                )
-              )}
-
-              <Meta s={s} />
-
-              {s.fate && (
-                <div className={`fate ${s.fate.endsWith("fortune") ? "good" : "bad"}`}>
-                  {s.fate.replace("_", " ")} — rolled {s.roll} of 400
-                </div>
-              )}
-
-              {s.claims.length > 0 && (
-                <details className="sec sec-compact claims" open={blocked && i === count - 1}>
-                  <summary className="sec-label">
-                    {s.claims.length} claim{s.claims.length > 1 ? "s" : ""}
-                  </summary>
-                  {s.claims.map((c) => (
-                    <div className="claim" key={c.key || c.id}>
-                      <span className={`v ${c.verdict?.result || "UNRULED"}`}>
-                        {c.verdict?.result || "unruled"}
-                      </span>
-                      {c.text}
-                      {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
-                    </div>
-                  ))}
-                </details>
-              )}
-
-              {s.lore.length > 0 && (
-                <details className="sec sec-compact claims lorelog">
-                  <summary className="sec-label">
-                    lore session · {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
-                  </summary>
-                  {s.loreGap && <div className="loregap">{s.loreGap}</div>}
-                  {s.lore.map((m, n) => (
-                    <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={n}>
-                      <span className="who">{m.role}</span>
-                      {m.text}
-                    </div>
-                  ))}
-                </details>
-              )}
-
-              {s.note && (
-                <div className="notewas">
-                  <span className="who">your note</span>
-                  {s.note}
-                </div>
-              )}
-
-              {i === count - 1 && !blocked && (
-                <div className="steer">
-                  {!noteOpen && (
-                    <button className="ghost" onClick={() => { setNoteOpen(true); setNote(pendingNote || ""); }}>
-                      {pendingNote ? "note queued — edit" : "note for the next turn"}
-                    </button>
-                  )}
-                  {noteOpen && (
-                    <>
-                      <textarea
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        placeholder="steer the game master — they will read this and the adventurer will not…"
-                        disabled={!!busy}
-                      />
-                      <div className="actions">
-                        <button
-                          className="ghost"
-                          onClick={() => { setNoteOpen(false); setNote(""); }}
-                          disabled={!!busy}
-                        >
-                          cancel
-                        </button>
-                        <button
-                          onClick={async () => {
-                            await post("/api/note", { text: note }, "note");
-                            setNoteOpen(false);
-                          }}
-                          disabled={!!busy}
-                        >
-                          {busy === "note" ? "saving…" : "queue note"}
-                        </button>
+                {s.claims.length > 0 && (
+                  <details className="sec sec-compact claims" open={blocked && i === count - 1}>
+                    <summary className="sec-label">
+                      {s.claims.length} claim{s.claims.length > 1 ? "s" : ""}
+                    </summary>
+                    {s.claims.map((c) => (
+                      <div className="claim" key={c.key || c.id}>
+                        <span className={`v ${c.verdict?.result || "UNRULED"}`}>
+                          {c.verdict?.result || "unruled"}
+                        </span>
+                        {c.text}
+                        {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
                       </div>
-                    </>
-                  )}
-                </div>
-              )}
+                    ))}
+                  </details>
+                )}
 
-              {blocked && i === count - 1 && (
-                <Lore
-                  gap={gap}
-                  chat={chat}
-                  busy={busy}
-                  onSay={(t) => post("/api/say", { text: t }, "say")}
-                />
-              )}
-            </article>
-          </section>
-        ))}
-        {count === 0 && <section className="slide"><article><p className="empty">nothing has happened yet</p></article></section>}
-      </div>
+                {s.lore.length > 0 && (
+                  <details className="sec sec-compact claims lorelog">
+                    <summary className="sec-label">
+                      lore session · {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
+                    </summary>
+                    {s.loreGap && <div className="loregap">{s.loreGap}</div>}
+                    {s.lore.map((m, n) => (
+                      <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={n}>
+                        <span className="who">{m.role}</span>
+                        {m.text}
+                      </div>
+                    ))}
+                  </details>
+                )}
 
-      <nav className="dots">
-        {slides.map((s, i) => (
+                {s.note && (
+                  <div className="notewas">
+                    <span className="who">your note</span>
+                    {s.note}
+                  </div>
+                )}
+
+                {i === count - 1 && !blocked && (
+                  <div className="steer">
+                    {!noteOpen && (
+                      <button
+                        className="ghost"
+                        onClick={() => {
+                          setNoteOpen(true);
+                          setNote(pendingNote || "");
+                        }}
+                      >
+                        {pendingNote ? "note queued — edit" : "note for the next turn"}
+                      </button>
+                    )}
+                    {noteOpen && (
+                      <>
+                        <textarea
+                          value={note}
+                          onChange={(e) => setNote(e.target.value)}
+                          placeholder="steer the game master — they will read this and the adventurer will not…"
+                          disabled={!!busy}
+                        />
+                        <div className="actions">
+                          <button
+                            className="ghost"
+                            onClick={() => {
+                              setNoteOpen(false);
+                              setNote("");
+                            }}
+                            disabled={!!busy}
+                          >
+                            cancel
+                          </button>
+                          <button
+                            onClick={async () => {
+                              await post("/api/note", { text: note }, "note");
+                              setNoteOpen(false);
+                            }}
+                            disabled={!!busy}
+                          >
+                            {busy === "note" ? "saving…" : "queue note"}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </article>
+            </section>
+          ))}
+          {count === 0 && (
+            <section className="slide">
+              <article>
+                <p className="empty">nothing has happened yet</p>
+              </article>
+            </section>
+          )}
+        </div>
+
+        <nav className="dots">
+          {slides.map((s, i) => (
+            <button
+              key={s.id}
+              className={`dot ${i === at ? "on" : ""}`}
+              onClick={() => go(i)}
+              aria-label={s.id}
+            />
+          ))}
+        </nav>
+      </section>
+
+      <section className="band mapband">
+        <Map where={status.where} at={status.now} />
+      </section>
+
+      <section className="band tabsband">
+        <div className="tabbar">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              className={`tab ${tab === t.id ? "on" : ""}`}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+              {t.id === "lore" && blocked && <span className="pip" />}
+              {t.id === "quests" && open > 0 && <span className="count">{open}</span>}
+            </button>
+          ))}
+          <span className="grow" />
+          {busy && <span className="working">working…</span>}
+          <Status status={status} />
+          <span className="counter">{count ? `${at + 1}/${count}` : "—"}</span>
           <button
-            key={s.id}
-            className={`dot ${i === at ? "on" : ""}`}
-            onClick={() => go(i)}
-            aria-label={s.id}
-          />
-        ))}
-      </nav>
-    </>
+            className="nextstep"
+            onClick={() => post("/api/step", null, "step")}
+            disabled={!!busy || blocked}
+          >
+            {busy === "step" ? "…" : "next step"}
+          </button>
+        </div>
+
+        <div className="tabpanel">
+          {tab === "lore" && (
+            <Lore
+              gap={gap}
+              chat={chat}
+              busy={busy}
+              blocked={blocked}
+              onSay={(t) => post("/api/say", { text: t }, "say")}
+            />
+          )}
+          {tab === "stats" && (
+            <Sheet
+              vitals={vitals}
+              skills={skills}
+              inventory={inventory || []}
+              notebook={data.notebook || []}
+            />
+          )}
+          {tab === "quests" && <Quests quests={quests} />}
+          {tab === "library" && <Library />}
+        </div>
+      </section>
+    </div>
   );
 }

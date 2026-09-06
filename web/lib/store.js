@@ -85,6 +85,7 @@ export async function snapshot() {
       where:
         turn.location_path ||
         (turn.turn_id === campaign.current_turn ? campaign.location_path || [] : []),
+      vitals: turn.vitals || null,
       quest: turn.quest || null,
       at: turn.at || null,
       note: turn.note || null,
