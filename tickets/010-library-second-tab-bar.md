@@ -1,6 +1,6 @@
 # 010 — the library gets its own tab bar
 
-**Status:** todo
+**Status:** done
 **Depends on:** 009
 
 ## Why

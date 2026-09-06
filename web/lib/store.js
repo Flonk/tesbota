@@ -190,6 +190,50 @@ export async function library() {
   }
 }
 
+const ROWS = `
+  SELECT e.id, e.kind, e.name, e.introduced,
+         p.dst AS parent,
+         coalesce(pe.name, replace(p.dst, '-', ' ')) AS parentName,
+         (SELECT count(*) FROM edge x WHERE x.rel = 'within' AND x.dst = e.id) AS contains,
+         (SELECT count(*) FROM edge x WHERE x.rel = 'exits' AND x.src = e.id) AS exits,
+         (SELECT count(*) FROM holding h WHERE h.holder = e.id) AS keeps,
+         (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
+         (SELECT count(*) FROM book b WHERE b.author_id = e.id) AS wrote,
+         (SELECT h.holder FROM holding h WHERE lower(h.name) = lower(e.name) LIMIT 1) AS holder,
+         EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
+         EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%') AS stub
+    FROM entity e
+    LEFT JOIN edge p ON p.src = e.id AND p.rel = 'within'
+    LEFT JOIN entity pe ON pe.id = p.dst
+`;
+
+export function entities(kind) {
+  let db;
+  try {
+    db = canon();
+  } catch {
+    return kind ? [] : {};
+  }
+  try {
+    const rows = db
+      .prepare(`${ROWS} WHERE e.kind = ? ORDER BY lower(e.name)`);
+    const shape = (r) => ({
+      ...r,
+      parent: r.parent || null,
+      parentName: r.parent ? r.parentName : null,
+      holder: r.holder || null,
+      unwritten: !!r.unwritten,
+      stub: !!r.stub,
+    });
+    if (kind) return rows.all(kind).map(shape);
+    const out = {};
+    for (const k of ["places", "people", "items"]) out[k] = rows.all(k).map(shape);
+    return out;
+  } finally {
+    db.close();
+  }
+}
+
 export function entity(id) {
   const ident = String(id || "").trim().toLowerCase();
   if (!ident) return null;

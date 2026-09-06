@@ -11,7 +11,7 @@ Work them in numeric order. One commit per ticket.
 - [x] [007-lore3-stocks-the-world.md](007-lore3-stocks-the-world.md) — lore master 3 can say what a place or a person keeps
 - [x] [008-holdings-cli.md](008-holdings-cli.md) — read anybody's holdings from the terminal
 - [x] [009-entity-api.md](009-entity-api.md) — one endpoint that knows everything about one thing
-- [ ] [010-library-second-tab-bar.md](010-library-second-tab-bar.md) — the library gets its own tab bar
+- [x] [010-library-second-tab-bar.md](010-library-second-tab-bar.md) — the library gets its own tab bar
 - [ ] [011-dense-entity-lists.md](011-dense-entity-lists.md) — dense lists for places, people and items
 - [ ] [012-library-search-and-filters.md](012-library-search-and-filters.md) — search and filters across the library
 - [ ] [013-library-keyboard.md](013-library-keyboard.md) — drive the library from the keyboard
