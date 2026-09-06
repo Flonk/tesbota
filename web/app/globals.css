@@ -385,9 +385,9 @@ button.ghost { color: var(--dim); border-color: var(--line); }
 @media (max-width: 640px) {
   body { font-size: 15px; }
   .slide { padding: .8rem .9rem 1.2rem; }
-  .thead { flex-direction: column; gap: .4rem; }
-  .theadr { flex-direction: row; flex-wrap: wrap; gap: .2rem .9rem; }
-  .bartrack { width: 44px; }
+  .thead { gap: .7rem; }
+  .bartrack { width: 38px; }
+  .barlabel { width: 1.6rem; }
   .tabpanel { padding: .8rem .9rem 1.2rem; }
   .map { padding: .6rem .9rem; }
   .stat, .working { display: none; }
