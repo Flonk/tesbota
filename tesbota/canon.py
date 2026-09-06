@@ -1,5 +1,5 @@
 from . import db
-from .config import CHRONICLE, FORBIDDEN_AUTHORS, GODHEADS, KINDS, STUB
+from .config import CHRONICLE, EXPLORER, FORBIDDEN_AUTHORS, GODHEADS, KINDS, STUB
 
 ATTESTED = "attested"
 MAP = "map"
@@ -170,7 +170,7 @@ def stubs():
 
 def dangling_links():
     gaps = {}
-    known = set(all_entities())
+    known = set(all_entities()) | {EXPLORER}
     for r in db.rows("SELECT ref, entity, body FROM writing WHERE body LIKE '%bota://%'"):
         for kind, ident, _ in db.targets(r["body"]):
             if ident in known:
@@ -250,3 +250,91 @@ def mermaid():
         out.append("  classDef unwritten stroke-dasharray: 4 3")
         out.append(f"  class {','.join(stubs_)} unwritten")
     return "\n".join(out)
+
+
+def held(holder, name):
+    return db.row(
+        "SELECT * FROM holding WHERE holder = ? AND lower(name) = lower(?)",
+        (holder, str(name or "").strip()),
+    )
+
+
+def holdings(holder):
+    return [
+        {"name": r["name"], "qty": r["qty"], "note": r["note"] or "", "worn": bool(r["worn"])}
+        for r in db.rows("SELECT * FROM holding WHERE holder = ? ORDER BY id", (holder,))
+    ]
+
+
+def holders():
+    """Everyone with something to their name. The explorer is one of them and is
+    not an entity, because the one moving through this world is never a subject
+    of the library."""
+    out = []
+    for r in db.rows("SELECT DISTINCT holder FROM holding ORDER BY holder"):
+        entity = None if r["holder"] == EXPLORER else find_entity(r["holder"])
+        out.append({
+            "id": r["holder"],
+            "name": entity["name"] if entity else r["holder"].replace("-", " "),
+            "kind": entity["kind"] if entity else None,
+            "explorer": r["holder"] == EXPLORER,
+        })
+    return out
+
+
+def give(holder, name, qty=1, note="", worn=False, turn_id=None):
+    name = str(name or "").strip()
+    if not holder or not name:
+        return 0
+    qty = int(qty or 1)
+    with db.writing() as con:
+        row = con.execute(
+            "SELECT id, qty FROM holding WHERE holder = ? AND lower(name) = lower(?)", (holder, name)
+        ).fetchone()
+        if row:
+            con.execute("UPDATE holding SET qty = ? WHERE id = ?", (int(row["qty"]) + qty, row["id"]))
+        else:
+            con.execute(
+                "INSERT INTO holding (holder, name, qty, note, worn, turn_id) VALUES (?,?,?,?,?,?)",
+                (holder, name, qty, str(note or ""), int(bool(worn)), turn_id),
+            )
+    return qty
+
+
+def take(holder, name, qty=1):
+    """Give up what is asked for, or everything held if that is less. Taking
+    what nobody has is nothing happening."""
+    name = str(name or "").strip()
+    if not holder or not name:
+        return 0
+    qty = int(qty or 1)
+    with db.writing() as con:
+        row = con.execute(
+            "SELECT id, qty FROM holding WHERE holder = ? AND lower(name) = lower(?)", (holder, name)
+        ).fetchone()
+        if not row:
+            return 0
+        left = int(row["qty"]) - qty
+        if left <= 0:
+            con.execute("DELETE FROM holding WHERE id = ?", (row["id"],))
+            return int(row["qty"])
+        con.execute("UPDATE holding SET qty = ? WHERE id = ?", (left, row["id"]))
+        return qty
+
+
+def transfer(src, dst, name, qty=1, turn_id=None):
+    """Move a thing between two holders. Either side may be nothing — bread is
+    eaten, wood is cut — and a holder cannot hand over what it does not have."""
+    qty = int(qty or 1)
+    note, worn = "", False
+    if src:
+        row = held(src, name)
+        if not row:
+            return 0
+        note, worn = row["note"] or "", bool(row["worn"])
+        qty = take(src, name, qty)
+        if not qty:
+            return 0
+    if dst:
+        give(dst, name, qty, note=note, worn=worn, turn_id=turn_id)
+    return qty

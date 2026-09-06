@@ -1,6 +1,6 @@
 # 004 — one table for everything anybody is holding
 
-**Status:** todo
+**Status:** done
 
 ## Why
 

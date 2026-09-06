@@ -27,6 +27,8 @@ CHRONICLE_NAME = "The Life of Explorer #1"
 
 STUB = "$BOTA"
 
+EXPLORER = "the-explorer"
+
 FORBIDDEN_AUTHORS = ("the explorer", "the adventurer", "explorer", "adventurer")
 
 OPENING = {

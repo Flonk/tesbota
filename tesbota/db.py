@@ -50,6 +50,18 @@ CREATE TABLE IF NOT EXISTS edge (
 );
 CREATE INDEX IF NOT EXISTS edge_dst ON edge(dst, rel);
 
+CREATE TABLE IF NOT EXISTS holding (
+  id       INTEGER PRIMARY KEY,
+  holder   TEXT NOT NULL,
+  name     TEXT NOT NULL,
+  qty      INTEGER NOT NULL DEFAULT 1,
+  note     TEXT,
+  worn     INTEGER NOT NULL DEFAULT 0,
+  turn_id  TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS holding_once ON holding(holder, lower(name));
+CREATE INDEX IF NOT EXISTS holding_holder ON holding(holder);
+
 CREATE VIEW IF NOT EXISTS writing AS
   SELECT 'bota://books/' || p.book_id || '#p' || p.ord AS ref,
          p.book_id AS entity, 'books' AS kind, 'passage' AS section, p.text AS body
@@ -61,7 +73,8 @@ CREATE VIEW IF NOT EXISTS writing AS
 
 CREATE VIEW IF NOT EXISTS unwritten AS
   SELECT e.id, e.kind, e.name FROM entity e
-   WHERE NOT EXISTS (
+   WHERE e.id <> 'the-explorer'
+     AND NOT EXISTS (
      SELECT 1 FROM writing w
       WHERE w.entity = e.id AND trim(w.body) <> '$BOTA'
    );
