@@ -118,11 +118,7 @@ export async function snapshot() {
   const skills = campaign.skills || {};
   const notebook = campaign.notebook || [];
   const quests = campaign.quests || [];
-  const inventory = (campaign.inventory || []).map((e) =>
-    typeof e === "string"
-      ? { name: e, qty: 1, note: "", worn: false }
-      : { name: e.name || "something", qty: e.qty || 1, note: e.note || "", worn: !!e.worn }
-  );
+  const inventory = holdings(EXPLORER);
 
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
@@ -141,9 +137,29 @@ function alive(pid) {
 }
 
 const CANON = path.join(ROOT, "canon.db");
+const EXPLORER = "the-explorer";
 
 function canon() {
   return new DatabaseSync(`file:${CANON}?mode=ro`, { open: true });
+}
+
+export function holdings(holder) {
+  let db;
+  try {
+    db = canon();
+  } catch {
+    return [];
+  }
+  try {
+    return db
+      .prepare(`SELECT name, qty, note, worn FROM holding WHERE holder = ? ORDER BY id`)
+      .all(holder)
+      .map((r) => ({ name: r.name, qty: r.qty || 1, note: r.note || "", worn: !!r.worn }));
+  } catch {
+    return [];
+  } finally {
+    db.close();
+  }
 }
 
 export async function library() {

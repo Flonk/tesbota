@@ -1,5 +1,7 @@
+from . import canon
 from .config import (
     ABILITIES,
+    EXPLORER,
     MAX_FATIGUE,
     MAX_HEALTH,
     MAX_HUNGER,
@@ -140,13 +142,12 @@ def as_item(entry):
     return {"name": str(entry), "qty": 1, "note": "", "worn": False}
 
 
-def items(campaign=None):
-    campaign = campaign or load_campaign()
-    return [as_item(e) for e in (campaign.get("inventory") or [])]
+def items():
+    return [as_item(e) for e in canon.holdings(EXPLORER)]
 
 
-def render_inventory(campaign=None):
-    entries = items(campaign)
+def render_inventory():
+    entries = items()
     if not entries:
         return "you are carrying nothing"
 

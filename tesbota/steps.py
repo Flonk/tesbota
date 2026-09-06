@@ -6,6 +6,7 @@ import random
 from .gate import sqlite_gate
 from .config import (
     BANDS,
+    EXPLORER,
     BAND_WEIGHT,
     SPARK_FLOOR,
     PRESS_FLOOR,
@@ -240,7 +241,7 @@ def step_answer(campaign, turn):
             turn.get("question"),
             previous=campaign.get("last_narration"),
             mode=turn.get("mode") or "look",
-            inventory=campaign.get("inventory") or [],
+            inventory=canon.holdings(EXPLORER),
             correction=turn.get("correction"),
         ),
         system=prompts.GM_SYSTEM,
@@ -277,7 +278,7 @@ def step_propose(campaign, turn):
             vitals=campaign.get("vitals"),
             answers=turn.get("answers") or [],
             note=turn.get("note"),
-            inventory=campaign.get("inventory") or [],
+            inventory=canon.holdings(EXPLORER),
         
             now=worldclock.long_stamp(campaign.get("time")),
         ),
@@ -406,7 +407,7 @@ def step_gm(campaign, turn):
             note=turn.get("note"),
             chosen=turn.get("chosen"),
             press=due_press(turn, campaign),
-            inventory=campaign.get("inventory") or [],
+            inventory=canon.holdings(EXPLORER),
             quests=campaign.get("quests") or [],
         
             now=worldclock.long_stamp(campaign.get("time")),
@@ -708,36 +709,17 @@ def apply_quests(campaign, draft, turn_id):
     return campaign
 
 
-def apply_inventory(campaign, draft):
-    items = campaign.setdefault("inventory", [])
-
+def apply_inventory(draft, turn_id=None):
     for entry in draft.get("lose") or []:
-        name = (entry.get("name") if isinstance(entry, dict) else str(entry) or "").strip().lower()
+        name = entry.get("name") if isinstance(entry, dict) else entry
         qty = int((entry.get("qty") if isinstance(entry, dict) else 1) or 1)
-        for held in list(items):
-            if str(held.get("name", "")).strip().lower() != name:
-                continue
-            held["qty"] = int(held.get("qty") or 1) - qty
-            if held["qty"] <= 0:
-                items.remove(held)
-            break
+        canon.take(EXPLORER, name, qty)
 
     for entry in draft.get("gain") or []:
         if not isinstance(entry, dict) or not entry.get("name"):
             continue
-        name = str(entry["name"]).strip()
-        qty = int(entry.get("qty") or 1)
-        existing = next((h for h in items if str(h.get("name", "")).strip().lower() == name.lower()), None)
-        if existing:
-            existing["qty"] = int(existing.get("qty") or 1) + qty
-        else:
-            items.append({
-                "name": name,
-                "qty": qty,
-                "note": str(entry.get("note") or ""),
-                "worn": bool(entry.get("worn")),
-            })
-    return campaign
+        canon.give(EXPLORER, entry["name"], entry.get("qty") or 1,
+                   note=entry.get("note") or "", worn=bool(entry.get("worn")), turn_id=turn_id)
 
 
 def apply_vitals(campaign, draft):
@@ -803,7 +785,7 @@ def deliver(campaign, turn):
     draft = turn["draft"]
 
     campaign = apply_vitals(campaign, draft)
-    campaign = apply_inventory(campaign, draft)
+    apply_inventory(draft, turn["turn_id"])
     campaign = apply_quests(campaign, draft, turn["turn_id"])
 
     where = (draft.get("location") or "").strip() if isinstance(draft.get("location"), str) else ""

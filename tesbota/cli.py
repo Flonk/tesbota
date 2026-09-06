@@ -4,7 +4,7 @@ import sys
 
 from . import actions, canon, chronicle, db, driver, prompts, sheet, view, worldclock
 from .gate import sqlite_gate
-from .config import MODELS, WRITE_TOOLS
+from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
 from .config import CHRONICLE_NAME, NARRATOR
 from .state import (
@@ -25,6 +25,9 @@ def cmd_init(args):
     db.setup()
     chronicle.ensure_book()
     campaign = load_campaign()
+    if not canon.holdings(EXPLORER):
+        for item in STARTING_INVENTORY:
+            canon.give(EXPLORER, item["name"], item["qty"], note=item["note"], worn=item["worn"])
     if campaign.get("current_turn"):
         print(f"already initialised — turn {campaign['current_turn']}")
         return
@@ -135,6 +138,7 @@ def cmd_stats(args):
 
 
 def cmd_inventory(args):
+    load_campaign()
     print(sheet.render_inventory())
 
 

@@ -1,6 +1,6 @@
 # 005 — the explorer holds things the same way everyone else does
 
-**Status:** todo
+**Status:** done
 **Depends on:** 004
 
 ## Why

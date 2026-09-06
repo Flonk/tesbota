@@ -2,12 +2,13 @@ import json
 import os
 from datetime import datetime, timezone
 
+from . import canon
 from .config import (
     CAMPAIGN,
+    EXPLORER,
     DEFAULTS,
     MAX_FATIGUE,
     MAX_HEALTH,
-    STARTING_INVENTORY,
     STARTING_SKILLS,
     STATE,
     WORLD_START,
@@ -46,7 +47,6 @@ def new_campaign():
         "clock": dict(DEFAULTS),
         "time": dict(WORLD_START),
         "vitals": {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0},
-        "inventory": list(STARTING_INVENTORY),
         "notebook": [],
         "quests": [],
         "skills": json.loads(json.dumps(STARTING_SKILLS)),
@@ -57,6 +57,17 @@ def new_campaign():
         "last_seen": None,
         "created": stamp(),
     }
+
+
+def stock(inventory):
+    """Move what the explorer was carrying in the campaign file into canon, where
+    everything anybody holds now lives."""
+    for entry in inventory:
+        if isinstance(entry, dict):
+            canon.give(EXPLORER, entry.get("name"), entry.get("qty") or 1,
+                       note=entry.get("note") or "", worn=bool(entry.get("worn")))
+        else:
+            canon.give(EXPLORER, entry)
 
 
 def load_campaign():
@@ -72,16 +83,12 @@ def load_campaign():
         if key not in campaign:
             campaign[key] = blank[key]
             changed = True
-    for key in ("inventory", "skills", "clock"):
+    for key in ("skills", "clock"):
         if not campaign.get(key):
             campaign[key] = blank[key]
             changed = True
-    inventory = campaign.get("inventory") or []
-    if inventory and any(isinstance(e, str) for e in inventory):
-        campaign["inventory"] = [
-            e if isinstance(e, dict) else {"name": e, "qty": 1, "note": "", "worn": False}
-            for e in inventory
-        ]
+    if "inventory" in campaign:
+        stock(campaign.pop("inventory") or [])
         changed = True
 
     vitals = campaign.setdefault("vitals", blank["vitals"])

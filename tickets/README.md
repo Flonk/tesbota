@@ -6,7 +6,7 @@ Work them in numeric order. One commit per ticket.
 - [x] [002-chronicle-autolink.md](002-chronicle-autolink.md) — deeplink the chronicle deterministically
 - [x] [003-rebuild-chronicle-and-retire-witnessed.md](003-rebuild-chronicle-and-retire-witnessed.md) — rebuild the chronicle, then retire `witnessed`
 - [x] [004-holding-table.md](004-holding-table.md) — one table for everything anybody is holding
-- [ ] [005-move-explorer-inventory-into-holding.md](005-move-explorer-inventory-into-holding.md) — the explorer holds things the same way everyone else does
+- [x] [005-move-explorer-inventory-into-holding.md](005-move-explorer-inventory-into-holding.md) — the explorer holds things the same way everyone else does
 - [ ] [006-gm-moves-goods-between-holders.md](006-gm-moves-goods-between-holders.md) — the game master can move a thing from one holder to another
 - [ ] [007-lore3-stocks-the-world.md](007-lore3-stocks-the-world.md) — lore master 3 can say what a place or a person keeps
 - [ ] [008-holdings-cli.md](008-holdings-cli.md) — read anybody's holdings from the terminal
