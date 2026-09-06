@@ -1,6 +1,6 @@
 # 011 — dense lists for places, people and items
 
-**Status:** todo
+**Status:** done
 **Depends on:** 010
 
 ## What
