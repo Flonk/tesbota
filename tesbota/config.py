@@ -16,7 +16,7 @@ WRITE_TOOLS = ["Bash"]
 MAX_GM_RETRIES = 3
 
 MODEL = "claude-sonnet-5"
-MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore3": MODEL, "narrator": MODEL}
+MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore3": MODEL}
 
 GODHEAD = "the godhead"
 NARRATOR = "The Narrator"
@@ -24,8 +24,6 @@ GODHEADS = (GODHEAD, NARRATOR.lower())
 
 CHRONICLE = "the-life-of-explorer-1"
 CHRONICLE_NAME = "The Life of Explorer #1"
-NARRATOR_TABLES = ("passage", "entity")
-MAX_NARRATOR_RETRIES = 3
 
 STUB = "$BOTA"
 

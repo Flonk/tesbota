@@ -2,7 +2,7 @@
 
 Work them in numeric order. One commit per ticket.
 
-- [ ] [001-narrator-append-log.md](001-narrator-append-log.md) — the narrator is an append log, not an agent
+- [x] [001-narrator-append-log.md](001-narrator-append-log.md) — the narrator is an append log, not an agent
 - [ ] [002-chronicle-autolink.md](002-chronicle-autolink.md) — deeplink the chronicle deterministically
 - [ ] [003-rebuild-chronicle-and-retire-witnessed.md](003-rebuild-chronicle-and-retire-witnessed.md) — rebuild the chronicle, then retire `witnessed`
 - [ ] [004-holding-table.md](004-holding-table.md) — one table for everything anybody is holding

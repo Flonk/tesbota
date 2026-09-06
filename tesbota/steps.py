@@ -16,7 +16,6 @@ from .config import (
     MAX_TALKS,
     MAX_FATIGUE,
     MAX_GM_RETRIES,
-    MAX_NARRATOR_RETRIES,
     HUNGER_PER_HOUR,
     MAX_HEALTH,
     MAX_HUNGER,
@@ -226,26 +225,11 @@ def step_explorer(campaign, turn):
 
 
 def step_narrate(campaign, turn):
-    """The turn is over and it survived adjudication. The narrator sets it down."""
-    if not chronicle.played(turn):
-        turn["state"] = "done"
-        return campaign, turn
-
-    written = chronicle.write(
-        turn,
-        now=turn.get("at") or worldclock.long_stamp(campaign.get("time")),
-        where=turn.get("location_path") or campaign.get("location_path"),
-    )
-    if written:
-        turn["chronicle"] = (turn.get("chronicle") or []) + written
-        turn["state"] = "done"
-        return campaign, turn
-
-    turn["narrate_retries"] = turn.get("narrate_retries", 0) + 1
-    if turn["narrate_retries"] < MAX_NARRATOR_RETRIES:
-        turn["state"] = "narrate"
-        return campaign, turn
-    turn["chronicle_failed"] = True
+    """The turn is over and it survived adjudication. It is set down as it stands."""
+    if chronicle.played(turn):
+        written = chronicle.write(turn)
+        if written:
+            turn["chronicle"] = (turn.get("chronicle") or []) + written
     turn["state"] = "done"
     return campaign, turn
 

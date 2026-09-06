@@ -1,6 +1,6 @@
 # 001 — the narrator is an append log, not an agent
 
-**Status:** todo
+**Status:** done
 
 ## Why
 

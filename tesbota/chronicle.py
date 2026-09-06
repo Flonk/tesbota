@@ -1,15 +1,5 @@
-from . import canon, db, prompts
-from .config import (
-    CHRONICLE,
-    CHRONICLE_NAME,
-    MODELS,
-    NARRATOR,
-    NARRATOR_TABLES,
-    WORLD_START,
-    WRITE_TOOLS,
-)
-from .gate import sqlite_gate
-from .sdk import ask
+from . import canon, db
+from .config import CHRONICLE, CHRONICLE_NAME, NARRATOR, WORLD_START
 
 
 def ensure_book(turn_id=None):
@@ -52,42 +42,36 @@ def since(start):
     ]
 
 
-def write(turn, now=None, where=None):
-    """Hand the narrator one finished turn and let it set down what happened."""
+def compose(turn):
+    """One paragraph out of everything the game master said this turn, in order.
+    The explorer's own utterances are what prompted them, not the record."""
+    said = [
+        " ".join((p.get("text") or "").split())
+        for p in turn.get("phases") or []
+        if p.get("who") == "gm" and (p.get("text") or "").strip()
+    ]
+    if not said:
+        narration = " ".join(((turn.get("draft") or {}).get("narration") or "").split())
+        said = [narration] if narration else []
+    return " ".join(said)
+
+
+def write(turn):
     ensure_book(turn.get("turn_id"))
-    start = next_ord()
-    ask(
-        prompts.narrator_turn(turn, now=now, where=where, tail=tail(), start=start),
-        system=prompts.NARRATOR_SYSTEM,
-        tools=WRITE_TOOLS,
-        permission=sqlite_gate(readonly=False, tables=NARRATOR_TABLES),
-        session=None,
-        model=MODELS["narrator"],
-    )
-    return since(start)
+    text = compose(turn)
+    if not text:
+        return []
+    ord_ = next_ord()
+    with db.writing() as con:
+        con.execute(
+            "INSERT INTO passage (book_id, ord, text) VALUES (?,?,?)",
+            (CHRONICLE, ord_, text),
+        )
+    return since(ord_)
 
 
 def narrated(turn):
     return bool(turn.get("chronicle"))
-
-
-def backfill(turns, echo=print):
-    """Write the life so far, one played turn at a time, for a world that ran
-    before the narrator existed."""
-    ensure_book()
-    written = []
-    for turn in turns:
-        if narrated(turn) or not played(turn):
-            continue
-        added = write(
-            turn,
-            now=turn.get("at"),
-            where=turn.get("location_path"),
-        )
-        turn["chronicle"] = added
-        written.append((turn["turn_id"], added))
-        echo(f"  {turn['turn_id']}  {len(added)} passage(s)")
-    return written
 
 
 def played(turn):
