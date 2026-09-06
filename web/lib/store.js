@@ -151,10 +151,7 @@ export function holdings(holder) {
     return [];
   }
   try {
-    return db
-      .prepare(`SELECT name, qty, note, worn FROM holding WHERE holder = ? ORDER BY id`)
-      .all(holder)
-      .map((r) => ({ name: r.name, qty: r.qty || 1, note: r.note || "", worn: !!r.worn }));
+    return holdingsIn(db, holder);
   } catch {
     return [];
   } finally {
@@ -191,6 +188,151 @@ export async function library() {
   } finally {
     db.close();
   }
+}
+
+export function entity(id) {
+  const ident = String(id || "").trim().toLowerCase();
+  if (!ident) return null;
+  let db;
+  try {
+    db = canon();
+  } catch {
+    return null;
+  }
+  try {
+    const row = db
+      .prepare(`SELECT id, kind, name, introduced FROM entity WHERE id = ?`)
+      .get(ident);
+    if (!row) return null;
+
+    const claims = db
+      .prepare(
+        `SELECT c.id, c.section, c.turn_id, c.text, c.book_id,
+                'bota://' || ? || '/' || c.entity_id || '#c' || c.id AS ref
+           FROM claim c WHERE c.entity_id = ? ORDER BY c.section, c.id`
+      )
+      .all(row.kind, ident);
+
+    const mentions = db
+      .prepare(
+        `SELECT w.ref, w.entity, w.kind, w.section, w.body,
+                coalesce(e.name, w.entity) AS name
+           FROM writing w LEFT JOIN entity e ON e.id = w.entity
+          WHERE w.body LIKE ? ORDER BY w.ref`
+      )
+      .all(`%/${ident}%`)
+      .map((m) => ({
+        ref: m.ref,
+        entity: m.entity,
+        kind: m.kind,
+        section: m.section,
+        name: m.name,
+        snippet: around(m.body, `/${ident}`),
+      }));
+
+    const held = db
+      .prepare(
+        `SELECT h.holder, coalesce(e.name, replace(h.holder, '-', ' ')) AS name, h.qty, h.note
+           FROM holding h LEFT JOIN entity e ON e.id = h.holder
+          WHERE lower(h.name) = lower(?) ORDER BY h.holder`
+      )
+      .all(row.name);
+
+    const bundle = {
+      ...row,
+      address: `bota://${row.kind}/${row.id}`,
+      claims,
+      mentions,
+      holdings: holdingsIn(db, ident),
+      heldBy: held,
+      unwritten: !!db.prepare(`SELECT 1 FROM unwritten WHERE id = ?`).get(ident),
+      stub: !!db
+        .prepare(`SELECT 1 FROM writing WHERE entity = ? AND body LIKE '%$BOTA%'`)
+        .get(ident),
+    };
+
+    if (row.kind === "places" || row.kind === "items") {
+      bundle.within = db
+        .prepare(
+          `WITH RECURSIVE up(id, depth) AS (
+             SELECT ?, 0
+             UNION
+             SELECT e.dst, up.depth + 1 FROM edge e JOIN up ON e.src = up.id AND e.rel = 'within'
+              WHERE up.depth < 24
+           )
+           SELECT up.id, coalesce(entity.name, replace(up.id, '-', ' ')) AS name, entity.kind
+             FROM up LEFT JOIN entity ON entity.id = up.id ORDER BY up.depth DESC`
+        )
+        .all(ident);
+    }
+
+    if (row.kind === "places") {
+      bundle.contains = db
+        .prepare(
+          `SELECT e.src AS id, coalesce(t.name, replace(e.src, '-', ' ')) AS name, t.kind
+             FROM edge e LEFT JOIN entity t ON t.id = e.src
+            WHERE e.rel = 'within' AND e.dst = ? ORDER BY e.src`
+        )
+        .all(ident);
+      bundle.exits = db
+        .prepare(
+          `SELECT e.dst AS id, coalesce(t.name, replace(e.dst, '-', ' ')) AS name,
+                  e.bearing, e.distance, t.id IS NOT NULL AS known
+             FROM edge e LEFT JOIN entity t ON t.id = e.dst
+            WHERE e.rel = 'exits' AND e.src = ? ORDER BY e.dst`
+        )
+        .all(ident)
+        .map((x) => ({ ...x, known: !!x.known }));
+    }
+
+    if (row.kind === "people") {
+      bundle.wrote = db
+        .prepare(
+          `SELECT b.id, e.name, b.written, b.rarity
+             FROM book b JOIN entity e ON e.id = b.id
+            WHERE b.author_id = ? ORDER BY lower(e.name)`
+        )
+        .all(ident);
+    }
+
+    if (row.kind === "books") {
+      const book = db
+        .prepare(`SELECT author, author_id, written, rarity FROM book WHERE id = ?`)
+        .get(ident);
+      bundle.book = book
+        ? {
+            ...book,
+            author: (book.author || "").trim(),
+            godhead: ["the godhead", "the narrator"].includes(
+              (book.author || "").trim().toLowerCase()
+            ),
+          }
+        : null;
+      bundle.passages = db
+        .prepare(`SELECT ord, text FROM passage WHERE book_id = ? ORDER BY ord`)
+        .all(ident);
+    }
+
+    return bundle;
+  } finally {
+    db.close();
+  }
+}
+
+function around(body, needle, width = 90) {
+  const text = String(body || "");
+  const at = text.toLowerCase().indexOf(needle.toLowerCase());
+  if (at < 0) return text.slice(0, width * 2);
+  const start = Math.max(0, at - width);
+  const end = Math.min(text.length, at + needle.length + width);
+  return (start ? "…" : "") + text.slice(start, end).trim() + (end < text.length ? "…" : "");
+}
+
+function holdingsIn(db, holder) {
+  return db
+    .prepare(`SELECT name, qty, note, worn FROM holding WHERE holder = ? ORDER BY id`)
+    .all(holder)
+    .map((r) => ({ name: r.name, qty: r.qty || 1, note: r.note || "", worn: !!r.worn }));
 }
 
 export async function look(question) {

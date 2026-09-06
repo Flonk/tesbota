@@ -1,6 +1,6 @@
 # 009 — one endpoint that knows everything about one thing
 
-**Status:** todo
+**Status:** done
 
 ## Why
 
