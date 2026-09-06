@@ -242,6 +242,7 @@ def step_answer(campaign, turn):
             previous=campaign.get("last_narration"),
             mode=turn.get("mode") or "look",
             inventory=canon.holdings(EXPLORER),
+            others=canon.holdings_at(campaign.get("location")),
             correction=turn.get("correction"),
         ),
         system=prompts.GM_SYSTEM,
@@ -279,7 +280,7 @@ def step_propose(campaign, turn):
             answers=turn.get("answers") or [],
             note=turn.get("note"),
             inventory=canon.holdings(EXPLORER),
-        
+            others=canon.holdings_at(campaign.get("location")),
             now=worldclock.long_stamp(campaign.get("time")),
         ),
         system=prompts.GM_PROPOSE_SYSTEM,
@@ -408,8 +409,8 @@ def step_gm(campaign, turn):
             chosen=turn.get("chosen"),
             press=due_press(turn, campaign),
             inventory=canon.holdings(EXPLORER),
+            others=canon.holdings_at(campaign.get("location")),
             quests=campaign.get("quests") or [],
-        
             now=worldclock.long_stamp(campaign.get("time")),
         ),
         system=prompts.GM_SYSTEM,
@@ -431,6 +432,7 @@ def step_gm(campaign, turn):
     draft.setdefault("location", None)
     draft.setdefault("gain", [])
     draft.setdefault("lose", [])
+    draft.setdefault("move", [])
     draft.setdefault("quest_open", [])
     draft.setdefault("quest_close", [])
     draft.setdefault("risk", BASE_RISK)
@@ -720,6 +722,17 @@ def apply_inventory(draft, turn_id=None):
             continue
         canon.give(EXPLORER, entry["name"], entry.get("qty") or 1,
                    note=entry.get("note") or "", worn=bool(entry.get("worn")), turn_id=turn_id)
+
+    for entry in draft.get("move") or []:
+        if not isinstance(entry, dict) or not entry.get("name"):
+            continue
+        canon.transfer(
+            canon.slug(entry.get("from") or "") or None,
+            canon.slug(entry.get("to") or "") or None,
+            entry["name"],
+            entry.get("qty") or 1,
+            turn_id=turn_id,
+        )
 
 
 def apply_vitals(campaign, draft):

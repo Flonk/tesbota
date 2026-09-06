@@ -1,6 +1,6 @@
 # 006 — the game master can move a thing from one holder to another
 
-**Status:** todo
+**Status:** done
 **Depends on:** 004, 005
 
 ## Why

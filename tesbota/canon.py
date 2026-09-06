@@ -338,3 +338,23 @@ def transfer(src, dst, name, qty=1, turn_id=None):
     if dst:
         give(dst, name, qty, note=note, worn=worn, turn_id=turn_id)
     return qty
+
+
+def holdings_at(place_id):
+    """What everything at a place is holding — the place's own stock and whatever
+    stands in it."""
+    place_id = slug(place_id)
+    if not place_id:
+        return []
+    out = []
+    for holder in [place_id] + contains(place_id):
+        items = holdings(holder)
+        if not items:
+            continue
+        entity = find_entity(holder)
+        out.append({
+            "id": holder,
+            "name": entity["name"] if entity else holder.replace("-", " "),
+            "items": items,
+        })
+    return out

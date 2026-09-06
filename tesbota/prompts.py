@@ -71,6 +71,16 @@ def render_inventory(items):
     return "\n".join(lines) or "  (nothing)"
 
 
+def render_holdings(holders):
+    lines = []
+    for holder in holders or []:
+        lines.append(f"  {holder['name']} ({holder['id']}):")
+        for item in holder.get("items") or []:
+            count = f" x{item.get('qty')}" if int(item.get("qty") or 1) > 1 else ""
+            lines.append(f"    - {item.get('name')}{count}")
+    return "\n".join(lines) or "  (nothing)"
+
+
 EXPLORER_SYSTEM = """You are the explorer. You have the following cli commands available to you:
 
 tesbota stats       what condition you are in, and what you know you are good at
@@ -228,6 +238,7 @@ Reply with a single fenced json block and nothing else:
   "location": "kebab-id of where they are now",
   "gain": [],
   "lose": [],
+  "move": [],
   "quest_open": [],
   "quest_close": []
 }
@@ -249,6 +260,14 @@ Reply with a single fenced json block and nothing else:
   promised bed over as `{"name": "a night's bed at the Alheim Inn", "qty": 1, "note":
   "owed by Greta Marsch"}` or they will not remember it exists, and `lose` it when it
   is taken up.
+- `move` — the other half of an exchange, so a coin paid lands in somebody's till
+  instead of vanishing: `{"from": "greta-marsch", "to": "the-explorer", "name": "a
+  loaf", "qty": 1}`. Either side may be null for something entering or leaving the
+  world — bread eaten, a plank cut. `gain` and `lose` stay the shorthand for the
+  explorer's own side and are the common case. What the other holder carries is as
+  true as what the explorer carries: you are shown what everything at this place
+  keeps, they cannot hand over what is not on their list, and stock is never invented
+  into somebody's hands.
 - `quest_open` / `quest_close` — an id, title, detail and giver; one entry per errand,
   so "fetch wood" and "find the boy" are two. Open one only once they have agreed to
   it. Close with an outcome of `done`, `failed` or `abandoned`. You are shown the open
@@ -602,7 +621,7 @@ REDRAFT = (
 )
 
 
-def gm_context(action, previous=None, vitals=None, inventory=None, now=None, correction=None):
+def gm_context(action, previous=None, vitals=None, inventory=None, others=None, now=None, correction=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -615,6 +634,8 @@ def gm_context(action, previous=None, vitals=None, inventory=None, now=None, cor
         )
     if inventory is not None:
         parts.append("What they are carrying:\n" + render_inventory(inventory))
+    if others:
+        parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
     parts.append(
         "They have said what they mean to do. Nothing has happened yet and you are "
         f"not narrating it:\n\n{action}\n\n"
@@ -630,12 +651,14 @@ def gm_context(action, previous=None, vitals=None, inventory=None, now=None, cor
     return "\n\n".join(parts)
 
 
-def gm_answer(question, previous=None, mode="look", inventory=None, correction=None):
+def gm_answer(question, previous=None, mode="look", inventory=None, others=None, correction=None):
     parts = []
     if previous:
         parts.append(f"What they were last told:\n\n{previous}")
     if inventory:
         parts.append("What they are carrying:\n" + render_inventory(inventory))
+    if others:
+        parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
 
     if mode == "say":
         parts.append(
@@ -699,7 +722,7 @@ for it, and you do not hint at what it means — you do not know. Write it as a 
 like any other and let it be ruled on."""
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, quests=None, now=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -733,6 +756,8 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
         )
     if inventory is not None:
         parts.append("What they are carrying:\n" + render_inventory(inventory))
+    if others:
+        parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
     if quests:
         parts.append("What they have taken on:\n" + render_quests(quests))
     if action:
@@ -776,7 +801,7 @@ def lore1_query(question):
     return f"{question}"
 
 
-def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inventory=None, now=None):
+def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inventory=None, others=None, now=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -795,6 +820,8 @@ def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inve
         )
     if inventory is not None:
         parts.append("What they are carrying:\n" + render_inventory(inventory))
+    if others:
+        parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
     parts.append(f"What they intend to do:\n\n{action}")
     for question, answer in answers or []:
         parts.append(f"You asked: {question}\n\nThe record says: {answer}")
