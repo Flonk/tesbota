@@ -433,3 +433,8 @@ textarea {
 .hitname { display: flex; align-items: baseline; gap: .6rem; padding: .04rem 0; line-height: 1.35; }
 .hitname .eid { font: var(--mono); letter-spacing: .06em; color: var(--dim); }
 .hitname .ename { font-size: .82rem; }
+
+.erow.sel, .hitname.sel { background: var(--panel); border-color: var(--line); }
+.erow.sel .ename, .hitname.sel .ename { color: var(--gold); }
+.book.sel .btitle, .hit.sel .hitref { color: var(--gold); }
+.erow:not(.ehead), .book, .hit, .hitname { cursor: pointer; }

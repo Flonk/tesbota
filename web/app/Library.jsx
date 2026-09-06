@@ -96,12 +96,16 @@ export function Marked({ text }) {
   );
 }
 
-function Shelf({ books }) {
-  const sorted = [...books].sort((a, b) => ORDER.indexOf(a.rarity) - ORDER.indexOf(b.rarity));
+function Shelf({ books, selected, onOpen }) {
   return (
     <div className="shelf">
-      {sorted.map((b) => (
-        <div className="book" key={b.id}>
+      {books.map((b) => (
+        <div
+          className={`book${b.id === selected ? " sel" : ""}`}
+          key={b.id}
+          data-sel={b.id === selected ? "1" : undefined}
+          onClick={() => onOpen(b.id)}
+        >
           <div className="btitle">
             {b.name}
             {b.godhead && <Tag tone="gold">godhead</Tag>}
@@ -117,19 +121,9 @@ function Shelf({ books }) {
   );
 }
 
-function List({ kind, rows }) {
-  const [sort, setSort] = useState({ key: "name", dir: 1 });
+function List({ kind, rows, sort, onSort, selected, onOpen }) {
   const shape = COLUMNS[kind];
   if (!shape) return null;
-
-  const sorted = [...rows].sort(
-    (a, b) => compare(a, b, sort.key) * sort.dir || compare(a, b, "name")
-  );
-
-  function by(key) {
-    setSort((s) => (s.key === key ? { key, dir: -s.dir } : { key, dir: 1 }));
-  }
-
   return (
     <div className="etable" style={{ "--cols": shape.cols }}>
       <div className="erow ehead">
@@ -137,18 +131,22 @@ function List({ kind, rows }) {
           <button
             key={f.key}
             className={`ecol${f.num ? " num" : ""}${sort.key === f.key ? " on" : ""}`}
-            onClick={() => by(f.key)}
+            onClick={() => onSort(f.key)}
           >
             {f.label}
             {sort.key === f.key && <span className="dir">{sort.dir > 0 ? "↑" : "↓"}</span>}
           </button>
         ))}
       </div>
-      {sorted.map((r) => (
+      {rows.map((r) => (
         <div
           key={r.id}
-          className={`erow${r.unwritten ? " unwritten" : ""}${r.stub ? " stub" : ""}`}
+          data-sel={r.id === selected ? "1" : undefined}
+          className={`erow${r.unwritten ? " unwritten" : ""}${r.stub ? " stub" : ""}${
+            r.id === selected ? " sel" : ""
+          }`}
           title={r.id}
+          onClick={() => onOpen(r.id)}
         >
           {shape.fields.map((f) => (
             <span
@@ -166,7 +164,7 @@ function List({ kind, rows }) {
   );
 }
 
-function Hits({ named, hits }) {
+function Hits({ named, hits, selected, onOpen }) {
   const bad = hits.find((h) => h.error);
   if (bad) return <Note tone="warn">{bad.error}</Note>;
   if (!hits.length && !named.length) return <Empty>nothing written matches that</Empty>;
@@ -176,7 +174,12 @@ function Hits({ named, hits }) {
         <div className="named">
           <p className="cap">named</p>
           {named.map((r) => (
-            <div className="hitname" key={r.id}>
+            <div
+              className={`hitname${r.id === selected ? " sel" : ""}`}
+              key={r.id}
+              data-sel={r.id === selected ? "1" : undefined}
+              onClick={() => onOpen(r.id)}
+            >
               <span className="ename">{r.name}</span>
               <span className="eid">{r.kind}</span>
             </div>
@@ -184,7 +187,12 @@ function Hits({ named, hits }) {
         </div>
       )}
       {hits.map((h) => (
-        <div className="hit" key={h.ref}>
+        <div
+          className={`hit${h.entity === selected ? " sel" : ""}`}
+          key={h.ref}
+          data-sel={h.entity === selected ? "1" : undefined}
+          onClick={() => onOpen(h.entity)}
+        >
           <div className="cap hitref">
             <span>{h.name}</span>
             <span className="hitsec">{h.section}</span>
@@ -205,7 +213,11 @@ export default function Library() {
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState(null);
   const [on, setOn] = useState({});
+  const [sort, setSort] = useState({ key: "name", dir: 1 });
+  const [selected, setSelected] = useState(null);
+  const [opened, setOpened] = useState(null);
   const box = useRef(null);
+  const order = useRef([]);
 
   useEffect(() => {
     let live = true;
@@ -229,28 +241,63 @@ export default function Library() {
   }, []);
 
   useEffect(() => {
+    function step(by) {
+      setSelected((current) => {
+        const ids = order.current;
+        if (!ids.length) return current;
+        const at = ids.indexOf(current);
+        if (at < 0) return ids[by > 0 ? 0 : ids.length - 1];
+        return ids[Math.min(ids.length - 1, Math.max(0, at + by))];
+      });
+    }
+
     function key(e) {
-      const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName || "");
-      if (e.key === "/" && !typing) {
-        e.preventDefault();
-        box.current?.focus();
-      }
+      const el = document.activeElement;
+      const typing = /^(INPUT|TEXTAREA)$/.test(el?.tagName || "") || el?.isContentEditable;
+
       if (e.key === "Escape") {
+        if (opened) return setOpened(null);
         setQuery("");
         setHits(null);
         box.current?.blur();
+        return;
+      }
+      if (typing) return;
+
+      if (e.key === "/") {
+        e.preventDefault();
+        box.current?.focus();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        step(1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        step(-1);
+      } else if (e.key === "Enter") {
+        if (selected) setOpened(selected);
+      } else if (e.key === "[" || e.key === "]") {
+        pick(e.key === "]" ? 1 : -1);
       }
     }
     document.addEventListener("keydown", key);
     return () => document.removeEventListener("keydown", key);
-  }, []);
+  });
+
+  useEffect(() => {
+    document.querySelector('.lib [data-sel="1"]')?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
 
   function pick(next) {
-    setKind(next);
+    setKind((current) => {
+      const at = KINDS.indexOf(current);
+      const value = typeof next === "number" ? KINDS[(at + next + KINDS.length) % KINDS.length] : next;
+      try {
+        localStorage.setItem(REMEMBER, value);
+      } catch {}
+      return value;
+    });
     setHits(null);
-    try {
-      localStorage.setItem(REMEMBER, next);
-    } catch {}
+    setSelected(null);
   }
 
   function search(e) {
@@ -279,6 +326,10 @@ export default function Library() {
     return Object.values(groups).every((g) => g.some(Boolean));
   }
 
+  function by(key) {
+    setSort((s) => (s.key === key ? { key, dir: -s.dir } : { key, dir: 1 }));
+  }
+
   const q = query.trim().toLowerCase();
   const everything = [
     ...(world?.places || []),
@@ -290,8 +341,18 @@ export default function Library() {
   const all = kind === "books" ? shelf : world?.[kind] || [];
   const rows = all
     .filter((r) => !q || r.name.toLowerCase().includes(q) || r.id.includes(q))
-    .filter(keep);
+    .filter(keep)
+    .sort((a, b) =>
+      kind === "books" && sort.key === "name"
+        ? ORDER.indexOf(a.rarity) - ORDER.indexOf(b.rarity)
+        : compare(a, b, sort.key) * sort.dir || compare(a, b, "name")
+    );
   const reading = books === null || world === null;
+
+  order.current =
+    hits === null
+      ? rows.map((r) => r.id)
+      : [...named.map((r) => r.id), ...hits.filter((h) => h.entity).map((h) => h.entity)];
 
   return (
     <div className="lib">
@@ -341,12 +402,21 @@ export default function Library() {
         </div>
       )}
 
-      {hits !== null && <Hits named={named} hits={hits} />}
+      {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={setOpened} />}
       {hits === null && reading && <Empty>reading the shelves…</Empty>}
       {hits === null && !reading && rows.length === 0 && <Empty>nothing here matches</Empty>}
-      {hits === null && !reading && rows.length > 0 && kind === "books" && <Shelf books={rows} />}
+      {hits === null && !reading && rows.length > 0 && kind === "books" && (
+        <Shelf books={rows} selected={selected} onOpen={setOpened} />
+      )}
       {hits === null && !reading && rows.length > 0 && kind !== "books" && (
-        <List kind={kind} rows={rows} />
+        <List
+          kind={kind}
+          rows={rows}
+          sort={sort}
+          onSort={by}
+          selected={selected}
+          onOpen={setOpened}
+        />
       )}
     </div>
   );

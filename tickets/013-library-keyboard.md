@@ -1,6 +1,6 @@
 # 013 — drive the library from the keyboard
 
-**Status:** todo
+**Status:** done
 **Depends on:** 011, 012
 
 ## What
