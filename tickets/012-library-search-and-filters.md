@@ -1,6 +1,6 @@
 # 012 — search and filters across the library
 
-**Status:** todo
+**Status:** done
 **Depends on:** 010, 011
 
 ## Why

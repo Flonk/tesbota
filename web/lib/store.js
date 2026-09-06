@@ -170,7 +170,10 @@ export async function library() {
     const rows = db
       .prepare(
         `SELECT e.id, e.name, b.author, b.author_id, b.written, b.rarity,
-                (SELECT count(*) FROM passage p WHERE p.book_id = b.id) AS passages
+                (SELECT count(*) FROM passage p WHERE p.book_id = b.id) AS passages,
+                (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
+                EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
+                EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%') AS stub
            FROM book b JOIN entity e ON e.id = b.id
           ORDER BY lower(e.name)`
       )
@@ -183,6 +186,9 @@ export async function library() {
       written: (r.written || "").includes("$BOTA") ? "" : r.written || "",
       rarity: (r.rarity || "").toLowerCase(),
       passages: r.passages,
+      mentions: r.mentions,
+      unwritten: !!r.unwritten,
+      stub: !!r.stub,
       godhead: ["the godhead", "the narrator"].includes((r.author || "").trim().toLowerCase()),
     }));
   } finally {

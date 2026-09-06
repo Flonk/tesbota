@@ -403,3 +403,33 @@ textarea {
 
 .erow.unwritten .ename { color: var(--dim); text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
 .erow.stub .ename { text-decoration: underline dotted var(--gold); text-underline-offset: 3px; }
+
+.seek { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; min-width: 0; }
+.seekbox {
+  flex: 1 1 auto; min-width: 0;
+  background: var(--panel); border: 1px solid var(--line); color: var(--ink);
+  font: var(--mono); letter-spacing: .06em; padding: .35rem .5rem;
+}
+.seekbox:focus { outline: none; border-color: var(--gold); }
+.seekbox::placeholder { color: var(--dim); }
+
+.filters { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 .7rem; }
+.toggle {
+  background: none; border: 1px solid var(--line); border-radius: 2px;
+  color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  padding: .1rem .4rem; cursor: pointer; white-space: nowrap;
+}
+.toggle:hover { color: var(--ink); }
+.toggle.on { color: var(--gold); border-color: var(--gold); }
+.toggle.clear { border-style: dashed; }
+
+.hits { display: flex; flex-direction: column; gap: .6rem; max-width: 62rem; }
+.hit { min-width: 0; }
+.hitref { display: flex; gap: .6rem; margin-bottom: .1rem; text-transform: none; letter-spacing: .06em; }
+.hitsec { color: var(--place); }
+.hitline { margin: 0; font-size: .9rem; line-height: 1.45; }
+.hitline mark { background: none; color: var(--gold); }
+.named { margin-bottom: .3rem; }
+.hitname { display: flex; align-items: baseline; gap: .6rem; padding: .04rem 0; line-height: 1.35; }
+.hitname .eid { font: var(--mono); letter-spacing: .06em; color: var(--dim); }
+.hitname .ename { font-size: .82rem; }
