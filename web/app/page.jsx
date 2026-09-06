@@ -216,6 +216,7 @@ function Head({ s, vitals }) {
 
 const TABS = [
   { id: "lore", label: "lore master" },
+  { id: "map", label: "map" },
   { id: "stats", label: "stats" },
   { id: "quests", label: "quests" },
   { id: "library", label: "library" },
@@ -454,38 +455,37 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="band mapband">
-        <Map where={status.where} at={status.now} />
-      </section>
-
       <section className="band tabsband">
         <div className="tabbar">
-          {TABS.map((t) => (
+          <div className="tabs">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                className={`tab ${tab === t.id ? "on" : ""}`}
+                onClick={() => setTab(t.id)}
+              >
+                {t.label}
+                {t.id === "lore" && blocked && <span className="pip" />}
+                {t.id === "quests" && open > 0 && <span className="count">{open}</span>}
+              </button>
+            ))}
+          </div>
+          <div className="tabright">
+            {busy && <span className="working">working…</span>}
+            <span className="stat"><Status status={status} /></span>
+            <span className="jump">
+              <button className="arrow" onClick={() => go(at - 1)} disabled={at <= 0} aria-label="earlier">‹</button>
+              <span className="counter">{count ? `${at + 1}/${count}` : "—"}</span>
+              <button className="arrow" onClick={() => go(at + 1)} disabled={at >= count - 1} aria-label="later">›</button>
+            </span>
             <button
-              key={t.id}
-              className={`tab ${tab === t.id ? "on" : ""}`}
-              onClick={() => setTab(t.id)}
+              className="nextstep"
+              onClick={() => post("/api/step", null, "step")}
+              disabled={!!busy || blocked}
             >
-              {t.label}
-              {t.id === "lore" && blocked && <span className="pip" />}
-              {t.id === "quests" && open > 0 && <span className="count">{open}</span>}
+              {busy === "step" ? "…" : "next step"}
             </button>
-          ))}
-          <span className="grow" />
-          {busy && <span className="working">working…</span>}
-          <Status status={status} />
-          <span className="jump">
-            <button className="arrow" onClick={() => go(at - 1)} disabled={at <= 0} aria-label="earlier">‹</button>
-            <span className="counter">{count ? `${at + 1}/${count}` : "—"}</span>
-            <button className="arrow" onClick={() => go(at + 1)} disabled={at >= count - 1} aria-label="later">›</button>
-          </span>
-          <button
-            className="nextstep"
-            onClick={() => post("/api/step", null, "step")}
-            disabled={!!busy || blocked}
-          >
-            {busy === "step" ? "…" : "next step"}
-          </button>
+          </div>
         </div>
 
         <div className="tabpanel">
@@ -498,6 +498,7 @@ export default function Page() {
               onSay={(t) => post("/api/say", { text: t }, "say")}
             />
           )}
+          {tab === "map" && <Map where={status.where} at={status.now} />}
           {tab === "stats" && (
             <Sheet
               vitals={vitals}
