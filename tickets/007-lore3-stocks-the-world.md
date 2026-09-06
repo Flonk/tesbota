@@ -1,6 +1,6 @@
 # 007 — lore master 3 can say what a place or a person keeps
 
-**Status:** todo
+**Status:** done
 **Depends on:** 004
 
 ## Why

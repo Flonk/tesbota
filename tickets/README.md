@@ -8,7 +8,7 @@ Work them in numeric order. One commit per ticket.
 - [x] [004-holding-table.md](004-holding-table.md) — one table for everything anybody is holding
 - [x] [005-move-explorer-inventory-into-holding.md](005-move-explorer-inventory-into-holding.md) — the explorer holds things the same way everyone else does
 - [x] [006-gm-moves-goods-between-holders.md](006-gm-moves-goods-between-holders.md) — the game master can move a thing from one holder to another
-- [ ] [007-lore3-stocks-the-world.md](007-lore3-stocks-the-world.md) — lore master 3 can say what a place or a person keeps
+- [x] [007-lore3-stocks-the-world.md](007-lore3-stocks-the-world.md) — lore master 3 can say what a place or a person keeps
 - [ ] [008-holdings-cli.md](008-holdings-cli.md) — read anybody's holdings from the terminal
 - [ ] [009-entity-api.md](009-entity-api.md) — one endpoint that knows everything about one thing
 - [ ] [010-library-second-tab-bar.md](010-library-second-tab-bar.md) — the library gets its own tab bar

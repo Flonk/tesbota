@@ -10,6 +10,7 @@ Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
   passage(book_id, ord, text)                     a book's text, one paragraph to a row
   claim(id, entity_id, section, turn_id, text)    section: attested | map
   edge(src, rel, dst, bearing, distance)          rel: within | exits
+  holding(holder, name, qty, note, worn)          what a place, a person or the explorer keeps
 
   writing(ref, entity, kind, section, body)       every passage and every claim, with its address
   search(ref, entity, section, body)              full text: WHERE search MATCH 'mill NEAR/5 boy'
@@ -42,6 +43,7 @@ author chose. Follow an address by querying the row it names.
     SELECT ord, text FROM passage WHERE book_id = 'petra-volls-route-notes' ORDER BY ord;
     SELECT ref, body FROM writing WHERE body LIKE '%/petra-voll%';
     SELECT id FROM book WHERE author_id = 'petra-voll';
+    SELECT name, qty, note FROM holding WHERE holder = 'alheim-mill';
     SELECT ref, snippet(search, 3, '[', ']', '…', 12) FROM search
       WHERE search MATCH 'sawmill' ORDER BY rank LIMIT 5;
 """
@@ -573,6 +575,19 @@ When you touch a place and its map is thin, fill in what is known, and write the
 names as deeplinks so they can be followed. A map records only what is
 established; a link to a bare row is an honest way to mark an edge nobody has
 walked yet.
+
+What a place or a person keeps is a fact about them, and it belongs to whoever is
+writing them. A mill has sacks in it before anybody walks in, a shopkeeper has
+stock, a room has things lying in it. Write it in the same breath as the place or
+the person rather than as a separate errand:
+
+    INSERT INTO holding (holder, name, qty, note) VALUES
+      ('alheim-mill', 'sacks of flour', 12, 'stacked against the north wall');
+
+`holder` is an entity id. `the-explorer` is the one holder that is not an entity and
+you never write to it — what the one moving through this world carries is not yours,
+any more than what it has seen is. Nothing is obliged to keep anything: an empty
+shelf is not a silence and never comes back to you as one.
 
 Nothing you write is for an audience. You are filling in a library — writing for
 the shelf, not for anyone who might one day walk through the places you describe.
