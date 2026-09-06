@@ -452,17 +452,6 @@ export default function Page() {
             </section>
           )}
         </div>
-
-        <nav className="dots">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              className={`dot ${i === at ? "on" : ""}`}
-              onClick={() => go(i)}
-              aria-label={s.id}
-            />
-          ))}
-        </nav>
       </section>
 
       <section className="band mapband">
@@ -485,7 +474,11 @@ export default function Page() {
           <span className="grow" />
           {busy && <span className="working">working…</span>}
           <Status status={status} />
-          <span className="counter">{count ? `${at + 1}/${count}` : "—"}</span>
+          <span className="jump">
+            <button className="arrow" onClick={() => go(at - 1)} disabled={at <= 0} aria-label="earlier">‹</button>
+            <span className="counter">{count ? `${at + 1}/${count}` : "—"}</span>
+            <button className="arrow" onClick={() => go(at + 1)} disabled={at >= count - 1} aria-label="later">›</button>
+          </span>
           <button
             className="nextstep"
             onClick={() => post("/api/step", null, "step")}
