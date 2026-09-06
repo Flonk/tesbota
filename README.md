@@ -17,6 +17,7 @@ a rule anyone is asked to respect.
 | **Game master** | An action, a verdict | read | scene-scoped |
 | **Lore master 1** | Bare claims | read | stateless |
 | **Lore master 3** | A silence in the world | read/write | per sitting |
+| **Narrator** | One finished turn | read, writes its own book | stateless |
 
 The Explorer cannot see the world at all, so the game master must reproduce book
 text **verbatim** — and the driver diffs every quotation against the passage it
@@ -28,24 +29,57 @@ library.
 
 ## What is true
 
-There is no codex and no omniscient narrator. `canon.db` is a pile of documents by
-authors who are biased, mistaken, or lying, and they contradict each other
-constantly. That is the texture, not a defect.
+There is no codex. `canon.db` is a pile of documents by authors who are biased,
+mistaken, or lying, and they contradict each other constantly. That is the texture,
+not a defect.
 
-Exactly one thing is ground truth: a claim whose `section` is `witnessed` — what
-the adventurer directly perceived. It cannot be contradicted. Every `attested`
-claim is testimony and may be contradicted freely.
+Ground truth is a book, and only a book. Two authors are not fallible: `the
+godhead`, who states the world's laws, and `The Narrator`, who keeps the record of
+what has actually happened. Everything else — every claim, every other author — is
+testimony, and may be contradicted freely.
 
 So lore master 1 returns four verdicts:
 
 - **TRUE** — nothing contradicts it
-- **FRICTION** — contradicts a document but not experience. Allowed. Interesting.
-- **FALSE** — contradicts something Witnessed. The game master must revise.
+- **FRICTION** — contradicts a document but not the record. Allowed. Interesting.
+- **FALSE** — contradicts a godhead book. The game master must revise.
 - **UNRESOLVED** — the world is silent. Escalates to you.
 
 Nothing becomes true by assertion, only by attribution. When you and lore master
 3 fill a silence, you do not record a fact — you write a book, by a named author,
 with a reason to be doubted.
+
+## The narrator
+
+There is a second godhead-class entity, and it is writing a book.
+
+After every turn that survives adjudication, the narrator is handed that turn — what
+the explorer did, what it looked at, what it said, what it was told — and sets down a
+passage of `bota://books/the-life-of-explorer-1`, *The Life of Explorer #1*. It sees
+one finished turn and the last few passages it wrote, and nothing else. It has never
+heard of a die.
+
+Because it is godhead-class its book is law, and nothing any other layer narrates or
+claims may contradict it. That is what holds the observed world together, and it is
+why there is no longer a special kind of claim doing the same job badly.
+
+It writes instances, never kinds. *A figure challenged them at the gate* is the
+narrator's; *the town keeps gatekeepers who challenge travellers* is not, and writing
+it would settle by accident something the world has not decided. That is the same
+line lore master 1 draws when it escalates, and it is what keeps the narrator from
+quietly becoming the codex this world does not have.
+
+Every name it sets down is a deeplink, and anything it links that has no row gets a
+bare one in the same breath — so the chronicle is also what keeps extending lore
+master 3's backlog.
+
+```
+tesbota chronicle        read the book
+tesbota chronicle -n 5   the last five passages
+```
+
+It writes to `passage` and `entity` and nothing else. The permission callback denies
+the rest, so the chronicler cannot rewrite the library it is shelved in.
 
 A deeplink pointing at a row nobody has written is an unresolved fact. `tesbota
 gaps` lists the frontier.
@@ -76,6 +110,7 @@ uv run tesbota step      # advance until something suspends
 uv run tesbota status    # where things stand, how long until the adventurer wakes
 uv run tesbota lore      # sit down with lore master 3 and end a silence
 uv run tesbota gaps      # dangling links: the world's frontier
+uv run tesbota chronicle # the narrator's book, the life so far
 ```
 
 Make it tick on its own with a user timer:
@@ -103,16 +138,21 @@ That makes compaction the one thing that scales with the campaign — and
 compacting the Explorer is the adventurer forgetting. Which, for a Boltzmann
 brain, is not a compromise.
 
+The narrator is one more stateless call at the end of each turn, reading three
+passages and one turn. It is the cheapest layer in the system and the only one whose
+output is permanent.
+
 ## Canon layout
 
 The world is one SQLite file, `canon.db`. Every layer reads it the same way —
-`sqlite3 -readonly canon.db "SELECT ..."` — and only the lore master may write.
+`sqlite3 -readonly canon.db "SELECT ..."`. Lore master 3 writes anywhere in it; the
+narrator writes only passages and bare rows; nothing else writes at all.
 
 ```
 entity(id, kind, name, introduced)              people | places | books | items
 book(id, author, author_id, written, rarity)    author_id points at the person who wrote it
 passage(book_id, ord, text)                     a book's text, one paragraph to a row
-claim(id, entity_id, section, turn_id, text)    witnessed | attested | map
+claim(id, entity_id, section, turn_id, text)    attested | map — all of it testimony
 edge(src, rel, dst, bearing, distance)          within | exits
 
 writing(ref, entity, kind, section, body)       every passage and claim, with its address
@@ -235,17 +275,20 @@ driver, so the narration cannot quietly re-price what was agreed.
 
 ## What can become true
 
-A `witnessed` claim is ground truth and covers a thing's properties, not just its
-existence — if it is witnessed that a stone is carved with two names, a claim
-that it reads something else is FALSE, not FRICTION. Only `TRUE` claims are
-written there. `FRICTION` claims land in `attested`, because a claim that
-rubs against the record is disputed by definition and must not become ground
-truth.
+A narrator's passage covers a thing's properties, not just its existence — if the
+narrator has set down that a stone is carved with two names, a claim that it reads
+something else is FALSE, not FRICTION. What a thing says, reads, looks like or is
+made of is as fixed as the fact that it is there.
 
-The one moving through this world is never an author. Its observations are
-Witnessed; they do not belong in a book. A lore master that writes a document
-attributed to it cannot close its gap until the document is removed or
-reattributed, and `tesbota gaps` lists any that exist.
+Claims are no longer written to canon by the driver at all. They are the unit lore
+master 1 rules on, they are kept on the turn record with their verdicts, and what
+actually happened is the narrator's to keep. `claim` belongs to lore master 3 now —
+`attested` testimony and `map` — and every row in it is somebody's word.
+
+The one moving through this world is never an author. Its observations are the
+narrator's, not its own, and they do not belong in a book of its writing. A lore
+master that attributes a document to it cannot close its gap until the document is
+removed or reattributed, and `tesbota gaps` lists any that exist.
 
 Delivery is idempotent — a turn stamps itself once delivered, so a re-run after a
 crashed agent call cannot write a second, contradictory set of facts.
@@ -299,17 +342,17 @@ rather than settling it.
 
 ## Verdicts
 
-- **TRUE** — the record affirms it: a Witnessed line or a godhead book says so.
+- **TRUE** — the record affirms it: a godhead book or the narrator's says so.
 - **WITHIN_BOUNDS** — nothing establishes it, but it is mundane or the only sensible
   reading of what is written. It stands. This is the ordinary verdict for the
   ordinary world and should be the common one.
-- **FRICTION** — contradicts testimony. Goes back to the game master once to make
-  the disagreement deliberate.
-- **FALSE** — contradicts something Witnessed or a godhead book. Redraft.
+- **FRICTION** — contradicts testimony, but nothing godhead-class. Goes back to the
+  game master once to make the disagreement deliberate.
+- **FALSE** — contradicts a godhead book, the narrator's record included. Redraft.
 - **UNRESOLVED** — the claim constrains the world. Escalates to you.
 
-TRUE and WITHIN_BOUNDS both deliver and are recorded as `witnessed`; only
-FRICTION and FALSE cost a redraft.
+TRUE and WITHIN_BOUNDS both deliver; only FRICTION and FALSE cost a redraft. What
+is recorded is the narrator's passage, written once the whole turn is through.
 
 A lore session is archived onto the turn that triggered it. When the silence is
 filled the conversation moves from the live chat into the turn record, along with

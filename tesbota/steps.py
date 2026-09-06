@@ -227,6 +227,10 @@ def step_explorer(campaign, turn):
 
 def step_narrate(campaign, turn):
     """The turn is over and it survived adjudication. The narrator sets it down."""
+    if not chronicle.played(turn):
+        turn["state"] = "done"
+        return campaign, turn
+
     written = chronicle.write(
         turn,
         now=turn.get("at") or worldclock.long_stamp(campaign.get("time")),

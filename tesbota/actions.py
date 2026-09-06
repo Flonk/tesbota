@@ -48,6 +48,7 @@ def snapshot():
                 "cue": cue,
                 "action": t.get("action"),
                 "narration": draft.get("narration"),
+                "chronicle": t.get("chronicle") or [],
             })
         if draft.get("claims") or t.get("verdicts") or t.get("correction"):
             machinery.append({
