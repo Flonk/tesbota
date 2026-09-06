@@ -1,6 +1,6 @@
 # 002 — deeplink the chronicle deterministically
 
-**Status:** todo
+**Status:** done
 
 ## Why
 
