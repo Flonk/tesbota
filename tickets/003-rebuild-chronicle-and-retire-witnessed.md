@@ -1,6 +1,6 @@
 # 003 — rebuild the chronicle, then retire `witnessed`
 
-**Status:** todo
+**Status:** done
 **Depends on:** 001, 002
 
 ## Why

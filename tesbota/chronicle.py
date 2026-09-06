@@ -119,6 +119,12 @@ def write(turn):
     return since(ord_)
 
 
+def clear():
+    """Take the book back to nothing, so it can be set down again in one voice."""
+    with db.writing() as con:
+        return con.execute("DELETE FROM passage WHERE book_id = ?", (CHRONICLE,)).rowcount
+
+
 def narrated(turn):
     return bool(turn.get("chronicle"))
 

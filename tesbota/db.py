@@ -130,6 +130,8 @@ def claim_check_is_old():
 
 
 REBUILD = """
+DROP VIEW IF EXISTS writing;
+DROP VIEW IF EXISTS unwritten;
 CREATE TABLE claim_rebuilt (
   id        INTEGER PRIMARY KEY,
   entity_id TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,

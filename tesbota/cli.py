@@ -187,16 +187,13 @@ def cmd_chronicle(args):
 
 def cmd_migrate(args):
     chronicle.ensure_book()
-    turns = all_turns()
-    pending = [t for t in turns if chronicle.played(t) and not chronicle.narrated(t)]
-
-    if pending and not args.no_backfill:
-        print(f"the narrator is writing the life so far — {len(pending)} turn(s)")
-        for turn in pending:
-            added = chronicle.write(turn, now=turn.get("at"), where=turn.get("location_path"))
-            turn["chronicle"] = added
-            save_turn(turn)
-            print(f"  {turn['turn_id']}  {len(added)} passage(s)")
+    print(f"the chronicle is being set down again — {chronicle.clear()} passage(s) dropped")
+    for turn in all_turns():
+        turn.pop("chronicle", None)
+        if chronicle.played(turn):
+            turn["chronicle"] = chronicle.write(turn)
+            print(f"  {turn['turn_id']}  {len(turn['chronicle'])} passage(s)")
+        save_turn(turn)
 
     dropped = db.retire_witnessed()
     print()
@@ -259,9 +256,7 @@ def main(argv=None):
     book.add_argument("-n", type=int, default=0)
     book.set_defaults(func=cmd_chronicle)
 
-    migrate = sub.add_parser("migrate")
-    migrate.add_argument("--no-backfill", action="store_true")
-    migrate.set_defaults(func=cmd_migrate)
+    sub.add_parser("migrate").set_defaults(func=cmd_migrate)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
 
