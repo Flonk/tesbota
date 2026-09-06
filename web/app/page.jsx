@@ -514,15 +514,15 @@ export default function Page() {
           <div className="tabright">
             {busy && <span className="stat gold">working…</span>}
             <Status status={status} />
-            <button
-              className="arrow"
+            <Btn
+              className="jump"
               onClick={() => go(count - 1)}
               disabled={at >= count - 1}
               aria-label="latest"
               title="jump to the latest turn"
             >
               »
-            </button>
+            </Btn>
             <Btn
               tone="gold"
               onClick={() => post("/api/step", null, "step")}

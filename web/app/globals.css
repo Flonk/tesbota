@@ -253,13 +253,7 @@ textarea {
 .stat { font: var(--mono); letter-spacing: .06em; color: var(--dim); white-space: nowrap; }
 .stat.warn { color: var(--warn); }
 .stat.gold { color: var(--gold); }
-.arrow {
-  flex: 0 0 auto;
-  background: none; border: none; color: var(--dim);
-  font-size: 1rem; line-height: 1; padding: .1rem .35rem; cursor: pointer;
-}
-.arrow:hover:not(:disabled) { color: var(--gold); }
-.arrow:disabled { opacity: .3; cursor: default; }
+.btn.jump { letter-spacing: 0; padding: .4rem .7rem; }
 
 .tabpanel { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: .9rem 1.2rem 1.4rem; }
 .tabpanel > div > .cap { margin-top: 1.2rem; }
