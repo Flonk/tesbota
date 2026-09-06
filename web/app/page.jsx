@@ -6,19 +6,7 @@ import Quests from "./Quests";
 import Library from "./Library";
 import Lore from "./Lore";
 import Map from "./Map";
-
-function Bar({ label, value, max, tone }) {
-  const pct = Math.max(0, Math.min(100, (value / max) * 100));
-  return (
-    <span className="bar" title={`${label} ${value}/${max}`}>
-      <span className="barlabel">{label}</span>
-      <span className="bartrack">
-        <span className={`barfill ${tone}`} style={{ width: `${pct}%` }} />
-      </span>
-      <span className="barnum">{value}</span>
-    </span>
-  );
-}
+import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, Note, Tag } from "./ui";
 
 const PHASE = {
   explorer: "deciding",
@@ -31,15 +19,13 @@ const PHASE = {
 function Status({ status }) {
   if (status.state === "awaiting_clock") {
     return (
-      <span className="muted">
+      <span className="stat">
         on the road{status.destination ? ` to ${status.destination}` : ""} — {status.wakesIn}
       </span>
     );
   }
-  if (status.state === "awaiting_human") {
-    return <span style={{ color: "var(--warn)" }}>the world is silent</span>;
-  }
-  return <span className="muted">{PHASE[status.state] || status.state}</span>;
+  if (status.state === "awaiting_human") return <span className="stat warn">the world is silent</span>;
+  return <span className="stat">{PHASE[status.state] || status.state}</span>;
 }
 
 function cost(minutes) {
@@ -62,6 +48,14 @@ function toll(x) {
 
 const SAID_LABEL = { action: "action", look: "looks", say: "says" };
 const GM_LABEL = { world: "what happens", answer: "the answer", outcome: "what happens" };
+const BAND = { common: "common", rare: "rare", very_rare: "very rare" };
+const VERDICT = {
+  TRUE: "good",
+  WITHIN_BOUNDS: "good",
+  FRICTION: "warn",
+  FALSE: "bad",
+  UNRESOLVED: "place",
+};
 
 function pairUp(phases) {
   const rows = [];
@@ -81,64 +75,44 @@ function pairUp(phases) {
   return rows;
 }
 
-function Section({ mode, label, kind, children, open }) {
-  if (mode === "compact") {
-    return (
-      <details className="sec sec-compact" open={open}>
-        <summary className="sec-label">{label}</summary>
-        <div className="sec-fold">{children}</div>
-      </details>
-    );
-  }
-  return (
-    <div className={`sec sec-${mode}${kind ? ` sec-${kind}` : ""}`}>
-      <p className="sec-label">{label}</p>
-      {children}
-    </div>
-  );
-}
-
 function Checked({ x }) {
   if (!x) return null;
-  if (x.status === "pending" && x.text) return <p className="sec-note">not yet checked</p>;
-  if (x.status === "blocked") {
-    return <p className="sec-note sec-blocked">the lore master has sent this back</p>;
-  }
+  if (x.status === "pending" && x.text) return <Note>not yet checked</Note>;
+  if (x.status === "blocked") return <Note tone="warn">the lore master has sent this back</Note>;
   return null;
 }
 
-const BAND = { common: "common", rare: "rare", very_rare: "very rare" };
-
 function Table({ rows, chosen, fortune }) {
   return (
-    <details className="sec sec-compact sec-table">
-      <summary className="sec-label">
-        six ways it could go
-        {typeof fortune === "number" ? ` · rolled ${fortune.toFixed(3)}` : ""}
-      </summary>
-      <div className="sec-fold">
-        {rows.map((r, n) => {
-          const hit = chosen && r.text === chosen.text && r.band === chosen.band;
-          return (
-            <p key={n} className={`outrow band-${r.band}${hit ? " hit" : ""}`}>
-              <span className="outband">{BAND[r.band] || r.band}</span>
-              <span className="outp">{(r.p * 100).toFixed(1)}%</span>
-              <span className="outtext">{r.text}</span>
-            </p>
-          );
-        })}
-      </div>
-    </details>
+    <Fold
+      className="sec-table"
+      label={`six ways it could go${
+        typeof fortune === "number" ? ` · rolled ${fortune.toFixed(3)}` : ""
+      }`}
+    >
+      {rows.map((r, n) => {
+        const hit = chosen && r.text === chosen.text && r.band === chosen.band;
+        return (
+          <p key={n} className={`outrow${hit ? " hit" : ""}`}>
+            <Tag tone={r.band === "very_rare" ? "place" : r.band === "rare" ? "warn" : "dim"}>
+              {BAND[r.band] || r.band}
+            </Tag>
+            <span className="outp">{(r.p * 100).toFixed(1)}%</span>
+            <span className="outtext">{r.text}</span>
+          </p>
+        );
+      })}
+    </Fold>
   );
 }
 
 function Check({ c }) {
   const bonus = `${c.bonus >= 0 ? "+" : ""}${c.bonus}`;
   return (
-    <p className={`sec-check ${c.passed ? "made" : "missed"}`}>
+    <Note tone={c.passed ? "good" : "bad"}>
       {c.skill} · d20 {c.roll} {bonus} = {c.total} vs dc {c.dc} ·{" "}
       {c.passed ? "made it" : "fell short"}
-    </p>
+    </Note>
   );
 }
 
@@ -146,35 +120,29 @@ function Pair({ said, told }) {
   const wide = said.kind === "action" || said.kind === "say";
   const label = [SAID_LABEL[said.kind] || said.kind, ...(told ? toll(told) : [])].join(" · ");
   return (
-    <Section mode="compact" open={wide || !told?.text} label={label}>
-      <p className="sec-body sec-asked">
-        {said.kind === "say" ? `“${said.text}”` : said.text}
-      </p>
+    <Fold open={wide || !told?.text} label={label}>
+      <p className="body said">{said.kind === "say" ? `“${said.text}”` : said.text}</p>
       {told?.check && <Check c={told.check} />}
       {told?.outcomes?.length > 0 && (
         <Table rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
       )}
       {told?.text ? (
-        <p className="sec-body sec-told">{told.text}</p>
+        <p className="body told">{told.text}</p>
       ) : (
-        <p className="sec-body sec-told sec-waiting">waiting for an answer…</p>
+        <p className="body told waiting">waiting for an answer…</p>
       )}
       <Checked x={told} />
-    </Section>
+    </Fold>
   );
 }
 
 function Alone({ x }) {
-  const label = [...toll(x)];
+  const label = toll(x);
   return (
-    <Section mode="gm" kind={x.kind} label={label.length ? label.join(" · ") : GM_LABEL[x.kind]}>
-      {x.text ? (
-        <p className="sec-body">{x.text}</p>
-      ) : (
-        <p className="sec-body sec-waiting">waiting for an answer…</p>
-      )}
+    <Block kind={x.kind} label={label.length ? label.join(" · ") : GM_LABEL[x.kind]}>
+      {x.text ? <p className="body told">{x.text}</p> : <p className="body waiting">waiting for an answer…</p>}
       <Checked x={x} />
-    </Section>
+    </Block>
   );
 }
 
@@ -183,21 +151,12 @@ function Head({ s, vitals }) {
   return (
     <div className="thead">
       <div className="theadl">
-        <div className="tid">
+        <div className="cap">
           {s.id}
           {s.at ? ` · ${s.at}` : ""}
           {s.cue ? ` · ${s.cue}` : ""}
         </div>
-        {s.where?.length > 0 && (
-          <div className="tplace">
-            {s.where.map((p, n) => (
-              <span key={p.id || n}>
-                {n > 0 && <span className="sep">›</span>}
-                {p.name}
-              </span>
-            ))}
-          </div>
-        )}
+        <Crumb where={s.where} />
         {s.quest && (
           <div className="tquest">
             <span className="qmark">◆</span>
@@ -211,6 +170,104 @@ function Head({ s, vitals }) {
         <Bar label="hun" value={v.hunger ?? 0} max={100} tone="hun" />
       </div>
     </div>
+  );
+}
+
+function Turn({ s, i, last, blocked, busy, pendingNote, noteOpen, setNoteOpen, note, setNote, post, vitals }) {
+  return (
+    <article>
+      <Head s={s} vitals={vitals} />
+
+      {pairUp(s.phases).map((r) =>
+        r.said ? <Pair key={r.key} said={r.said} told={r.told} /> : <Alone key={r.key} x={r.told} />
+      )}
+
+      {s.fate && (
+        <Note tone={s.fate.endsWith("fortune") ? "good" : "bad"}>
+          {s.fate.replace("_", " ")} — rolled {s.roll} of 400
+        </Note>
+      )}
+
+      {s.claims.length > 0 && (
+        <Fold
+          open={blocked && last}
+          label={`${s.claims.length} claim${s.claims.length > 1 ? "s" : ""}`}
+        >
+          {s.claims.map((c) => (
+            <div className="claim" key={c.key || c.id}>
+              <Tag tone={VERDICT[c.verdict?.result] || "dim"}>
+                {c.verdict?.result || "unruled"}
+              </Tag>
+              {c.text}
+              {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
+            </div>
+          ))}
+        </Fold>
+      )}
+
+      {s.lore.length > 0 && (
+        <Fold label={`lore session · ${s.lore.length} message${s.lore.length > 1 ? "s" : ""}`}>
+          {s.loreGap && <p className="body ask">{s.loreGap}</p>}
+          {s.lore.map((m, n) => (
+            <Bubble who={m.role} key={n}>
+              {m.text}
+            </Bubble>
+          ))}
+        </Fold>
+      )}
+
+      {s.note && (
+        <Block kind="note" label="your note">
+          <p className="body told">{s.note}</p>
+        </Block>
+      )}
+
+      {last && !blocked && (
+        <div className="steer">
+          {!noteOpen && (
+            <Btn
+              onClick={() => {
+                setNoteOpen(true);
+                setNote(pendingNote || "");
+              }}
+            >
+              {pendingNote ? "note queued — edit" : "note for the next turn"}
+            </Btn>
+          )}
+          {noteOpen && (
+            <>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="steer the game master — they will read this and the adventurer will not…"
+                disabled={!!busy}
+              />
+              <div className="actions">
+                <Btn
+                  onClick={() => {
+                    setNoteOpen(false);
+                    setNote("");
+                  }}
+                  disabled={!!busy}
+                >
+                  cancel
+                </Btn>
+                <Btn
+                  tone="gold"
+                  onClick={async () => {
+                    await post("/api/note", { text: note }, "note");
+                    setNoteOpen(false);
+                  }}
+                  disabled={!!busy}
+                >
+                  {busy === "note" ? "saving…" : "queue note"}
+                </Btn>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </article>
   );
 }
 
@@ -323,7 +380,6 @@ export default function Page() {
   if (!data) return <div className="empty pad">loading…</div>;
 
   const { status, slides, gap, chat, vitals, skills, inventory } = data;
-  const pendingNote = data.note;
   const quests = data.quests || [];
   const blocked = status.state === "awaiting_human";
   const open = quests.filter((q) => q.status === "active").length;
@@ -340,115 +396,26 @@ export default function Page() {
         <div className="deck" ref={deck} onScroll={onScroll}>
           {slides.map((s, i) => (
             <section className="slide" key={s.id}>
-              <article>
-                <Head s={s} vitals={vitals} />
-
-                {pairUp(s.phases).map((r) =>
-                  r.said ? (
-                    <Pair key={r.key} said={r.said} told={r.told} />
-                  ) : (
-                    <Alone key={r.key} x={r.told} />
-                  )
-                )}
-
-                {s.fate && (
-                  <div className={`fate ${s.fate.endsWith("fortune") ? "good" : "bad"}`}>
-                    {s.fate.replace("_", " ")} — rolled {s.roll} of 400
-                  </div>
-                )}
-
-                {s.claims.length > 0 && (
-                  <details className="sec sec-compact claims" open={blocked && i === count - 1}>
-                    <summary className="sec-label">
-                      {s.claims.length} claim{s.claims.length > 1 ? "s" : ""}
-                    </summary>
-                    {s.claims.map((c) => (
-                      <div className="claim" key={c.key || c.id}>
-                        <span className={`v ${c.verdict?.result || "UNRULED"}`}>
-                          {c.verdict?.result || "unruled"}
-                        </span>
-                        {c.text}
-                        {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
-                      </div>
-                    ))}
-                  </details>
-                )}
-
-                {s.lore.length > 0 && (
-                  <details className="sec sec-compact claims lorelog">
-                    <summary className="sec-label">
-                      lore session · {s.lore.length} message{s.lore.length > 1 ? "s" : ""}
-                    </summary>
-                    {s.loreGap && <div className="loregap">{s.loreGap}</div>}
-                    {s.lore.map((m, n) => (
-                      <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={n}>
-                        <span className="who">{m.role}</span>
-                        {m.text}
-                      </div>
-                    ))}
-                  </details>
-                )}
-
-                {s.note && (
-                  <div className="notewas">
-                    <span className="who">your note</span>
-                    {s.note}
-                  </div>
-                )}
-
-                {i === count - 1 && !blocked && (
-                  <div className="steer">
-                    {!noteOpen && (
-                      <button
-                        className="ghost"
-                        onClick={() => {
-                          setNoteOpen(true);
-                          setNote(pendingNote || "");
-                        }}
-                      >
-                        {pendingNote ? "note queued — edit" : "note for the next turn"}
-                      </button>
-                    )}
-                    {noteOpen && (
-                      <>
-                        <textarea
-                          value={note}
-                          onChange={(e) => setNote(e.target.value)}
-                          placeholder="steer the game master — they will read this and the adventurer will not…"
-                          disabled={!!busy}
-                        />
-                        <div className="actions">
-                          <button
-                            className="ghost"
-                            onClick={() => {
-                              setNoteOpen(false);
-                              setNote("");
-                            }}
-                            disabled={!!busy}
-                          >
-                            cancel
-                          </button>
-                          <button
-                            onClick={async () => {
-                              await post("/api/note", { text: note }, "note");
-                              setNoteOpen(false);
-                            }}
-                            disabled={!!busy}
-                          >
-                            {busy === "note" ? "saving…" : "queue note"}
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </article>
+              <Turn
+                s={s}
+                i={i}
+                last={i === count - 1}
+                blocked={blocked}
+                busy={busy}
+                pendingNote={data.note}
+                noteOpen={noteOpen}
+                setNoteOpen={setNoteOpen}
+                note={note}
+                setNote={setNote}
+                post={post}
+                vitals={vitals}
+              />
             </section>
           ))}
           {count === 0 && (
             <section className="slide">
               <article>
-                <p className="empty">nothing has happened yet</p>
+                <Empty>nothing has happened yet</Empty>
               </article>
             </section>
           )}
@@ -461,7 +428,7 @@ export default function Page() {
             {TABS.map((t) => (
               <button
                 key={t.id}
-                className={`tab ${tab === t.id ? "on" : ""}`}
+                className={`tab${tab === t.id ? " on" : ""}`}
                 onClick={() => setTab(t.id)}
               >
                 {t.label}
@@ -471,20 +438,24 @@ export default function Page() {
             ))}
           </div>
           <div className="tabright">
-            {busy && <span className="working">working…</span>}
-            <span className="stat"><Status status={status} /></span>
+            {busy && <span className="stat gold">working…</span>}
+            <Status status={status} />
             <span className="jump">
-              <button className="arrow" onClick={() => go(at - 1)} disabled={at <= 0} aria-label="earlier">‹</button>
+              <button className="arrow" onClick={() => go(at - 1)} disabled={at <= 0} aria-label="earlier">
+                ‹
+              </button>
               <span className="counter">{count ? `${at + 1}/${count}` : "—"}</span>
-              <button className="arrow" onClick={() => go(at + 1)} disabled={at >= count - 1} aria-label="later">›</button>
+              <button className="arrow" onClick={() => go(at + 1)} disabled={at >= count - 1} aria-label="later">
+                ›
+              </button>
             </span>
-            <button
-              className="nextstep"
+            <Btn
+              tone="gold"
               onClick={() => post("/api/step", null, "step")}
               disabled={!!busy || blocked}
             >
               {busy === "step" ? "…" : "next step"}
-            </button>
+            </Btn>
           </div>
         </div>
 

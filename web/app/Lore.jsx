@@ -1,23 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { Btn, Bubble, Cap, Empty } from "./ui";
 
 export default function Lore({ gap, chat = [], busy, blocked, onSay }) {
   const [text, setText] = useState("");
   return (
     <div className="lore">
-      {blocked ? (
-        <h2>the world is silent here</h2>
-      ) : (
-        <h2 className="quiet">nothing is being asked of you</h2>
-      )}
-      {blocked && gap?.text && <div className="gaptext">{gap.text}</div>}
-      {chat.length === 0 && !blocked && <p className="empty">no words yet</p>}
+      <Cap>{blocked ? "the world is silent here" : "nothing is being asked of you"}</Cap>
+      {blocked && gap?.text && <p className="body ask">{gap.text}</p>}
+      {chat.length === 0 && !blocked && <Empty>no words yet</Empty>}
       {chat.map((m, i) => (
-        <div className={`bubble ${m.role === "you" ? "you" : ""}`} key={i}>
-          <span className="who">{m.role}</span>
+        <Bubble who={m.role} key={i}>
           {m.text}
-        </div>
+        </Bubble>
       ))}
       {blocked && (
         <>
@@ -28,7 +24,8 @@ export default function Lore({ gap, chat = [], busy, blocked, onSay }) {
             disabled={!!busy}
           />
           <div className="actions">
-            <button
+            <Btn
+              tone="gold"
               onClick={async () => {
                 const t = text;
                 setText("");
@@ -37,7 +34,7 @@ export default function Lore({ gap, chat = [], busy, blocked, onSay }) {
               disabled={!!busy || !text.trim()}
             >
               {busy === "say" ? "thinking…" : "send"}
-            </button>
+            </Btn>
           </div>
         </>
       )}

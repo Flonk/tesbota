@@ -1,5 +1,7 @@
 "use client";
 
+import { Cap, Empty } from "./ui";
+
 const SKILL_ABILITY = {
   acrobatics: "dex",
   "animal handling": "wis",
@@ -37,14 +39,14 @@ export default function Sheet({ vitals, skills, inventory = [], notebook = [] })
   return (
     <div className="cols">
       <div>
-        <h3>condition</h3>
+        <Cap>condition</Cap>
         <div className="rows">
           <span>health</span><span>{vitals?.health ?? 100} / 100</span>
           <span>fatigue</span><span>{vitals?.fatigue ?? 0} / 100</span>
           <span>hunger</span><span>{vitals?.hunger ?? 0} / 100</span>
         </div>
 
-        <h3>abilities</h3>
+        <Cap>abilities</Cap>
         <div className="rows">
           {ABILITIES.map((a) => (
             <span key={a} className="ability">
@@ -53,32 +55,32 @@ export default function Sheet({ vitals, skills, inventory = [], notebook = [] })
           ))}
         </div>
 
-        <h3>carrying</h3>
-        {inventory.length === 0 && <p className="empty">nothing</p>}
+        <Cap>carrying</Cap>
+        {inventory.length === 0 && <Empty />}
         {worn.length > 0 && <div className="invgroup">worn</div>}
         {worn.map((i, n) => (
           <div className="item" key={`w${n}`}>
             {i.name}{i.qty > 1 ? ` ×${i.qty}` : ""}
-            {i.note && <span className="note">{i.note}</span>}
+            {i.note && <span className="itemnote">{i.note}</span>}
           </div>
         ))}
         {carried.length > 0 && <div className="invgroup">carried</div>}
         {carried.map((i, n) => (
           <div className="item" key={`c${n}`}>
             {i.name}{i.qty > 1 ? ` ×${i.qty}` : ""}
-            {i.note && <span className="note">{i.note}</span>}
+            {i.note && <span className="itemnote">{i.note}</span>}
           </div>
         ))}
       </div>
 
       <div>
-        <h3>notebook</h3>
-        {notebook.length === 0 && <p className="empty">nothing written</p>}
+        <Cap>notebook</Cap>
+        {notebook.length === 0 && <Empty>nothing written</Empty>}
         {notebook.map((n, i) => (
           <div className="item" key={i}>{n}</div>
         ))}
 
-        <h3>skills</h3>
+        <Cap>skills</Cap>
         {Object.keys(SKILL_ABILITY).sort().map((name) => {
           const trained = proficient.has(name);
           const total = mod(abilities[SKILL_ABILITY[name]]) + (trained ? bonus : 0);

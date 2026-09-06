@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Empty, Tag } from "./ui";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
+const TONE = { unique: "gold", rare: "warn", uncommon: "good", common: "dim" };
 
 export default function Library() {
   const [books, setBooks] = useState(null);
@@ -19,25 +21,23 @@ export default function Library() {
   }, []);
 
   const shelf = books || [];
-  const sorted = [...shelf].sort(
-    (a, b) => ORDER.indexOf(a.rarity) - ORDER.indexOf(b.rarity)
-  );
+  const sorted = [...shelf].sort((a, b) => ORDER.indexOf(a.rarity) - ORDER.indexOf(b.rarity));
 
   return (
     <div className="shelf">
-      {books === null && <p className="empty">reading the shelves…</p>}
-      {books !== null && shelf.length === 0 && <p className="empty">nothing written yet</p>}
+      {books === null && <Empty>reading the shelves…</Empty>}
+      {books !== null && shelf.length === 0 && <Empty>nothing written yet</Empty>}
 
       {sorted.map((b) => (
         <div className="book" key={b.id}>
           <div className="btitle">
             {b.name}
-            {b.godhead && <span className="godhead">godhead</span>}
+            {b.godhead && <Tag tone="gold">godhead</Tag>}
           </div>
-          <div className="bline">
-            <span className="bauthor">{b.author || "unattributed"}</span>
+          <div className="cap bline">
+            <span>{b.author || "unattributed"}</span>
             <span className="bdate">[{b.written || "—"}]</span>
-            {b.rarity && <span className={`brarity r-${b.rarity}`}>{b.rarity}</span>}
+            {b.rarity && <Tag tone={TONE[b.rarity] || "dim"}>{b.rarity}</Tag>}
           </div>
         </div>
       ))}
