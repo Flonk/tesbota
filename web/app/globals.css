@@ -307,6 +307,7 @@ textarea {
 .mapclock { position: absolute; right: 1rem; bottom: .5rem; font: var(--mono); color: var(--dim); }
 
 .lore .cap { color: var(--warn); }
+.lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }
 
 .error {
   flex: 0 0 auto;
