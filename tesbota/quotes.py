@@ -1,6 +1,7 @@
 import re
 
-from .config import ROOT, STUB
+from . import canon, db
+from .config import STUB
 
 WS = re.compile(r"\s+")
 
@@ -17,22 +18,47 @@ def verify(quotes):
         if not src or not text.strip():
             failures.append({"src": src, "reason": "quote is missing src or text"})
             continue
-        path = (ROOT / src).resolve()
-        try:
-            path.relative_to(ROOT.resolve())
-        except ValueError:
-            failures.append({"src": src, "reason": "src escapes the repository"})
+
+        found = db.targets(src)
+        if not found or found[0][0] != "books":
+            failures.append({"src": src, "reason": "src must be a book deeplink, like bota://books/some-book#p3"})
             continue
-        if not path.exists():
-            failures.append({"src": src, "reason": "no such file"})
+
+        _, book_id, fragment = found[0]
+        if not canon.find_entity(book_id):
+            failures.append({"src": src, "reason": "no such book"})
             continue
-        body = path.read_text(encoding="utf-8")
+        if not fragment.startswith("p"):
+            failures.append({"src": src, "reason": "src must name the passage you quoted, like #p3"})
+            continue
         if STUB in text:
             failures.append({
                 "src": src,
                 "reason": f"the quoted passage is marked {STUB} — it is not written yet and cannot be read out",
             })
             continue
-        if normalise(text) not in normalise(body):
-            failures.append({"src": src, "reason": "quoted text is not verbatim in the source"})
+
+        row = canon.passage(book_id, int(fragment[1:]))
+        if row is None:
+            failures.append({"src": src, "reason": f"{book_id} has no passage {fragment}"})
+            continue
+        if STUB in row["text"]:
+            failures.append({
+                "src": src,
+                "reason": f"the quoted passage is marked {STUB} — it is not written yet and cannot be read out",
+            })
+            continue
+        if normalise(text) in normalise(row["text"]):
+            continue
+
+        elsewhere = [
+            p["ord"] for p in canon.passages(book_id) if normalise(text) in normalise(p["text"])
+        ]
+        if elsewhere:
+            failures.append({
+                "src": src,
+                "reason": f"that text is passage #p{elsewhere[0]} of this book, not {fragment} — cite it correctly",
+            })
+        else:
+            failures.append({"src": src, "reason": "quoted text is not verbatim in that passage"})
     return failures

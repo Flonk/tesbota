@@ -1,6 +1,7 @@
 import threading
 
 from . import canon, driver, prompts, view
+from .gate import sqlite_gate
 from .config import MODELS, STATE, WRITE_TOOLS
 from .sdk import ask
 from .state import (
@@ -88,6 +89,7 @@ def say(text):
         message,
         system=prompts.LORE3_SYSTEM,
         tools=WRITE_TOOLS,
+        permission=sqlite_gate(readonly=False),
         session=session,
         model=MODELS["lore3"],
     )

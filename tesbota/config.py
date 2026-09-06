@@ -2,6 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CANON = ROOT / "canon"
+CANON_DB = ROOT / "canon.db"
 STATE = ROOT / "state"
 TURNS = STATE / "turns"
 PENDING = ROOT / "pending"
@@ -9,8 +10,8 @@ CAMPAIGN = STATE / "campaign.json"
 
 KINDS = ("people", "places", "books", "items")
 
-READ_TOOLS = ["Read", "Glob", "Grep"]
-WRITE_TOOLS = ["Read", "Glob", "Grep", "Write", "Edit"]
+READ_TOOLS = ["Bash"]
+WRITE_TOOLS = ["Bash"]
 
 MAX_GM_RETRIES = 3
 

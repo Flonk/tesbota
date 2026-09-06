@@ -1,4 +1,5 @@
 import { execFile, spawn } from "node:child_process";
+import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
@@ -138,45 +139,69 @@ function alive(pid) {
   }
 }
 
-const BOOKS = path.join(ROOT, "canon", "books");
+const CANON = path.join(ROOT, "canon.db");
 
-function frontmatter(text) {
-  const match = /^---\n([\s\S]*?)\n---/.exec(text);
-  const out = {};
-  if (!match) return out;
-  for (const line of match[1].split("\n")) {
-    const at = line.indexOf(":");
-    if (at < 1) continue;
-    out[line.slice(0, at).trim()] = line
-      .slice(at + 1)
-      .trim()
-      .replace(/^["']|["']$/g, "");
-  }
-  return out;
+function canon() {
+  return new DatabaseSync(`file:${CANON}?mode=ro`, { open: true });
 }
 
 export async function library() {
-  let names = [];
+  let db;
   try {
-    names = (await fs.readdir(BOOKS)).filter((n) => n.endsWith(".md"));
+    db = canon();
   } catch {
     return [];
   }
-  const shelf = [];
-  for (const name of names.sort()) {
-    const front = frontmatter(await fs.readFile(path.join(BOOKS, name), "utf8"));
-    const author = (front.author || "").trim();
-    shelf.push({
-      id: name.replace(/\.md$/, ""),
-      name: front.name || name.replace(/\.md$/, "").replace(/-/g, " "),
-      author,
-      written: (front.written || "").includes("$BOTA") ? "" : front.written || "",
-      rarity: (front.rarity || "").toLowerCase(),
-      godhead: author.toLowerCase() === "the godhead",
-    });
+  try {
+    const rows = db
+      .prepare(
+        `SELECT e.id, e.name, b.author, b.author_id, b.written, b.rarity,
+                (SELECT count(*) FROM passage p WHERE p.book_id = b.id) AS passages
+           FROM book b JOIN entity e ON e.id = b.id
+          ORDER BY lower(e.name)`
+      )
+      .all();
+    return rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      author: (r.author || "").trim(),
+      authorId: r.author_id || null,
+      written: (r.written || "").includes("$BOTA") ? "" : r.written || "",
+      rarity: (r.rarity || "").toLowerCase(),
+      passages: r.passages,
+      godhead: (r.author || "").trim().toLowerCase() === "the godhead",
+    }));
+  } finally {
+    db.close();
   }
-  shelf.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-  return shelf;
+}
+
+export async function look(question) {
+  const text = (question || "").trim();
+  if (!text) return [];
+  let db;
+  try {
+    db = canon();
+  } catch {
+    return [];
+  }
+  try {
+    const rows = db
+      .prepare(
+        `SELECT s.ref, s.entity, s.section,
+                snippet(search, 3, '<<', '>>', '…', 14) AS hit,
+                coalesce(e.name, s.entity) AS name, e.kind
+           FROM search s LEFT JOIN entity e ON e.id = s.entity
+          WHERE search MATCH ?
+          ORDER BY rank LIMIT 40`
+      )
+      .all(text);
+    return rows;
+  } catch (err) {
+    return [{ error: String(err.message || err) }];
+  } finally {
+    db.close();
+  }
 }
 
 export async function job() {

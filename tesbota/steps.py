@@ -3,6 +3,7 @@ import json
 from . import canon, prompts, quotes, sheet, worldclock
 import random
 
+from .gate import sqlite_gate
 from .config import (
     BANDS,
     BAND_WEIGHT,
@@ -25,7 +26,6 @@ from .config import (
     READ_TOOLS,
     TRIVIAL_FATIGUE,
     TRIVIAL_MINUTES,
-    WRITE_TOOLS,
 )
 from .sdk import ask, extract_json
 
@@ -235,6 +235,7 @@ def step_answer(campaign, turn):
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
+        permission=sqlite_gate(),
         session=campaign["sessions"]["gm"],
         model=MODELS["gm"],
     )
@@ -272,6 +273,7 @@ def step_propose(campaign, turn):
         ),
         system=prompts.GM_PROPOSE_SYSTEM,
         tools=READ_TOOLS,
+        permission=sqlite_gate(),
         session=None,
         model=MODELS["gm"],
     )
@@ -284,6 +286,7 @@ def step_propose(campaign, turn):
             prompts.lore1_query(question),
             system=prompts.LORE1_QUERY_SYSTEM,
             tools=READ_TOOLS,
+            permission=sqlite_gate(),
             session=None,
             model=MODELS["lore1"],
         )
@@ -400,6 +403,7 @@ def step_gm(campaign, turn):
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
+        permission=sqlite_gate(),
         session=campaign["sessions"]["gm"],
         model=MODELS["gm"],
     )
@@ -483,7 +487,8 @@ def step_lore1(campaign, turn):
         text, _ = ask(
             prompts.lore1_turn(claims),
             system=prompts.LORE1_SYSTEM,
-            tools=WRITE_TOOLS,
+            tools=READ_TOOLS,
+            permission=sqlite_gate(),
             session=None,
             model=MODELS["lore1"],
         )

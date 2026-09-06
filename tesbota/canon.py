@@ -1,99 +1,208 @@
-import re
+from . import db
+from .config import FORBIDDEN_AUTHORS, GODHEAD, KINDS, STUB
 
-import yaml
-
-from .config import CANON, FORBIDDEN_AUTHORS, GODHEAD, KINDS, STUB
-
-LINK = re.compile(r"\[\[([^\]|#]+)")
-WITNESSED = "## Witnessed"
-ATTESTED = "## Attested"
+WITNESSED = "witnessed"
+ATTESTED = "attested"
+MAP = "map"
 
 
-def entity_path(kind, entity_id):
-    return CANON / kind / f"{entity_id}.md"
+def slug(text):
+    return "-".join(str(text or "").split()).strip("-").lower()
 
 
 def find_entity(entity_id):
-    for kind in KINDS:
-        path = entity_path(kind, entity_id)
-        if path.exists():
-            return path
-    return None
+    return db.row("SELECT * FROM entity WHERE id = ?", (slug(entity_id),))
 
 
-SECTIONS = {
-    "places": ["## Map", "## Attested", "## Witnessed"],
-    "books": ["## Text"],
-    "people": ["## Attested", "## Witnessed"],
-    "items": ["## Attested", "## Witnessed"],
-}
+def kind_of(entity_id):
+    return db.value("SELECT kind FROM entity WHERE id = ?", (slug(entity_id),))
 
 
 def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
-    path = entity_path(kind, entity_id)
-    if path.exists():
-        return path
-    path.parent.mkdir(parents=True, exist_ok=True)
+    entity_id = slug(entity_id)
+    if kind not in KINDS:
+        kind = "places"
+    with db.writing() as con:
+        con.execute(
+            "INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)",
+            (entity_id, kind, name or entity_id.replace("-", " ").title(), turn_id),
+        )
+        if kind == "books":
+            author = author or "unknown"
+            con.execute(
+                "INSERT OR IGNORE INTO book (id, author, author_id) VALUES (?,?,?)",
+                (entity_id, author, db.value("SELECT id FROM entity WHERE id = ? AND kind = 'people'", (slug(author),))),
+            )
+    return entity_id
 
-    front = [
-        "---",
-        f"id: {entity_id}",
-        f"kind: {kind[:-1] if kind.endswith('s') else kind}",
-        f"name: {name or entity_id.replace('-', ' ').title()}",
+
+def append_section(entity_id, turn_id, text, kind="places", section=WITNESSED):
+    entity_id = slug(entity_id)
+    if not find_entity(entity_id):
+        ensure_entity(kind, entity_id, turn_id=turn_id)
+    with db.writing() as con:
+        con.execute(
+            "INSERT OR IGNORE INTO claim (entity_id, section, turn_id, text) VALUES (?,?,?,?)",
+            (entity_id, section, turn_id, text.strip()),
+        )
+    return entity_id
+
+
+def append_witnessed(entity_id, turn_id, text, kind="places"):
+    return append_section(entity_id, turn_id, text, kind=kind, section=WITNESSED)
+
+
+def append_attested(entity_id, turn_id, text, kind="places"):
+    return append_section(entity_id, turn_id, text, kind=kind, section=ATTESTED)
+
+
+def claims(entity_id, section=None):
+    if section:
+        return db.rows(
+            "SELECT * FROM claim WHERE entity_id = ? AND section = ? ORDER BY id", (slug(entity_id), section)
+        )
+    return db.rows("SELECT * FROM claim WHERE entity_id = ? ORDER BY section, id", (slug(entity_id),))
+
+
+def passages(book_id):
+    return db.rows("SELECT * FROM passage WHERE book_id = ? ORDER BY ord", (slug(book_id),))
+
+
+def passage(book_id, ord):
+    return db.row("SELECT * FROM passage WHERE book_id = ? AND ord = ?", (slug(book_id), ord))
+
+
+def exits(place_id):
+    return [
+        {"to": r["dst"], "bearing": r["bearing"] or "", "distance": r["distance"] or ""}
+        for r in db.rows("SELECT * FROM edge WHERE src = ? AND rel = 'exits' ORDER BY dst", (slug(place_id),))
     ]
-    if kind == "books":
-        front.append(f"author: {author or 'unknown'}")
-    if kind == "places":
-        front += ["within:", "contains: []", "exits: []"]
-    if turn_id:
-        front.append(f"introduced: {turn_id}")
-    front.append("---")
-
-    body = "\n".join(front) + "\n\n" + "\n\n".join(SECTIONS.get(kind, ["## Attested", "## Witnessed"]))
-    path.write_text(body + "\n", encoding="utf-8")
-    return path
 
 
-def frontmatter(path):
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---"):
-        return {}
-    block = text.split("---", 2)[1]
-    try:
-        data = yaml.safe_load(block)
-    except yaml.YAMLError:
-        return {}
-    return data if isinstance(data, dict) else {}
+def within(place_id):
+    return db.value("SELECT dst FROM edge WHERE src = ? AND rel = 'within'", (slug(place_id),))
 
 
-def exits(path):
+def contains(place_id):
+    return [r["src"] for r in db.rows("SELECT src FROM edge WHERE rel = 'within' AND dst = ? ORDER BY src", (slug(place_id),))]
+
+
+def ancestry(place_id):
+    rows = db.rows(
+        """
+        WITH RECURSIVE up(id, depth) AS (
+          SELECT ?, 0
+          UNION
+          SELECT e.dst, up.depth + 1 FROM edge e JOIN up ON e.src = up.id AND e.rel = 'within' WHERE up.depth < 24
+        )
+        SELECT up.id, coalesce(entity.name, replace(up.id, '-', ' ')) AS name, up.depth
+          FROM up LEFT JOIN entity ON entity.id = up.id
+         ORDER BY up.depth DESC
+        """,
+        (slug(place_id),),
+    )
+    return [{"id": r["id"], "name": r["name"]} for r in rows if r["id"]]
+
+
+def library():
+    shelf = []
+    for r in db.rows(
+        """
+        SELECT e.id, e.name, b.author, b.author_id, b.written, b.rarity
+          FROM book b JOIN entity e ON e.id = b.id
+         ORDER BY lower(e.name)
+        """
+    ):
+        shelf.append({
+            "id": r["id"],
+            "name": r["name"],
+            "author": r["author"] or "",
+            "author_id": r["author_id"],
+            "written": r["written"] or "",
+            "rarity": (r["rarity"] or "").lower(),
+            "godhead": (r["author"] or "").strip().lower() == GODHEAD,
+        })
+    return shelf
+
+
+def godhead_books():
+    return [r["id"] for r in db.rows("SELECT id FROM book WHERE lower(trim(author)) = ?", (GODHEAD,))]
+
+
+def is_godhead(book_id):
+    return (db.value("SELECT author FROM book WHERE id = ?", (slug(book_id),)) or "").strip().lower() == GODHEAD
+
+
+def illegal_books():
+    return [
+        r["id"] for r in db.rows("SELECT id, lower(trim(author)) a FROM book")
+        if r["a"] in FORBIDDEN_AUTHORS
+    ]
+
+
+def orphan_places():
+    return [
+        r["id"] for r in db.rows(
+            """
+            SELECT e.id FROM entity e
+             WHERE e.kind = 'places'
+               AND NOT EXISTS (SELECT 1 FROM edge WHERE src = e.id AND rel = 'within')
+             ORDER BY e.id
+            """
+        )
+    ]
+
+
+def all_entities():
+    return {r["id"]: r["kind"] for r in db.rows("SELECT id, kind FROM entity ORDER BY kind, id")}
+
+
+def stubs():
     out = []
-    for entry in frontmatter(path).get("exits") or []:
-        if isinstance(entry, dict) and entry.get("to"):
-            out.append({
-                "to": slug(str(entry["to"]).strip("[]")),
-                "bearing": str(entry.get("bearing") or "").strip(),
-                "distance": str(entry.get("distance") or "").strip(),
-            })
+    for r in db.rows("SELECT ref, body FROM writing WHERE body LIKE ? ORDER BY ref", (f"%{STUB}%",)):
+        out.append((r["ref"], " ".join(r["body"].split())))
+    for r in db.rows("SELECT id, kind FROM unwritten ORDER BY kind, id"):
+        out.append((db.link(r["kind"], r["id"]), "nothing written yet"))
+    for r in db.rows("SELECT id FROM book WHERE written IS NULL OR trim(written) = '' ORDER BY id"):
+        out.append((db.link("books", r["id"]), "no date of writing"))
     return out
+
+
+def dangling_links():
+    gaps = {}
+    known = set(all_entities())
+    for r in db.rows("SELECT ref, entity, body FROM writing WHERE body LIKE '%bota://%'"):
+        for kind, ident, _ in db.targets(r["body"]):
+            if ident in known:
+                continue
+            sources = gaps.setdefault(f"{kind}/{ident}", [])
+            if r["entity"] not in sources:
+                sources.append(r["entity"])
+    return gaps
+
+
+def mentions(entity_id):
+    entity_id = slug(entity_id)
+    return db.rows(
+        """
+        SELECT ref, entity, section FROM writing WHERE body LIKE ?
+        UNION ALL
+        SELECT 'bota://books/' || id, id, 'author' FROM book WHERE author_id = ?
+        """,
+        (f"%/{entity_id}%", entity_id),
+    )
 
 
 def graph():
     nodes, edges, links = {}, [], []
-    directory = CANON / "places"
-    if not directory.exists():
-        return nodes, edges, links
-    for path in sorted(directory.glob("*.md")):
-        fm = frontmatter(path)
-        nodes[path.stem] = {
-            "name": str(fm.get("name") or path.stem),
-            "stub": STUB in path.read_text(encoding="utf-8"),
-        }
-        within = str(fm.get("within") or "").strip().strip("[]")
-        if within and within != STUB:
-            links.append((slug(within), path.stem))
-        for exit in exits(path):
-            edges.append((path.stem, exit["to"], exit["bearing"], exit["distance"]))
+    unwritten = {r["id"] for r in db.rows("SELECT id FROM unwritten")}
+    for r in db.rows("SELECT id, name FROM entity WHERE kind = 'places' ORDER BY id"):
+        nodes[r["id"]] = {"name": r["name"], "stub": r["id"] in unwritten}
+    for r in db.rows("SELECT src, rel, dst, bearing, distance FROM edge ORDER BY src, rel, dst"):
+        if r["rel"] == "within":
+            links.append((r["dst"], r["src"]))
+        else:
+            edges.append((r["src"], r["dst"], r["bearing"] or "", r["distance"] or ""))
     return nodes, edges, links
 
 
@@ -136,156 +245,8 @@ def mermaid():
         arrow = f"-- {label} -->" if label else "-->"
         out.append(f"  {src} {arrow} {dst}")
 
-    stubs = [i for i, m in sorted(nodes.items()) if m["stub"] and not children.get(i)]
-    if stubs:
+    stubs_ = [i for i, m in sorted(nodes.items()) if m["stub"] and not children.get(i)]
+    if stubs_:
         out.append("  classDef unwritten stroke-dasharray: 4 3")
-        out.append(f"  class {','.join(stubs)} unwritten")
+        out.append(f"  class {','.join(stubs_)} unwritten")
     return "\n".join(out)
-
-
-def is_godhead(path):
-    return frontmatter(path).get("author", "").strip().lower() == GODHEAD
-
-
-def library():
-    directory = CANON / "books"
-    if not directory.exists():
-        return []
-    shelf = []
-    for path in sorted(directory.glob("*.md")):
-        front = frontmatter(path)
-        shelf.append({
-            "id": path.stem,
-            "name": str(front.get("name") or path.stem.replace("-", " ")),
-            "author": str(front.get("author") or "").strip(),
-            "written": str(front.get("written") or "").strip(),
-            "rarity": str(front.get("rarity") or "").strip().lower(),
-            "godhead": str(front.get("author") or "").strip().lower() == GODHEAD,
-        })
-    shelf.sort(key=lambda b: b["name"].lower())
-    return shelf
-
-
-def godhead_books():
-    directory = CANON / "books"
-    if not directory.exists():
-        return []
-    return [p for p in sorted(directory.glob("*.md")) if is_godhead(p)]
-
-
-def append_section(entity_id, turn_id, text, kind="places", section=WITNESSED):
-    path = find_entity(entity_id) or ensure_entity(kind, entity_id, turn_id=turn_id)
-    body = path.read_text(encoding="utf-8").rstrip("\n")
-    line = f"- {turn_id} — {text.strip()}"
-    if text.strip() in body:
-        return path
-    if section in body:
-        head, _, tail = body.partition(section)
-        rest = tail
-        following = None
-        for other in (WITNESSED, ATTESTED, "## Map"):
-            if other != section and other in rest:
-                at = rest.index(other)
-                if following is None or at < following:
-                    following = at
-        if following is None:
-            body = head + section + rest.rstrip("\n") + "\n" + line
-        else:
-            body = head + section + rest[:following].rstrip("\n") + "\n" + line + "\n\n" + rest[following:].rstrip("\n")
-    else:
-        body = body + "\n\n" + section + "\n" + line
-    path.write_text(body + "\n", encoding="utf-8")
-    return path
-
-
-def append_witnessed(entity_id, turn_id, text, kind="places"):
-    return append_section(entity_id, turn_id, text, kind=kind, section=WITNESSED)
-
-
-def append_attested(entity_id, turn_id, text, kind="places"):
-    return append_section(entity_id, turn_id, text, kind=kind, section=ATTESTED)
-
-
-def stubs():
-    out = []
-    for kind in KINDS:
-        directory = CANON / kind
-        if not directory.exists():
-            continue
-        for path in sorted(directory.glob("*.md")):
-            for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-                if STUB in line:
-                    out.append((str(path.relative_to(CANON.parent)), n, line.strip()))
-    return out
-
-
-def ancestry(place_id):
-    chain = []
-    seen = set()
-    current = slug(str(place_id or "").strip("[]"))
-    while current and current not in seen:
-        seen.add(current)
-        path = entity_path("places", current)
-        if not path.exists():
-            chain.append({"id": current, "name": current.replace("-", " ")})
-            break
-        data = frontmatter(path)
-        chain.append({"id": current, "name": str(data.get("name") or current)})
-        within = str(data.get("within") or "").strip().strip("[]")
-        if not within or within == STUB:
-            break
-        current = slug(within)
-    return list(reversed(chain))
-
-
-def illegal_books():
-    directory = CANON / "books"
-    if not directory.exists():
-        return []
-    out = []
-    for path in sorted(directory.glob("*.md")):
-        author = frontmatter(path).get("author", "").strip().lower()
-        if author in FORBIDDEN_AUTHORS:
-            out.append(path.stem)
-    return out
-
-
-def orphan_places():
-    directory = CANON / "places"
-    if not directory.exists():
-        return []
-    out = []
-    for path in sorted(directory.glob("*.md")):
-        within = frontmatter(path).get("within", "").strip()
-        if not within:
-            out.append(path.stem)
-    return out
-
-
-def all_entities():
-    found = {}
-    for kind in KINDS:
-        directory = CANON / kind
-        if not directory.exists():
-            continue
-        for path in sorted(directory.glob("*.md")):
-            found[path.stem] = path
-    return found
-
-
-def slug(text):
-    return "-".join(text.split()).strip("-").lower()
-
-
-def dangling_links():
-    entities = all_entities()
-    known = {slug(name) for name in entities}
-    gaps = {}
-    for entity_id, path in entities.items():
-        for target in LINK.findall(path.read_text(encoding="utf-8")):
-            target = slug(target)
-            if target and target not in known:
-                sources = gaps.setdefault(target, [])
-                if entity_id not in sources:
-                    sources.append(entity_id)
-    return gaps

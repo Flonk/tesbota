@@ -18,23 +18,23 @@ a rule anyone is asked to respect.
 | **Lore master 1** | Bare claims | read | stateless |
 | **Lore master 3** | A silence in the world | read/write | per sitting |
 
-The Explorer has no file access at all, so the game master must reproduce book
-text **verbatim** — and the driver diffs every quotation against its source file
-before the Explorer sees it. It is the only assertion in the system that can be
-checked with `==`.
+The Explorer cannot see the world at all, so the game master must reproduce book
+text **verbatim** — and the driver diffs every quotation against the passage it
+cites before the Explorer sees it. It is the only assertion in the system that
+can be checked with `==`.
 
 Lore master 3 has never heard of an adventurer. It thinks it is cataloguing a
 library.
 
 ## What is true
 
-There is no codex and no omniscient narrator. `canon/` is a pile of markdown by
+There is no codex and no omniscient narrator. `canon.db` is a pile of documents by
 authors who are biased, mistaken, or lying, and they contradict each other
 constantly. That is the texture, not a defect.
 
-Exactly one thing is ground truth: the `## Witnessed` section of an entity file
-— what the adventurer directly perceived. It cannot be contradicted. Everything
-under `## Attested` is testimony and may be contradicted freely.
+Exactly one thing is ground truth: a claim whose `section` is `witnessed` — what
+the adventurer directly perceived. It cannot be contradicted. Every `attested`
+claim is testimony and may be contradicted freely.
 
 So lore master 1 returns four verdicts:
 
@@ -47,8 +47,8 @@ Nothing becomes true by assertion, only by attribution. When you and lore master
 3 fill a silence, you do not record a fact — you write a book, by a named author,
 with a reason to be doubted.
 
-A dangling `[[wikilink]]` is an unresolved fact. `tesbota gaps` lists the
-frontier.
+A deeplink pointing at a row nobody has written is an unresolved fact. `tesbota
+gaps` lists the frontier.
 
 ## Suspend and resume
 
@@ -105,10 +105,49 @@ brain, is not a compromise.
 
 ## Canon layout
 
-`canon/{people,places,books,items}/<id>.md`, YAML frontmatter, wikilinks between
-them. It is a valid Obsidian vault — open it as its own vault, not inside a
-synced one, and you get graph view of the world's growth. Keep it in git and
-`git log` becomes the history of reality.
+The world is one SQLite file, `canon.db`. Every layer reads it the same way —
+`sqlite3 -readonly canon.db "SELECT ..."` — and only the lore master may write.
+
+```
+entity(id, kind, name, introduced)              people | places | books | items
+book(id, author, author_id, written, rarity)    author_id points at the person who wrote it
+passage(book_id, ord, text)                     a book's text, one paragraph to a row
+claim(id, entity_id, section, turn_id, text)    witnessed | attested | map
+edge(src, rel, dst, bearing, distance)          within | exits
+
+writing(ref, entity, kind, section, body)       every passage and claim, with its address
+search(ref, entity, section, body)              fts5 over all of it
+unwritten(id, kind, name)                       named by somebody, written by nobody
+```
+
+Containment is stored once, as a `within` edge; what a place contains is that
+edge read backwards, so the two can never disagree. Nothing is duplicated and
+nothing needs keeping in step.
+
+### Deeplinks
+
+Everything has an address, and the writing is full of them:
+
+```
+bota://places/alheim-mill
+bota://books/petra-volls-route-notes#p2     the second passage of that book
+bota://people/petra-voll#c14                claim 14
+```
+
+In prose an address is wrapped so the sentence still reads —
+`[the mill](bota://places/alheim-mill)` — and the words in brackets are the ones
+the author chose. Every layer knows the format, so a book that names a person is
+a link you can follow both ways: what they wrote, what is written about them,
+everywhere they are mentioned.
+
+```sql
+SELECT ref, body FROM writing WHERE body LIKE '%/petra-voll%';
+SELECT id FROM book WHERE author_id = 'petra-voll';
+SELECT ref, snippet(search, 3, '[', ']', '…', 12) FROM search
+  WHERE search MATCH 'mill NEAR/5 boy' ORDER BY rank;
+```
+
+An address that names no row is the frontier — `tesbota gaps` lists them.
 
 ## Watching
 
@@ -196,10 +235,10 @@ driver, so the narration cannot quietly re-price what was agreed.
 
 ## What can become true
 
-`## Witnessed` is ground truth and covers a thing's properties, not just its
-existence — if it is Witnessed that a stone is carved with two names, a claim
+A `witnessed` claim is ground truth and covers a thing's properties, not just its
+existence — if it is witnessed that a stone is carved with two names, a claim
 that it reads something else is FALSE, not FRICTION. Only `TRUE` claims are
-written there. `FRICTION` claims land under `## Attested`, because a claim that
+written there. `FRICTION` claims land in `attested`, because a claim that
 rubs against the record is disputed by definition and must not become ground
 truth.
 
@@ -220,8 +259,8 @@ sits with the record, or keep it and make the discrepancy part of what happens �
 the text is wrong, out of date, or its author lied.
 
 It bounces exactly once. If the game master stands by the claim after being shown
-what it contradicts, the contradiction is taken as intended and recorded under
-`## Attested`.
+what it contradicts, the contradiction is taken as intended and recorded as
+`attested`.
 
 ## When an agent call fails
 
@@ -249,13 +288,14 @@ something here and has not written it yet, so:
 - any claim resting on a `$BOTA` passage is UNRESOLVED, however small
 - a quotation containing `$BOTA` is rejected outright, so it can never be read out
 - the query lore master reports it by name rather than saying nothing is recorded
-- `tesbota gaps` lists every one with its file and line — it is your backlog
+- `tesbota gaps` lists every one with its address — it is your backlog
 
 The lore master stubs whatever it names: mentioning a place, person, item or book
-that has no file creates that file in the same breath, frontmatter plus `$BOTA`
-where the content will go. A wikilink pointing at nothing is a loose end; a stub is
-a promise. If it does not know what contains a new place it writes `within: $BOTA`
-rather than guessing, which brings the question back rather than settling it.
+that has no row inserts that row in the same breath. A deeplink pointing at
+nothing is a loose end; a bare row with nothing written against it is a promise,
+and `unwritten` lists every one. If it does not know what contains a new place it
+writes no `within` edge rather than guessing, which brings the question back
+rather than settling it.
 
 ## Verdicts
 
@@ -268,7 +308,7 @@ rather than guessing, which brings the question back rather than settling it.
 - **FALSE** — contradicts something Witnessed or a godhead book. Redraft.
 - **UNRESOLVED** — the claim constrains the world. Escalates to you.
 
-TRUE and WITHIN_BOUNDS both deliver and are recorded under `## Witnessed`; only
+TRUE and WITHIN_BOUNDS both deliver and are recorded as `witnessed`; only
 FRICTION and FALSE cost a redraft.
 
 A lore session is archived onto the turn that triggered it. When the silence is
@@ -340,14 +380,14 @@ bonuses, and the itemised inventory.
 
 ## Maps
 
-Places carry `exits:` in their frontmatter — a target, a bearing and a rough
-distance each. Distances may be vague, because most of this world has never been
-measured; a number belongs there only where somebody in the world actually measured
-it, and the Attested line says who.
+Places carry `exits` edges — a target, a bearing and a rough distance each.
+Distances may be vague, because most of this world has never been measured; a
+number belongs there only where somebody in the world actually measured it, and
+the attested claim says who.
 
-That plus `within:`/`contains:` is a graph, and `tesbota map` renders it as mermaid
-— containment as nested subgraphs, exits as labelled edges, unwritten places dashed.
-Obsidian renders mermaid natively, so it drops straight into the vault.
+That plus `within` is already a graph, so the map is a recursive query rather
+than a walk over rows, and `tesbota map` renders it as mermaid — containment as
+nested subgraphs, exits as labelled edges, unwritten places dashed.
 
 Geometry is deliberately absent. Nothing here knows where anything is in metres,
 and coordinates would mean inventing precision nobody established. If a surveyed
@@ -436,7 +476,7 @@ turn.
 The calendar beyond that is undecided: days count up, but nothing says how many make
 a year, so the year does not yet advance.
 
-The calendar is law, not convention: `canon/books/the-ordering-of-the-year.md` is a
+The calendar is law, not convention: `bota://books/the-ordering-of-the-year` is a
 godhead book, so the lore master treats it as ground truth and no in-world text may
 contradict it. Seven days a week, four weeks a month, eight months a year — 28 days
 per month, 224 per year, every month beginning on a Firstday.

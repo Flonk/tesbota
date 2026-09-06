@@ -11,3 +11,5 @@ web/node_modules/
 web/.next/
 state/job.json
 state/job.log
+canon.db-wal
+canon.db-shm

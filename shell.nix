@@ -5,6 +5,7 @@ mkShell {
     python312
     uv
     nodejs_24
+    sqlite
   ];
 
   shellHook = ''

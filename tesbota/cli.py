@@ -3,6 +3,7 @@ import json
 import sys
 
 from . import actions, canon, driver, prompts, sheet, view, worldclock
+from .gate import sqlite_gate
 from .config import MODELS, WRITE_TOOLS
 from .sdk import ask
 from .state import all_turns, load_campaign, load_turn, now, parse, save_campaign
@@ -84,6 +85,7 @@ def cmd_lore(args):
             message,
             system=prompts.LORE3_SYSTEM,
             tools=WRITE_TOOLS,
+            permission=sqlite_gate(readonly=False),
             session=session,
             model=MODELS["lore3"],
         )
@@ -164,8 +166,8 @@ def cmd_gaps(args):
     gaps = canon.dangling_links()
     illegal = canon.illegal_books()
     stubs = canon.stubs()
-    for path, line, text in stubs:
-        print(f"{path}:{line}  {text[:70]}")
+    for ref, text in stubs:
+        print(f"{ref}  {text[:70]}")
     for book in illegal:
         print(f"{book}  (authored by the adventurer — not a valid author)")
     if not orphans and not gaps and not illegal and not stubs:
