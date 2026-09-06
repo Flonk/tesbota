@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS claim (
   id        INTEGER PRIMARY KEY,
   entity_id TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
-  section   TEXT NOT NULL CHECK (section IN ('witnessed','attested','map')),
+  section   TEXT NOT NULL CHECK (section IN ('attested','map')),
   turn_id   TEXT,
   text      TEXT NOT NULL,
   book_id   TEXT REFERENCES entity(id)
@@ -63,7 +63,7 @@ CREATE VIEW IF NOT EXISTS unwritten AS
   SELECT e.id, e.kind, e.name FROM entity e
    WHERE NOT EXISTS (
      SELECT 1 FROM writing w
-      WHERE w.entity = e.id AND w.section <> 'witnessed' AND trim(w.body) <> '$BOTA'
+      WHERE w.entity = e.id AND trim(w.body) <> '$BOTA'
    );
 
 CREATE VIRTUAL TABLE IF NOT EXISTS search USING fts5(
@@ -116,11 +116,55 @@ def setup():
     con = connect()
     try:
         con.execute("PRAGMA journal_mode = WAL")
+        con.executescript("DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;")
         con.executescript(SCHEMA)
         con.commit()
     finally:
         con.close()
     return CANON_DB
+
+
+def claim_check_is_old():
+    sql = value("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'claim'") or ""
+    return "witnessed" in sql
+
+
+REBUILD = """
+CREATE TABLE claim_rebuilt (
+  id        INTEGER PRIMARY KEY,
+  entity_id TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
+  section   TEXT NOT NULL CHECK (section IN ('attested','map')),
+  turn_id   TEXT,
+  text      TEXT NOT NULL,
+  book_id   TEXT REFERENCES entity(id)
+);
+INSERT INTO claim_rebuilt (id, entity_id, section, turn_id, text, book_id)
+  SELECT id, entity_id, section, turn_id, text, book_id FROM claim;
+DROP TABLE claim;
+ALTER TABLE claim_rebuilt RENAME TO claim;
+"""
+
+
+def retire_witnessed():
+    """Drop the observed-fact section. What the explorer saw lives in the
+    narrator's book now, so a claim is testimony and nothing else."""
+    con = connect()
+    try:
+        con.execute("PRAGMA journal_mode = WAL")
+        dropped = con.execute("DELETE FROM claim WHERE section = 'witnessed'").rowcount
+        con.commit()
+        if claim_check_is_old():
+            con.execute("PRAGMA foreign_keys = OFF")
+            con.executescript(REBUILD)
+            con.commit()
+            con.execute("PRAGMA foreign_keys = ON")
+        con.executescript("DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;")
+        con.executescript(SCHEMA)
+        con.commit()
+        con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        con.close()
+    return dropped
 
 
 @contextmanager

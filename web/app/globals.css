@@ -133,6 +133,9 @@ textarea {
 .sec-fold-box > .sec-label:hover { color: var(--ink); }
 .sec-note > .sec-fold { border-left-style: dashed; border-left-color: var(--gold); }
 .sec-note > .sec-label { color: var(--gold); }
+.sec-chronicle > .sec-fold { border-left-width: 2px; border-left-color: var(--gold); }
+.sec-chronicle > .sec-label { color: var(--gold); letter-spacing: .06em; }
+.sec-chronicle .told { font-style: italic; }
 .sec-table { margin: .6rem 0 0; }
 
 .outrow {

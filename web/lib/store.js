@@ -92,6 +92,7 @@ export async function snapshot() {
       note: turn.note || null,
       lore: turn.lore || [],
       loreGap: turn.lore_gap || null,
+      chronicle: turn.chronicle || [],
     });
   }
 
@@ -169,7 +170,7 @@ export async function library() {
       written: (r.written || "").includes("$BOTA") ? "" : r.written || "",
       rarity: (r.rarity || "").toLowerCase(),
       passages: r.passages,
-      godhead: (r.author || "").trim().toLowerCase() === "the godhead",
+      godhead: ["the godhead", "the narrator"].includes((r.author || "").trim().toLowerCase()),
     }));
   } finally {
     db.close();

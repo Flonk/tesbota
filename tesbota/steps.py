@@ -1,6 +1,6 @@
 import json
 
-from . import canon, prompts, quotes, sheet, worldclock
+from . import canon, chronicle, prompts, quotes, sheet, worldclock
 import random
 
 from .gate import sqlite_gate
@@ -16,6 +16,7 @@ from .config import (
     MAX_TALKS,
     MAX_FATIGUE,
     MAX_GM_RETRIES,
+    MAX_NARRATOR_RETRIES,
     HUNGER_PER_HOUR,
     MAX_HEALTH,
     MAX_HUNGER,
@@ -218,9 +219,30 @@ def step_explorer(campaign, turn):
     turn["ready"] = stripped
     if turn.get("resolved"):
         turn["delivered"] = True
-        turn["state"] = "done"
+        turn["state"] = "narrate"
     else:
         turn["state"] = "propose"
+    return campaign, turn
+
+
+def step_narrate(campaign, turn):
+    """The turn is over and it survived adjudication. The narrator sets it down."""
+    written = chronicle.write(
+        turn,
+        now=turn.get("at") or worldclock.long_stamp(campaign.get("time")),
+        where=turn.get("location_path") or campaign.get("location_path"),
+    )
+    if written:
+        turn["chronicle"] = (turn.get("chronicle") or []) + written
+        turn["state"] = "done"
+        return campaign, turn
+
+    turn["narrate_retries"] = turn.get("narrate_retries", 0) + 1
+    if turn["narrate_retries"] < MAX_NARRATOR_RETRIES:
+        turn["state"] = "narrate"
+        return campaign, turn
+    turn["chronicle_failed"] = True
+    turn["state"] = "done"
     return campaign, turn
 
 
@@ -612,7 +634,7 @@ def step_lore1(campaign, turn):
             return campaign, turn
         turn["gm_retries"] += 1
         turn["correction"] = json.dumps(
-            {"contradicts_witnessed": false_ones, "bad_quotes": bad_quotes}, indent=2
+            {"contradicts_the_record": false_ones, "bad_quotes": bad_quotes}, indent=2
         )
         turn["state"] = redraft_state(turn)
         return campaign, turn
@@ -791,16 +813,6 @@ def deliver(campaign, turn):
         return campaign, turn
 
     draft = turn["draft"]
-    results = {v["claim"]: v.get("result") for v in turn["verdicts"]}
-    for claim in draft.get("claims") or []:
-        result = results.get(claim["id"])
-        if not claim.get("entity"):
-            continue
-        kind = claim.get("kind", "places")
-        if result in ("TRUE", "WITHIN_BOUNDS"):
-            canon.append_witnessed(claim["entity"], turn["turn_id"], claim["text"], kind=kind)
-        elif result == "FRICTION":
-            canon.append_attested(claim["entity"], turn["turn_id"], claim["text"], kind=kind)
 
     campaign = apply_vitals(campaign, draft)
     campaign = apply_inventory(campaign, draft)
@@ -809,6 +821,7 @@ def deliver(campaign, turn):
     where = (draft.get("location") or "").strip() if isinstance(draft.get("location"), str) else ""
     if where:
         campaign["location"] = canon.slug(where.strip("[]"))
+        canon.ensure_entity("places", campaign["location"], turn_id=turn["turn_id"])
         campaign["location_path"] = canon.ancestry(campaign["location"])
 
     campaign["time"] = worldclock.advance(campaign.get("time"), draft.get("minutes"))
@@ -885,4 +898,5 @@ STEPS = {
     "propose": step_propose,
     "gm": step_gm,
     "lore1": step_lore1,
+    "narrate": step_narrate,
 }

@@ -1,7 +1,6 @@
 from . import db
-from .config import FORBIDDEN_AUTHORS, GODHEAD, KINDS, STUB
+from .config import CHRONICLE, FORBIDDEN_AUTHORS, GODHEADS, KINDS, STUB
 
-WITNESSED = "witnessed"
 ATTESTED = "attested"
 MAP = "map"
 
@@ -36,7 +35,7 @@ def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
     return entity_id
 
 
-def append_section(entity_id, turn_id, text, kind="places", section=WITNESSED):
+def append_section(entity_id, turn_id, text, kind="places", section=ATTESTED):
     entity_id = slug(entity_id)
     if not find_entity(entity_id):
         ensure_entity(kind, entity_id, turn_id=turn_id)
@@ -46,10 +45,6 @@ def append_section(entity_id, turn_id, text, kind="places", section=WITNESSED):
             (entity_id, section, turn_id, text.strip()),
         )
     return entity_id
-
-
-def append_witnessed(entity_id, turn_id, text, kind="places"):
-    return append_section(entity_id, turn_id, text, kind=kind, section=WITNESSED)
 
 
 def append_attested(entity_id, turn_id, text, kind="places"):
@@ -120,17 +115,22 @@ def library():
             "author_id": r["author_id"],
             "written": r["written"] or "",
             "rarity": (r["rarity"] or "").lower(),
-            "godhead": (r["author"] or "").strip().lower() == GODHEAD,
+            "godhead": (r["author"] or "").strip().lower() in GODHEADS,
+            "chronicle": r["id"] == CHRONICLE,
         })
     return shelf
 
 
 def godhead_books():
-    return [r["id"] for r in db.rows("SELECT id FROM book WHERE lower(trim(author)) = ?", (GODHEAD,))]
+    return [
+        r["id"] for r in db.rows("SELECT id, lower(trim(author)) a FROM book ORDER BY id")
+        if r["a"] in GODHEADS
+    ]
 
 
 def is_godhead(book_id):
-    return (db.value("SELECT author FROM book WHERE id = ?", (slug(book_id),)) or "").strip().lower() == GODHEAD
+    author = (db.value("SELECT author FROM book WHERE id = ?", (slug(book_id),)) or "").strip().lower()
+    return author in GODHEADS
 
 
 def illegal_books():

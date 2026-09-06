@@ -2,17 +2,28 @@ import argparse
 import json
 import sys
 
-from . import actions, canon, driver, prompts, sheet, view, worldclock
+from . import actions, canon, chronicle, db, driver, prompts, sheet, view, worldclock
 from .gate import sqlite_gate
 from .config import MODELS, WRITE_TOOLS
 from .sdk import ask
-from .state import all_turns, load_campaign, load_turn, now, parse, save_campaign
+from .config import CHRONICLE_NAME, NARRATOR
+from .state import (
+    all_turns,
+    load_campaign,
+    load_turn,
+    now,
+    parse,
+    save_campaign,
+    save_turn,
+)
 
 
 def cmd_init(args):
     from .state import ensure_layout
 
     ensure_layout()
+    db.setup()
+    chronicle.ensure_book()
     campaign = load_campaign()
     if campaign.get("current_turn"):
         print(f"already initialised — turn {campaign['current_turn']}")
@@ -161,6 +172,38 @@ def cmd_map(args):
     print(canon.mermaid())
 
 
+def cmd_chronicle(args):
+    passages = chronicle.passages()
+    if not passages:
+        print("the narrator has not written anything yet")
+        return
+    print(f"{view.BOLD}{CHRONICLE_NAME}{view.OFF} {view.DIM}— {NARRATOR}{view.OFF}")
+    print()
+    for entry in passages[-args.n:] if args.n else passages:
+        print(f"{view.DIM}{entry['ord']}{view.OFF}")
+        print(view.wrap(entry["text"]))
+        print()
+
+
+def cmd_migrate(args):
+    chronicle.ensure_book()
+    turns = all_turns()
+    pending = [t for t in turns if chronicle.played(t) and not chronicle.narrated(t)]
+
+    if pending and not args.no_backfill:
+        print(f"the narrator is writing the life so far — {len(pending)} turn(s)")
+        for turn in pending:
+            added = chronicle.write(turn, now=turn.get("at"), where=turn.get("location_path"))
+            turn["chronicle"] = added
+            save_turn(turn)
+            print(f"  {turn['turn_id']}  {len(added)} passage(s)")
+
+    dropped = db.retire_witnessed()
+    print()
+    print(f"witnessed retired — {dropped} claim(s) dropped")
+    print(f"{len(chronicle.passages())} passage(s) in {CHRONICLE_NAME}")
+
+
 def cmd_gaps(args):
     orphans = canon.orphan_places()
     gaps = canon.dangling_links()
@@ -211,6 +254,14 @@ def main(argv=None):
     notebook = sub.add_parser("notebook")
     notebook.add_argument("text", nargs="?")
     notebook.set_defaults(func=cmd_notebook)
+
+    book = sub.add_parser("chronicle")
+    book.add_argument("-n", type=int, default=0)
+    book.set_defaults(func=cmd_chronicle)
+
+    migrate = sub.add_parser("migrate")
+    migrate.add_argument("--no-backfill", action="store_true")
+    migrate.set_defaults(func=cmd_migrate)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
 
