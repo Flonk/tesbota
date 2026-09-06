@@ -514,15 +514,15 @@ export default function Page() {
           <div className="tabright">
             {busy && <span className="stat gold">working…</span>}
             <Status status={status} />
-            <span className="jump">
-              <button className="arrow" onClick={() => go(at - 1)} disabled={at <= 0} aria-label="earlier">
-                ‹
-              </button>
-              <span className="counter">{count ? `${at + 1}/${count}` : "—"}</span>
-              <button className="arrow" onClick={() => go(at + 1)} disabled={at >= count - 1} aria-label="later">
-                ›
-              </button>
-            </span>
+            <button
+              className="arrow"
+              onClick={() => go(count - 1)}
+              disabled={at >= count - 1}
+              aria-label="latest"
+              title="jump to the latest turn"
+            >
+              »
+            </button>
             <Btn
               tone="gold"
               onClick={() => post("/api/step", null, "step")}

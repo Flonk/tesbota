@@ -221,15 +221,7 @@ textarea {
   scrollbar-width: none;
   touch-action: pan-x;
 }
-.grip { flex: 1 1 auto; min-width: .5rem; align-self: center; height: 12px; position: relative; }
-.grip::after {
-  content: "";
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: 30px; height: 7px;
-  background: radial-gradient(circle, var(--dim) 1px, transparent 1px);
-  opacity: .5;
-  background-size: 5px 5px;
-}
+.grip { flex: 1 1 auto; min-width: .5rem; }
 .tabbar button { cursor: pointer; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabright { flex: 0 0 auto; display: flex; align-items: center; gap: .5rem; min-width: 0; }
@@ -261,14 +253,13 @@ textarea {
 .stat { font: var(--mono); letter-spacing: .06em; color: var(--dim); white-space: nowrap; }
 .stat.warn { color: var(--warn); }
 .stat.gold { color: var(--gold); }
-.jump { display: inline-flex; align-items: center; gap: .15rem; flex: 0 0 auto; }
 .arrow {
+  flex: 0 0 auto;
   background: none; border: none; color: var(--dim);
   font-size: 1rem; line-height: 1; padding: .1rem .35rem; cursor: pointer;
 }
 .arrow:hover:not(:disabled) { color: var(--gold); }
 .arrow:disabled { opacity: .3; cursor: default; }
-.counter { font: var(--mono); color: var(--dim); flex: 0 0 auto; }
 
 .tabpanel { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: .9rem 1.2rem 1.4rem; }
 .tabpanel > div > .cap { margin-top: 1.2rem; }
