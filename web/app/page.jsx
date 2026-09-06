@@ -291,6 +291,7 @@ export default function Page() {
   const [dragging, setDragging] = useState(false);
   const app = useRef(null);
   const grab = useRef(null);
+  const swallow = useRef(false);
   const splitNow = useRef(50);
   const deck = useRef(null);
   const pinned = useRef(true);
@@ -367,34 +368,53 @@ export default function Page() {
   }
 
   function grabBar(e) {
-    if (e.target.closest("button, textarea, input")) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (e.target.closest("textarea, input")) return;
     const box = app.current?.getBoundingClientRect();
     if (!box) return;
-    grab.current = box;
-    setDragging(true);
-    e.currentTarget.setPointerCapture(e.pointerId);
+    swallow.current = false;
+    grab.current = { box, id: e.pointerId, from: e.clientY, moved: false };
+    window.addEventListener("pointermove", dragBar);
+    window.addEventListener("pointerup", dropBar);
+    window.addEventListener("pointercancel", dropBar);
   }
 
   function dragBar(e) {
-    const box = grab.current;
-    if (!box) return;
-    const pct = ((e.clientY - box.top) / box.height) * 100;
+    const g = grab.current;
+    if (!g || e.pointerId !== g.id) return;
+    if (!g.moved) {
+      if (Math.abs(e.clientY - g.from) < 5) return;
+      g.moved = true;
+      setDragging(true);
+    }
+    const pct = ((e.clientY - g.box.top) / g.box.height) * 100;
     const next = Math.max(18, Math.min(82, pct));
     splitNow.current = next;
     setSplit(next);
   }
 
   function dropBar(e) {
-    if (!grab.current) return;
+    const g = grab.current;
+    if (!g || e.pointerId !== g.id) return;
     grab.current = null;
+    window.removeEventListener("pointermove", dragBar);
+    window.removeEventListener("pointerup", dropBar);
+    window.removeEventListener("pointercancel", dropBar);
+    if (!g.moved) return;
     setDragging(false);
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
+    swallow.current = true;
     localStorage.setItem("tesbota.split", String(Math.round(splitNow.current)));
   }
 
-  function evenBar() {
+  function clickBar(e) {
+    if (!swallow.current) return;
+    swallow.current = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function evenBar(e) {
+    if (e.target.closest("button, textarea, input")) return;
     splitNow.current = 50;
     setSplit(50);
     localStorage.setItem("tesbota.split", "50");
@@ -473,9 +493,7 @@ export default function Page() {
         <div
           className="tabbar"
           onPointerDown={grabBar}
-          onPointerMove={dragBar}
-          onPointerUp={dropBar}
-          onPointerCancel={dropBar}
+          onClickCapture={clickBar}
           onDoubleClick={evenBar}
           title="drag to resize"
         >
