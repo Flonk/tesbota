@@ -169,3 +169,27 @@ def render_inventory():
         out.append("carried:")
         out += [line(e) for e in carried]
     return "\n".join(out)
+
+
+def render_holdings(entity=None):
+    holders = canon.holders()
+    if entity:
+        entity = canon.slug(entity)
+        holders = [h for h in holders if h["id"] == entity]
+        if not holders:
+            return f"{entity} keeps nothing"
+    if not holders:
+        return "nobody keeps anything"
+
+    stock = {h["id"]: canon.holdings(h["id"]) for h in holders}
+    width = max(len(i["name"]) for items in stock.values() for i in items)
+    out = []
+    for holder in holders:
+        if out:
+            out.append("")
+        out.append(f"{holder['name']}  ({holder['id']})")
+        for item in stock[holder["id"]]:
+            count = f"x{item['qty']}" if item["qty"] > 1 else ""
+            note = f"({item['note']})" if item["note"] else ""
+            out.append(f"  {item['name']:<{width}}  {count:>4}  {note}".rstrip())
+    return "\n".join(out)

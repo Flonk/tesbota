@@ -1,6 +1,6 @@
 # 008 — read anybody's holdings from the terminal
 
-**Status:** todo
+**Status:** done
 **Depends on:** 004
 
 ## What

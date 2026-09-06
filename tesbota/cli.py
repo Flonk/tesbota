@@ -164,6 +164,10 @@ def cmd_library(args):
         print(f"  {b['name']:<{width}}  {b['author']}{mark}  [{when}]  {b['rarity'] or '—'}")
 
 
+def cmd_holdings(args):
+    print(sheet.render_holdings(args.entity))
+
+
 def cmd_notebook(args):
     print(sheet.write_note(args.text) if args.text else sheet.render_notebook())
 
@@ -251,6 +255,10 @@ def main(argv=None):
     note.add_argument("text")
     note.set_defaults(func=cmd_note)
     sub.add_parser("inventory").set_defaults(func=cmd_inventory)
+
+    holdings = sub.add_parser("holdings")
+    holdings.add_argument("entity", nargs="?")
+    holdings.set_defaults(func=cmd_holdings)
 
     notebook = sub.add_parser("notebook")
     notebook.add_argument("text", nargs="?")
