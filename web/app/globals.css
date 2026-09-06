@@ -155,8 +155,9 @@ textarea {
 
 .app { display: flex; flex-direction: column; height: 100dvh; min-height: 0; }
 .band { min-height: 0; display: flex; flex-direction: column; }
-.turns { flex: 1 1 0; border-bottom: 1px solid var(--line); }
+.turns { flex: 0 0 50%; }
 .tabsband { flex: 1 1 0; }
+.app.dragging { cursor: row-resize; user-select: none; }
 
 .deck {
   display: flex;
@@ -204,17 +205,32 @@ textarea {
   align-items: stretch;
   gap: .5rem;
   padding: .3rem .8rem;
+  border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   min-width: 0;
+  cursor: row-resize;
+  touch-action: none;
+  user-select: none;
 }
 .tabs {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   display: flex;
   align-items: stretch;
   overflow-x: auto;
   scrollbar-width: none;
+  touch-action: pan-x;
 }
+.grip { flex: 1 1 auto; min-width: .5rem; align-self: center; height: 12px; position: relative; }
+.grip::after {
+  content: "";
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 30px; height: 7px;
+  background: radial-gradient(circle, var(--dim) 1px, transparent 1px);
+  opacity: .5;
+  background-size: 5px 5px;
+}
+.tabbar button { cursor: pointer; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabright { flex: 0 0 auto; display: flex; align-items: center; gap: .5rem; min-width: 0; }
 

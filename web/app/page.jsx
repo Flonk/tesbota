@@ -287,6 +287,11 @@ export default function Page() {
   const [noteOpen, setNoteOpen] = useState(false);
   const [tab, setTab] = useState("lore");
   const [at, setAt] = useState(0);
+  const [split, setSplit] = useState(50);
+  const [dragging, setDragging] = useState(false);
+  const app = useRef(null);
+  const grab = useRef(null);
+  const splitNow = useRef(50);
   const deck = useRef(null);
   const pinned = useRef(true);
   const shown = useRef(null);
@@ -304,6 +309,14 @@ export default function Page() {
     const id = setInterval(load, 4000);
     return () => clearInterval(id);
   }, [load]);
+
+  useEffect(() => {
+    const saved = Number(localStorage.getItem("tesbota.split"));
+    if (saved >= 15 && saved <= 85) {
+      setSplit(saved);
+      splitNow.current = saved;
+    }
+  }, []);
 
   useEffect(() => {
     if (!data) return;
@@ -353,6 +366,40 @@ export default function Page() {
     pinned.current = i >= count - 1;
   }
 
+  function grabBar(e) {
+    if (e.target.closest("button, textarea, input")) return;
+    const box = app.current?.getBoundingClientRect();
+    if (!box) return;
+    grab.current = box;
+    setDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function dragBar(e) {
+    const box = grab.current;
+    if (!box) return;
+    const pct = ((e.clientY - box.top) / box.height) * 100;
+    const next = Math.max(18, Math.min(82, pct));
+    splitNow.current = next;
+    setSplit(next);
+  }
+
+  function dropBar(e) {
+    if (!grab.current) return;
+    grab.current = null;
+    setDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+    localStorage.setItem("tesbota.split", String(Math.round(splitNow.current)));
+  }
+
+  function evenBar() {
+    splitNow.current = 50;
+    setSplit(50);
+    localStorage.setItem("tesbota.split", "50");
+  }
+
   async function post(path, body, label) {
     setPending(label);
     setError(null);
@@ -385,14 +432,14 @@ export default function Page() {
   const open = quests.filter((q) => q.status === "active").length;
 
   return (
-    <div className="app">
+    <div className={`app${dragging ? " dragging" : ""}`} ref={app}>
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">
           {error}
         </div>
       )}
 
-      <section className="band turns">
+      <section className="band turns" style={{ flex: `0 0 ${split}%` }}>
         <div className="deck" ref={deck} onScroll={onScroll}>
           {slides.map((s, i) => (
             <section className="slide" key={s.id}>
@@ -423,7 +470,15 @@ export default function Page() {
       </section>
 
       <section className="band tabsband">
-        <div className="tabbar">
+        <div
+          className="tabbar"
+          onPointerDown={grabBar}
+          onPointerMove={dragBar}
+          onPointerUp={dropBar}
+          onPointerCancel={dropBar}
+          onDoubleClick={evenBar}
+          title="drag to resize"
+        >
           <div className="tabs">
             {TABS.map((t) => (
               <button
@@ -437,6 +492,7 @@ export default function Page() {
               </button>
             ))}
           </div>
+          <span className="grip" />
           <div className="tabright">
             {busy && <span className="stat gold">working…</span>}
             <Status status={status} />
