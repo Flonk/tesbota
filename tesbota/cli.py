@@ -2,7 +2,7 @@ import argparse
 import json
 import sys
 
-from . import actions, canon, chronicle, db, driver, prompts, sheet, view, worldclock
+from . import actions, canon, chronicle, db, driver, mapping, prompts, sheet, view, worldclock
 from .gate import sqlite_gate
 from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
@@ -177,6 +177,9 @@ def cmd_note(args):
 
 
 def cmd_map(args):
+    if args.json:
+        print(json.dumps(mapping.layout(), ensure_ascii=False))
+        return
     print(canon.mermaid())
 
 
@@ -246,7 +249,9 @@ def main(argv=None):
 
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
     sub.add_parser("stats").set_defaults(func=cmd_stats)
-    sub.add_parser("map").set_defaults(func=cmd_map)
+    world_map = sub.add_parser("map")
+    world_map.add_argument("--json", action="store_true")
+    world_map.set_defaults(func=cmd_map)
     sub.add_parser("quests").set_defaults(func=cmd_quests)
     sub.add_parser("library").set_defaults(func=cmd_library)
     sub.add_parser("time").set_defaults(func=cmd_time)

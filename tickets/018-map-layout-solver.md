@@ -1,6 +1,6 @@
 # 018 — solve a layout from the graph
 
-**Status:** todo
+**Status:** done
 **Depends on:** 017
 
 ## What
