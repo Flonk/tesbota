@@ -431,11 +431,15 @@ export async function look(question) {
   }
 }
 
-export async function mapLayout() {
+function runner(args) {
   const own = path.join(ROOT, ".venv/bin/python");
-  const [command, args] = fsSync.existsSync(own)
-    ? [own, ["-m", "tesbota.cli", "map", "--json"]]
-    : ["uv", ["run", "--directory", ROOT, "tesbota", "map", "--json"]];
+  return fsSync.existsSync(own)
+    ? [own, ["-m", "tesbota.cli", ...args]]
+    : ["uv", ["run", "--directory", ROOT, "tesbota", ...args]];
+}
+
+export async function mapLayout() {
+  const [command, args] = runner(["map", "--json"]);
   try {
     const { stdout } = await run(command, args, {
       cwd: ROOT,
@@ -460,7 +464,8 @@ export async function launch(args, label) {
   if (current && alive(current.pid)) return { busy: true, label: current.label || null };
 
   const log = fsSync.openSync(JOB_LOG, "w");
-  const child = spawn("uv", ["run", "--directory", ROOT, "tesbota", ...args], {
+  const [command, argv] = runner(args);
+  const child = spawn(command, argv, {
     cwd: ROOT,
     stdio: ["ignore", log, log],
     detached: true,
@@ -506,8 +511,9 @@ export async function launch(args, label) {
 
 export async function tesbota(args, timeout = 900000) {
   let stdout;
+  const [command, argv] = runner(args);
   try {
-    ({ stdout } = await run("uv", ["run", "--directory", ROOT, "tesbota", ...args], {
+    ({ stdout } = await run(command, argv, {
       cwd: ROOT,
       timeout,
       maxBuffer: 1024 * 1024 * 16,

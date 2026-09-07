@@ -217,7 +217,10 @@ textarea {
 .tquest { font: var(--mono); letter-spacing: .06em; color: var(--gold); }
 .tquest .qmark { opacity: .55; margin-right: .5em; }
 
-.steer { margin-top: 1.2rem; }
+.steer .cap { color: var(--gold); }
+.steer .queued { border-left: 1px solid var(--gold); padding-left: .9rem; }
+.steered { border-left: 1px solid var(--line); padding-left: .9rem; margin-bottom: .8rem; }
+.steered .cap { color: var(--dim); }
 
 /* ---- tabs ---- */
 

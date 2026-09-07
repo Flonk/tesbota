@@ -6,6 +6,7 @@ import { QuestPanel } from "./Quests";
 import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
+import Steer from "./Steer";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
 import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tabs, Tag } from "./ui";
@@ -175,7 +176,7 @@ function Head({ s, vitals }) {
   );
 }
 
-function Turn({ s, i, last, blocked, busy, pendingNote, noteOpen, setNoteOpen, note, setNote, post, vitals }) {
+function Turn({ s, last, blocked, vitals }) {
   return (
     <article>
       <Head s={s} vitals={vitals} />
@@ -232,60 +233,23 @@ function Turn({ s, i, last, blocked, busy, pendingNote, noteOpen, setNoteOpen, n
         </Block>
       )}
 
-      {last && !blocked && (
-        <div className="steer">
-          {!noteOpen && (
-            <Btn
-              onClick={() => {
-                setNoteOpen(true);
-                setNote(pendingNote || "");
-              }}
-            >
-              {pendingNote ? "note queued — edit" : "note for the next turn"}
-            </Btn>
-          )}
-          {noteOpen && (
-            <>
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="steer the game master — they will read this and the adventurer will not…"
-                disabled={!!busy}
-              />
-              <div className="actions">
-                <Btn
-                  onClick={() => {
-                    setNoteOpen(false);
-                    setNote("");
-                  }}
-                  disabled={!!busy}
-                >
-                  cancel
-                </Btn>
-                <Btn
-                  tone="gold"
-                  onClick={async () => {
-                    await post("/api/note", { text: note }, "note");
-                    setNoteOpen(false);
-                  }}
-                  disabled={!!busy}
-                >
-                  {busy === "note" ? "saving…" : "queue note"}
-                </Btn>
-              </div>
-            </>
-          )}
-        </div>
-      )}
     </article>
   );
 }
 
 const KINDS = ["places", "people", "books", "items", "quests"];
-const REMEMBER = "tesbota.library.kind";
+const REMEMBER = "tesbota.sub";
+
+const SUBS = {
+  chat: [
+    { id: "lore", label: "lore master" },
+    { id: "gm", label: "game master" },
+  ],
+  library: KINDS.map((id) => ({ id, label: id })),
+};
 
 const TABS = [
-  { id: "lore", label: "lore master" },
+  { id: "chat", label: "chat" },
   { id: "map", label: "map" },
   { id: "stats", label: "stats" },
   { id: "library", label: "library" },
@@ -295,11 +259,9 @@ export default function Page() {
   const [data, setData] = useState(null);
   const [pending, setPending] = useState(null);
   const [error, setError] = useState(null);
-  const [note, setNote] = useState("");
-  const [noteOpen, setNoteOpen] = useState(false);
-  const [tab, setTab] = useState("lore");
+  const [tab, setTab] = useState("chat");
   const [dossier, setDossier] = useState(null);
-  const [kind, setKind] = useState("places");
+  const [sub, setSub] = useState({ chat: "lore", library: "places" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const keyboard = useKeyboardAvoid();
@@ -342,15 +304,26 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem(REMEMBER);
-    if (KINDS.includes(saved)) setKind(saved);
+    try {
+      const saved = JSON.parse(localStorage.getItem(REMEMBER) || "{}");
+      setSub((current) => {
+        const next = { ...current };
+        for (const [owner, options] of Object.entries(SUBS)) {
+          if (options.some((o) => o.id === saved[owner])) next[owner] = saved[owner];
+        }
+        return next;
+      });
+    } catch {}
   }, []);
 
-  const pickKind = useCallback((next) => {
-    setKind(next);
-    try {
-      localStorage.setItem(REMEMBER, next);
-    } catch {}
+  const pickSub = useCallback((owner, next) => {
+    setSub((current) => {
+      const picked = { ...current, [owner]: next };
+      try {
+        localStorage.setItem(REMEMBER, JSON.stringify(picked));
+      } catch {}
+      return picked;
+    });
   }, []);
 
   useEffect(() => {
@@ -371,7 +344,10 @@ export default function Page() {
     }
     if (!failed) shown.current = null;
     const stuck = data.status?.state === "awaiting_human";
-    if (stuck && !wasBlocked.current) setTab("lore");
+    if (stuck && !wasBlocked.current) {
+      setTab("chat");
+      pickSub("chat", "lore");
+    }
     wasBlocked.current = stuck;
   }, [data]);
 
@@ -518,20 +494,7 @@ export default function Page() {
         <div className="deck" ref={deck} onScroll={onScroll}>
           {slides.map((s, i) => (
             <section className="slide" key={s.id}>
-              <Turn
-                s={s}
-                i={i}
-                last={i === count - 1}
-                blocked={blocked}
-                busy={busy}
-                pendingNote={data.note}
-                noteOpen={noteOpen}
-                setNoteOpen={setNoteOpen}
-                note={note}
-                setNote={setNote}
-                post={post}
-                vitals={vitals}
-              />
+              <Turn s={s} last={i === count - 1} blocked={blocked} vitals={vitals} />
             </section>
           ))}
           {count === 0 && (
@@ -558,8 +521,8 @@ export default function Page() {
           <Tabs
             items={TABS.map((t) => ({
               ...t,
-              pip: t.id === "lore" && blocked,
               count: t.id === "library" && tab !== "library" ? open : 0,
+              pip: t.id === "chat" && blocked,
             }))}
             value={tab}
             onChange={setTab}
@@ -587,24 +550,36 @@ export default function Page() {
           </div>
         </div>
 
-        {tab === "library" && (
+        {SUBS[tab] && (
           <Tabs
             className="sub"
-            items={KINDS.map((k) => ({ id: k, label: k, count: counts[k] }))}
-            value={kind}
-            onChange={pickKind}
+            items={SUBS[tab].map((option) => ({
+              ...option,
+              count: counts[option.id],
+              pip: tab === "chat" && option.id === "lore" && blocked,
+            }))}
+            value={sub[tab]}
+            onChange={(next) => pickSub(tab, next)}
           />
         )}
 
         <div className="tabbody">
           <div className="tabpanel">
-          {tab === "lore" && (
+          {tab === "chat" && sub.chat === "lore" && (
             <Lore
               gap={gap}
               chat={chat}
               busy={busy}
               blocked={blocked}
               onSay={(t) => post("/api/say", { text: t }, "say")}
+            />
+          )}
+          {tab === "chat" && sub.chat === "gm" && (
+            <Steer
+              note={data.note}
+              past={slides.filter((s) => s.note).map((s) => ({ id: s.id, note: s.note }))}
+              busy={busy}
+              onNote={(text) => post("/api/note", { text }, "note")}
             />
           )}
           {tab === "map" && <Map where={status.where} at={status.now} />}
@@ -620,9 +595,9 @@ export default function Page() {
             <Library
               dossier={dossier}
               onOpen={openDossier}
-              kind={kind}
+              kind={sub.library}
               kinds={KINDS}
-              onKind={pickKind}
+              onKind={(next) => pickSub("library", next)}
               onCounts={setCounts}
               quests={quests}
               onQuest={(id) => setQuest(quests.find((q) => q.id === id) || null)}
