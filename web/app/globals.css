@@ -161,6 +161,8 @@ textarea {
 .turns { flex: 0 0 50%; }
 .tabsband { flex: 1 1 0; position: relative; }
 .app.dragging { cursor: row-resize; user-select: none; }
+.app.avoiding .tabbar { cursor: default; }
+[hidden] { display: none !important; }
 
 .deck {
   display: flex;

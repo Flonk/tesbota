@@ -6,6 +6,7 @@ import { QuestPanel } from "./Quests";
 import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
+import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
 import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tabs, Tag } from "./ui";
 
@@ -301,6 +302,7 @@ export default function Page() {
   const [kind, setKind] = useState("places");
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
+  const keyboard = useKeyboardAvoid();
   const [at, setAt] = useState(0);
   const [split, setSplit] = useState(50);
   const [dragging, setDragging] = useState(false);
@@ -492,14 +494,23 @@ export default function Page() {
   const open = quests.filter((q) => q.status === "active").length;
 
   return (
-    <div className={`app${dragging ? " dragging" : ""}`} ref={app}>
+    <div
+      className={`app${dragging ? " dragging" : ""}${keyboard.collapse ? " avoiding" : ""}`}
+      ref={app}
+      data-avoiding={keyboard.collapse || undefined}
+      style={keyboard.inset ? { height: `calc(100dvh - ${keyboard.inset}px)` } : undefined}
+    >
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">
           {error}
         </div>
       )}
 
-      <section className="band turns" style={{ flex: `0 0 ${split}%` }}>
+      <section
+        className="band turns"
+        hidden={keyboard.collapse === "turns"}
+        style={keyboard.collapse ? { flex: "1 1 auto" } : { flex: `0 0 ${split}%` }}
+      >
         <div className="deck" ref={deck} onScroll={onScroll}>
           {slides.map((s, i) => (
             <section className="slide" key={s.id}>
@@ -529,7 +540,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="band tabsband">
+      <section className="band tabsband" hidden={keyboard.collapse === "tabs"}>
         <div
           className="tabbar"
           onPointerDown={grabBar}
