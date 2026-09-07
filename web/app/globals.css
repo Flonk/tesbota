@@ -614,6 +614,12 @@ textarea {
 }
 .daddr:hover { color: var(--gold); border-color: var(--gold); }
 .dbody > .daddr { margin-bottom: 1.1rem; }
+.tabs.sub.dsub { margin: 0 -1.2rem 1.1rem; padding: 0 .4rem; }
+.leaves { display: flex; flex-direction: column; gap: 1rem; }
+.leaf { display: flex; gap: .8rem; align-items: baseline; }
+.leaf .rord { flex: 0 0 1.2rem; margin: 0; text-align: right; }
+.leaf .rtext { margin: 0; font-size: .95rem; line-height: 1.55; }
+.leaf.lit .rtext { border-left: 1px solid var(--gold); padding-left: .7rem; }
 
 .dsec { margin-top: 1.1rem; }
 .dsection { font: var(--mono); letter-spacing: .06em; color: var(--place); }
@@ -633,34 +639,12 @@ textarea {
 .dlink:hover { color: var(--gold); }
 
 @media (max-width: 720px) { .dpanel { flex: 1 1 auto; border-left: 0; padding: .8rem .9rem 2rem; } }
+@media (max-width: 720px) { .tabs.sub.dsub { margin: 0 -.9rem 1.1rem; padding: 0 .4rem; } }
 
 /* ---- reader ---- */
 
-.reader { margin-top: .5rem; }
-.rbar { display: flex; align-items: baseline; gap: .8rem; margin-bottom: .3rem; }
-.rcount { margin-left: auto; font: var(--mono); letter-spacing: .06em; color: var(--dim); }
-.rdeck {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  height: 16rem;
-}
-.rdeck::-webkit-scrollbar { display: none; }
-.rdeck .leaf { flex: 0 0 100%; scroll-snap-align: start; overflow-y: auto; padding-right: .4rem; }
-.rwhole { display: flex; flex-direction: column; gap: 1rem; }
 .rord { color: var(--dim); }
 .rtext { margin: .1rem 0 0; font-size: 1rem; line-height: 1.6; }
-.rnums { display: flex; flex-wrap: wrap; gap: .15rem; margin-top: .4rem; align-items: center; }
-.rnum, .rstep {
-  background: none; border: 1px solid transparent; border-radius: 2px;
-  color: var(--dim); font: var(--mono); letter-spacing: .06em;
-  padding: 0 .3rem; cursor: pointer; min-width: 1.4rem;
-}
-.rnum:hover, .rstep:hover { color: var(--ink); }
-.rnum.on { color: var(--gold); border-color: var(--line); background: var(--panel); }
-.rstep:disabled { opacity: .3; cursor: default; }
 
 .stubmark {
   font: var(--mono); letter-spacing: .08em;

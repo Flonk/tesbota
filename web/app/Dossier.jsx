@@ -1,95 +1,27 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Empty, openDossier, Overlay, Prose, Stub, Table, Tag } from "./ui";
+import { useEffect, useState } from "react";
+import { Empty, openDossier, Overlay, Prose, Stub, Table, Tabs, Tag } from "./ui";
 
-function Reader({ thing, fragment }) {
-  const opening = /^p(\d+)$/.exec(fragment || "");
-  const [at, setAt] = useState(0);
-  const [whole, setWhole] = useState(false);
-  const deck = useRef(null);
+function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
-
-  const go = useCallback((i) => {
-    const el = deck.current;
-    if (!el || !el.clientWidth) return;
-    el.scrollTo({ left: Math.max(0, i) * el.clientWidth, behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    if (!opening) return;
-    const ord = Number(opening[1]);
-    const n = passages.findIndex((p) => p.ord === ord);
-    if (n >= 0) requestAnimationFrame(() => go(n));
-  }, [opening?.[1], go, passages.length]);
-
-  useEffect(() => {
-    if (whole) return;
-    function key(e) {
-      if (e.key === "ArrowLeft") go(at - 1);
-      if (e.key === "ArrowRight") go(at + 1);
-    }
-    document.addEventListener("keydown", key);
-    return () => document.removeEventListener("keydown", key);
-  }, [at, go, whole]);
-
   if (!passages.length) return <Empty>the book has no text in it yet</Empty>;
-
   return (
-    <div className="reader">
-      <div className="rbar">
-        <button className="dlink" onClick={() => setWhole(!whole)}>
-          {whole ? "one at a time" : "read it straight through"}
-        </button>
-        {!whole && (
-          <span className="rcount">
-            {at + 1} / {passages.length}
-          </span>
-        )}
-      </div>
-
-      {whole ? (
-        <div className="rwhole">
-          {passages.map((p) => (
-            <div className="leaf" key={p.ord}>
-              <span className="cap rord">{p.ord}</span>
-              <Prose className="rtext" text={p.text} />
-            </div>
-          ))}
+    <div className="leaves">
+      {passages.map((p) => (
+        <div
+          className={`leaf${fragment === `p${p.ord}` ? " lit" : ""}`}
+          key={p.ord}
+          ref={
+            fragment === `p${p.ord}`
+              ? (el) => el?.scrollIntoView({ block: "nearest" })
+              : undefined
+          }
+        >
+          <span className="cap rord">{p.ord}</span>
+          <Prose className="rtext" text={p.text} />
         </div>
-      ) : (
-        <>
-          <div
-            className="rdeck"
-            ref={deck}
-            onScroll={(e) => setAt(Math.round(e.target.scrollLeft / (e.target.clientWidth || 1)))}
-          >
-            {passages.map((p) => (
-              <div className="leaf" key={p.ord}>
-                <span className="cap rord">{p.ord}</span>
-                <Prose className="rtext" text={p.text} />
-              </div>
-            ))}
-          </div>
-          <div className="rnums">
-            <button className="rstep" onClick={() => go(at - 1)} disabled={at === 0}>
-              ‹
-            </button>
-            {passages.map((p, n) => (
-              <button key={p.ord} className={`rnum${n === at ? " on" : ""}`} onClick={() => go(n)}>
-                {p.ord}
-              </button>
-            ))}
-            <button
-              className="rstep"
-              onClick={() => go(at + 1)}
-              disabled={at === passages.length - 1}
-            >
-              ›
-            </button>
-          </div>
-        </>
-      )}
+      ))}
     </div>
   );
 }
@@ -208,6 +140,11 @@ export default function Dossier({ at, onClose }) {
   const fragment = at?.fragment || null;
   const [thing, setThing] = useState(null);
   const [missing, setMissing] = useState(false);
+  const [face, setFace] = useState("content");
+
+  useEffect(() => {
+    setFace(fragment && fragment.startsWith("p") ? "content" : "content");
+  }, [id, fragment]);
 
   useEffect(() => {
     if (!id) return;
@@ -269,7 +206,20 @@ export default function Dossier({ at, onClose }) {
             )}
             <Address address={thing.address} />
 
-            {thing.within && (
+            {thing.kind === "books" && (
+              <Tabs
+                className="sub dsub"
+                items={[{ id: "content", label: "content" }, { id: "meta", label: "meta" }]}
+                value={face}
+                onChange={setFace}
+              />
+            )}
+
+            {thing.kind === "books" && face === "content" && (
+              <Leaves thing={thing} fragment={fragment} />
+            )}
+
+            {!(thing.kind === "books" && face === "content") && thing.within && (
               <Section label="where it sits">
                 {thing.within.length > 1 ? (
                   <Trail chain={thing.within} self={thing.id} />
@@ -279,13 +229,13 @@ export default function Dossier({ at, onClose }) {
               </Section>
             )}
 
-            {thing.about && (
+            {!(thing.kind === "books" && face === "content") && thing.about && (
               <Section label="what it is">
                 <Prose className="dclaimtext" text={thing.about} />
               </Section>
             )}
 
-            {thing.claims.length > 0 && (
+            {!(thing.kind === "books" && face === "content") && thing.claims.length > 0 && (
               <Section label="said of it, with no book behind it">
               {thing.claims.map((c) => (
                 <div
@@ -303,7 +253,7 @@ export default function Dossier({ at, onClose }) {
               </Section>
             )}
 
-            {thing.kind === "books" && (
+            {thing.kind === "books" && face === "meta" && (
               <Section label={thing.book?.godhead ? "law, and nothing may contradict it" : "the book"}>
                 {thing.book ? (
                   <p className="dline">
@@ -321,7 +271,6 @@ export default function Dossier({ at, onClose }) {
                 ) : (
                   <Empty>it is named as a book but nobody has shelved it</Empty>
                 )}
-                <Reader thing={thing} fragment={fragment} />
               </Section>
             )}
 
@@ -352,7 +301,8 @@ export default function Dossier({ at, onClose }) {
                 />
             )}
 
-            {!(thing.kind === "people" && settled(thing.person?.died)) && (
+            {!(thing.kind === "books" && face === "content") &&
+              !(thing.kind === "people" && settled(thing.person?.died)) && (
               <Table
                 {...KEEPS}
                 rows={thing.holdings}
@@ -368,6 +318,7 @@ export default function Dossier({ at, onClose }) {
               />
             )}
 
+            {!(thing.kind === "books" && face === "content") && (
             <Section label="referenced in">
               {thing.mentions.length === 0 && <Empty>nothing written mentions it</Empty>}
               {thing.mentions.map((m) => (
@@ -382,6 +333,7 @@ export default function Dossier({ at, onClose }) {
                 </div>
               ))}
             </Section>
+            )}
           </div>
         )}
     </Overlay>
