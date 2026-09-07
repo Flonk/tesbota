@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Btn, Empty, Note, Prose, Table, Tabs, Toggle } from "./ui";
+import { Btn, Empty, Note, Prose, Table, Toggle } from "./ui";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
-const KINDS = ["places", "people", "books", "items"];
-const REMEMBER = "tesbota.library.kind";
-
 const COUNT = (n) => (n ? String(n) : "");
 
 const FILTERS = [
@@ -30,14 +27,12 @@ const FILTERS = [
 
 const COLUMNS = {
   books: {
-    cols: "minmax(9rem, 2.2fr) minmax(6rem, 1.4fr) 5rem 5rem 4rem",
+    cols: "minmax(12rem, 3fr) minmax(6rem, 1.2fr) 5rem",
     fields: [
       { key: "name", label: "book", strong: true, cell: (r) => r.name },
       { key: "author", label: "author", dim: true,
         cell: (r) => (r.godhead ? `${r.author} ✦` : r.author || "unattributed") },
       { key: "written", label: "written", dim: true, cell: (r) => r.written || "—" },
-      { key: "rarity", label: "rarity", dim: true, cell: (r) => r.rarity || "—" },
-      { key: "passages", label: "leaves", num: true, cell: (r) => COUNT(r.passages) },
     ],
   },
   places: {
@@ -68,15 +63,6 @@ const COLUMNS = {
     ],
   },
 };
-
-function remembered() {
-  try {
-    const kind = localStorage.getItem(REMEMBER);
-    return KINDS.includes(kind) ? kind : "places";
-  } catch {
-    return "places";
-  }
-}
 
 function holderOf(row) {
   if (row.holder) return row.holder.replace(/-/g, " ");
@@ -131,10 +117,9 @@ function Hits({ named, hits, selected, onOpen }) {
   );
 }
 
-export default function Library({ dossier, onOpen }) {
+export default function Library({ dossier, onOpen, kind, kinds, onKind, onCounts }) {
   const [books, setBooks] = useState(null);
   const [world, setWorld] = useState(null);
-  const [kind, setKind] = useState(remembered);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState(null);
   const [on, setOn] = useState({});
@@ -211,17 +196,24 @@ export default function Library({ dossier, onOpen }) {
     document.querySelector('.lib [data-sel="1"]')?.scrollIntoView({ block: "nearest" });
   }, [selected]);
 
-  function pick(next) {
-    setKind((current) => {
-      const at = KINDS.indexOf(current);
-      const value = typeof next === "number" ? KINDS[(at + next + KINDS.length) % KINDS.length] : next;
-      try {
-        localStorage.setItem(REMEMBER, value);
-      } catch {}
-      return value;
-    });
+  useEffect(() => {
     setHits(null);
     setSelected(null);
+  }, [kind]);
+
+  useEffect(() => {
+    if (books === null || world === null) return;
+    onCounts({
+      places: (world.places || []).length,
+      people: (world.people || []).length,
+      books: books.length,
+      items: (world.items || []).length,
+    });
+  }, [books, world, onCounts]);
+
+  function pick(step) {
+    const at = kinds.indexOf(kind);
+    onKind(kinds[(at + step + kinds.length) % kinds.length]);
   }
 
   function search(e) {
@@ -235,12 +227,6 @@ export default function Library({ dossier, onOpen }) {
   }
 
   const shelf = books || [];
-  const counts = {
-    places: (world?.places || []).length,
-    people: (world?.people || []).length,
-    books: shelf.length,
-    items: (world?.items || []).length,
-  };
   const filters = FILTERS.filter((f) => !f.kinds || f.kinds.includes(kind));
   const active = filters.filter((f) => on[f.id]);
 
@@ -278,13 +264,6 @@ export default function Library({ dossier, onOpen }) {
 
   return (
     <div className="lib">
-      <Tabs
-        className="sub"
-        items={KINDS.map((k) => ({ id: k, label: k, count: counts[k] }))}
-        value={kind}
-        onChange={pick}
-      />
-
       <form className="seek" onSubmit={search}>
         <input
           ref={box}

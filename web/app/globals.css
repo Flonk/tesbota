@@ -207,7 +207,7 @@ textarea {
   display: flex;
   align-items: stretch;
   gap: .5rem;
-  padding: .3rem .8rem;
+  padding: 0 .8rem;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   min-width: 0;
@@ -226,7 +226,7 @@ textarea {
 }
 .tabs.sub {
   flex: 0 0 auto;
-  margin: 0 0 .7rem;
+  padding: 0 .8rem;
   border-bottom: 1px solid var(--line);
 }
 .grip { flex: 1 1 auto; min-width: .5rem; }
@@ -279,7 +279,6 @@ textarea {
 .ability b { color: var(--ink); font-weight: 400; }
 .ability i { color: var(--gold); font-style: normal; }
 
-@media (max-width: 720px) { .shelf { columns: 1; } }
 .bdate { color: var(--place); }
 
 .map {
@@ -361,7 +360,8 @@ textarea {
   .tabpanel { padding: .8rem .9rem 1.2rem; }
   .map { padding: .6rem .9rem; }
   .stat { display: none; }
-  .tabbar { gap: .3rem; padding: .3rem .5rem; }
+  .tabbar { gap: .3rem; padding: 0 .5rem; }
+  .tabs.sub { padding: 0 .5rem; }
   .tab { padding: .4rem .5rem; letter-spacing: .08em; }
   .btn { padding: .4rem .6rem; }
 }

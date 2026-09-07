@@ -280,6 +280,9 @@ function Turn({ s, i, last, blocked, busy, pendingNote, noteOpen, setNoteOpen, n
   );
 }
 
+const KINDS = ["places", "people", "books", "items"];
+const REMEMBER = "tesbota.library.kind";
+
 const TABS = [
   { id: "lore", label: "lore master" },
   { id: "map", label: "map" },
@@ -296,6 +299,8 @@ export default function Page() {
   const [noteOpen, setNoteOpen] = useState(false);
   const [tab, setTab] = useState("lore");
   const [dossier, setDossier] = useState(null);
+  const [kind, setKind] = useState("places");
+  const [counts, setCounts] = useState({});
   const [at, setAt] = useState(0);
   const [split, setSplit] = useState(50);
   const [dragging, setDragging] = useState(false);
@@ -329,6 +334,18 @@ export default function Page() {
     const open = (e) => setDossier(e.detail);
     window.addEventListener("bota:open", open);
     return () => window.removeEventListener("bota:open", open);
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(REMEMBER);
+    if (KINDS.includes(saved)) setKind(saved);
+  }, []);
+
+  const pickKind = useCallback((next) => {
+    setKind(next);
+    try {
+      localStorage.setItem(REMEMBER, next);
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -549,6 +566,15 @@ export default function Page() {
           </div>
         </div>
 
+        {tab === "library" && (
+          <Tabs
+            className="sub"
+            items={KINDS.map((k) => ({ id: k, label: k, count: counts[k] }))}
+            value={kind}
+            onChange={pickKind}
+          />
+        )}
+
         <div className="tabbody">
           <div className="tabpanel">
           {tab === "lore" && (
@@ -570,7 +596,16 @@ export default function Page() {
             />
           )}
           {tab === "quests" && <Quests quests={quests} />}
-          {tab === "library" && <Library dossier={dossier} onOpen={openDossier} />}
+          {tab === "library" && (
+            <Library
+              dossier={dossier}
+              onOpen={openDossier}
+              kind={kind}
+              kinds={KINDS}
+              onKind={pickKind}
+              onCounts={setCounts}
+            />
+          )}
           </div>
           <Dossier at={dossier} onClose={() => setDossier(null)} />
         </div>
