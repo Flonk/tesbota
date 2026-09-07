@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Empty, Note, Prose, Tag } from "./ui";
+import { Btn, Empty, Note, Prose, Table, Tabs, Toggle } from "./ui";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
-const TONE = { unique: "gold", rare: "warn", uncommon: "good", common: "dim" };
 const KINDS = ["places", "people", "books", "items"];
 const REMEMBER = "tesbota.library.kind";
 
@@ -30,10 +29,21 @@ const FILTERS = [
 ];
 
 const COLUMNS = {
+  books: {
+    cols: "minmax(9rem, 2.2fr) minmax(6rem, 1.4fr) 5rem 5rem 4rem",
+    fields: [
+      { key: "name", label: "book", strong: true, cell: (r) => r.name },
+      { key: "author", label: "author", dim: true,
+        cell: (r) => (r.godhead ? `${r.author} ✦` : r.author || "unattributed") },
+      { key: "written", label: "written", dim: true, cell: (r) => r.written || "—" },
+      { key: "rarity", label: "rarity", dim: true, cell: (r) => r.rarity || "—" },
+      { key: "passages", label: "leaves", num: true, cell: (r) => COUNT(r.passages) },
+    ],
+  },
   places: {
     cols: "minmax(8rem, 2fr) minmax(6rem, 1.4fr) 4rem 4rem 4rem",
     fields: [
-      { key: "name", label: "place", cell: (r) => r.name },
+      { key: "name", strong: true, label: "place", cell: (r) => r.name },
       { key: "parentName", label: "within", cell: (r) => r.parentName || "nowhere", dim: true },
       { key: "contains", label: "holds", cell: (r) => COUNT(r.contains), num: true },
       { key: "exits", label: "ways out", cell: (r) => COUNT(r.exits), num: true },
@@ -43,7 +53,7 @@ const COLUMNS = {
   people: {
     cols: "minmax(8rem, 2fr) 4rem 5rem 4rem",
     fields: [
-      { key: "name", label: "person", cell: (r) => r.name },
+      { key: "name", strong: true, label: "person", cell: (r) => r.name },
       { key: "wrote", label: "wrote", cell: (r) => COUNT(r.wrote), num: true },
       { key: "mentions", label: "mentioned", cell: (r) => COUNT(r.mentions), num: true },
       { key: "keeps", label: "keeps", cell: (r) => COUNT(r.keeps), num: true },
@@ -52,7 +62,7 @@ const COLUMNS = {
   items: {
     cols: "minmax(8rem, 2fr) minmax(6rem, 1.4fr) 5rem",
     fields: [
-      { key: "name", label: "item", cell: (r) => r.name },
+      { key: "name", strong: true, label: "item", cell: (r) => r.name },
       { key: "holder", label: "held by", cell: (r) => holderOf(r), dim: true },
       { key: "mentions", label: "mentioned", cell: (r) => COUNT(r.mentions), num: true },
     ],
@@ -79,74 +89,6 @@ function compare(a, b, key) {
   const y = b[key] ?? "";
   if (typeof x === "number" && typeof y === "number") return x - y;
   return String(x).toLowerCase().localeCompare(String(y).toLowerCase());
-}
-
-function Shelf({ books, selected, onOpen }) {
-  return (
-    <div className="shelf">
-      {books.map((b) => (
-        <div
-          className={`book${b.id === selected ? " sel" : ""}`}
-          key={b.id}
-          data-sel={b.id === selected ? "1" : undefined}
-          onClick={() => onOpen(b.id)}
-        >
-          <div className="btitle">
-            {b.name}
-            {b.godhead && <Tag tone="gold">godhead</Tag>}
-          </div>
-          <div className="cap bline">
-            <span>{b.author || "unattributed"}</span>
-            <span className="bdate">[{b.written || "—"}]</span>
-            {b.rarity && <Tag tone={TONE[b.rarity] || "dim"}>{b.rarity}</Tag>}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function List({ kind, rows, sort, onSort, selected, onOpen }) {
-  const shape = COLUMNS[kind];
-  if (!shape) return null;
-  return (
-    <div className="etable" style={{ "--cols": shape.cols }}>
-      <div className="erow ehead">
-        {shape.fields.map((f) => (
-          <button
-            key={f.key}
-            className={`ecol${f.num ? " num" : ""}${sort.key === f.key ? " on" : ""}`}
-            onClick={() => onSort(f.key)}
-          >
-            {f.label}
-            {sort.key === f.key && <span className="dir">{sort.dir > 0 ? "↑" : "↓"}</span>}
-          </button>
-        ))}
-      </div>
-      {rows.map((r) => (
-        <div
-          key={r.id}
-          data-sel={r.id === selected ? "1" : undefined}
-          className={`erow${r.unwritten ? " unwritten" : ""}${r.stub ? " stub" : ""}${
-            r.id === selected ? " sel" : ""
-          }`}
-          title={r.id}
-          onClick={() => onOpen(r.id)}
-        >
-          {shape.fields.map((f) => (
-            <span
-              key={f.key}
-              className={`ecell${f.num ? " num" : ""}${f.dim ? " dim" : ""}${
-                f.key === "name" ? " ename" : ""
-              }`}
-            >
-              {f.cell(r)}
-            </span>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function Hits({ named, hits, selected, onOpen }) {
@@ -324,11 +266,7 @@ export default function Library({ dossier, onOpen }) {
   const rows = all
     .filter((r) => !q || r.name.toLowerCase().includes(q) || r.id.includes(q))
     .filter(keep)
-    .sort((a, b) =>
-      kind === "books" && sort.key === "name"
-        ? ORDER.indexOf(a.rarity) - ORDER.indexOf(b.rarity)
-        : compare(a, b, sort.key) * sort.dir || compare(a, b, "name")
-    );
+    .sort((a, b) => compare(a, b, sort.key) * sort.dir || compare(a, b, "name"));
   const reading = books === null || world === null;
 
   order.current =
@@ -336,8 +274,17 @@ export default function Library({ dossier, onOpen }) {
       ? rows.map((r) => r.id)
       : [...named.map((r) => r.id), ...hits.filter((h) => h.entity).map((h) => h.entity)];
 
+  const shape = COLUMNS[kind];
+
   return (
     <div className="lib">
+      <Tabs
+        className="sub"
+        items={KINDS.map((k) => ({ id: k, label: k, count: counts[k] }))}
+        value={kind}
+        onChange={pick}
+      />
+
       <form className="seek" onSubmit={search}>
         <input
           ref={box}
@@ -350,54 +297,44 @@ export default function Library({ dossier, onOpen }) {
           }}
         />
         {hits !== null && (
-          <button type="button" className="subtab on" onClick={() => setHits(null)}>
+          <Btn onClick={() => setHits(null)} type="button">
             back to {kind}
-          </button>
+          </Btn>
         )}
       </form>
-
-      <div className="subbar">
-        {KINDS.map((k) => (
-          <button key={k} className={`subtab${kind === k ? " on" : ""}`} onClick={() => pick(k)}>
-            {k}
-            <span className="count">{counts[k]}</span>
-          </button>
-        ))}
-      </div>
 
       {hits === null && (
         <div className="filters">
           {filters.map((f) => (
-            <button
+            <Toggle
               key={f.id}
-              className={`toggle${on[f.id] ? " on" : ""}`}
+              on={on[f.id]}
               onClick={() => setOn((s) => ({ ...s, [f.id]: !s[f.id] }))}
             >
               {f.label}
-            </button>
+            </Toggle>
           ))}
           {active.length > 0 && (
-            <button className="toggle clear" onClick={() => setOn({})}>
+            <Toggle className="clear" onClick={() => setOn({})}>
               clear
-            </button>
+            </Toggle>
           )}
         </div>
       )}
 
       {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={onOpen} />}
       {hits === null && reading && <Empty>reading the shelves…</Empty>}
-      {hits === null && !reading && rows.length === 0 && <Empty>nothing here matches</Empty>}
-      {hits === null && !reading && rows.length > 0 && kind === "books" && (
-        <Shelf books={rows} selected={selected} onOpen={onOpen} />
-      )}
-      {hits === null && !reading && rows.length > 0 && kind !== "books" && (
-        <List
-          kind={kind}
+      {hits === null && !reading && (
+        <Table
+          cols={shape.cols}
+          fields={shape.fields}
           rows={rows}
           sort={sort}
           onSort={by}
           selected={selected}
           onOpen={onOpen}
+          rowClass={(r) => `${r.unwritten ? "unwritten" : ""} ${r.stub ? "stub" : ""}`.trim()}
+          empty="nothing here matches"
         />
       )}
     </div>

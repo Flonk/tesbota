@@ -7,7 +7,7 @@ import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Map from "./Map";
-import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tag } from "./ui";
+import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tabs, Tag } from "./ui";
 
 const PHASE = {
   explorer: "deciding",
@@ -83,7 +83,7 @@ function Checked({ x }) {
   return null;
 }
 
-function Table({ rows, chosen, fortune }) {
+function Outcomes({ rows, chosen, fortune }) {
   return (
     <Fold
       className="sec-table"
@@ -125,7 +125,7 @@ function Pair({ said, told }) {
       <Prose className="body said" text={said.kind === "say" ? `“${said.text}”` : said.text} />
       {told?.check && <Check c={told.check} />}
       {told?.outcomes?.length > 0 && (
-        <Table rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
+        <Outcomes rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
       )}
       {told?.text ? (
         <Prose className="body told" text={told.text} />
@@ -517,19 +517,15 @@ export default function Page() {
           onDoubleClick={evenBar}
           title="drag to resize"
         >
-          <div className="tabs">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                className={`tab${tab === t.id ? " on" : ""}`}
-                onClick={() => setTab(t.id)}
-              >
-                {t.label}
-                {t.id === "lore" && blocked && <span className="pip" />}
-                {t.id === "quests" && open > 0 && <span className="count">{open}</span>}
-              </button>
-            ))}
-          </div>
+          <Tabs
+            items={TABS.map((t) => ({
+              ...t,
+              pip: t.id === "lore" && blocked,
+              count: t.id === "quests" ? open : 0,
+            }))}
+            value={tab}
+            onChange={setTab}
+          />
           <span className="grip" />
           <div className="tabright">
             {busy && <span className="stat gold">working…</span>}
@@ -553,7 +549,8 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="tabpanel">
+        <div className="tabbody">
+          <div className="tabpanel">
           {tab === "lore" && (
             <Lore
               gap={gap}
@@ -574,8 +571,9 @@ export default function Page() {
           )}
           {tab === "quests" && <Quests quests={quests} />}
           {tab === "library" && <Library dossier={dossier} onOpen={openDossier} />}
+          </div>
+          <Dossier at={dossier} onClose={() => setDossier(null)} />
         </div>
-        <Dossier at={dossier} onClose={() => setDossier(null)} />
       </section>
     </div>
   );

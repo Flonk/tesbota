@@ -1,8 +1,31 @@
 "use client";
 
-import { Cap, Crumb, Empty } from "./ui";
+import { Cap, Table } from "./ui";
 
 const WORDS = { done: "done", failed: "failed", abandoned: "let go" };
+
+const where = (q) => (q.where || []).map((p) => p.name).join(" › ");
+
+const ONGOING = {
+  cols: "minmax(9rem, 2fr) minmax(8rem, 2.4fr) minmax(6rem, 1fr) minmax(6rem, 1fr) 7rem",
+  fields: [
+    { key: "title", label: "errand", strong: true, cell: (q) => q.title },
+    { key: "detail", label: "what it asks", dim: true, cell: (q) => q.detail || "—" },
+    { key: "giver", label: "set by", dim: true, cell: (q) => q.giver || "nobody" },
+    { key: "where", label: "taken on at", dim: true, cell: where },
+    { key: "at", label: "opened", dim: true, cell: (q) => q.at || q.opened || "—" },
+  ],
+};
+
+const FINISHED = {
+  cols: "minmax(9rem, 2fr) minmax(6rem, 1fr) minmax(6rem, 1fr) 7rem",
+  fields: [
+    { key: "title", label: "errand", strong: true, cell: (q) => q.title },
+    { key: "status", label: "outcome", dim: true, cell: (q) => WORDS[q.status] || q.status },
+    { key: "where", label: "taken on at", dim: true, cell: where },
+    { key: "closed", label: "closed", dim: true, cell: (q) => q.closed_at || q.closed || "—" },
+  ],
+};
 
 export default function Quests({ quests = [] }) {
   const active = quests.filter((q) => q.status === "active");
@@ -11,32 +34,10 @@ export default function Quests({ quests = [] }) {
   return (
     <div>
       <Cap>ongoing</Cap>
-      {active.length === 0 && <Empty />}
-      {active.map((q) => (
-        <div className="quest" key={q.id}>
-          <div className="qtitle">{q.title}</div>
-          <Crumb where={q.where} />
-          {q.giver && <div className="qsub">set by {q.giver}</div>}
-          {q.detail && <div className="qsub">{q.detail}</div>}
-          <div className="cap">opened {q.at || q.opened}</div>
-        </div>
-      ))}
+      <Table {...ONGOING} rows={active} empty="nothing has been taken on" />
 
-      {past.length > 0 && (
-        <>
-          <Cap>finished</Cap>
-          {past.map((q) => (
-            <div className="quest past" key={q.id}>
-              <div className="qtitle">{q.title}</div>
-              <Crumb where={q.where} />
-              <div className="cap">
-                {WORDS[q.status] || q.status}
-                {q.closed_at || q.closed ? ` · ${q.closed_at || q.closed}` : ""}
-              </div>
-            </div>
-          ))}
-        </>
-      )}
+      <Cap>finished</Cap>
+      <Table {...FINISHED} rows={past} empty="nothing has been finished yet" />
     </div>
   );
 }

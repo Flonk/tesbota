@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Empty, openDossier, Prose, Tag } from "./ui";
+import { Empty, openDossier, Prose, Table, Tag } from "./ui";
 
 function Reader({ thing, fragment }) {
   const opening = /^p(\d+)$/.exec(fragment || "");
@@ -93,6 +93,50 @@ function Reader({ thing, fragment }) {
     </div>
   );
 }
+
+const WROTE = {
+  cols: "minmax(9rem, 2fr) 6rem 5rem",
+  fields: [
+    { key: "name", label: "book", strong: true, cell: (r) => r.name },
+    { key: "written", label: "written", dim: true, cell: (r) => r.written || "—" },
+    { key: "rarity", label: "rarity", dim: true, cell: (r) => r.rarity || "—" },
+  ],
+};
+
+const CONTAINS = {
+  cols: "minmax(9rem, 2fr) 7rem",
+  fields: [
+    { key: "name", label: "inside it", strong: true, cell: (r) => r.name },
+    { key: "kind", label: "kind", dim: true, cell: (r) => r.kind || "unwritten" },
+  ],
+};
+
+const EXITS = {
+  cols: "minmax(9rem, 2fr) 7rem minmax(6rem, 1.4fr)",
+  fields: [
+    { key: "name", label: "way out", strong: true, cell: (r) => r.name },
+    { key: "bearing", label: "bearing", dim: true, cell: (r) => r.bearing || "unrecorded" },
+    { key: "distance", label: "how far", dim: true,
+      cell: (r) => r.distance || "nobody has measured this" },
+  ],
+};
+
+const KEEPS = {
+  cols: "minmax(9rem, 1.6fr) 4rem minmax(6rem, 2fr)",
+  fields: [
+    { key: "name", label: "thing", strong: true, cell: (r) => r.name },
+    { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
+    { key: "note", label: "condition", dim: true, cell: (r) => r.note || "—" },
+  ],
+};
+
+const HELD_BY = {
+  cols: "minmax(9rem, 2fr) 4rem",
+  fields: [
+    { key: "name", label: "holder", strong: true, cell: (r) => r.name },
+    { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
+  ],
+};
 
 function Section({ label, children }) {
   return (
@@ -254,69 +298,52 @@ export default function Dossier({ at, onClose }) {
 
             {thing.kind === "people" && (
               <Section label="what they wrote">
-                {thing.wrote.length === 0 && <Empty>nothing of theirs is on the shelves</Empty>}
-                {thing.wrote.map((b) => (
-                  <p className="dline" key={b.id}>
-                    <button className="dlink" onClick={() => openDossier(b.id)}>
-                      {b.name}
-                    </button>
-                    <span className="bdate">[{b.written || "—"}]</span>
-                    <span>{b.rarity || ""}</span>
-                  </p>
-                ))}
+                <Table
+                  {...WROTE}
+                  rows={thing.wrote}
+                  onOpen={openDossier}
+                  empty="nothing of theirs is on the shelves"
+                />
               </Section>
             )}
 
             {thing.kind === "places" && (
               <Section label="what it contains">
-                {thing.contains.length === 0 && <Empty>nothing is recorded inside it</Empty>}
-                {thing.contains.map((c) => (
-                  <p className="dline" key={c.id}>
-                    <button className="dlink" onClick={() => openDossier(c.id)}>
-                      {c.name}
-                    </button>
-                    <span className="dsection">{c.kind || "unwritten"}</span>
-                  </p>
-                ))}
+                <Table
+                  {...CONTAINS}
+                  rows={thing.contains}
+                  onOpen={openDossier}
+                  empty="nothing is recorded inside it"
+                />
               </Section>
             )}
 
             {thing.kind === "places" && (
               <Section label="ways out">
-                {thing.exits.length === 0 && <Empty>no way out of it is written down</Empty>}
-                {thing.exits.map((x) => (
-                  <p className="dline" key={x.id}>
-                    <button className="dlink" onClick={() => openDossier(x.id)}>
-                      {x.name}
-                    </button>
-                    <span className="dsection">{x.bearing || "no bearing recorded"}</span>
-                    <span>{x.distance || "nobody has measured this"}</span>
-                  </p>
-                ))}
+                <Table
+                  {...EXITS}
+                  rows={thing.exits}
+                  onOpen={openDossier}
+                  empty="no way out of it is written down"
+                />
               </Section>
             )}
 
             <Section label="what it keeps">
-              {thing.holdings.length === 0 && <Empty>it keeps nothing anybody has written down</Empty>}
-              {thing.holdings.map((h) => (
-                <p className="dline" key={h.name}>
-                  <span>{h.name}</span>
-                  {h.qty > 1 && <span className="dsection">x{h.qty}</span>}
-                  {h.note && <span className="dnote">{h.note}</span>}
-                </p>
-              ))}
+              <Table
+                {...KEEPS}
+                rows={thing.holdings}
+                empty="it keeps nothing anybody has written down"
+              />
             </Section>
 
             {thing.heldBy.length > 0 && (
               <Section label="who holds it">
-                {thing.heldBy.map((h) => (
-                  <p className="dline" key={h.holder}>
-                    <button className="dlink" onClick={() => openDossier(h.holder)}>
-                      {h.name}
-                    </button>
-                    {h.qty > 1 && <span className="dsection">x{h.qty}</span>}
-                  </p>
-                ))}
+                <Table
+                  {...HELD_BY}
+                  rows={thing.heldBy.map((h) => ({ ...h, id: h.holder }))}
+                  onOpen={openDossier}
+                />
               </Section>
             )}
 

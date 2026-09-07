@@ -66,6 +66,97 @@ export function Bubble({ who, children }) {
   );
 }
 
+export function Tabs({ items, value, onChange, className = "" }) {
+  return (
+    <div className={`tabs ${className}`.trim()}>
+      {items.map((t) => (
+        <button
+          key={t.id}
+          className={`tab${value === t.id ? " on" : ""}`}
+          onClick={() => onChange(t.id)}
+        >
+          {t.label}
+          {t.pip && <span className="pip" />}
+          {t.count > 0 && <span className="count">{t.count}</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function Table({
+  cols,
+  fields,
+  rows,
+  sort,
+  onSort,
+  selected,
+  onOpen,
+  rowClass,
+  empty = "nothing",
+}) {
+  if (!rows.length) return <Empty>{empty}</Empty>;
+  const heads = fields.some((f) => f.label);
+  return (
+    <div className="etable" style={{ "--cols": cols }}>
+      {heads && (
+        <div className="erow ehead">
+          {fields.map((f) =>
+            onSort ? (
+              <button
+                key={f.key}
+                className={`ecol${f.num ? " num" : ""}${sort?.key === f.key ? " on" : ""}`}
+                onClick={() => onSort(f.key)}
+              >
+                {f.label}
+                {sort?.key === f.key && <span className="dir">{sort.dir > 0 ? "↑" : "↓"}</span>}
+              </button>
+            ) : (
+              <span key={f.key} className={`ecol${f.num ? " num" : ""}`}>
+                {f.label}
+              </span>
+            )
+          )}
+        </div>
+      )}
+      {rows.map((r, n) => {
+        const id = r.id ?? n;
+        const lit = selected != null && id === selected;
+        return (
+          <div
+            key={id}
+            data-sel={lit ? "1" : undefined}
+            title={typeof r.id === "string" ? r.id : undefined}
+            className={`erow${onOpen ? " pick" : ""}${rowClass ? ` ${rowClass(r)}` : ""}${
+              lit ? " sel" : ""
+            }`}
+            onClick={onOpen ? () => onOpen(id) : undefined}
+          >
+            {fields.map((f) => (
+              <span
+                key={f.key}
+                className={`ecell${f.num ? " num" : ""}${f.dim ? " dim" : ""}${
+                  f.strong ? " ename" : ""
+                }`}
+              >
+                {f.cell(r)}
+              </span>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Toggle({ on, onClick, className = "", children }) {
+  return (
+    <button className={`toggle${on ? " on" : ""} ${className}`.trim()} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
 export function Empty({ children = "nothing" }) {
   return <p className="empty">{children}</p>;
 }

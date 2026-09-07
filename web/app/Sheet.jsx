@@ -1,6 +1,6 @@
 "use client";
 
-import { Cap, Empty } from "./ui";
+import { Cap, Table } from "./ui";
 
 const SKILL_ABILITY = {
   acrobatics: "dex",
@@ -28,70 +28,101 @@ const ABILITIES = ["str", "dex", "con", "int", "wis", "cha"];
 const mod = (score) => Math.floor((Number(score ?? 10) - 10) / 2);
 const sign = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
+const CONDITION = {
+  cols: "minmax(6rem, 1fr) 4rem 5rem",
+  fields: [
+    { key: "name", strong: true, cell: (r) => r.name },
+    { key: "value", num: true, cell: (r) => r.value },
+    { key: "max", dim: true, cell: () => "of 100" },
+  ],
+};
+
+const ABILITY = {
+  cols: "minmax(6rem, 1fr) 4rem 4rem",
+  fields: [
+    { key: "name", strong: true, cell: (r) => r.name },
+    { key: "score", num: true, cell: (r) => r.score },
+    { key: "mod", num: true, cell: (r) => sign(r.mod) },
+  ],
+};
+
+const SKILLS = {
+  cols: "minmax(8rem, 1fr) 4rem 4rem",
+  fields: [
+    { key: "name", label: "skill", strong: true, cell: (r) => r.name },
+    { key: "ability", label: "from", dim: true, cell: (r) => r.ability },
+    { key: "bonus", label: "bonus", num: true, cell: (r) => sign(r.bonus) },
+  ],
+};
+
+const CARRYING = {
+  cols: "minmax(8rem, 1.4fr) 4rem minmax(6rem, 2fr) 4rem",
+  fields: [
+    { key: "name", label: "thing", strong: true, cell: (r) => r.name },
+    { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
+    { key: "note", label: "condition", dim: true, cell: (r) => r.note || "—" },
+    { key: "worn", label: "worn", dim: true, cell: (r) => (r.worn ? "worn" : "") },
+  ],
+};
+
+const NOTEBOOK = {
+  cols: "1fr",
+  fields: [{ key: "line", strong: true, cell: (r) => r.line }],
+};
+
 export default function Sheet({ vitals, skills, inventory = [], notebook = [] }) {
   const abilities = skills?.abilities || {};
   const proficient = new Set(skills?.proficient || []);
   const bonus = Number(skills?.proficiency || 0);
 
-  const worn = inventory.filter((i) => i.worn);
-  const carried = inventory.filter((i) => !i.worn);
+  const condition = [
+    { name: "health", value: vitals?.health ?? 100 },
+    { name: "fatigue", value: vitals?.fatigue ?? 0 },
+    { name: "hunger", value: vitals?.hunger ?? 0 },
+  ];
+
+  const scores = ABILITIES.map((a) => ({
+    name: a,
+    score: abilities[a] ?? 10,
+    mod: mod(abilities[a]),
+  }));
+
+  const trained = Object.keys(SKILL_ABILITY)
+    .sort()
+    .map((name) => ({
+      name,
+      ability: SKILL_ABILITY[name],
+      bonus: mod(abilities[SKILL_ABILITY[name]]) + (proficient.has(name) ? bonus : 0),
+      trained: proficient.has(name),
+    }));
 
   return (
     <div className="cols">
       <div>
         <Cap>condition</Cap>
-        <div className="rows">
-          <span>health</span><span>{vitals?.health ?? 100} / 100</span>
-          <span>fatigue</span><span>{vitals?.fatigue ?? 0} / 100</span>
-          <span>hunger</span><span>{vitals?.hunger ?? 0} / 100</span>
-        </div>
+        <Table {...CONDITION} rows={condition} />
 
         <Cap>abilities</Cap>
-        <div className="rows">
-          {ABILITIES.map((a) => (
-            <span key={a} className="ability">
-              {a} <b>{abilities[a] ?? 10}</b> <i>{sign(mod(abilities[a]))}</i>
-            </span>
-          ))}
-        </div>
+        <Table {...ABILITY} rows={scores} />
 
         <Cap>carrying</Cap>
-        {inventory.length === 0 && <Empty />}
-        {worn.length > 0 && <div className="invgroup">worn</div>}
-        {worn.map((i, n) => (
-          <div className="item" key={`w${n}`}>
-            {i.name}{i.qty > 1 ? ` ×${i.qty}` : ""}
-            {i.note && <span className="itemnote">{i.note}</span>}
-          </div>
-        ))}
-        {carried.length > 0 && <div className="invgroup">carried</div>}
-        {carried.map((i, n) => (
-          <div className="item" key={`c${n}`}>
-            {i.name}{i.qty > 1 ? ` ×${i.qty}` : ""}
-            {i.note && <span className="itemnote">{i.note}</span>}
-          </div>
-        ))}
+        <Table
+          {...CARRYING}
+          rows={inventory.map((i, n) => ({ ...i, id: `${i.name}-${n}` }))}
+          empty="it carries nothing"
+        />
       </div>
 
       <div>
         <Cap>notebook</Cap>
-        {notebook.length === 0 && <Empty>nothing written</Empty>}
-        {notebook.map((n, i) => (
-          <div className="item" key={i}>{n}</div>
-        ))}
+        <Table
+          {...NOTEBOOK}
+          rows={notebook.map((line, n) => ({ id: n, line }))}
+          empty="nothing written"
+        />
 
         <Cap>skills</Cap>
-        {Object.keys(SKILL_ABILITY).sort().map((name) => {
-          const trained = proficient.has(name);
-          const total = mod(abilities[SKILL_ABILITY[name]]) + (trained ? bonus : 0);
-          return (
-            <div className={`skill ${trained ? "trained" : ""}`} key={name}>
-              <span className="sname">{name}</span>
-              <span className="sab">{SKILL_ABILITY[name]}</span>
-              <span className="sval">{sign(total)}</span>
-            </div>
-          );
-        })}
+        <Table {...SKILLS} rows={trained} rowClass={(r) => (r.trained ? "trained" : "untrained")} />
       </div>
     </div>
   );
