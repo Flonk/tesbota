@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
-import Quests, { QuestPanel } from "./Quests";
+import { QuestPanel } from "./Quests";
 import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
@@ -280,14 +280,13 @@ function Turn({ s, i, last, blocked, busy, pendingNote, noteOpen, setNoteOpen, n
   );
 }
 
-const KINDS = ["places", "people", "books", "items"];
+const KINDS = ["places", "people", "books", "items", "quests"];
 const REMEMBER = "tesbota.library.kind";
 
 const TABS = [
   { id: "lore", label: "lore master" },
   { id: "map", label: "map" },
   { id: "stats", label: "stats" },
-  { id: "quests", label: "quests" },
   { id: "library", label: "library" },
 ];
 
@@ -542,7 +541,7 @@ export default function Page() {
             items={TABS.map((t) => ({
               ...t,
               pip: t.id === "lore" && blocked,
-              count: t.id === "quests" ? open : 0,
+              count: t.id === "library" && tab !== "library" ? open : 0,
             }))}
             value={tab}
             onChange={setTab}
@@ -599,12 +598,6 @@ export default function Page() {
               notebook={data.notebook || []}
             />
           )}
-          {tab === "quests" && (
-            <Quests
-              quests={quests}
-              onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
-            />
-          )}
           {tab === "library" && (
             <Library
               dossier={dossier}
@@ -613,6 +606,8 @@ export default function Page() {
               kinds={KINDS}
               onKind={pickKind}
               onCounts={setCounts}
+              quests={quests}
+              onQuest={(id) => setQuest(quests.find((q) => q.id === id) || null)}
             />
           )}
           </div>

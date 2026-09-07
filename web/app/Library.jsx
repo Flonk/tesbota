@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Quests from "./Quests";
 import { Btn, Empty, Note, Prose, Table, Toggle } from "./ui";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
 
+const WRITTEN = ["places", "people", "books", "items"];
+
 const FILTERS = [
-  { id: "unwritten", label: "unwritten", test: (r) => r.unwritten },
-  { id: "stub", label: "has $BOTA", test: (r) => r.stub },
+  { id: "unwritten", label: "unwritten", kinds: WRITTEN, test: (r) => r.unwritten },
+  { id: "stub", label: "has $BOTA", kinds: WRITTEN, test: (r) => r.stub },
+  { id: "ongoing", label: "ongoing", kinds: ["quests"], group: "status",
+    test: (r) => r.status === "active" },
+  { id: "finished", label: "finished", kinds: ["quests"], group: "status",
+    test: (r) => r.status !== "active" },
   { id: "orphan", label: "orphan", kinds: ["places"], test: (r) => !r.parent },
   { id: "ways", label: "has exits", kinds: ["places"], test: (r) => r.exits > 0 },
   { id: "keeps", label: "holds something", kinds: ["places"], test: (r) => r.keeps > 0 },
@@ -117,7 +124,16 @@ function Hits({ named, hits, selected, onOpen }) {
   );
 }
 
-export default function Library({ dossier, onOpen, kind, kinds, onKind, onCounts }) {
+export default function Library({
+  dossier,
+  onOpen,
+  kind,
+  kinds,
+  onKind,
+  onCounts,
+  quests = [],
+  onQuest,
+}) {
   const [books, setBooks] = useState(null);
   const [world, setWorld] = useState(null);
   const [query, setQuery] = useState("");
@@ -208,8 +224,9 @@ export default function Library({ dossier, onOpen, kind, kinds, onKind, onCounts
       people: (world.people || []).length,
       books: books.length,
       items: (world.items || []).length,
+      quests: quests.filter((q) => q.status === "active").length,
     });
-  }, [books, world, onCounts]);
+  }, [books, world, quests, onCounts]);
 
   function pick(step) {
     const at = kinds.indexOf(kind);
@@ -219,7 +236,7 @@ export default function Library({ dossier, onOpen, kind, kinds, onKind, onCounts
   function search(e) {
     e.preventDefault();
     const q = query.trim();
-    if (!q) return setHits(null);
+    if (!q || kind === "quests") return setHits(null);
     fetch(`/api/library?q=${encodeURIComponent(q)}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
       .then(setHits)
@@ -248,12 +265,14 @@ export default function Library({ dossier, onOpen, kind, kinds, onKind, onCounts
     ...(world?.items || []),
   ];
   const named = q ? everything.filter((r) => r.name.toLowerCase().includes(q)) : [];
-  const all = kind === "books" ? shelf : world?.[kind] || [];
+  const errands = quests.map((entry) => ({ ...entry, name: entry.title }));
+  const all =
+    kind === "books" ? shelf : kind === "quests" ? errands : world?.[kind] || [];
   const rows = all
     .filter((r) => !q || r.name.toLowerCase().includes(q) || r.id.includes(q))
     .filter(keep)
     .sort((a, b) => compare(a, b, sort.key) * sort.dir || compare(a, b, "name"));
-  const reading = books === null || world === null;
+  const reading = kind !== "quests" && (books === null || world === null);
 
   order.current =
     hits === null
@@ -269,7 +288,11 @@ export default function Library({ dossier, onOpen, kind, kinds, onKind, onCounts
           ref={box}
           className="seekbox"
           value={query}
-          placeholder="filter by name — enter to search everything written"
+          placeholder={
+            kind === "quests"
+              ? "filter errands by name"
+              : "filter by name — enter to search everything written"
+          }
           onChange={(e) => {
             setQuery(e.target.value);
             setHits(null);
@@ -303,7 +326,8 @@ export default function Library({ dossier, onOpen, kind, kinds, onKind, onCounts
 
       {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={onOpen} />}
       {hits === null && reading && <Empty>reading the shelves…</Empty>}
-      {hits === null && !reading && (
+      {hits === null && kind === "quests" && <Quests quests={rows} onOpen={onQuest} />}
+      {hits === null && !reading && kind !== "quests" && (
         <Table
           cols={shape.cols}
           fields={shape.fields}
