@@ -140,6 +140,8 @@ def resolve():
         campaign["sessions"]["lore3_sitting"] = None
         save_campaign(campaign)
 
+        canon.link_writing()
+
         transcript = chat_log()
         if transcript:
             turn["lore"] = (turn.get("lore") or []) + transcript

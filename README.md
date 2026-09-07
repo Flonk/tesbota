@@ -164,7 +164,8 @@ writes at all.
 entity(id, kind, name, introduced, extent)      people | places | books | items
 book(id, author, author_id, written, rarity)    author_id points at the person who wrote it
 passage(book_id, ord, text)                     a book's text, one paragraph to a row
-claim(id, entity_id, section, turn_id, text)    attested | map — all of it testimony
+claim(id, entity_id, section, turn_id, text)    testimony no document holds
+entity.about                                    a thing describing itself, no author
 edge(src, rel, dst, bearing, distance)          within | exits
 holding(holder, name, qty, note, worn)          what a place, a person or the explorer keeps
 
@@ -323,8 +324,25 @@ made of is as fixed as the fact that it is there.
 
 Claims are no longer written to canon by the driver at all. They are the unit lore
 master 1 rules on, they are kept on the turn record with their verdicts, and what
-actually happened is the narrator's to keep. `claim` belongs to lore master 3 now —
-`attested` testimony and `map` — and every row in it is somebody's word.
+actually happened is the narrator's to keep.
+
+What survives in `claim` is narrower still. A thing's own description lives on the
+thing, in `entity.about`, because nobody is asserting it — a village being a village
+needs no author. What a place contains and opens onto is the `edge` graph and only
+the graph. That leaves `claim` for the one thing neither covers: testimony no
+document holds, where somebody said a thing and there is no book to cite. There are
+currently none, and that is the honest state of a world whose authors have all
+written their accounts down.
+
+The redundancy this replaced is worth recording. Every claim used to restate, in
+flatter prose, something a book already said — the hearth roll's third passage was
+paraphrased by three separate claims. They existed because books did not deeplink
+their own subjects, so a person could not be found from the book about them, and the
+claim was the only index. The fix was to link the passages, not to keep the copy:
+`canon.link_writing()` runs the same deterministic linker the narrator uses over
+every passage, claim and description, and `tesbota resolve` runs it after each lore
+session. With the links in, the backlink is the index and the copy is just drift
+waiting to happen.
 
 The one moving through this world is never an author. Its observations are the
 narrator's, not its own, and they do not belong in a book of its writing. A lore

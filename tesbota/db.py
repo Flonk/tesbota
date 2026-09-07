@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS entity (
   kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items')),
   name       TEXT NOT NULL,
   introduced TEXT,
-  extent     TEXT
+  extent     TEXT,
+  about      TEXT
 );
 
 CREATE TABLE IF NOT EXISTS book (
@@ -41,7 +42,7 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS claim (
   id        INTEGER PRIMARY KEY,
   entity_id TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
-  section   TEXT NOT NULL CHECK (section IN ('attested','map')),
+  section   TEXT NOT NULL CHECK (section IN ('attested')),
   turn_id   TEXT,
   text      TEXT NOT NULL,
   book_id   TEXT REFERENCES entity(id)
@@ -78,7 +79,11 @@ CREATE VIEW IF NOT EXISTS writing AS
   UNION ALL
   SELECT 'bota://' || e.kind || '/' || c.entity_id || '#c' || c.id,
          c.entity_id, e.kind, c.section, c.text
-    FROM claim c JOIN entity e ON e.id = c.entity_id;
+    FROM claim c JOIN entity e ON e.id = c.entity_id
+  UNION ALL
+  SELECT 'bota://' || e.kind || '/' || e.id || '#about',
+         e.id, e.kind, 'about', e.about
+    FROM entity e WHERE e.about IS NOT NULL AND trim(e.about) <> '';
 
 CREATE VIEW IF NOT EXISTS unwritten AS
   SELECT e.id, e.kind, e.name FROM entity e
@@ -103,6 +108,16 @@ CREATE TRIGGER IF NOT EXISTS passage_au AFTER UPDATE ON passage BEGIN
   DELETE FROM search WHERE ref = 'bota://books/' || old.book_id || '#p' || old.ord;
   INSERT INTO search(ref, entity, section, body)
   VALUES ('bota://books/' || new.book_id || '#p' || new.ord, new.book_id, 'passage', new.text);
+END;
+
+CREATE TRIGGER IF NOT EXISTS entity_about_ai AFTER UPDATE OF about ON entity BEGIN
+  DELETE FROM search WHERE ref = 'bota://' || new.kind || '/' || new.id || '#about';
+  INSERT INTO search(ref, entity, section, body)
+  SELECT 'bota://' || new.kind || '/' || new.id || '#about', new.id, 'about', new.about
+   WHERE new.about IS NOT NULL AND trim(new.about) <> '';
+END;
+CREATE TRIGGER IF NOT EXISTS entity_about_ad AFTER DELETE ON entity BEGIN
+  DELETE FROM search WHERE ref = 'bota://' || old.kind || '/' || old.id || '#about';
 END;
 
 CREATE TRIGGER IF NOT EXISTS claim_ai AFTER INSERT ON claim BEGIN
@@ -140,15 +155,18 @@ def setup():
         con.execute("PRAGMA journal_mode = WAL")
         con.executescript("DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;")
         con.executescript(SCHEMA)
-        if "extent" not in {r["name"] for r in con.execute("PRAGMA table_info(entity)")}:
+        shape = {r["name"] for r in con.execute("PRAGMA table_info(entity)")}
+        if "extent" not in shape:
             con.execute("ALTER TABLE entity ADD COLUMN extent TEXT")
+        if "about" not in shape:
+            con.execute("ALTER TABLE entity ADD COLUMN about TEXT")
         held = {r["name"] for r in con.execute("PRAGMA table_info(person)")}
         for column in ("born", "died"):
             if column not in held:
                 con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
         con.commit()
-        shape = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='person'") or ""
-        if "lives TEXT REFERENCES" in shape:
+        person_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='person'") or ""
+        if "lives TEXT REFERENCES" in person_sql:
             con.execute("PRAGMA foreign_keys = OFF")
             con.executescript(FREE_LIVES)
             con.commit()
@@ -160,7 +178,7 @@ def setup():
 
 def claim_check_is_old():
     sql = value("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'claim'") or ""
-    return "witnessed" in sql
+    return "witnessed" in sql or "'map'" in sql
 
 
 FREE_LIVES = """
@@ -184,7 +202,7 @@ DROP VIEW IF EXISTS unwritten;
 CREATE TABLE claim_rebuilt (
   id        INTEGER PRIMARY KEY,
   entity_id TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
-  section   TEXT NOT NULL CHECK (section IN ('attested','map')),
+  section   TEXT NOT NULL CHECK (section IN ('attested')),
   turn_id   TEXT,
   text      TEXT NOT NULL,
   book_id   TEXT REFERENCES entity(id)
@@ -194,6 +212,22 @@ INSERT INTO claim_rebuilt (id, entity_id, section, turn_id, text, book_id)
 DROP TABLE claim;
 ALTER TABLE claim_rebuilt RENAME TO claim;
 """
+
+
+def rebuild_claims():
+    """Squeeze the claim table down to whatever the CHECK now allows."""
+    con = connect()
+    try:
+        con.execute("PRAGMA foreign_keys = OFF")
+        con.executescript(REBUILD)
+        con.commit()
+        con.execute("PRAGMA foreign_keys = ON")
+        con.executescript("DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;")
+        con.executescript(SCHEMA)
+        con.commit()
+        con.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    finally:
+        con.close()
 
 
 def retire_witnessed():

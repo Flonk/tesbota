@@ -275,8 +275,14 @@ export default function Dossier({ at, onClose }) {
               </Section>
             )}
 
-            <Section label={thing.kind === "people" ? "testimony" : "what is recorded"}>
-              {thing.claims.length === 0 && <Empty>nothing written yet</Empty>}
+            {thing.about && (
+              <Section label="what it is">
+                <Prose className="dclaimtext" text={thing.about} />
+              </Section>
+            )}
+
+            {thing.claims.length > 0 && (
+              <Section label="said of it, with no book behind it">
               {thing.claims.map((c) => (
                 <div
                   className={`dclaim${fragment === `c${c.id}` ? " lit" : ""}`}
@@ -290,7 +296,8 @@ export default function Dossier({ at, onClose }) {
                   <Prose text={c.text} className="dclaimtext" />
                 </div>
               ))}
-            </Section>
+              </Section>
+            )}
 
             {thing.kind === "books" && (
               <Section label={thing.book?.godhead ? "law, and nothing may contradict it" : "the book"}>

@@ -9,7 +9,8 @@ Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
   book(id, author, author_id, written, rarity)    author_id is the person who wrote it, when one is written
   person(id, lives, work, born, died)             where somebody is, their trade, and their span
   passage(book_id, ord, text)                     a book's text, one paragraph to a row
-  claim(id, entity_id, section, turn_id, text)    section: attested | map
+  claim(id, entity_id, section, turn_id, text)    testimony nobody wrote a document about
+  entity.about                                    a place or thing describing itself
   edge(src, rel, dst, bearing, distance)          rel: within | exits
   holding(holder, name, qty, note, worn)          what a place, a person or the explorer keeps
 
@@ -17,8 +18,14 @@ Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
   search(ref, entity, section, body)              full text: WHERE search MATCH 'mill NEAR/5 boy'
   unwritten(id, kind, name)                       named by somebody, written by nobody
 
-An `attested` claim is what somebody says about a thing. A `map` claim is a place
-describing itself. Every claim is testimony and none of it is fact.
+A book is where this world keeps what it knows. `entity.about` is the plain
+description of a thing — what a place is and what stands in it — and it belongs to
+the thing, not to any author, because nobody is claiming it.
+
+A `claim` is testimony that no document holds: somebody said a thing and there is
+no book to point at. It is rare, and it names who said it. Never restate in a claim
+what a book already says — the book says it better, and its address is the citation.
+Follow the addresses in a passage to find what is said about anything.
 
 Fact lives in books, and only in books. A book whose `author` is `the godhead` or
 `The Narrator` is not testimony and its author is not fallible. The Narrator keeps
@@ -51,6 +58,7 @@ In prose an address is wrapped so the sentence still reads —
 author chose. Follow an address by querying the row it names.
 
     SELECT dst, bearing, distance FROM edge WHERE src = 'alheim' AND rel = 'exits';
+    SELECT about FROM entity WHERE id = 'alheim-mill';
     SELECT section, turn_id, text FROM claim WHERE entity_id = 'alheim-mill';
     SELECT ord, text FROM passage WHERE book_id = 'petra-volls-route-notes' ORDER BY ord;
     SELECT ref, body FROM writing WHERE body LIKE '%/petra-voll%';
@@ -494,10 +502,22 @@ A book is an entity row, a book row and its passages, one paragraph to a row:
     VALUES ('petra-voll-on-the-mill', 'Petra Voll', 'petra-voll', '4E198', 'rare');
     INSERT INTO passage (book_id, ord, text) VALUES ('petra-voll-on-the-mill', 1, '...');
 
-An index card is claims against an entity — who attested what, never what is true:
+A thing's own description goes on the thing, where it needs no author because it
+claims nothing:
+
+    UPDATE entity SET about = 'A small farming village on [the Aler](bota://places/the-aler), ...'
+     WHERE id = 'alheim';
+
+Write a `claim` only for testimony no document holds — somebody said it, and there
+is no book to cite:
 
     INSERT INTO claim (entity_id, section, turn_id, text)
-    VALUES ('petra-voll', 'attested', NULL, 'She surveyed the Aler crossings for the Council.');
+    VALUES ('petra-voll', 'attested', NULL, 'The miller told her the crossing was shut.');
+
+Never write a claim that restates a book you have just written. The book already
+says it, with its author attached, and its passages are addresses anybody can
+follow. A claim that paraphrases a passage is the same fact written twice, and the
+two will drift apart.
 
 A claim's section is `attested` or `map` and nothing else. What the one moving
 through this world has actually seen is not yours to write down at all — the
@@ -568,6 +588,11 @@ asked already is.
 
 Everything you write under any other name is fallible and may be wrong.
 
+Every name inside a passage is an address. A book that names a person and does not
+link them cannot be found from that person, and the world ends up restating the
+book somewhere else just to make it reachable — write
+`[Greta Marsch](bota://people/greta-marsch)` in the prose itself.
+
 Never leave a name with nothing behind it. The moment you name something that has
 no row — a place, a person, an item, another book — insert its entity row in the
 same breath. A deeplink pointing at no row is a loose end; a bare row is a promise
@@ -623,11 +648,10 @@ twice and it can never disagree with itself. A place with no `within` edge is an
 unanswered question, and answering it means deciding what larger thing that place
 is part of.
 
-Each place also has its `map` claims — what lies inside it, what it opens onto.
-When you touch a place and its map is thin, fill in what is known, and write the
-names as deeplinks so they can be followed. A map records only what is
-established; a link to a bare row is an honest way to mark an edge nobody has
-walked yet.
+What a place contains and what it opens onto is the `edge` table and nothing else.
+Do not restate it in prose: the graph is read both ways, so a `within` edge already
+answers what is inside, and writing it twice is how the two come to disagree.
+`about` is for what a place is like, not for what it connects to.
 
 What a place or a person keeps is a fact about them, and it belongs to whoever is
 writing them. A mill has sacks in it before anybody walks in, a shopkeeper has

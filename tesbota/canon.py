@@ -1,8 +1,9 @@
+import re
+
 from . import db
 from .config import CHRONICLE, EXPLORER, FORBIDDEN_AUTHORS, GODHEADS, KINDS, STUB
 
 ATTESTED = "attested"
-MAP = "map"
 
 
 def open_question(value):
@@ -179,6 +180,89 @@ def settle(entity_id, **facts):
                 "UPDATE person SET lives = ? WHERE id = ?", (slug(facts["lives"]) or None, entity_id)
             )
     return entity_id
+
+
+ARTICLE = re.compile(r"^(?:the|a|an)\s+", re.I)
+ANCHORED = re.compile(r"\[[^\]]*\]\(bota://[^)]*\)")
+QUOTED = re.compile("\"[^\"]*\"|\u201c[^\u201d]*\u201d")
+SHORTEST_NAME = 3
+
+
+def candidates():
+    """Every string that names something, longest first, so a mill inside a
+    village is linked as the mill and not as the village."""
+    forms = {}
+    for r in db.rows("SELECT id, kind, name FROM entity"):
+        for form in (r["name"], ARTICLE.sub("", r["name"] or ""), r["id"].replace("-", " ")):
+            form = " ".join((form or "").split())
+            if len(form) >= SHORTEST_NAME:
+                forms.setdefault(form.lower(), (form, r["kind"], r["id"]))
+    return sorted(forms.values(), key=lambda c: -len(c[0]))
+
+
+def name_pattern(form):
+    return re.compile(r"(?<!\w)" + r"\s+".join(re.escape(w) for w in form.split()) + r"(?!\w)", re.I)
+
+
+def link_names(text):
+    """Turn the names of things the world already knows into addresses, once
+    each, leaving quotations and existing links exactly as they were."""
+    if not text:
+        return text
+    kept = [m.span() for m in ANCHORED.finditer(text)]
+    kept += [m.span() for m in QUOTED.finditer(text)]
+    kept += [m.span() for m in db.LINK.finditer(text)]
+    linked = set(db.mentioned(text))
+    edits = []
+    for form, kind, ident in candidates():
+        if ident in linked:
+            continue
+        for m in name_pattern(form).finditer(text):
+            if any(m.start() < end and start < m.end() for start, end in kept):
+                continue
+            edits.append((m.start(), m.end(), f"[{m.group(0)}]({db.link(kind, ident)})"))
+            kept.append(m.span())
+            linked.add(ident)
+            break
+    for start, end, address in sorted(edits, reverse=True):
+        text = text[:start] + address + text[end:]
+    return text
+
+
+def link_writing():
+    """Run every passage and claim past the linker, so a name in a book is an
+    address you can follow back. Books that never linked their own subjects are
+    why the record needed restating in the first place."""
+    touched = 0
+    with db.writing() as con:
+        for r in con.execute("SELECT book_id, ord, text FROM passage").fetchall():
+            linked = link_names(r["text"])
+            if linked != r["text"]:
+                con.execute(
+                    "UPDATE passage SET text = ? WHERE book_id = ? AND ord = ?",
+                    (linked, r["book_id"], r["ord"]),
+                )
+                touched += 1
+        for r in con.execute("SELECT id, text FROM claim").fetchall():
+            linked = link_names(r["text"])
+            if linked != r["text"]:
+                con.execute("UPDATE claim SET text = ? WHERE id = ?", (linked, r["id"]))
+                touched += 1
+        for r in con.execute("SELECT id, about FROM entity WHERE about IS NOT NULL").fetchall():
+            linked = link_names(r["about"])
+            if linked != r["about"]:
+                con.execute("UPDATE entity SET about = ? WHERE id = ?", (linked, r["id"]))
+                touched += 1
+    return touched
+
+
+def references(entity_id):
+    entity_id = slug(entity_id)
+    return db.value(
+        "SELECT count(*) FROM writing WHERE body LIKE ? AND entity <> ?",
+        (f"%/{entity_id}%", entity_id),
+        default=0,
+    )
 
 
 def godhead_books():

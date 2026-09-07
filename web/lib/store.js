@@ -286,7 +286,7 @@ export function entity(id) {
   }
   try {
     const row = db
-      .prepare(`SELECT id, kind, name, introduced FROM entity WHERE id = ?`)
+      .prepare(`SELECT id, kind, name, introduced, about FROM entity WHERE id = ?`)
       .get(ident);
     if (!row) return null;
 
@@ -326,6 +326,7 @@ export function entity(id) {
     const bundle = {
       ...row,
       address: `bota://${row.kind}/${row.id}`,
+      about: row.about || "",
       claims,
       mentions,
       holdings: holdingsIn(db, ident),
