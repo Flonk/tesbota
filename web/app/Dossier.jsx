@@ -194,16 +194,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
                   <Stub />
                 )}
               </p>
-            ) : (
-              <p className="cap dmeta">
-                <span>{thing.kind}</span>
-                <span>
-                  {thing.introduced
-                    ? `first named on ${thing.introduced}`
-                    : "nobody recorded when it was first named"}
-                </span>
-              </p>
-            )}
+            ) : null}
             <Address address={thing.address} />
 
             {thing.kind === "books" && face === "content" && (
@@ -256,8 +247,9 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
                       <span>{thing.book.author || "unattributed"}</span>
                     )}
                     {thing.book.godhead && <Tag tone="gold">godhead</Tag>}
-                    <span className="bdate">[<Prose as="span" text={thing.book.written || "$BOTA"} />]</span>
-                    <span>{thing.book.rarity || <Stub />}</span>
+                    <span className="bdate">
+                      [<Prose as="span" text={thing.book.written || "$BOTA"} />]
+                    </span>
                   </p>
                 ) : (
                   <Empty>it is named as a book but nobody has shelved it</Empty>
@@ -292,7 +284,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
                 />
             )}
 
-            {!(thing.kind === "books" && face === "content") &&
+            {thing.kind !== "books" &&
               !(thing.kind === "people" && settled(thing.person?.died)) && (
               <Table
                 {...KEEPS}
