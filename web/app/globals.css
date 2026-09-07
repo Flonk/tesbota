@@ -584,7 +584,10 @@ textarea {
 }
 .dclose:hover { color: var(--ink); }
 
-.dmeta { display: flex; gap: .8rem; text-transform: none; letter-spacing: .06em; margin: .2rem 0 .4rem; }
+.dmeta { display: flex; gap: .45rem; text-transform: none; letter-spacing: .06em; margin: .2rem 0 .9rem; align-items: baseline; }
+.lifespan { display: inline-flex; align-items: baseline; gap: .3rem; font: var(--mono); letter-spacing: .06em; color: var(--dim); }
+.lifespan .glyph { color: var(--gold); }
+.dbody > .etable { margin-bottom: 1.1rem; }
 .daddr {
   background: none; border: 1px dashed var(--line); border-radius: 2px;
   color: var(--place); font: var(--mono); letter-spacing: .06em;

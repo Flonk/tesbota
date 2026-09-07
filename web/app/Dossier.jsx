@@ -97,7 +97,7 @@ function Reader({ thing, fragment }) {
 const WROTE = {
   cols: "minmax(9rem, 2fr) 6rem 5rem",
   fields: [
-    { key: "name", label: "book", strong: true, cell: (r) => r.name },
+    { key: "name", label: "authored", strong: true, cell: (r) => r.name },
     { key: "written", label: "written", dim: true,
       cell: (r) => (String(r.written || "").includes("$BOTA") || !r.written ? <Stub /> : r.written) },
     { key: "rarity", label: "rarity", dim: true, cell: (r) => r.rarity || <Stub /> },
@@ -107,7 +107,7 @@ const WROTE = {
 const CONTAINS = {
   cols: "minmax(9rem, 2fr) 7rem",
   fields: [
-    { key: "name", label: "inside it", strong: true, cell: (r) => r.name },
+    { key: "name", label: "contains", strong: true, cell: (r) => r.name },
     { key: "kind", label: "kind", dim: true, cell: (r) => r.kind || <Stub /> },
   ],
 };
@@ -115,7 +115,7 @@ const CONTAINS = {
 const EXITS = {
   cols: "minmax(9rem, 2fr) 7rem minmax(6rem, 1.4fr)",
   fields: [
-    { key: "name", label: "way out", strong: true, cell: (r) => r.name },
+    { key: "name", label: "ways out", strong: true, cell: (r) => r.name },
     { key: "bearing", label: "bearing", dim: true, cell: (r) => r.bearing || <Stub /> },
     { key: "distance", label: "how far", dim: true, cell: (r) => r.distance || <Stub /> },
   ],
@@ -124,7 +124,7 @@ const EXITS = {
 const KEEPS = {
   cols: "minmax(9rem, 1.6fr) 4rem minmax(6rem, 2fr)",
   fields: [
-    { key: "name", label: "thing", strong: true, cell: (r) => r.name },
+    { key: "name", label: "inventory", strong: true, cell: (r) => r.name },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
     { key: "note", label: "condition", dim: true, cell: (r) => r.note || <Stub /> },
   ],
@@ -133,10 +133,26 @@ const KEEPS = {
 const HELD_BY = {
   cols: "minmax(9rem, 2fr) 4rem",
   fields: [
-    { key: "name", label: "holder", strong: true, cell: (r) => r.name },
+    { key: "name", label: "held by", strong: true, cell: (r) => r.name },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
   ],
 };
+
+const settled = (v) => {
+  const text = String(v || "").trim();
+  return text && !text.includes("$BOTA") ? text : "";
+};
+
+function Lifespan({ person }) {
+  return (
+    <span className="lifespan">
+      <span className="glyph" title="born">*</span>
+      {settled(person?.born) || <Stub />}
+      <span className="glyph" title="died">†</span>
+      {settled(person?.died) || <Stub />}
+    </span>
+  );
+}
 
 function Section({ label, children }) {
   return (
@@ -210,10 +226,14 @@ export default function Dossier({ at, onClose }) {
       onClose={onClose}
       title={thing?.name || id.replace(/-/g, " ")}
       tags={
-        <>
-          {thing?.unwritten && <Tag tone="dim">unwritten</Tag>}
-          {thing?.stub && <Tag tone="warn">$BOTA</Tag>}
-        </>
+        thing?.kind === "people" ? (
+          <Lifespan person={thing.person} />
+        ) : (
+          <>
+            {thing?.unwritten && <Tag tone="dim">unwritten</Tag>}
+            {thing?.stub && <Tag tone="warn">$BOTA</Tag>}
+          </>
+        )
       }
     >
         {missing && <Empty>nothing in the world has this address — it is a dangling link</Empty>}
@@ -221,10 +241,28 @@ export default function Dossier({ at, onClose }) {
 
         {thing && (
           <div className="dbody">
-            <p className="cap dmeta">
-              <span>{thing.kind}</span>
-              <span>{thing.introduced ? `first named on ${thing.introduced}` : "nobody recorded when it was first named"}</span>
-            </p>
+            {thing.kind === "people" ? (
+              <p className="cap dmeta">
+                <Prose as="span" text={thing.person?.work || "$BOTA"} />
+                <span>,</span>
+                {settled(thing.person?.lives) ? (
+                  <button className="dlink" onClick={() => openDossier(thing.person.lives)}>
+                    {thing.person.livesName}
+                  </button>
+                ) : (
+                  <Stub />
+                )}
+              </p>
+            ) : (
+              <p className="cap dmeta">
+                <span>{thing.kind}</span>
+                <span>
+                  {thing.introduced
+                    ? `first named on ${thing.introduced}`
+                    : "nobody recorded when it was first named"}
+                </span>
+              </p>
+            )}
             <Address address={thing.address} />
 
             {thing.within && (
@@ -237,7 +275,7 @@ export default function Dossier({ at, onClose }) {
               </Section>
             )}
 
-            <Section label="what is written">
+            <Section label={thing.kind === "people" ? "testimony" : "what is recorded"}>
               {thing.claims.length === 0 && <Empty>nothing written yet</Empty>}
               {thing.claims.map((c) => (
                 <div
@@ -277,75 +315,46 @@ export default function Dossier({ at, onClose }) {
             )}
 
             {thing.kind === "people" && (
-              <Section label="who they are">
-                <p className="dline">
-                  <Prose as="span" text={thing.person?.work || "$BOTA"} />
-                  {thing.person?.lives && !thing.person.lives.includes("$BOTA") ? (
-                    <button className="dlink" onClick={() => openDossier(thing.person.lives)}>
-                      {thing.person.livesName}
-                    </button>
-                  ) : (
-                    <Prose as="span" text="$BOTA" />
-                  )}
-                </p>
-                <p className="dline">
-                  <span className="dsection">born</span>
-                  <Prose as="span" text={thing.person?.born || "$BOTA"} />
-                  <span className="dsection">died</span>
-                  <Prose as="span" text={thing.person?.died || "$BOTA"} />
-                </p>
-              </Section>
-            )}
-
-            {thing.kind === "people" && (
-              <Section label="what they wrote">
                 <Table
                   {...WROTE}
                   rows={thing.wrote}
                   onOpen={openDossier}
                   empty="nothing of theirs is on the shelves"
                 />
-              </Section>
             )}
 
             {thing.kind === "places" && (
-              <Section label="what it contains">
                 <Table
                   {...CONTAINS}
                   rows={thing.contains}
                   onOpen={openDossier}
                   empty="nothing is recorded inside it"
                 />
-              </Section>
             )}
 
             {thing.kind === "places" && (
-              <Section label="ways out">
                 <Table
                   {...EXITS}
                   rows={thing.exits}
                   onOpen={openDossier}
                   empty="no way out of it is written down"
                 />
-              </Section>
             )}
 
-            <Section label="what it keeps">
+            {!(thing.kind === "people" && settled(thing.person?.died)) && (
               <Table
                 {...KEEPS}
                 rows={thing.holdings}
-                empty="it keeps nothing anybody has written down"
+                empty="nothing anybody has written down"
               />
-            </Section>
+            )}
 
             {thing.heldBy.length > 0 && (
-              <Section label="who holds it">
-                <Table
-                  {...HELD_BY}
-                  rows={thing.heldBy.map((h) => ({ ...h, id: h.holder }))}
-                  onOpen={openDossier}
-                />
-              </Section>
+              <Table
+                {...HELD_BY}
+                rows={thing.heldBy.map((h) => ({ ...h, id: h.holder }))}
+                onOpen={openDossier}
+              />
             )}
 
             <Section label="referenced in">

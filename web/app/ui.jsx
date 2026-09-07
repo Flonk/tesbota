@@ -172,8 +172,8 @@ export function Table({
   rowClass,
   empty = "nothing",
 }) {
-  if (!rows.length) return <Empty>{empty}</Empty>;
   const heads = fields.some((f) => f.label);
+  if (!rows.length && !heads) return <Empty>{empty}</Empty>;
   return (
     <div className="etable" style={{ "--cols": cols }}>
       {heads && (
@@ -196,6 +196,7 @@ export function Table({
           )}
         </div>
       )}
+      {!rows.length && <Empty>{empty}</Empty>}
       {rows.map((r, n) => {
         const id = r.id ?? n;
         const lit = selected != null && id === selected;
