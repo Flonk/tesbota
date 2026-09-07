@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS entity (
   id         TEXT PRIMARY KEY,
   kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items')),
   name       TEXT NOT NULL,
-  introduced TEXT
+  introduced TEXT,
+  extent     TEXT
 );
 
 CREATE TABLE IF NOT EXISTS book (
@@ -131,6 +132,8 @@ def setup():
         con.execute("PRAGMA journal_mode = WAL")
         con.executescript("DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;")
         con.executescript(SCHEMA)
+        if "extent" not in {r["name"] for r in con.execute("PRAGMA table_info(entity)")}:
+            con.execute("ALTER TABLE entity ADD COLUMN extent TEXT")
         con.commit()
     finally:
         con.close()

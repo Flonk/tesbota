@@ -432,10 +432,21 @@ That plus `within` is already a graph, so the map is a recursive query rather
 than a walk over rows, and `tesbota map` renders it as mermaid — containment as
 nested subgraphs, exits as labelled edges, unwritten places dashed.
 
-Geometry is deliberately absent. Nothing here knows where anything is in metres,
-and coordinates would mean inventing precision nobody established. If a surveyed
-place ever earns real geometry, that is a property of the fiction — the Council
-measures roads — rather than something every place needs.
+**The map is a projection of the graph, not a stored thing.** It is solved fresh
+from `within` and `exits` every time, and there are two layers to what it may know.
+
+*Derived, never stored.* `bearing_degrees()` turns a bearing into degrees clockwise
+from north, and `distance_band()` turns a distance into a low and a high in metres
+— wide on purpose, because "a short walk" is 200 to 1200 metres and pretending
+otherwise is a lie. Both return nothing at all for the vague cases rather than a
+guess, and most of this world's roads are a vague case. They live in
+`tesbota/travel.py`, which already owns leagues and journey timing.
+
+*Established, stored.* A place may carry an `extent` — GeoJSON on `entity` — and
+only lore master 3 writes one, only where a document in the world measured the
+thing. The Council surveys a road; a plate carries a boundary. A place with no
+extent is not a defect and is never given one to make the map look better, because
+coordinates would mean inventing precision nobody established.
 
 ## Looking before acting
 

@@ -18,7 +18,7 @@ Work them in numeric order. One commit per ticket.
 - [x] [014-dossier-panel.md](014-dossier-panel.md) — clicking a thing opens its dossier
 - [x] [015-book-reader.md](015-book-reader.md) — read a book properly
 - [x] [016-deeplink-navigation.md](016-deeplink-navigation.md) — every address in the app is a link
-- [ ] [017-map-geometry-model.md](017-map-geometry-model.md) — decide what the map is allowed to know
+- [x] [017-map-geometry-model.md](017-map-geometry-model.md) — decide what the map is allowed to know
 - [ ] [018-map-layout-solver.md](018-map-layout-solver.md) — solve a layout from the graph
 - [ ] [019-map-render.md](019-map-render.md) — draw it
 - [ ] [020-map-interaction.md](020-map-interaction.md) — move around the map

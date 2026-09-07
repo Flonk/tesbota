@@ -1,6 +1,6 @@
 # 017 — decide what the map is allowed to know
 
-**Status:** todo
+**Status:** done
 
 ## Why
 

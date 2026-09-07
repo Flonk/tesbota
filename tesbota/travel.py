@@ -1,6 +1,71 @@
+import re
 from datetime import timedelta
 
 from .state import stamp
+
+POINTS = (
+    "north", "north-north-east", "north-east", "east-north-east",
+    "east", "east-south-east", "south-east", "south-south-east",
+    "south", "south-south-west", "south-west", "west-south-west",
+    "west", "west-north-west", "north-west", "north-north-west",
+)
+
+
+def compass():
+    table = {}
+    for n, name in enumerate(POINTS):
+        for form in (name, name.replace("-", ""), name.replace("-", " "),
+                     "".join(word[0] for word in name.split("-"))):
+            table[form] = n * 22.5
+    return table
+
+
+COMPASS = compass()
+
+UNITS = {
+    "m": 1, "metre": 1, "metres": 1, "meter": 1, "meters": 1,
+    "km": 1000, "kilometre": 1000, "kilometres": 1000, "kilometer": 1000, "kilometers": 1000,
+    "mile": 1609, "miles": 1609,
+    "league": 4800, "leagues": 4800,
+}
+
+MEASURED = re.compile(r"(\d+(?:\.\d+)?)\s*(?:(?:-|\u2013|to)\s*(\d+(?:\.\d+)?)\s*)?([a-z]+)")
+
+PACES = (
+    ("a few days", (75000, 150000)),
+    ("half a day", (15000, 30000)),
+    ("a day", (25000, 45000)),
+    ("an hour", (3000, 6000)),
+    ("a couple of minutes", (100, 300)),
+    ("a few minutes", (100, 500)),
+    ("a short walk", (200, 1200)),
+    ("a short way", (200, 1200)),
+    ("a long walk", (4000, 12000)),
+)
+
+
+def bearing_degrees(text):
+    """Degrees clockwise from north, or nothing at all where the world never
+    wrote a direction down."""
+    return COMPASS.get(" ".join(str(text or "").lower().split()).strip(" .,"))
+
+
+def distance_band(text):
+    """A low and a high in metres, wide on purpose, or nothing where nobody has
+    measured it — which is most of the roads in this world."""
+    said = " ".join(str(text or "").lower().split())
+    if not said:
+        return None
+    found = MEASURED.search(said)
+    if found and found.group(3) in UNITS:
+        scale = UNITS[found.group(3)]
+        low = float(found.group(1)) * scale
+        high = float(found.group(2)) * scale if found.group(2) else low
+        return (round(low), round(high))
+    for phrase, band in PACES:
+        if phrase in said:
+            return band
+    return None
 
 
 def real_delay(clock, in_world_minutes):

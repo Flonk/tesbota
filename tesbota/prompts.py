@@ -5,7 +5,7 @@ can see it:
 
 Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
 
-  entity(id, kind, name, introduced)              kind: people | places | books | items
+  entity(id, kind, name, introduced, extent)      kind: people | places | books | items
   book(id, author, author_id, written, rarity)    author_id is the person who wrote it, when one is written
   passage(book_id, ord, text)                     a book's text, one paragraph to a row
   claim(id, entity_id, section, turn_id, text)    section: attested | map
@@ -559,6 +559,19 @@ Distance may be vague — "a short walk", "half a day" — because most of this 
 has never been measured. Write a number only where somebody in the world actually
 measured it, and say who in the attested claim. An unmeasured road is not a failure;
 it is the normal state of a road.
+
+A place has an `extent` only where a document in this world actually measured it
+— the Council surveys a road, a plate carries a boundary, a charter names the
+corners of a holding. Write it as GeoJSON in that column and say in the attested
+claim who measured it and when:
+
+    UPDATE entity SET extent = '{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[0,0]]]}'
+     WHERE id = 'alheim-forest';
+
+Almost nothing has one and almost nothing should. A place with no extent is not a
+defect and you never give one to a place to make it easier to picture — that would
+be inventing a precision nobody in this world established. The same rule as
+distances: a number belongs there only where somebody measured it.
 
 Places nest, always. Every place sits within exactly one parent place — there is
 no such thing as a place that is nowhere — written as a single `within` edge:
