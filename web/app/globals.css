@@ -494,7 +494,7 @@ textarea {
 .erow:not(.ehead):hover { background: var(--panel); }
 .ecell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
 .ecell.num { font: var(--mono); letter-spacing: .06em; text-align: right; color: var(--gold); }
-.ecell.dim { font: var(--mono); letter-spacing: .06em; color: var(--dim); }
+.ecell.dim { font: var(--mono); letter-spacing: .06em; color: var(--ink); }
 .ename { color: var(--ink); }
 
 .ehead { border-bottom: 1px solid var(--line); padding-bottom: .2rem; margin-bottom: .2rem; }
@@ -508,8 +508,7 @@ textarea {
 .ecol.on { color: var(--gold); }
 .ecol .dir { opacity: .7; }
 
-.erow.unwritten .ename { color: var(--dim); text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
-.erow.stub .ename { text-decoration: underline dotted var(--gold); text-underline-offset: 3px; }
+.erow.unwritten .ename { color: var(--dim); }
 .twig { display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0; }
 .twig { padding-left: calc(var(--depth) * 1.1rem); }
 .knot {
@@ -656,7 +655,7 @@ textarea {
 
 .stubmark {
   font: var(--mono); letter-spacing: .08em;
-  color: var(--warn); border-bottom: 1px dashed var(--warn);
+  color: var(--dim);
   white-space: nowrap;
 }
 
