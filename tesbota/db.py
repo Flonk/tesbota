@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS book (
 CREATE TABLE IF NOT EXISTS person (
   id    TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   lives TEXT REFERENCES entity(id),
-  work  TEXT
+  work  TEXT,
+  born  TEXT,
+  died  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS passage (
@@ -140,6 +142,10 @@ def setup():
         con.executescript(SCHEMA)
         if "extent" not in {r["name"] for r in con.execute("PRAGMA table_info(entity)")}:
             con.execute("ALTER TABLE entity ADD COLUMN extent TEXT")
+        held = {r["name"] for r in con.execute("PRAGMA table_info(person)")}
+        for column in ("born", "died"):
+            if column not in held:
+                con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
         con.commit()
     finally:
         con.close()

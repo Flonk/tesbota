@@ -206,6 +206,8 @@ const ROWS = `
          (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
          (SELECT count(*) FROM book b WHERE b.author_id = e.id) AS wrote,
          (SELECT pr.work FROM person pr WHERE pr.id = e.id) AS work,
+         (SELECT pr.born FROM person pr WHERE pr.id = e.id) AS born,
+         (SELECT pr.died FROM person pr WHERE pr.id = e.id) AS died,
          (SELECT pr.lives FROM person pr WHERE pr.id = e.id) AS lives,
          (SELECT coalesce(le.name, replace(pr.lives, '-', ' ')) FROM person pr
             LEFT JOIN entity le ON le.id = pr.lives WHERE pr.id = e.id) AS livesName,
@@ -251,6 +253,8 @@ export function entities(kind) {
       parentName: r.parent ? r.parentName : null,
       holder: r.holder || null,
       work: r.work || "",
+      born: r.born || "",
+      died: r.died || "",
       lives: r.lives || null,
       livesName: r.lives ? r.livesName : "",
       unwritten: !!r.unwritten,
@@ -364,7 +368,8 @@ export function entity(id) {
       bundle.person =
         db
           .prepare(
-            `SELECT p.work, p.lives, coalesce(l.name, replace(p.lives, '-', ' ')) AS livesName
+            `SELECT p.work, p.lives, p.born, p.died,
+                    coalesce(l.name, replace(p.lives, '-', ' ')) AS livesName
                FROM person p LEFT JOIN entity l ON l.id = p.lives WHERE p.id = ?`
           )
           .get(ident) || null;

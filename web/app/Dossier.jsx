@@ -288,6 +288,12 @@ export default function Dossier({ at, onClose }) {
                     <span className="dsection">nowhere recorded</span>
                   )}
                 </p>
+                <p className="dline">
+                  <span className="dsection">born</span>
+                  <span>{thing.person?.born || "nobody wrote it down"}</span>
+                  <span className="dsection">died</span>
+                  <span>{thing.person?.died || (thing.person?.born ? "still living" : "nobody wrote it down")}</span>
+                </p>
               </Section>
             )}
 

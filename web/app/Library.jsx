@@ -7,6 +7,14 @@ import { Btn, Empty, Note, Prose, Table, Toggle } from "./ui";
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
 
+function span(person) {
+  const born = (person.born || "").trim();
+  const died = (person.died || "").trim();
+  if (!born && !died) return "—";
+  if (born && died) return `${born}–${died}`;
+  return born ? `${born}–` : `–${died}`;
+}
+
 const WRITTEN = ["places", "people", "books", "items"];
 
 const FILTERS = [
@@ -22,6 +30,8 @@ const FILTERS = [
   { id: "wrote", label: "wrote something", kinds: ["people"], test: (r) => r.wrote > 0 },
   { id: "jobless", label: "no trade", kinds: ["people"], test: (r) => !r.work },
   { id: "adrift", label: "nowhere", kinds: ["people"], test: (r) => !r.lives },
+  { id: "undated", label: "no dates", kinds: ["people"], test: (r) => !r.born && !r.died },
+  { id: "gone", label: "dead", kinds: ["people"], test: (r) => !!r.died },
   { id: "godhead", label: "godhead", kinds: ["books"], test: (r) => r.godhead },
   { id: "authored", label: "has an author row", kinds: ["books"], test: (r) => !!r.authorId },
   ...ORDER.filter(Boolean).map((rarity) => ({
@@ -121,11 +131,12 @@ const COLUMNS = {
     ],
   },
   people: {
-    cols: "minmax(7rem, 2fr) minmax(5rem, 1.2fr) minmax(6rem, 1.6fr)",
+    cols: "minmax(6rem, 2fr) minmax(4.5rem, 1.1fr) minmax(5rem, 1.4fr) 5.5rem",
     fields: [
       { key: "name", strong: true, label: "person", cell: (r) => r.name },
       { key: "work", label: "trade", dim: true, cell: (r) => r.work || "—" },
       { key: "livesName", label: "where", dim: true, cell: (r) => r.livesName || "—" },
+      { key: "born", label: "lived", dim: true, cell: (r) => span(r) },
     ],
   },
   items: {

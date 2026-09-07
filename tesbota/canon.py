@@ -131,10 +131,12 @@ def folk():
             "work": r["work"] or "",
             "lives": r["lives"] or "",
             "lives_name": r["lives_name"] or "",
+            "born": r["born"] or "",
+            "died": r["died"] or "",
         }
         for r in db.rows(
             """
-            SELECT e.id, e.name, p.work, p.lives,
+            SELECT e.id, e.name, p.work, p.lives, p.born, p.died,
                    coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
               FROM entity e
               LEFT JOIN person p ON p.id = e.id
@@ -149,7 +151,8 @@ def folk():
 def person(entity_id):
     return db.row(
         """
-        SELECT p.id, p.work, p.lives, coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
+        SELECT p.id, p.work, p.lives, p.born, p.died,
+               coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
           FROM person p LEFT JOIN entity l ON l.id = p.lives
          WHERE p.id = ?
         """,
@@ -157,14 +160,18 @@ def person(entity_id):
     )
 
 
-def settle(entity_id, work=None, lives=None):
+def settle(entity_id, **facts):
     entity_id = slug(entity_id)
     ensure_entity("people", entity_id)
     with db.writing() as con:
-        if work is not None:
-            con.execute("UPDATE person SET work = ? WHERE id = ?", (work, entity_id))
-        if lives is not None:
-            con.execute("UPDATE person SET lives = ? WHERE id = ?", (slug(lives) or None, entity_id))
+        con.execute("INSERT OR IGNORE INTO person (id) VALUES (?)", (entity_id,))
+        for field in ("work", "born", "died"):
+            if facts.get(field) is not None:
+                con.execute(f"UPDATE person SET {field} = ? WHERE id = ?", (facts[field], entity_id))
+        if facts.get("lives") is not None:
+            con.execute(
+                "UPDATE person SET lives = ? WHERE id = ?", (slug(facts["lives"]) or None, entity_id)
+            )
     return entity_id
 
 
@@ -214,7 +221,7 @@ def stubs():
         out.append((db.link("books", r["id"]), "no date of writing"))
     for r in db.rows(
         """
-        SELECT e.id, p.work, p.lives FROM entity e LEFT JOIN person p ON p.id = e.id
+        SELECT e.id, p.work, p.lives, p.born FROM entity e LEFT JOIN person p ON p.id = e.id
          WHERE e.kind = 'people' ORDER BY e.id
         """
     ):
@@ -222,6 +229,8 @@ def stubs():
             out.append((db.link("people", r["id"]), "nothing says what they do"))
         if not (r["lives"] or "").strip():
             out.append((db.link("people", r["id"]), "nothing says where they are"))
+        if not (r["born"] or "").strip():
+            out.append((db.link("people", r["id"]), "nothing says when they were born"))
     return out
 
 

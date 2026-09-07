@@ -7,7 +7,7 @@ Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
 
   entity(id, kind, name, introduced, extent)      kind: people | places | books | items
   book(id, author, author_id, written, rarity)    author_id is the person who wrote it, when one is written
-  person(id, lives, work)                         where somebody is and what they do for a living
+  person(id, lives, work, born, died)             where somebody is, their trade, and their span
   passage(book_id, ord, text)                     a book's text, one paragraph to a row
   claim(id, entity_id, section, turn_id, text)    section: attested | map
   edge(src, rel, dst, bearing, distance)          rel: within | exits
@@ -499,19 +499,29 @@ an entity row of their own and point the book's `author_id` at it, so everything
 they wrote can be found from them, and everything known about them from anything
 they wrote.
 
-Every person you write gets a `person` row: where they are, and what they do.
+Every person you write gets a `person` row: where they are, what they do, and when
+they lived.
 
-    INSERT INTO person (id, lives, work) VALUES ('petra-voll', 'flotburg', 'carter');
+    INSERT INTO person (id, lives, work, born, died)
+    VALUES ('petra-voll', 'flotburg', 'carter', '4E171', NULL);
 
 `lives` is the id of a place that exists — the smallest one that is true of them,
 so a house rather than the village holding it — and `work` is their trade in a
 word or two, in the world's own terms: `miller`, `reeve`, `carter`, `innkeeper`.
 
-Leave either NULL when the question simply has not come up; that is silence, and
-it comes back to you as something still to settle. Write `$BOTA` in `work` only
-when somebody has decided there is nothing to say — a child with no trade yet, a
-figure whose living is deliberately not ours to know. Never invent a trade or a
-home to fill the column in; an empty one is an honest one.
+`born` and `died` are in this world's reckoning, the same as a book's `written` —
+`4E171`, or a fuller date where somebody troubled to record one. A living person
+has a `born` and no `died`. Nobody is dated by guesswork: a birth year fixes a
+person's age in every scene they appear in, so write one only where the record
+gives it to you, or where you and the person you are talking to have just decided
+it together.
+
+Leave any of them NULL when the question simply has not come up; that is silence,
+and it comes back to you as something still to settle. Write `$BOTA` only when
+somebody has decided there is nothing to say — a child with no trade yet, a figure
+whose living is deliberately not ours to know, a birth nobody recorded and nobody
+ever will. Never invent a trade, a home or a date to fill a column in; an empty
+one is an honest one.
 
 Every book also carries `written` and `rarity`.
 
