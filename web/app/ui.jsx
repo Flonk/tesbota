@@ -63,7 +63,52 @@ export function Bubble({ who, children }) {
   return (
     <div className={`bubble${who === "you" ? " you" : ""}`}>
       <span className="who">{who}</span>
+      <div className="msg">{children}</div>
+    </div>
+  );
+}
+
+export function Thread({ children }) {
+  const foot = useRef(null);
+  useEffect(() => {
+    foot.current?.scrollIntoView({ block: "end" });
+  });
+  return (
+    <div className="thread">
       {children}
+      <div ref={foot} />
+    </div>
+  );
+}
+
+export function Composer({
+  value,
+  onChange,
+  onSend,
+  placeholder,
+  disabled,
+  label = "send",
+  busy,
+}) {
+  const ready = !disabled && !busy && value.trim();
+  return (
+    <div className={`composer${disabled ? " shut" : ""}`}>
+      <textarea
+        rows={1}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (ready) onSend();
+          }
+        }}
+        placeholder={placeholder}
+        disabled={disabled || !!busy}
+      />
+      <button className="sendbtn" onClick={onSend} disabled={!ready}>
+        {busy ? "…" : label}
+      </button>
     </div>
   );
 }
