@@ -22,5 +22,5 @@ Work them in numeric order. One commit per ticket.
 - [x] [018-map-layout-solver.md](018-map-layout-solver.md) — solve a layout from the graph
 - [x] [019-map-render.md](019-map-render.md) — draw it
 - [x] [020-map-interaction.md](020-map-interaction.md) — move around the map
-- [ ] [021-map-fog.md](021-map-fog.md) — the map only shows what has been found out
+- [x] [021-map-fog.md](021-map-fog.md) — the map only shows what has been found out
 - [ ] [022-readme.md](022-readme.md) — bring the README back in line

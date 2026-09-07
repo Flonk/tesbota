@@ -314,7 +314,8 @@ textarea {
 .mapside .cap { margin-bottom: .2rem; }
 .mfloat { margin: 0 0 .1rem; font: var(--mono); letter-spacing: .06em; color: var(--dim); cursor: pointer; }
 .mfloat:hover { color: var(--ink); }
-.mfloat.unwritten { text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
+.mfloat.named { text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
+.mfloat.walked { color: var(--ink); }
 .mapclock { font: var(--mono); color: var(--dim); margin-bottom: .5rem; }
 .mapkeys { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: .6rem; }
 .mkey {
@@ -326,7 +327,8 @@ textarea {
 .mkey:disabled { opacity: .35; cursor: default; }
 
 .mregion { fill: #14120d; stroke: var(--line); stroke-width: 1; }
-.mregion.unwritten { stroke-dasharray: 4 3; }
+.mregion.named { stroke-dasharray: 4 3; fill: none; }
+.mregion.recorded { opacity: .7; }
 .mregion.here { stroke: var(--gold); }
 .mregionname { fill: var(--dim); letter-spacing: .12em; text-transform: uppercase; }
 .mroad line { stroke: #3a3527; stroke-width: 1.5; }
@@ -338,12 +340,14 @@ textarea {
 .mregion { cursor: pointer; }
 .mplace circle { fill: var(--place); stroke: none; }
 .mplace:hover circle { fill: var(--gold); }
-.mplace.unwritten circle { fill: none; stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 2.5; }
+.mplace.named circle { fill: none; stroke: var(--dim); stroke-width: 1.2; stroke-dasharray: 3 2.5; }
+.mplace.recorded circle { fill: #4a5763; }
 .mplace .mextent { fill: rgba(125, 147, 166, .18); stroke: var(--place); stroke-width: 1; }
 .mplace .mhere { fill: none; stroke: var(--gold); stroke-width: 1.2; }
 .mplace.here circle { fill: var(--gold); }
 .mname { fill: var(--ink); text-anchor: middle; }
-.mplace.unwritten .mname { fill: var(--dim); }
+.mplace.named .mname { fill: var(--dim); }
+.mplace.recorded .mname { fill: #8f8676; }
 
 @media (max-width: 720px) {
   .map { flex-direction: column; }

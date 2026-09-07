@@ -211,6 +211,38 @@ def relax(at, known, edges, confidence, rounds):
     return at
 
 
+def walked():
+    """Everywhere the explorer has actually stood. The turn records are read
+    once and the answer is kept on the campaign."""
+    from .state import all_turns, load_campaign, save_campaign
+
+    campaign = load_campaign()
+    seen = set(campaign.get("walked") or [])
+    mark = campaign.get("walked_through") or ""
+    latest = mark
+    for turn in all_turns():
+        if turn["turn_id"] <= mark:
+            continue
+        latest = max(latest, turn["turn_id"])
+        for step in turn.get("location_path") or []:
+            ident = step.get("id") if isinstance(step, dict) else step
+            if ident:
+                seen.add(ident)
+
+    if latest != mark or seen != set(campaign.get("walked") or []):
+        fresh = load_campaign()
+        fresh["walked"] = sorted(seen)
+        fresh["walked_through"] = latest
+        save_campaign(fresh)
+    return seen
+
+
+def knowledge(ident, place, been):
+    if ident in been:
+        return "walked"
+    return "named" if place["unwritten"] else "recorded"
+
+
 def solve(seed=SEED, rounds=ROUNDS):
     known = places()
     edges = roads(known)
@@ -230,6 +262,7 @@ def solve(seed=SEED, rounds=ROUNDS):
 def layout(seed=SEED, rounds=ROUNDS):
     known = places()
     solved = solve(seed=seed, rounds=rounds)
+    been = walked()
     return {
         "seed": seed,
         "places": {
@@ -239,6 +272,7 @@ def layout(seed=SEED, rounds=ROUNDS):
                 "children": sorted(known[ident]["children"]),
                 "unwritten": known[ident]["unwritten"],
                 "extent": known[ident]["extent"],
+                "knowledge": knowledge(ident, known[ident], been),
                 **solved[ident],
             }
             for ident in solved

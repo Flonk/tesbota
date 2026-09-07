@@ -1,6 +1,6 @@
 # 021 — the map only shows what has been found out
 
-**Status:** todo
+**Status:** done
 **Depends on:** 019
 
 ## What

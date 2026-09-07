@@ -334,9 +334,7 @@ export default function Map({ where = [], at }) {
             <g key={`region-${n.id}`} onClick={() => tap(n.id)}>
               <title>{n.place.name}</title>
               <rect
-                className={`mregion${n.place.unwritten ? " unwritten" : ""}${
-                  n.id === here ? " here" : ""
-                }`}
+                className={`mregion ${n.place.knowledge}${n.id === here ? " here" : ""}`}
                 x={n.x - n.size.w / 2}
                 y={n.y - n.size.h / 2}
                 width={n.size.w}
@@ -387,9 +385,7 @@ export default function Map({ where = [], at }) {
             return (
               <g
                 key={n.id}
-                className={`mplace${n.place.unwritten ? " unwritten" : ""}${
-                  n.id === here ? " here" : ""
-                }`}
+                className={`mplace ${n.place.knowledge}${n.id === here ? " here" : ""}`}
                 onClick={() => tap(n.id)}
               >
                 <title>{n.place.name}</title>
@@ -419,7 +415,7 @@ export default function Map({ where = [], at }) {
         {floating.length === 0 && <p className="mfloat">every place is placed</p>}
         {floating.map((p) => (
           <p
-            className={`mfloat${p.unwritten ? " unwritten" : ""}`}
+            className={`mfloat ${p.knowledge}`}
             key={p.name}
             onClick={() => openDossier(Object.keys(layout.places).find((k) => layout.places[k] === p))}
           >
