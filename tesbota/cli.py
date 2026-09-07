@@ -121,10 +121,6 @@ def cmd_lore(args):
             message = "Go on."
 
 
-def cmd_snapshot(args):
-    print(json.dumps(actions.snapshot(), ensure_ascii=False))
-
-
 def cmd_say(args):
     print(json.dumps(actions.say(args.text), ensure_ascii=False))
 
@@ -196,22 +192,6 @@ def cmd_chronicle(args):
         print()
 
 
-def cmd_migrate(args):
-    chronicle.ensure_book()
-    print(f"the chronicle is being set down again — {chronicle.clear()} passage(s) dropped")
-    for turn in all_turns():
-        turn.pop("chronicle", None)
-        if chronicle.played(turn):
-            turn["chronicle"] = chronicle.write(turn)
-            print(f"  {turn['turn_id']}  {len(turn['chronicle'])} passage(s)")
-        save_turn(turn)
-
-    dropped = db.retire_witnessed()
-    print()
-    print(f"witnessed retired — {dropped} claim(s) dropped")
-    print(f"{len(chronicle.passages())} passage(s) in {CHRONICLE_NAME}")
-
-
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="tesbota")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -223,7 +203,6 @@ def main(argv=None):
     step.add_argument("--json", action="store_true")
     step.set_defaults(func=cmd_step)
 
-    sub.add_parser("snapshot").set_defaults(func=cmd_snapshot)
 
     say = sub.add_parser("say")
     say.add_argument("text")
@@ -255,7 +234,6 @@ def main(argv=None):
     book.add_argument("-n", type=int, default=0)
     book.set_defaults(func=cmd_chronicle)
 
-    sub.add_parser("migrate").set_defaults(func=cmd_migrate)
 
     sub.add_parser("status").set_defaults(func=cmd_status)
 

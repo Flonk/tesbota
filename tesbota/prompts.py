@@ -713,36 +713,6 @@ REDRAFT = (
 )
 
 
-def gm_context(action, previous=None, vitals=None, inventory=None, others=None, now=None, correction=None):
-    parts = []
-    if now:
-        parts.append(f"The time is {now}.")
-    if previous:
-        parts.append(f"What they were last told:\n\n{previous}")
-    if vitals:
-        parts.append(
-            f"Their condition: health {vitals.get('health')}/100, "
-            f"fatigue {vitals.get('fatigue')}/100, hunger {vitals.get('hunger')}/100."
-        )
-    if inventory is not None:
-        parts.append("What they are carrying:\n" + render_inventory(inventory))
-    if others:
-        parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
-    parts.append(
-        "They have said what they mean to do. Nothing has happened yet and you are "
-        f"not narrating it:\n\n{action}\n\n"
-        "Tell them what bears on it — what they can see of the thing they mean to do, "
-        "what stands in the way, who is there, anything they would notice on turning "
-        "toward it. Do not narrate them doing it, do not decide whether it works, and "
-        "do not skip to the end. They may ask you about what you say before they "
-        "commit, and they may change their mind. A sentence or two. Reply in the same "
-        "json shape, with minutes 0 and fatigue 0."
-    )
-    if correction:
-        parts.append(REDRAFT + correction)
-    return "\n\n".join(parts)
-
-
 def gm_answer(question, previous=None, mode="look", inventory=None, others=None, correction=None):
     parts = []
     if previous:
@@ -918,15 +888,6 @@ def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inve
     for question, answer in answers or []:
         parts.append(f"You asked: {question}\n\nThe record says: {answer}")
     return "\n\n".join(parts)
-
-
-def explorer_confirm(proposal):
-    return (
-        f"Before you begin: {proposal['summary']}\n\n"
-        f"It will take about {proposal['minutes']} minutes and cost you "
-        f"{proposal['fatigue']} fatigue.\n\n"
-        "Answer YES or NO on the first line. If no, say briefly what you would rather do."
-    )
 
 
 def lore1_turn(claims):

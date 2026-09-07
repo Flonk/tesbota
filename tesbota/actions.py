@@ -29,53 +29,6 @@ def append_chat(role, text):
     write_json(CHAT_FILE, log)
 
 
-def snapshot():
-    campaign = load_campaign()
-    turn_id = campaign.get("current_turn")
-    turn = load_turn(turn_id) if turn_id else None
-
-    story, machinery = [], []
-    for t in all_turns():
-        draft = t.get("draft") or {}
-        cue = None
-        if t.get("arrival"):
-            cue = f"arrives at {t['arrival']}"
-        elif t.get("event"):
-            cue = "something on the road"
-        if t.get("action") or draft.get("narration") or cue:
-            story.append({
-                "id": t["turn_id"],
-                "cue": cue,
-                "action": t.get("action"),
-                "narration": draft.get("narration"),
-                "chronicle": t.get("chronicle") or [],
-            })
-        if draft.get("claims") or t.get("verdicts") or t.get("correction"):
-            machinery.append({
-                "id": t["turn_id"],
-                "claims": draft.get("claims") or [],
-                "verdicts": t.get("verdicts") or [],
-                "quotes": draft.get("quotes") or [],
-                "correction": t.get("correction"),
-                "retries": t.get("gm_retries", 0),
-                "travel": draft.get("travel"),
-            })
-
-    status = {"state": turn["state"] if turn else "uninitialised", "turn": turn_id}
-    if turn and turn.get("wake_at"):
-        status["destination"] = turn.get("destination")
-        status["wakesIn"] = view.duration(parse(turn["wake_at"]) - now())
-        status["events"] = sum(1 for e in turn.get("schedule", []) if not e["fired"])
-    if campaign.get("suspended_journey"):
-        status["held"] = campaign["suspended_journey"].get("destination")
-
-    gap = None
-    if turn and turn["state"] == "awaiting_human":
-        gap = {"turn": turn["turn_id"], "text": turn.get("gap") or ""}
-
-    return {"status": status, "story": story, "machinery": machinery, "gap": gap, "chat": chat_log()}
-
-
 def say(text):
     with LOCK:
         campaign = load_campaign()

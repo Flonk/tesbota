@@ -24,14 +24,6 @@ def next_ord():
     return (db.value("SELECT max(ord) FROM passage WHERE book_id = ?", (CHRONICLE,)) or 0) + 1
 
 
-def tail(count=3):
-    rows = db.rows(
-        "SELECT ord, text FROM passage WHERE book_id = ? ORDER BY ord DESC LIMIT ?",
-        (CHRONICLE, count),
-    )
-    return [dict(ord=r["ord"], text=r["text"]) for r in reversed(rows)]
-
-
 def since(start):
     return [
         dict(ord=r["ord"], text=r["text"])
@@ -74,10 +66,6 @@ def clear():
     """Take the book back to nothing, so it can be set down again in one voice."""
     with db.writing() as con:
         return con.execute("DELETE FROM passage WHERE book_id = ?", (CHRONICLE,)).rowcount
-
-
-def narrated(turn):
-    return bool(turn.get("chronicle"))
 
 
 def played(turn):

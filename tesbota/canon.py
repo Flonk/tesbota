@@ -6,22 +6,12 @@ from .config import CHRONICLE, EXPLORER, FORBIDDEN_AUTHORS, GODHEADS, KINDS, STU
 ATTESTED = "attested"
 
 
-def open_question(value):
-    """Empty and $BOTA both mean the world has not settled this yet."""
-    text = (value or "").strip()
-    return not text or STUB in text
-
-
 def slug(text):
     return "-".join(str(text or "").split()).strip("-").lower()
 
 
 def find_entity(entity_id):
     return db.row("SELECT * FROM entity WHERE id = ?", (slug(entity_id),))
-
-
-def kind_of(entity_id):
-    return db.value("SELECT kind FROM entity WHERE id = ?", (slug(entity_id),))
 
 
 def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
@@ -56,35 +46,12 @@ def append_section(entity_id, turn_id, text, kind="places", section=ATTESTED):
     return entity_id
 
 
-def append_attested(entity_id, turn_id, text, kind="places"):
-    return append_section(entity_id, turn_id, text, kind=kind, section=ATTESTED)
-
-
-def claims(entity_id, section=None):
-    if section:
-        return db.rows(
-            "SELECT * FROM claim WHERE entity_id = ? AND section = ? ORDER BY id", (slug(entity_id), section)
-        )
-    return db.rows("SELECT * FROM claim WHERE entity_id = ? ORDER BY section, id", (slug(entity_id),))
-
-
 def passages(book_id):
     return db.rows("SELECT * FROM passage WHERE book_id = ? ORDER BY ord", (slug(book_id),))
 
 
 def passage(book_id, ord):
     return db.row("SELECT * FROM passage WHERE book_id = ? AND ord = ?", (slug(book_id), ord))
-
-
-def exits(place_id):
-    return [
-        {"to": r["dst"], "bearing": r["bearing"] or "", "distance": r["distance"] or ""}
-        for r in db.rows("SELECT * FROM edge WHERE src = ? AND rel = 'exits' ORDER BY dst", (slug(place_id),))
-    ]
-
-
-def within(place_id):
-    return db.value("SELECT dst FROM edge WHERE src = ? AND rel = 'within'", (slug(place_id),))
 
 
 def contains(place_id):
@@ -130,31 +97,6 @@ def library():
     return shelf
 
 
-def folk():
-    return [
-        {
-            "id": r["id"],
-            "name": r["name"],
-            "work": r["work"] or "",
-            "lives": r["lives"] or "",
-            "lives_name": r["lives_name"] or "",
-            "born": r["born"] or "",
-            "died": r["died"] or "",
-        }
-        for r in db.rows(
-            """
-            SELECT e.id, e.name, p.work, p.lives, p.born, p.died,
-                   coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
-              FROM entity e
-              LEFT JOIN person p ON p.id = e.id
-              LEFT JOIN entity l ON l.id = p.lives
-             WHERE e.kind = 'people'
-             ORDER BY lower(e.name)
-            """
-        )
-    ]
-
-
 def person(entity_id):
     return db.row(
         """
@@ -165,21 +107,6 @@ def person(entity_id):
         """,
         (slug(entity_id),),
     )
-
-
-def settle(entity_id, **facts):
-    entity_id = slug(entity_id)
-    ensure_entity("people", entity_id)
-    with db.writing() as con:
-        con.execute("INSERT OR IGNORE INTO person (id) VALUES (?)", (entity_id,))
-        for field in ("work", "born", "died"):
-            if facts.get(field) is not None:
-                con.execute(f"UPDATE person SET {field} = ? WHERE id = ?", (facts[field], entity_id))
-        if facts.get("lives") is not None:
-            con.execute(
-                "UPDATE person SET lives = ? WHERE id = ?", (slug(facts["lives"]) or None, entity_id)
-            )
-    return entity_id
 
 
 ARTICLE = re.compile(r"^(?:the|a|an)\s+", re.I)
@@ -256,48 +183,11 @@ def link_writing():
     return touched
 
 
-def references(entity_id):
-    entity_id = slug(entity_id)
-    return db.value(
-        "SELECT count(*) FROM writing WHERE body LIKE ? AND entity <> ?",
-        (f"%/{entity_id}%", entity_id),
-        default=0,
-    )
-
-
-def godhead_books():
-    return [
-        r["id"] for r in db.rows("SELECT id, lower(trim(author)) a FROM book ORDER BY id")
-        if r["a"] in GODHEADS
-    ]
-
-
-def is_godhead(book_id):
-    author = (db.value("SELECT author FROM book WHERE id = ?", (slug(book_id),)) or "").strip().lower()
-    return author in GODHEADS
-
-
 def illegal_books():
     return [
         r["id"] for r in db.rows("SELECT id, lower(trim(author)) a FROM book")
         if r["a"] in FORBIDDEN_AUTHORS
     ]
-
-
-def all_entities():
-    return {r["id"]: r["kind"] for r in db.rows("SELECT id, kind FROM entity ORDER BY kind, id")}
-
-
-def mentions(entity_id):
-    entity_id = slug(entity_id)
-    return db.rows(
-        """
-        SELECT ref, entity, section FROM writing WHERE body LIKE ?
-        UNION ALL
-        SELECT 'bota://books/' || id, id, 'author' FROM book WHERE author_id = ?
-        """,
-        (f"%/{entity_id}%", entity_id),
-    )
 
 
 def graph():

@@ -70,11 +70,6 @@ def stamp(time):
     return f"{day_of_month(t)} {month(t)} {t['era']}E{t['year']}, {clock(t)}"
 
 
-def short_stamp(time):
-    t = normalise(time)
-    return f"{day_of_month(t)}.{month_number(t)}. {t['era']}E{t['year']}"
-
-
 def shorten(stamp_text):
     """Rewrite a stored stamp — `1 Frostfall 4E202, 14:12` — as `1.1. 4E202`."""
     head = str(stamp_text or "").split(",")[0].strip()
