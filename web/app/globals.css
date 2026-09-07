@@ -300,15 +300,40 @@ textarea {
 .bdate { color: var(--place); }
 
 .map {
-  min-height: 12rem; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  padding: .8rem 1.2rem; position: relative;
+  height: 100%; min-height: 14rem;
+  display: flex; align-items: stretch; gap: .8rem;
+  position: relative; background: #000;
+  margin: -.9rem -1.2rem -1.4rem; padding: .4rem;
 }
-.mapframe { border: 1px dashed var(--line); padding: .9rem 1.8rem; text-align: center; min-width: 0; }
-.mapname { color: var(--ink); font-size: 1.05rem; letter-spacing: .04em; margin-bottom: .2rem; }
-.mapframe .crumb, .mapframe .cap { margin: 0; }
-.mapframe .cap { opacity: .55; margin-top: .4rem; }
-.mapclock { position: absolute; right: 1rem; bottom: .5rem; font: var(--mono); color: var(--dim); }
+.mapsvg { flex: 1 1 auto; min-width: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.mapside {
+  flex: 0 0 9rem; min-width: 0; overflow-y: auto;
+  border-left: 1px solid var(--line); padding: .3rem .5rem;
+}
+.mapside .cap { margin-bottom: .2rem; }
+.mfloat { margin: 0 0 .1rem; font: var(--mono); letter-spacing: .06em; color: var(--dim); cursor: pointer; }
+.mfloat:hover { color: var(--ink); }
+.mfloat.unwritten { text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
+.mapclock { font: var(--mono); color: var(--dim); margin-bottom: .5rem; }
+
+.mregion { fill: #14120d; stroke: var(--line); stroke-width: 1; }
+.mregion.unwritten { stroke-dasharray: 4 3; }
+.mregion.here { stroke: var(--gold); }
+.mregionname { fill: var(--dim); letter-spacing: .12em; text-transform: uppercase; }
+.mroad line { stroke: #3a3527; stroke-width: 1.5; }
+.mdist { fill: var(--dim); text-anchor: middle; opacity: .75; }
+.mplace circle { fill: var(--place); stroke: none; }
+.mplace.unwritten circle { fill: none; stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 2.5; }
+.mplace .mextent { fill: rgba(125, 147, 166, .18); stroke: var(--place); stroke-width: 1; }
+.mplace .mhere { fill: none; stroke: var(--gold); stroke-width: 1.2; }
+.mplace.here circle { fill: var(--gold); }
+.mname { fill: var(--ink); text-anchor: middle; }
+.mplace.unwritten .mname { fill: var(--dim); }
+
+@media (max-width: 720px) {
+  .map { flex-direction: column; }
+  .mapside { flex: 0 0 auto; border-left: 0; border-top: 1px solid var(--line); }
+}
 
 .lore .cap { color: var(--warn); }
 .lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }

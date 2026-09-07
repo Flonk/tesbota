@@ -20,7 +20,7 @@ Work them in numeric order. One commit per ticket.
 - [x] [016-deeplink-navigation.md](016-deeplink-navigation.md) — every address in the app is a link
 - [x] [017-map-geometry-model.md](017-map-geometry-model.md) — decide what the map is allowed to know
 - [x] [018-map-layout-solver.md](018-map-layout-solver.md) — solve a layout from the graph
-- [ ] [019-map-render.md](019-map-render.md) — draw it
+- [x] [019-map-render.md](019-map-render.md) — draw it
 - [ ] [020-map-interaction.md](020-map-interaction.md) — move around the map
 - [ ] [021-map-fog.md](021-map-fog.md) — the map only shows what has been found out
 - [ ] [022-readme.md](022-readme.md) — bring the README back in line

@@ -1,6 +1,6 @@
 # 019 — draw it
 
-**Status:** todo
+**Status:** done
 **Depends on:** 018
 
 ## What

@@ -431,6 +431,23 @@ export async function look(question) {
   }
 }
 
+export async function mapLayout() {
+  const own = path.join(ROOT, ".venv/bin/python");
+  const [command, args] = fsSync.existsSync(own)
+    ? [own, ["-m", "tesbota.cli", "map", "--json"]]
+    : ["uv", ["run", "--directory", ROOT, "tesbota", "map", "--json"]];
+  try {
+    const { stdout } = await run(command, args, {
+      cwd: ROOT,
+      timeout: 60000,
+      maxBuffer: 1024 * 1024 * 8,
+    });
+    return JSON.parse(stdout.trim().split("\n").pop());
+  } catch (err) {
+    return { error: String(err.stderr || err.message || err).trim().slice(-400) };
+  }
+}
+
 export async function job() {
   const j = await readJson(JOB, null);
   if (!j) return { running: false, label: null, error: null };
