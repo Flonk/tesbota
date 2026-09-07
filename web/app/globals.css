@@ -215,7 +215,6 @@ textarea {
   flex-direction: column;
   height: 100dvh;
   min-height: 0;
-  transition: height 100ms ease-out;
 }
 .band {
   min-height: 0;
@@ -228,11 +227,11 @@ textarea {
 .tabsband { flex: 1 1 0; position: relative; }
 .band.folded { flex: 0 0 0% !important; }
 .app.dragging { cursor: row-resize; user-select: none; }
-.app.dragging .band, .app.dragging { transition: none; }
+.app.dragging .band { transition: none; }
 .app.avoiding .tabbar { cursor: default; }
 
 @media (prefers-reduced-motion: reduce) {
-  .app, .band { transition: none; }
+  .band { transition: none; }
 }
 
 .deck {
@@ -416,7 +415,7 @@ textarea {
 .lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }
 
 .chat { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-.thread { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: .9rem 1.2rem 1rem; }
+.thread { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-anchor: none; padding: .9rem 1.2rem 1rem; }
 .composer {
   flex: 0 0 auto;
   position: relative;

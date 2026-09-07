@@ -73,7 +73,6 @@ export function Bubble({ who, at, tone, children }) {
 
 export function Thread({ stick, children }) {
   const box = useRef(null);
-  const foot = useRef(null);
   const pinned = useRef(true);
   const tall = useRef(0);
 
@@ -85,8 +84,18 @@ export function Thread({ stick, children }) {
     const el = box.current;
     if (!el || el.scrollHeight === tall.current) return;
     tall.current = el.scrollHeight;
-    if (pinned.current) foot.current?.scrollIntoView({ block: "end" });
+    if (pinned.current) el.scrollTop = el.scrollHeight;
   });
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const watch = new ResizeObserver(() => {
+      if (pinned.current) el.scrollTop = el.scrollHeight;
+    });
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, []);
 
   return (
     <div
@@ -98,7 +107,6 @@ export function Thread({ stick, children }) {
       }}
     >
       {children}
-      <div ref={foot} />
     </div>
   );
 }
