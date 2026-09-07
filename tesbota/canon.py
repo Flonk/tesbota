@@ -284,60 +284,8 @@ def illegal_books():
     ]
 
 
-def orphan_places():
-    return [
-        r["id"] for r in db.rows(
-            """
-            SELECT e.id FROM entity e
-             WHERE e.kind = 'places'
-               AND NOT EXISTS (SELECT 1 FROM edge WHERE src = e.id AND rel = 'within')
-             ORDER BY e.id
-            """
-        )
-    ]
-
-
 def all_entities():
     return {r["id"]: r["kind"] for r in db.rows("SELECT id, kind FROM entity ORDER BY kind, id")}
-
-
-def stubs():
-    out = []
-    for r in db.rows("SELECT ref, body FROM writing WHERE body LIKE ? ORDER BY ref", (f"%{STUB}%",)):
-        out.append((r["ref"], " ".join(r["body"].split())))
-    for r in db.rows("SELECT id, kind FROM unwritten ORDER BY kind, id"):
-        out.append((db.link(r["kind"], r["id"]), "nothing written yet"))
-    for r in db.rows("SELECT id FROM book WHERE written IS NULL OR trim(written) = '' ORDER BY id"):
-        out.append((db.link("books", r["id"]), "no date of writing"))
-    for r in db.rows(
-        """
-        SELECT e.id, p.work, p.lives, p.born, p.died
-          FROM entity e LEFT JOIN person p ON p.id = e.id
-         WHERE e.kind = 'people' ORDER BY e.id
-        """
-    ):
-        for field, wanting in (
-            ("work", "what they do"),
-            ("lives", "where they are"),
-            ("born", "when they were born"),
-            ("died", "whether they died"),
-        ):
-            if open_question(r[field]):
-                out.append((db.link("people", r["id"]), f"nobody has written {wanting}"))
-    return out
-
-
-def dangling_links():
-    gaps = {}
-    known = set(all_entities()) | {EXPLORER}
-    for r in db.rows("SELECT ref, entity, body FROM writing WHERE body LIKE '%bota://%'"):
-        for kind, ident, _ in db.targets(r["body"]):
-            if ident in known:
-                continue
-            sources = gaps.setdefault(f"{kind}/{ident}", [])
-            if r["entity"] not in sources:
-                sources.append(r["entity"])
-    return gaps
 
 
 def mentions(entity_id):

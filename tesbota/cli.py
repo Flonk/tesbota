@@ -212,24 +212,6 @@ def cmd_migrate(args):
     print(f"{len(chronicle.passages())} passage(s) in {CHRONICLE_NAME}")
 
 
-def cmd_gaps(args):
-    orphans = canon.orphan_places()
-    gaps = canon.dangling_links()
-    illegal = canon.illegal_books()
-    stubs = canon.stubs()
-    for ref, text in stubs:
-        print(f"{ref}  {text[:70]}")
-    for book in illegal:
-        print(f"{book}  (authored by the adventurer — not a valid author)")
-    if not orphans and not gaps and not illegal and not stubs:
-        print("no open edges — every place is placed and no link dangles")
-        return
-    for place in orphans:
-        print(f"{place}  (no parent place)")
-    for target, sources in sorted(gaps.items()):
-        print(f"{target}  <- {', '.join(sources)}")
-
-
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="tesbota")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -282,7 +264,6 @@ def main(argv=None):
     log.add_argument("--new", action="store_true")
     log.set_defaults(func=cmd_log)
     sub.add_parser("lore").set_defaults(func=cmd_lore)
-    sub.add_parser("gaps").set_defaults(func=cmd_gaps)
 
     args = parser.parse_args(argv)
     return args.func(args) or 0
