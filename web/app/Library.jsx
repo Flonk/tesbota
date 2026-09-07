@@ -32,6 +32,83 @@ const FILTERS = [
   })),
 ];
 
+function branch(row, toggle) {
+  return (
+    <span className="twig" style={{ "--depth": row.depth }}>
+      {row.kids ? (
+        <button
+          className="knot"
+          title={row.open ? "fold" : "unfold"}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggle(row.id);
+          }}
+        >
+          {row.open ? "▾" : "▸"}
+        </button>
+      ) : (
+        <span className="knot leaf">·</span>
+      )}
+      {row.name}
+      {row.kids > 0 && !row.open && <span className="folded">{row.kids}</span>}
+    </span>
+  );
+}
+
+function placeShape(toggle) {
+  return {
+    cols: "minmax(10rem, 3fr) 5rem 4rem",
+    fields: [
+      { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle) },
+      { key: "exits", label: "ways out", num: true, cell: (r) => COUNT(r.exits) },
+      { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
+    ],
+  };
+}
+
+function treeify(places, folded, matches) {
+  const known = new Set(places.map((p) => p.id));
+  const kids = {};
+  for (const place of places) {
+    const parent = place.parent && known.has(place.parent) ? place.parent : null;
+    (kids[parent] ||= []).push(place);
+  }
+  const byName = (a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  for (const list of Object.values(kids)) list.sort(byName);
+  if (kids[null]) {
+    kids[null].sort(
+      (a, b) => (kids[b.id] ? 1 : 0) - (kids[a.id] ? 1 : 0) || byName(a, b)
+    );
+  }
+
+  const wanted = new Set();
+  if (matches) {
+    const by = Object.fromEntries(places.map((p) => [p.id, p]));
+    for (const place of places) {
+      if (!matches.has(place.id)) continue;
+      let walk = place;
+      while (walk && !wanted.has(walk.id)) {
+        wanted.add(walk.id);
+        walk = walk.parent && by[walk.parent] !== walk ? by[walk.parent] : null;
+      }
+    }
+  }
+
+  const out = [];
+  const walk = (parent, depth, seen) => {
+    for (const place of kids[parent] || []) {
+      if (seen.has(place.id)) continue;
+      if (matches && !wanted.has(place.id)) continue;
+      const children = (kids[place.id] || []).filter((c) => !matches || wanted.has(c.id));
+      const open = matches ? true : !folded.has(place.id);
+      out.push({ ...place, depth, kids: children.length, open });
+      if (open) walk(place.id, depth + 1, new Set([...seen, place.id]));
+    }
+  };
+  walk(null, 0, new Set());
+  return out;
+}
+
 const COLUMNS = {
   books: {
     cols: "minmax(12rem, 3fr) minmax(6rem, 1.2fr) 5rem",
@@ -40,16 +117,6 @@ const COLUMNS = {
       { key: "author", label: "author", dim: true,
         cell: (r) => (r.godhead ? `${r.author} ✦` : r.author || "unattributed") },
       { key: "written", label: "written", dim: true, cell: (r) => r.written || "—" },
-    ],
-  },
-  places: {
-    cols: "minmax(8rem, 2fr) minmax(6rem, 1.4fr) 4rem 4rem 4rem",
-    fields: [
-      { key: "name", strong: true, label: "place", cell: (r) => r.name },
-      { key: "parentName", label: "within", cell: (r) => r.parentName || "nowhere", dim: true },
-      { key: "contains", label: "holds", cell: (r) => COUNT(r.contains), num: true },
-      { key: "exits", label: "ways out", cell: (r) => COUNT(r.exits), num: true },
-      { key: "keeps", label: "keeps", cell: (r) => COUNT(r.keeps), num: true },
     ],
   },
   people: {
@@ -140,6 +207,7 @@ export default function Library({
   const [hits, setHits] = useState(null);
   const [on, setOn] = useState({});
   const [sort, setSort] = useState({ key: "name", dir: 1 });
+  const [folded, setFolded] = useState(() => new Set());
   const [selected, setSelected] = useState(null);
   const box = useRef(null);
   const order = useRef([]);
@@ -202,6 +270,14 @@ export default function Library({
         if (selected) onOpen(selected);
       } else if (e.key === "[" || e.key === "]") {
         pick(e.key === "]" ? 1 : -1);
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (kind !== "places" || !selected) return;
+        e.preventDefault();
+        setFolded((current) => {
+          const next = new Set(current);
+          e.key === "ArrowLeft" ? next.add(selected) : next.delete(selected);
+          return next;
+        });
       }
     }
     document.addEventListener("keydown", key);
@@ -257,6 +333,14 @@ export default function Library({
     setSort((s) => (s.key === key ? { key, dir: -s.dir } : { key, dir: 1 }));
   }
 
+  function fold(id) {
+    setFolded((current) => {
+      const next = new Set(current);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
   const q = query.trim().toLowerCase();
   const everything = [
     ...(world?.places || []),
@@ -268,10 +352,13 @@ export default function Library({
   const errands = quests.map((entry) => ({ ...entry, name: entry.title }));
   const all =
     kind === "books" ? shelf : kind === "quests" ? errands : world?.[kind] || [];
-  const rows = all
-    .filter((r) => !q || r.name.toLowerCase().includes(q) || r.id.includes(q))
-    .filter(keep)
-    .sort((a, b) => compare(a, b, sort.key) * sort.dir || compare(a, b, "name"));
+  const hit = (r) => (!q || r.name.toLowerCase().includes(q) || r.id.includes(q)) && keep(r);
+  const tree = kind === "places";
+  const rows = tree
+    ? treeify(all, folded, q || active.length ? new Set(all.filter(hit).map((r) => r.id)) : null)
+    : all
+        .filter(hit)
+        .sort((a, b) => compare(a, b, sort.key) * sort.dir || compare(a, b, "name"));
   const reading = kind !== "quests" && (books === null || world === null);
 
   order.current =
@@ -279,7 +366,7 @@ export default function Library({
       ? rows.map((r) => r.id)
       : [...named.map((r) => r.id), ...hits.filter((h) => h.entity).map((h) => h.entity)];
 
-  const shape = COLUMNS[kind];
+  const shape = tree ? placeShape(fold) : COLUMNS[kind];
 
   return (
     <div className="lib">
@@ -332,8 +419,8 @@ export default function Library({
           cols={shape.cols}
           fields={shape.fields}
           rows={rows}
-          sort={sort}
-          onSort={by}
+          sort={tree ? null : sort}
+          onSort={tree ? null : by}
           selected={selected}
           onOpen={onOpen}
           rowClass={(r) => `${r.unwritten ? "unwritten" : ""} ${r.stub ? "stub" : ""}`.trim()}
