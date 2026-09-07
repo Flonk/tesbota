@@ -441,7 +441,6 @@ export default function Library({
           onSort={tree ? null : by}
           selected={selected}
           onOpen={onOpen}
-          rowClass={(r) => `${r.unwritten ? "unwritten" : ""} ${r.stub ? "stub" : ""}`.trim()}
           empty="nothing here matches"
         />
       )}

@@ -189,16 +189,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
     <Overlay
       onClose={onClose}
       title={thing?.name || id.replace(/-/g, " ")}
-      tags={
-        thing?.kind === "people" ? (
-          <Lifespan person={thing.person} />
-        ) : (
-          <>
-            {thing?.unwritten && <Tag tone="dim">unwritten</Tag>}
-            {thing?.stub && <Tag tone="warn">$BOTA</Tag>}
-          </>
-        )
-      }
+      tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
     >
         {missing && <Empty>nothing in the world has this address — it is a dangling link</Empty>}
         {!thing && !missing && <Empty>looking it up…</Empty>}
