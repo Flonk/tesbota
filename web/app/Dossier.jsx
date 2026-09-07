@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Empty, openDossier, Prose, Table, Tag } from "./ui";
+import { Empty, openDossier, Overlay, Prose, Table, Tag } from "./ui";
 
 function Reader({ thing, fragment }) {
   const opening = /^p(\d+)$/.exec(fragment || "");
@@ -188,7 +188,6 @@ export default function Dossier({ at, onClose }) {
   const fragment = at?.fragment || null;
   const [thing, setThing] = useState(null);
   const [missing, setMissing] = useState(false);
-  const panel = useRef(null);
 
   useEffect(() => {
     if (!id) return;
@@ -204,38 +203,19 @@ export default function Dossier({ at, onClose }) {
     };
   }, [id]);
 
-  useEffect(() => {
-    if (!id) return;
-    function key(e) {
-      if (e.key === "Escape") onClose();
-    }
-    function away(e) {
-      if (panel.current && !panel.current.contains(e.target)) onClose();
-    }
-    document.addEventListener("keydown", key);
-    document.addEventListener("mousedown", away);
-    return () => {
-      document.removeEventListener("keydown", key);
-      document.removeEventListener("mousedown", away);
-    };
-  }, [id, onClose]);
-
   if (!id) return null;
 
   return (
-    <div className="dossier">
-      <div className="dpanel" ref={panel}>
-        <div className="dhead">
-          <div className="dtitle">
-            {thing?.name || id.replace(/-/g, " ")}
-            {thing?.unwritten && <Tag tone="dim">unwritten</Tag>}
-            {thing?.stub && <Tag tone="warn">$BOTA</Tag>}
-          </div>
-          <button className="dclose" onClick={onClose} title="close">
-            ×
-          </button>
-        </div>
-
+    <Overlay
+      onClose={onClose}
+      title={thing?.name || id.replace(/-/g, " ")}
+      tags={
+        <>
+          {thing?.unwritten && <Tag tone="dim">unwritten</Tag>}
+          {thing?.stub && <Tag tone="warn">$BOTA</Tag>}
+        </>
+      }
+    >
         {missing && <Empty>nothing in the world has this address — it is a dangling link</Empty>}
         {!thing && !missing && <Empty>looking it up…</Empty>}
 
@@ -363,7 +343,6 @@ export default function Dossier({ at, onClose }) {
             </Section>
           </div>
         )}
-      </div>
-    </div>
+    </Overlay>
   );
 }

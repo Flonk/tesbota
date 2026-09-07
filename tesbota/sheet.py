@@ -1,4 +1,4 @@
-from . import canon
+from . import canon, worldclock
 from .config import (
     ABILITIES,
     EXPLORER,
@@ -65,7 +65,8 @@ def render_quest_log(campaign=None):
     if active:
         out.append("ongoing:")
         for q in active:
-            out.append(f"  {q.get('title')}" + (f"  ({q['giver']})" if q.get("giver") else ""))
+            giver = f"  ({q['giver']})" if q.get("giver") else ""
+            out.append(f"  {q.get('title')}{giver}  [{worldclock.shorten(q.get('at'))}]")
             if q.get("detail"):
                 out.append(f"      {q['detail']}")
     if past:
@@ -73,7 +74,9 @@ def render_quest_log(campaign=None):
             out.append("")
         out.append("finished:")
         for q in past:
-            out.append(f"  {q.get('title')} — {q.get('status')}")
+            out.append(
+                f"  {q.get('title')} — {q.get('status')}  [{worldclock.shorten(q.get('closed_at'))}]"
+            )
     return "\n".join(out)
 
 

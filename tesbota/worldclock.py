@@ -50,6 +50,10 @@ def date(time):
     return f"{ordinal(day_of_month(time))} of {month(time)}"
 
 
+def month_number(time):
+    return (normalise(time)["day"] - 1) // DAYS_PER_MONTH + 1
+
+
 def advance(time, minutes):
     t = normalise(time)
     t["minute"] += int(minutes or 0)
@@ -64,6 +68,20 @@ def clock(time):
 def stamp(time):
     t = normalise(time)
     return f"{day_of_month(t)} {month(t)} {t['era']}E{t['year']}, {clock(t)}"
+
+
+def short_stamp(time):
+    t = normalise(time)
+    return f"{day_of_month(t)}.{month_number(t)}. {t['era']}E{t['year']}"
+
+
+def shorten(stamp_text):
+    """Rewrite a stored stamp — `1 Frostfall 4E202, 14:12` — as `1.1. 4E202`."""
+    head = str(stamp_text or "").split(",")[0].strip()
+    parts = head.split()
+    if len(parts) != 3 or parts[1] not in MONTH_NAMES:
+        return head or "—"
+    return f"{parts[0]}.{MONTH_NAMES.index(parts[1]) + 1}. {parts[2]}"
 
 
 def long_stamp(time):

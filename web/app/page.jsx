@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
-import Quests from "./Quests";
+import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
@@ -301,6 +301,7 @@ export default function Page() {
   const [dossier, setDossier] = useState(null);
   const [kind, setKind] = useState("places");
   const [counts, setCounts] = useState({});
+  const [quest, setQuest] = useState(null);
   const [at, setAt] = useState(0);
   const [split, setSplit] = useState(50);
   const [dragging, setDragging] = useState(false);
@@ -331,7 +332,10 @@ export default function Page() {
   }, [data]);
 
   useEffect(() => {
-    const open = (e) => setDossier(e.detail);
+    const open = (e) => {
+      setQuest(null);
+      setDossier(e.detail);
+    };
     window.addEventListener("bota:open", open);
     return () => window.removeEventListener("bota:open", open);
   }, []);
@@ -595,7 +599,12 @@ export default function Page() {
               notebook={data.notebook || []}
             />
           )}
-          {tab === "quests" && <Quests quests={quests} />}
+          {tab === "quests" && (
+            <Quests
+              quests={quests}
+              onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
+            />
+          )}
           {tab === "library" && (
             <Library
               dossier={dossier}
@@ -608,6 +617,7 @@ export default function Page() {
           )}
           </div>
           <Dossier at={dossier} onClose={() => setDossier(null)} />
+          <QuestPanel quest={quest} onClose={() => setQuest(null)} />
         </div>
       </section>
     </div>

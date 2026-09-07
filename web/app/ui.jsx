@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 export function Btn({ tone = "plain", className = "", ...rest }) {
   return <button className={`btn btn-${tone} ${className}`.trim()} {...rest} />;
 }
@@ -154,6 +156,41 @@ export function Toggle({ on, onClick, className = "", children }) {
     <button className={`toggle${on ? " on" : ""} ${className}`.trim()} onClick={onClick}>
       {children}
     </button>
+  );
+}
+
+export function Overlay({ title, tags, onClose, children }) {
+  const panel = useRef(null);
+  useEffect(() => {
+    function key(e) {
+      if (e.key === "Escape") onClose();
+    }
+    function away(e) {
+      if (panel.current && !panel.current.contains(e.target)) onClose();
+    }
+    document.addEventListener("keydown", key);
+    document.addEventListener("mousedown", away);
+    return () => {
+      document.removeEventListener("keydown", key);
+      document.removeEventListener("mousedown", away);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="dossier">
+      <div className="dpanel" ref={panel}>
+        <div className="dhead">
+          <div className="dtitle">
+            {title}
+            {tags}
+          </div>
+          <button className="dclose" onClick={onClose} title="close">
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
   );
 }
 
