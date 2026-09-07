@@ -305,7 +305,8 @@ textarea {
   position: relative; background: #000;
   margin: -.9rem -1.2rem -1.4rem; padding: .4rem;
 }
-.mapsvg { flex: 1 1 auto; min-width: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.mapsvg { flex: 1 1 auto; min-width: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.mapsvg:active { cursor: grabbing; }
 .mapside {
   flex: 0 0 9rem; min-width: 0; overflow-y: auto;
   border-left: 1px solid var(--line); padding: .3rem .5rem;
@@ -315,14 +316,28 @@ textarea {
 .mfloat:hover { color: var(--ink); }
 .mfloat.unwritten { text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
 .mapclock { font: var(--mono); color: var(--dim); margin-bottom: .5rem; }
+.mapkeys { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: .6rem; }
+.mkey {
+  background: none; border: 1px solid var(--line); border-radius: 2px;
+  color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  padding: .1rem .35rem; cursor: pointer;
+}
+.mkey:hover { color: var(--gold); border-color: var(--gold); }
+.mkey:disabled { opacity: .35; cursor: default; }
 
 .mregion { fill: #14120d; stroke: var(--line); stroke-width: 1; }
 .mregion.unwritten { stroke-dasharray: 4 3; }
 .mregion.here { stroke: var(--gold); }
 .mregionname { fill: var(--dim); letter-spacing: .12em; text-transform: uppercase; }
 .mroad line { stroke: #3a3527; stroke-width: 1.5; }
+.mroad .mreach { stroke: transparent; stroke-width: 14; }
+.mroad:hover line { stroke: var(--place); }
+.mroad:hover .mreach { stroke: transparent; }
 .mdist { fill: var(--dim); text-anchor: middle; opacity: .75; }
+.mplace { cursor: pointer; }
+.mregion { cursor: pointer; }
 .mplace circle { fill: var(--place); stroke: none; }
+.mplace:hover circle { fill: var(--gold); }
 .mplace.unwritten circle { fill: none; stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 2.5; }
 .mplace .mextent { fill: rgba(125, 147, 166, .18); stroke: var(--place); stroke-width: 1; }
 .mplace .mhere { fill: none; stroke: var(--gold); stroke-width: 1.2; }

@@ -1,6 +1,6 @@
 # 020 — move around the map
 
-**Status:** todo
+**Status:** done
 **Depends on:** 019, 014
 
 ## What
