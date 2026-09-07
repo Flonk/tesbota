@@ -1,6 +1,6 @@
 # 014 — clicking a thing opens its dossier
 
-**Status:** todo
+**Status:** done
 **Depends on:** 009
 
 ## What

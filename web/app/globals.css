@@ -159,7 +159,7 @@ textarea {
 .app { display: flex; flex-direction: column; height: 100dvh; min-height: 0; }
 .band { min-height: 0; display: flex; flex-direction: column; }
 .turns { flex: 0 0 50%; }
-.tabsband { flex: 1 1 0; }
+.tabsband { flex: 1 1 0; position: relative; }
 .app.dragging { cursor: row-resize; user-select: none; }
 
 .deck {
@@ -438,3 +438,55 @@ textarea {
 .erow.sel .ename, .hitname.sel .ename { color: var(--gold); }
 .book.sel .btitle, .hit.sel .hitref { color: var(--gold); }
 .erow:not(.ehead), .book, .hit, .hitname { cursor: pointer; }
+
+/* ---- dossier ---- */
+
+.dossier {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; justify-content: flex-end;
+  background: rgba(15, 14, 12, .72);
+}
+.dpanel {
+  flex: 0 1 40rem; min-width: 0;
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+  overflow-y: auto;
+  padding: .9rem 1.2rem 2rem;
+}
+.dhead { display: flex; align-items: baseline; gap: .8rem; }
+.dtitle { flex: 1 1 auto; min-width: 0; font-size: 1.1rem; }
+.dtitle .chip { margin-left: .6em; margin-right: 0; }
+.dclose {
+  flex: 0 0 auto; background: none; border: 0; color: var(--dim);
+  font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0 .2rem;
+}
+.dclose:hover { color: var(--ink); }
+
+.dmeta { display: flex; gap: .8rem; text-transform: none; letter-spacing: .06em; margin: .2rem 0 .4rem; }
+.daddr {
+  background: none; border: 1px dashed var(--line); border-radius: 2px;
+  color: var(--place); font: var(--mono); letter-spacing: .06em;
+  padding: .1rem .35rem; cursor: pointer;
+}
+.daddr:hover { color: var(--gold); border-color: var(--gold); }
+
+.dsec { margin-top: 1.1rem; }
+.dline { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem; margin: 0 0 .15rem; font-size: .85rem; }
+.dsection { font: var(--mono); letter-spacing: .06em; color: var(--place); }
+.dnote { font: var(--mono); letter-spacing: .06em; color: var(--dim); }
+.dclaim { margin: 0 0 .5rem; font-size: .9rem; line-height: 1.45; }
+.dclaimhead { display: flex; gap: .6rem; margin: 0 0 .1rem; text-transform: none; letter-spacing: .06em; }
+.dmention { margin-bottom: .55rem; }
+.dsnip { margin: 0; font-size: .85rem; line-height: 1.45; color: var(--ink); }
+.dtrail { font: var(--mono); letter-spacing: .06em; color: var(--place); margin: 0; }
+.dtrail .sep { opacity: .45; margin: 0 .45em; }
+.dtrail .here { color: var(--gold); }
+
+.dlink {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--place); font: inherit; text-align: left;
+  text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px;
+}
+.dlink:hover { color: var(--gold); }
+
+@media (max-width: 720px) { .dpanel { flex: 1 1 auto; border-left: 0; padding: .8rem .9rem 2rem; } }

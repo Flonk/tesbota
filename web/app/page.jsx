@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
 import Quests from "./Quests";
 import Library from "./Library";
+import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Map from "./Map";
 import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, Note, Tag } from "./ui";
@@ -296,6 +297,7 @@ export default function Page() {
   const [note, setNote] = useState("");
   const [noteOpen, setNoteOpen] = useState(false);
   const [tab, setTab] = useState("lore");
+  const [dossier, setDossier] = useState(null);
   const [at, setAt] = useState(0);
   const [split, setSplit] = useState(50);
   const [dragging, setDragging] = useState(false);
@@ -320,6 +322,12 @@ export default function Page() {
     const id = setInterval(load, 4000);
     return () => clearInterval(id);
   }, [load]);
+
+  useEffect(() => {
+    const open = (e) => setDossier(e.detail);
+    window.addEventListener("bota:open", open);
+    return () => window.removeEventListener("bota:open", open);
+  }, []);
 
   useEffect(() => {
     const saved = Number(localStorage.getItem("tesbota.split"));
@@ -563,8 +571,9 @@ export default function Page() {
             />
           )}
           {tab === "quests" && <Quests quests={quests} />}
-          {tab === "library" && <Library />}
+          {tab === "library" && <Library dossier={dossier} onOpen={setDossier} />}
         </div>
+        <Dossier id={dossier} onClose={() => setDossier(null)} />
       </section>
     </div>
   );

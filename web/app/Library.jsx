@@ -206,7 +206,7 @@ function Hits({ named, hits, selected, onOpen }) {
   );
 }
 
-export default function Library() {
+export default function Library({ dossier, onOpen }) {
   const [books, setBooks] = useState(null);
   const [world, setWorld] = useState(null);
   const [kind, setKind] = useState(remembered);
@@ -215,7 +215,6 @@ export default function Library() {
   const [on, setOn] = useState({});
   const [sort, setSort] = useState({ key: "name", dir: 1 });
   const [selected, setSelected] = useState(null);
-  const [opened, setOpened] = useState(null);
   const box = useRef(null);
   const order = useRef([]);
 
@@ -256,7 +255,7 @@ export default function Library() {
       const typing = /^(INPUT|TEXTAREA)$/.test(el?.tagName || "") || el?.isContentEditable;
 
       if (e.key === "Escape") {
-        if (opened) return setOpened(null);
+        if (dossier) return;
         setQuery("");
         setHits(null);
         box.current?.blur();
@@ -274,7 +273,7 @@ export default function Library() {
         e.preventDefault();
         step(-1);
       } else if (e.key === "Enter") {
-        if (selected) setOpened(selected);
+        if (selected) onOpen(selected);
       } else if (e.key === "[" || e.key === "]") {
         pick(e.key === "]" ? 1 : -1);
       }
@@ -402,11 +401,11 @@ export default function Library() {
         </div>
       )}
 
-      {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={setOpened} />}
+      {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={onOpen} />}
       {hits === null && reading && <Empty>reading the shelves…</Empty>}
       {hits === null && !reading && rows.length === 0 && <Empty>nothing here matches</Empty>}
       {hits === null && !reading && rows.length > 0 && kind === "books" && (
-        <Shelf books={rows} selected={selected} onOpen={setOpened} />
+        <Shelf books={rows} selected={selected} onOpen={onOpen} />
       )}
       {hits === null && !reading && rows.length > 0 && kind !== "books" && (
         <List
@@ -415,7 +414,7 @@ export default function Library() {
           sort={sort}
           onSort={by}
           selected={selected}
-          onOpen={setOpened}
+          onOpen={onOpen}
         />
       )}
     </div>
