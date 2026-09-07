@@ -71,13 +71,32 @@ export function Bubble({ who, at, tone, children }) {
   );
 }
 
-export function Thread({ children }) {
+export function Thread({ stick, children }) {
+  const box = useRef(null);
   const foot = useRef(null);
+  const pinned = useRef(true);
+  const tall = useRef(0);
+
   useEffect(() => {
-    foot.current?.scrollIntoView({ block: "end" });
+    pinned.current = true;
+  }, [stick]);
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el || el.scrollHeight === tall.current) return;
+    tall.current = el.scrollHeight;
+    if (pinned.current) foot.current?.scrollIntoView({ block: "end" });
   });
+
   return (
-    <div className="thread">
+    <div
+      className="thread"
+      ref={box}
+      onScroll={(e) => {
+        const el = e.currentTarget;
+        pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+      }}
+    >
       {children}
       <div ref={foot} />
     </div>

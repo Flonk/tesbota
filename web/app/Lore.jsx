@@ -5,9 +5,10 @@ import { Bubble, Cap, Composer, Empty, Thread } from "./ui";
 
 export default function Lore({ gap, chat = [], busy, blocked, onSay }) {
   const [text, setText] = useState("");
+  const [sent, setSent] = useState(0);
   return (
     <div className="chat lore">
-      <Thread>
+      <Thread stick={sent}>
         {!blocked && <Cap>nothing is being asked of you</Cap>}
         {blocked && gap?.text && (
           <Bubble who="the world is silent here" at={gap.turn} tone="gap">
@@ -32,6 +33,7 @@ export default function Lore({ gap, chat = [], busy, blocked, onSay }) {
         onSend={async () => {
           const said = text;
           setText("");
+          setSent((n) => n + 1);
           await onSay(said);
         }}
       />

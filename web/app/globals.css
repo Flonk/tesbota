@@ -409,8 +409,8 @@ textarea {
 .sendbtn {
   position: absolute;
   right: 1.35rem;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 1rem;
+  bottom: 1rem;
   background: none;
   border: 1px solid var(--gold);
   border-radius: 3px;

@@ -5,10 +5,11 @@ import { Bubble, Btn, Composer, Empty, Thread } from "./ui";
 
 export default function Steer({ note, past = [], busy, onNote }) {
   const [text, setText] = useState("");
+  const [sent, setSent] = useState(0);
 
   return (
     <div className="chat steer">
-      <Thread>
+      <Thread stick={sent}>
         {past.length === 0 && !note && (
           <Empty>you have not steered the game master yet</Empty>
         )}
@@ -39,6 +40,7 @@ export default function Steer({ note, past = [], busy, onNote }) {
         onSend={async () => {
           const queued = text;
           setText("");
+          setSent((n) => n + 1);
           await onNote(queued);
         }}
       />
