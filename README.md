@@ -91,8 +91,7 @@ tesbota chronicle        read the book
 tesbota chronicle -n 5   the last five passages
 ```
 
-A deeplink pointing at a row nobody has written is an unresolved fact. `tesbota
-gaps` lists the frontier.
+A deeplink pointing at a row nobody has written is an unresolved fact.
 
 ## Suspend and resume
 
@@ -119,7 +118,6 @@ uv run tesbota init
 uv run tesbota step      # advance until something suspends
 uv run tesbota status    # where things stand, how long until the adventurer wakes
 uv run tesbota lore      # sit down with lore master 3 and end a silence
-uv run tesbota gaps      # dangling links: the world's frontier
 uv run tesbota chronicle # the narrator's book, the life so far
 uv run tesbota holdings  # what everybody in the world is keeping
 uv run tesbota map       # the world as mermaid; --json for the solved layout
@@ -216,7 +214,11 @@ SELECT ref, snippet(search, 3, '[', ']', '…', 12) FROM search
   WHERE search MATCH 'mill NEAR/5 boy' ORDER BY rank;
 ```
 
-An address that names no row is the frontier — `tesbota gaps` lists them.
+An address that names no row is the frontier. Nothing enumerates it. There was a
+`gaps` command once and it was deleted: as the world filled with `$BOTA` the list
+grew to be longer than the world it described, which is the permanent condition of
+a place this young rather than a backlog anyone could work through. What is owed is
+found the way everything here is found — by looking.
 
 ## Watching
 
@@ -347,7 +349,7 @@ waiting to happen.
 The one moving through this world is never an author. Its observations are the
 narrator's, not its own, and they do not belong in a book of its writing. A lore
 master that attributes a document to it cannot close its gap until the document is
-removed or reattributed, and `tesbota gaps` lists any that exist.
+removed or reattributed; the sitting refuses to resolve while one stands.
 
 Delivery is idempotent — a turn stamps itself once delivered, so a re-run after a
 crashed agent call cannot write a second, contradictory set of facts.
@@ -390,7 +392,8 @@ something here and has not written it yet, so:
 - any claim resting on a `$BOTA` passage is UNRESOLVED, however small
 - a quotation containing `$BOTA` is rejected outright, so it can never be read out
 - the query lore master reports it by name rather than saying nothing is recorded
-- `tesbota gaps` lists every one with its address — it is your backlog
+- it is the backlog, and it is found the way everything here is found:
+  `SELECT ref, body FROM writing WHERE body LIKE '%$BOTA%'`
 
 The lore master stubs whatever it names: mentioning a place, person, item or book
 that has no row inserts that row in the same breath. A deeplink pointing at
