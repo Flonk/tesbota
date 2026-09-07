@@ -2,19 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import Quests from "./Quests";
-import { Btn, Empty, Note, Prose, Table, Toggle } from "./ui";
+import { Btn, Empty, Note, Prose, Stub, Table, Toggle } from "./ui";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
 
 const OPEN = (v) => !String(v || "").trim() || String(v).includes("$BOTA");
 const settled = (v) => (OPEN(v) ? "" : String(v).trim());
-const mark = <span className="unwrit" title="nobody has written this yet">—</span>;
+const told = (v) => (OPEN(v) ? <Stub /> : String(v).trim());
 
 function span(person) {
   const born = settled(person.born);
   const died = settled(person.died);
-  if (!born && !died) return mark;
+  if (!born && !died) return <Stub />;
   if (born && died) return `${born}–${died}`;
   return born ? `${born}–` : `–${died}`;
 }
@@ -132,16 +132,16 @@ const COLUMNS = {
       { key: "name", label: "book", strong: true, cell: (r) => r.name },
       { key: "author", label: "author", dim: true,
         cell: (r) => (r.godhead ? `${r.author} ✦` : r.author || "unattributed") },
-      { key: "written", label: "written", dim: true, cell: (r) => r.written || "—" },
+      { key: "written", label: "written", dim: true, cell: (r) => told(r.written) },
     ],
   },
   people: {
     cols: "minmax(6rem, 2fr) minmax(4.5rem, 1.1fr) minmax(5rem, 1.4fr) 5.5rem",
     fields: [
       { key: "name", strong: true, label: "person", cell: (r) => r.name },
-      { key: "work", label: "trade", dim: true, cell: (r) => settled(r.work) || mark },
+      { key: "work", label: "trade", dim: true, cell: (r) => told(r.work) },
       { key: "livesName", label: "where", dim: true,
-        cell: (r) => (OPEN(r.lives) ? mark : r.livesName) },
+        cell: (r) => (OPEN(r.lives) ? <Stub /> : r.livesName) },
       { key: "born", label: "lived", dim: true, cell: (r) => span(r) },
     ],
   },

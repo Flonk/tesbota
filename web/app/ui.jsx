@@ -269,6 +269,14 @@ export function Overlay({ title, tags, onClose, children }) {
   );
 }
 
+export function Stub() {
+  return (
+    <span className="stubmark" title="left deliberately unwritten — the world will come back to it">
+      $BOTA
+    </span>
+  );
+}
+
 export function Empty({ children = "nothing" }) {
   return <p className="empty">{children}</p>;
 }
@@ -318,11 +326,7 @@ export function Prose({ text, className = "", as: As = "p" }) {
     if (m.index > last) out.push(src.slice(last, m.index));
     last = m.index + m[0].length;
     if (m[5]) {
-      out.push(
-        <span className="stubmark" key={last} title="somebody left this deliberately unwritten">
-          nobody has written this yet
-        </span>
-      );
+      out.push(<Stub key={last} />);
       continue;
     }
     if (m[4]) {

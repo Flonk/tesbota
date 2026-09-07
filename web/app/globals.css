@@ -510,7 +510,6 @@ textarea {
 
 .erow.unwritten .ename { color: var(--dim); text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
 .erow.stub .ename { text-decoration: underline dotted var(--gold); text-underline-offset: 3px; }
-.unwrit { color: var(--gold); opacity: .5; border-bottom: 1px dotted var(--gold); }
 .twig { display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0; }
 .twig { padding-left: calc(var(--depth) * 1.1rem); }
 .knot {
@@ -641,8 +640,9 @@ textarea {
 .rstep:disabled { opacity: .3; cursor: default; }
 
 .stubmark {
-  font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  font: var(--mono); letter-spacing: .08em;
   color: var(--warn); border-bottom: 1px dashed var(--warn);
+  white-space: nowrap;
 }
 
 .dlink.dangling {

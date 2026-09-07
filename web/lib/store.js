@@ -186,7 +186,7 @@ export async function library() {
       name: r.name,
       author: (r.author || "").trim(),
       authorId: r.author_id || null,
-      written: (r.written || "").includes("$BOTA") ? "" : r.written || "",
+      written: r.written || "",
       rarity: (r.rarity || "").toLowerCase(),
       passages: r.passages,
       mentions: r.mentions,

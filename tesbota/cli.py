@@ -6,7 +6,7 @@ from . import actions, canon, chronicle, db, driver, mapping, prompts, sheet, vi
 from .gate import sqlite_gate
 from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
-from .config import CHRONICLE_NAME, NARRATOR
+from .config import CHRONICLE_NAME, NARRATOR, STUB
 from .state import (
     all_turns,
     load_campaign,
@@ -159,7 +159,7 @@ def cmd_library(args):
         return
     width = max(len(b["name"]) for b in shelf)
     for b in shelf:
-        when = b["written"] if b["written"] and "$BOTA" not in b["written"] else "—"
+        when = b["written"] or STUB
         mark = " (godhead)" if b["godhead"] else ""
         print(f"  {b['name']:<{width}}  {b['author']}{mark}  [{when}]  {b['rarity'] or '—'}")
 

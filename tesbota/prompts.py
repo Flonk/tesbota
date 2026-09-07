@@ -29,6 +29,17 @@ exactly one book:
 That is the record of what has actually happened — one passage set down after each
 turn, as it happened. Nothing in the world may contradict it.
 
+`$BOTA` is the mark this world leaves on itself. It stands wherever somebody has
+decided there is something here and has not written it yet — a book's date, a
+person's trade or birth, a chapter, the distance along a road. It is not the same
+as nothing: nothing means the subject never came up, and `$BOTA` means it came up
+and is owed. Every mark is on the backlog and will be filled in eventually.
+
+So a `$BOTA` is never to be read around, guessed at, quoted, or quietly treated as
+a fact you happen not to know. Where a value is `$BOTA`, say so by name — "the
+record deliberately leaves that unwritten" — rather than saying nothing is
+recorded, because the two are different answers and the difference matters.
+
 Everything in the world has an address, and the writing is full of them:
 
     bota://places/alheim-mill

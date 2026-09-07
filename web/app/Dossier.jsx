@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Empty, openDossier, Overlay, Prose, Table, Tag } from "./ui";
+import { Empty, openDossier, Overlay, Prose, Stub, Table, Tag } from "./ui";
 
 function Reader({ thing, fragment }) {
   const opening = /^p(\d+)$/.exec(fragment || "");
@@ -98,8 +98,9 @@ const WROTE = {
   cols: "minmax(9rem, 2fr) 6rem 5rem",
   fields: [
     { key: "name", label: "book", strong: true, cell: (r) => r.name },
-    { key: "written", label: "written", dim: true, cell: (r) => r.written || "—" },
-    { key: "rarity", label: "rarity", dim: true, cell: (r) => r.rarity || "—" },
+    { key: "written", label: "written", dim: true,
+      cell: (r) => (String(r.written || "").includes("$BOTA") || !r.written ? <Stub /> : r.written) },
+    { key: "rarity", label: "rarity", dim: true, cell: (r) => r.rarity || <Stub /> },
   ],
 };
 
@@ -107,7 +108,7 @@ const CONTAINS = {
   cols: "minmax(9rem, 2fr) 7rem",
   fields: [
     { key: "name", label: "inside it", strong: true, cell: (r) => r.name },
-    { key: "kind", label: "kind", dim: true, cell: (r) => r.kind || "unwritten" },
+    { key: "kind", label: "kind", dim: true, cell: (r) => r.kind || <Stub /> },
   ],
 };
 
@@ -115,9 +116,8 @@ const EXITS = {
   cols: "minmax(9rem, 2fr) 7rem minmax(6rem, 1.4fr)",
   fields: [
     { key: "name", label: "way out", strong: true, cell: (r) => r.name },
-    { key: "bearing", label: "bearing", dim: true, cell: (r) => r.bearing || "unrecorded" },
-    { key: "distance", label: "how far", dim: true,
-      cell: (r) => r.distance || "nobody has measured this" },
+    { key: "bearing", label: "bearing", dim: true, cell: (r) => r.bearing || <Stub /> },
+    { key: "distance", label: "how far", dim: true, cell: (r) => r.distance || <Stub /> },
   ],
 };
 
@@ -126,7 +126,7 @@ const KEEPS = {
   fields: [
     { key: "name", label: "thing", strong: true, cell: (r) => r.name },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
-    { key: "note", label: "condition", dim: true, cell: (r) => r.note || "—" },
+    { key: "note", label: "condition", dim: true, cell: (r) => r.note || <Stub /> },
   ],
 };
 
@@ -266,8 +266,8 @@ export default function Dossier({ at, onClose }) {
                       <span>{thing.book.author || "unattributed"}</span>
                     )}
                     {thing.book.godhead && <Tag tone="gold">godhead</Tag>}
-                    <span className="bdate">[{thing.book.written || "no date of writing"}]</span>
-                    <span>{thing.book.rarity || "no rarity recorded"}</span>
+                    <span className="bdate">[<Prose as="span" text={thing.book.written || "$BOTA"} />]</span>
+                    <span>{thing.book.rarity || <Stub />}</span>
                   </p>
                 ) : (
                   <Empty>it is named as a book but nobody has shelved it</Empty>
