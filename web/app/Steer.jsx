@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bubble, Btn, Cap, Composer, Empty, Thread } from "./ui";
+import { Bubble, Btn, Composer, Empty, Thread } from "./ui";
 
 export default function Steer({ note, past = [], busy, onNote }) {
   const [text, setText] = useState("");
@@ -13,14 +13,15 @@ export default function Steer({ note, past = [], busy, onNote }) {
           <Empty>you have not steered the game master yet</Empty>
         )}
         {past.map((entry) => (
-          <Bubble who="you" key={entry.id}>
+          <Bubble who="you" at={entry.id} key={entry.id}>
             {entry.note}
           </Bubble>
         ))}
         {note && (
           <>
-            <Cap>queued, waiting to be read</Cap>
-            <Bubble who="you">{note}</Bubble>
+            <Bubble who="you" at="not read yet">
+              {note}
+            </Bubble>
             <div className="actions">
               <Btn onClick={() => onNote("")} disabled={!!busy}>
                 take it back
@@ -34,7 +35,7 @@ export default function Steer({ note, past = [], busy, onNote }) {
         onChange={setText}
         busy={busy === "note" ? busy : null}
         label={note ? "replace" : "queue"}
-        placeholder="say what should happen next — the adventurer never learns of it…"
+        placeholder="steer the next turn — the adventurer never learns of it…"
         onSend={async () => {
           const queued = text;
           setText("");

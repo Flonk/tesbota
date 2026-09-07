@@ -59,10 +59,13 @@ export function Bar({ label, value, max, tone }) {
   );
 }
 
-export function Bubble({ who, children }) {
+export function Bubble({ who, at, tone, children }) {
   return (
-    <div className={`bubble${who === "you" ? " you" : ""}`}>
-      <span className="who">{who}</span>
+    <div className={`bubble${who === "you" ? " you" : ""}${tone ? ` bubble-${tone}` : ""}`}>
+      <span className="who">
+        {who}
+        {at && <span className="when">{at}</span>}
+      </span>
       <div className="msg">{children}</div>
     </div>
   );

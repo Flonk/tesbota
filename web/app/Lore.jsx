@@ -8,8 +8,12 @@ export default function Lore({ gap, chat = [], busy, blocked, onSay }) {
   return (
     <div className="chat lore">
       <Thread>
-        <Cap>{blocked ? "the world is silent here" : "nothing is being asked of you"}</Cap>
-        {blocked && gap?.text && <p className="body ask">{gap.text}</p>}
+        {!blocked && <Cap>nothing is being asked of you</Cap>}
+        {blocked && gap?.text && (
+          <Bubble who="the world is silent here" at={gap.turn} tone="gap">
+            {gap.text}
+          </Bubble>
+        )}
         {chat.length === 0 && !blocked && <Empty>no words yet</Empty>}
         {chat.map((m, i) => (
           <Bubble who={m.role} key={i}>
