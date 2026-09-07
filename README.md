@@ -17,7 +17,7 @@ a rule anyone is asked to respect.
 | **Game master** | An action, a verdict | read | scene-scoped |
 | **Lore master 1** | Bare claims | read | stateless |
 | **Lore master 3** | A silence in the world | read/write | per sitting |
-| **Narrator** | One finished turn | read, writes its own book | stateless |
+| **Narrator** | One finished turn, verbatim | none — it is an append log | none |
 
 The Explorer cannot see the world at all, so the game master must reproduce book
 text **verbatim** — and the driver diffs every quotation against the passage it
@@ -51,35 +51,45 @@ with a reason to be doubted.
 
 ## The narrator
 
-There is a second godhead-class entity, and it is writing a book.
+There is a second godhead-class author and it is writing a book. It is not an agent.
 
-After every turn that survives adjudication, the narrator is handed that turn — what
-the explorer did, what it looked at, what it said, what it was told — and sets down a
-passage of `bota://books/the-life-of-explorer-1`, *The Life of Explorer #1*. It sees
-one finished turn and the last few passages it wrote, and nothing else. It has never
-heard of a die.
+After every turn that survives adjudication, the driver takes what the game master
+actually said that turn — every `gm` phase, in order, joined into one paragraph — and
+appends it as a passage of `bota://books/the-life-of-explorer-1`, *The Life of
+Explorer #1*. No call, no prompt, no model. The turn is already on disk; setting it
+down is string work.
 
-Because it is godhead-class its book is law, and nothing any other layer narrates or
-claims may contradict it. That is what holds the observed world together, and it is
-why there is no longer a special kind of claim doing the same job badly.
+The book is one row in `entity`, one in `book` — author `The Narrator`, rarity
+`unique` — and one `passage` row per turn, in turn order. Because it is godhead-class
+it is law, and nothing any other layer narrates or claims may contradict it. That is
+what holds the observed world together, and it is why there is no longer a special
+kind of claim doing the same job badly.
 
-It writes instances, never kinds. *A figure challenged them at the gate* is the
-narrator's; *the town keeps gatekeepers who challenge travellers* is not, and writing
-it would settle by accident something the world has not decided. That is the same
-line lore master 1 draws when it escalates, and it is what keeps the narrator from
-quietly becoming the codex this world does not have.
+The book still holds instances and not kinds — *a figure challenged them at the gate*
+and never *the town keeps gatekeepers* — but that line is no longer the narrator's to
+draw. It is drawn upstream now, by a game master told to leave proper nouns alone and
+to make one assertion per claim, and by a lore master that escalates anything
+constraining the world rather than letting it through.
 
-Every name it sets down is a deeplink, and anything it links that has no row gets a
-bare one in the same breath — so the chronicle is also what keeps extending lore
-master 3's backlog.
+**The honest part.** With no agent between them, the passages are the game master's
+own approved prose entering a book that lore master 1 then treats as fact. That is
+self-certification and it is a real loss of separation. It was weighed and accepted:
+the prose was already adjudicated claim by claim before delivery, so nothing enters
+the book that lore master 1 did not already pass, and an agent whose whole job was a
+person-swap and a link was not worth a call a turn.
+
+Every name it sets down is still a deeplink, resolved deterministically:
+`link_names()` matches the passage against `entity` — on a name, on a name with its
+leading article stripped, and on the id with its hyphens as spaces — longest match
+first, once per thing per passage, never inside an existing link and never inside a
+quotation, since a quotation is the one assertion in this system that is checked with
+`==`. Something the world has not named does not link. That is honest, and it is what
+keeps lore master 3's backlog meaningful.
 
 ```
 tesbota chronicle        read the book
 tesbota chronicle -n 5   the last five passages
 ```
-
-It writes to `passage` and `entity` and nothing else. The permission callback denies
-the rest, so the chronicler cannot rewrite the library it is shelved in.
 
 A deeplink pointing at a row nobody has written is an unresolved fact. `tesbota
 gaps` lists the frontier.
@@ -111,6 +121,8 @@ uv run tesbota status    # where things stand, how long until the adventurer wak
 uv run tesbota lore      # sit down with lore master 3 and end a silence
 uv run tesbota gaps      # dangling links: the world's frontier
 uv run tesbota chronicle # the narrator's book, the life so far
+uv run tesbota holdings  # what everybody in the world is keeping
+uv run tesbota map       # the world as mermaid; --json for the solved layout
 ```
 
 Make it tick on its own with a user timer:
@@ -138,22 +150,23 @@ That makes compaction the one thing that scales with the campaign — and
 compacting the Explorer is the adventurer forgetting. Which, for a Boltzmann
 brain, is not a compromise.
 
-The narrator is one more stateless call at the end of each turn, reading three
-passages and one turn. It is the cheapest layer in the system and the only one whose
-output is permanent.
+The narrator costs nothing at all. It is an append log, not a call — the one layer
+whose output is permanent is the one layer that never talks to a model.
 
 ## Canon layout
 
 The world is one SQLite file, `canon.db`. Every layer reads it the same way —
 `sqlite3 -readonly canon.db "SELECT ..."`. Lore master 3 writes anywhere in it; the
-narrator writes only passages and bare rows; nothing else writes at all.
+driver appends the narrator's passages and applies what changed hands; nothing else
+writes at all.
 
 ```
-entity(id, kind, name, introduced)              people | places | books | items
+entity(id, kind, name, introduced, extent)      people | places | books | items
 book(id, author, author_id, written, rarity)    author_id points at the person who wrote it
 passage(book_id, ord, text)                     a book's text, one paragraph to a row
 claim(id, entity_id, section, turn_id, text)    attested | map — all of it testimony
 edge(src, rel, dst, bearing, distance)          within | exits
+holding(holder, name, qty, note, worn)          what a place, a person or the explorer keeps
 
 writing(ref, entity, kind, section, body)       every passage and claim, with its address
 search(ref, entity, section, body)              fts5 over all of it
@@ -163,6 +176,21 @@ unwritten(id, kind, name)                       named by somebody, written by no
 Containment is stored once, as a `within` edge; what a place contains is that
 edge read backwards, so the two can never disagree. Nothing is duplicated and
 nothing needs keeping in step.
+
+Everything that can hold something holds it the same way. A `holding` row's `holder`
+is an entity id — a shopkeeper, a mill, a room — or the reserved `the-explorer`, which
+is deliberately not a foreign key, because the one moving through this world is never
+an author and never a subject of the library. Lore master 3 stocks a place when it
+writes the place: a mill has sacks in it before anybody walks in. The game master
+moves goods with `move`, so a coin paid lands in somebody's till rather than leaving
+the world, and it is shown what everything at the explorer's location keeps and told
+that list is the truth on both sides of a trade.
+
+```
+tesbota holdings                what everybody is holding
+tesbota holdings alheim-mill    just that one
+tesbota inventory               the explorer's own, and the only one it may run
+```
 
 ### Deeplinks
 
@@ -213,10 +241,23 @@ Three panes: the **Explorer** story, the **Game master** machinery (every claim
 with its verdict, redrafts, quote checks), and the **Lore master** — the pending
 gap with a box to talk it through and a resolve button.
 
-Reads come straight off `state/` in the Next process, so the UI hot-reloads while
-you change it. Anything that needs the Agent SDK shells out to the CLI
-(`tesbota say`, `tesbota resolve`, `tesbota step --json`), which also means those
-commands work on their own from a terminal.
+The tab area beside the story holds the rest of the world. The **library** has its
+own bar over places, people, books and items, one dense line to a row, with a search
+box that filters by name as you type and runs the fts5 index on enter; unwritten
+rows and `$BOTA` rows are dashed rather than badged, and the whole panel drives from
+the keyboard. Clicking any row — or any `bota://` address anywhere in the app, since
+one renderer draws them all and a link to a row nobody has written looks like the
+dangling link it is — opens a **dossier**: what is written about the thing, every
+document that mentions it, what it keeps, and for a book, a reader you can page
+through. The **map** is drawn from the solved layout, pans and zooms, and weights
+every place by whether the explorer has walked it, whether something merely records
+it, or whether it is only a name somebody wrote down.
+
+Reads come straight off `state/` and `canon.db` in the Next process, so the UI
+hot-reloads while you change it. Anything that needs the Agent SDK shells out to the
+CLI (`tesbota say`, `tesbota resolve`, `tesbota step --json`), which also means those
+commands work on their own from a terminal. The map does the same for
+`tesbota map --json`, because solving a layout is Python.
 
 `TESBOTA_KEY` gates every route. Open `https://host/?k=<key>` once and it sets a
 cookie; without it every path 404s. Expose it with
@@ -447,6 +488,20 @@ only lore master 3 writes one, only where a document in the world measured the
 thing. The Council surveys a road; a plate carries a boundary. A place with no
 extent is not a defect and is never given one to make the map look better, because
 coordinates would mean inventing precision nobody established.
+
+`tesbota/mapping.py` solves the two into a layout — seeded, so the same world always
+draws the same map — with an extent pinning a place absolutely, a bearing fixing an
+angle, a distance band fixing a range, and containment placing whatever has nothing
+else. A place with no bearing and no distance to anything is `floating`: it is
+reported as floating and given no position at all rather than a made-up one, and the
+map lists it in a gutter instead of scattering it into the middle. `tesbota map`
+still prints mermaid; `tesbota map --json` prints the solved layout.
+
+The renderer draws each containment group in its own frame and compresses distances
+within a group before drawing them, because this world runs from a hundred metres to
+thirty kilometres and one linear frame makes a village a dot. Bearings and ordering
+survive that; the metres do not, which is why every road keeps the distance somebody
+actually recorded on its label and says "nobody has measured this" when nobody has.
 
 ## Looking before acting
 

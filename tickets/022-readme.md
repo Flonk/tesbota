@@ -1,6 +1,6 @@
 # 022 — bring the README back in line
 
-**Status:** todo
+**Status:** done
 **Depends on:** everything above
 
 ## Why

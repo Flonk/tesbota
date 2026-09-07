@@ -23,4 +23,4 @@ Work them in numeric order. One commit per ticket.
 - [x] [019-map-render.md](019-map-render.md) — draw it
 - [x] [020-map-interaction.md](020-map-interaction.md) — move around the map
 - [x] [021-map-fog.md](021-map-fog.md) — the map only shows what has been found out
-- [ ] [022-readme.md](022-readme.md) — bring the README back in line
+- [x] [022-readme.md](022-readme.md) — bring the README back in line
