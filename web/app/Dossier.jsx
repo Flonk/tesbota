@@ -146,10 +146,14 @@ const settled = (v) => {
 function Lifespan({ person }) {
   return (
     <span className="lifespan">
-      <span className="glyph" title="born">*</span>
-      {settled(person?.born) || <Stub />}
-      <span className="glyph" title="died">†</span>
-      {settled(person?.died) || <Stub />}
+      <span className="era" title="born">
+        <span className="glyph">*</span>
+        {settled(person?.born) || <Stub />}
+      </span>
+      <span className="era" title="died">
+        <span className="glyph">†</span>
+        {settled(person?.died) || <Stub />}
+      </span>
     </span>
   );
 }
@@ -242,9 +246,9 @@ export default function Dossier({ at, onClose }) {
         {thing && (
           <div className="dbody">
             {thing.kind === "people" ? (
-              <p className="cap dmeta">
+              <p className="cap dwho">
                 <Prose as="span" text={thing.person?.work || "$BOTA"} />
-                <span>,</span>
+                {", "}
                 {settled(thing.person?.lives) ? (
                   <button className="dlink" onClick={() => openDossier(thing.person.lives)}>
                     {thing.person.livesName}

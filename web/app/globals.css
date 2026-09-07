@@ -585,15 +585,27 @@ textarea {
 .dclose:hover { color: var(--ink); }
 
 .dmeta { display: flex; gap: .45rem; text-transform: none; letter-spacing: .06em; margin: .2rem 0 .9rem; align-items: baseline; }
-.lifespan { display: inline-flex; align-items: baseline; gap: .3rem; font: var(--mono); letter-spacing: .06em; color: var(--dim); }
+.dtitle .lifespan { margin-left: .7em; }
+.lifespan {
+  display: inline-flex; align-items: baseline; gap: .6em;
+  font: var(--mono); letter-spacing: .06em; color: var(--dim);
+}
+.lifespan .era { display: inline-flex; align-items: baseline; gap: .15em; }
 .lifespan .glyph { color: var(--gold); }
-.dbody > .etable { margin-bottom: 1.1rem; }
+
+.dwho {
+  text-transform: none; letter-spacing: .06em;
+  margin: .25rem 0 1rem;
+}
+.dbody > .etable { margin: 0 0 1.1rem; }
+.dbody > .etable .erow { padding-left: 0; margin-left: -1px; }
 .daddr {
   background: none; border: 1px dashed var(--line); border-radius: 2px;
   color: var(--place); font: var(--mono); letter-spacing: .06em;
   padding: .1rem .35rem; cursor: pointer;
 }
 .daddr:hover { color: var(--gold); border-color: var(--gold); }
+.dbody > .daddr { margin-bottom: 1.1rem; }
 
 .dsec { margin-top: 1.1rem; }
 .dsection { font: var(--mono); letter-spacing: .06em; color: var(--place); }
