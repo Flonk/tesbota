@@ -242,6 +242,7 @@ export function Overlay({ title, tags, onClose, children }) {
       if (e.key === "Escape") onClose();
     }
     function away(e) {
+      if (e.target.closest?.(".reading")) return;
       if (panel.current && !panel.current.contains(e.target)) onClose();
     }
     document.addEventListener("keydown", key);

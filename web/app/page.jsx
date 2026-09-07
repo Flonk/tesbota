@@ -607,7 +607,7 @@ export default function Page() {
 
         {reading === "books" && (
           <Tabs
-            className="sub"
+            className="sub reading"
             items={[{ id: "content", label: "content" }, { id: "meta", label: "meta" }]}
             value={face}
             onChange={setFace}
