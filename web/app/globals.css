@@ -156,13 +156,30 @@ textarea {
 
 /* ---- the two bands ---- */
 
-.app { display: flex; flex-direction: column; height: 100dvh; min-height: 0; }
-.band { min-height: 0; display: flex; flex-direction: column; }
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+  transition: height 100ms ease-out;
+}
+.band {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: flex-basis 100ms ease-out, flex-grow 100ms ease-out;
+}
 .turns { flex: 0 0 50%; }
 .tabsband { flex: 1 1 0; position: relative; }
+.band.folded { flex: 0 0 0% !important; }
 .app.dragging { cursor: row-resize; user-select: none; }
+.app.dragging .band, .app.dragging { transition: none; }
 .app.avoiding .tabbar { cursor: default; }
-[hidden] { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .app, .band { transition: none; }
+}
 
 .deck {
   display: flex;

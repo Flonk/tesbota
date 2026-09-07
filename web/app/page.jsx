@@ -507,9 +507,13 @@ export default function Page() {
       )}
 
       <section
-        className="band turns"
-        hidden={keyboard.collapse === "turns"}
-        style={keyboard.collapse ? { flex: "1 1 auto" } : { flex: `0 0 ${split}%` }}
+        className={`band turns${keyboard.collapse === "turns" ? " folded" : ""}`}
+        inert={keyboard.collapse === "turns" || undefined}
+        style={{
+          flex: `0 0 ${
+            keyboard.collapse === "turns" ? 0 : keyboard.collapse === "tabs" ? 100 : split
+          }%`,
+        }}
       >
         <div className="deck" ref={deck} onScroll={onScroll}>
           {slides.map((s, i) => (
@@ -540,7 +544,10 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="band tabsband" hidden={keyboard.collapse === "tabs"}>
+      <section
+        className={`band tabsband${keyboard.collapse === "tabs" ? " folded" : ""}`}
+        inert={keyboard.collapse === "tabs" || undefined}
+      >
         <div
           className="tabbar"
           onPointerDown={grabBar}
