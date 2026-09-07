@@ -503,7 +503,14 @@ export default function Page() {
       className={`app${dragging ? " dragging" : ""}${keyboard.collapse ? " avoiding" : ""}`}
       ref={app}
       data-avoiding={keyboard.collapse || undefined}
-      style={keyboard.inset ? { height: `calc(100dvh - ${keyboard.inset}px)` } : undefined}
+      style={
+        keyboard.inset
+          ? {
+              height: `${keyboard.height}px`,
+              transform: keyboard.top ? `translateY(${keyboard.top}px)` : undefined,
+            }
+          : undefined
+      }
     >
       <Brand status={status} busy={busy} />
 
