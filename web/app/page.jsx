@@ -369,13 +369,13 @@ export default function Page() {
 
   useEffect(() => {
     function onKey(e) {
-      if (e.target.tagName === "TEXTAREA") return;
+      if (e.target.tagName === "TEXTAREA" || dossier) return;
       if (e.key === "ArrowLeft") go(at - 1);
       if (e.key === "ArrowRight") go(at + 1);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [at, go]);
+  }, [at, go, dossier]);
 
   function onScroll() {
     const el = deck.current;

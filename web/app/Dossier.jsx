@@ -1,10 +1,139 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Empty, Tag } from "./ui";
 
 export function openDossier(id) {
   if (id) window.dispatchEvent(new CustomEvent("bota:open", { detail: String(id) }));
+}
+
+const ADDRESS =
+  /\[([^\]]*)\]\((bota:\/\/[^)\s]+)\)|(bota:\/\/[a-z]+\/[a-z0-9][a-z0-9-]*(?:#[pc]\d+)?)|(\$BOTA)/g;
+
+export function target(address) {
+  const found = /^bota:\/\/(people|places|books|items)\/([a-z0-9][a-z0-9-]*)(?:#([pc]\d+))?$/.exec(
+    String(address || "")
+  );
+  return found ? { kind: found[1], id: found[2], fragment: found[3] || null } : null;
+}
+
+export function Prose({ text, className = "" }) {
+  const src = String(text || "");
+  const out = [];
+  let last = 0;
+  for (const m of src.matchAll(ADDRESS)) {
+    if (m.index > last) out.push(src.slice(last, m.index));
+    last = m.index + m[0].length;
+    if (m[4]) {
+      out.push(
+        <span className="stubmark" key={last} title="somebody left this deliberately unwritten">
+          nobody has written this yet
+        </span>
+      );
+      continue;
+    }
+    const address = m[2] || m[3];
+    const at = target(address);
+    const label = m[1] || (at ? at.id.replace(/-/g, " ") : address);
+    out.push(
+      at ? (
+        <button className="dlink" key={last} onClick={() => openDossier(at.id)}>
+          {label}
+        </button>
+      ) : (
+        address
+      )
+    );
+  }
+  out.push(src.slice(last));
+  return (
+    <p className={className}>
+      {out.map((piece, n) => (typeof piece === "string" ? <span key={n}>{piece}</span> : piece))}
+    </p>
+  );
+}
+
+function Reader({ thing }) {
+  const [at, setAt] = useState(0);
+  const [whole, setWhole] = useState(false);
+  const deck = useRef(null);
+  const passages = thing.passages || [];
+
+  const go = useCallback((i) => {
+    const el = deck.current;
+    if (!el || !el.clientWidth) return;
+    el.scrollTo({ left: Math.max(0, i) * el.clientWidth, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    if (whole) return;
+    function key(e) {
+      if (e.key === "ArrowLeft") go(at - 1);
+      if (e.key === "ArrowRight") go(at + 1);
+    }
+    document.addEventListener("keydown", key);
+    return () => document.removeEventListener("keydown", key);
+  }, [at, go, whole]);
+
+  if (!passages.length) return <Empty>the book has no text in it yet</Empty>;
+
+  return (
+    <div className="reader">
+      <div className="rbar">
+        <button className="dlink" onClick={() => setWhole(!whole)}>
+          {whole ? "one at a time" : "read it straight through"}
+        </button>
+        {!whole && (
+          <span className="rcount">
+            {at + 1} / {passages.length}
+          </span>
+        )}
+      </div>
+
+      {whole ? (
+        <div className="rwhole">
+          {passages.map((p) => (
+            <div className="leaf" key={p.ord}>
+              <span className="cap rord">{p.ord}</span>
+              <Prose className="rtext" text={p.text} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          <div
+            className="rdeck"
+            ref={deck}
+            onScroll={(e) => setAt(Math.round(e.target.scrollLeft / (e.target.clientWidth || 1)))}
+          >
+            {passages.map((p) => (
+              <div className="leaf" key={p.ord}>
+                <span className="cap rord">{p.ord}</span>
+                <Prose className="rtext" text={p.text} />
+              </div>
+            ))}
+          </div>
+          <div className="rnums">
+            <button className="rstep" onClick={() => go(at - 1)} disabled={at === 0}>
+              ‹
+            </button>
+            {passages.map((p, n) => (
+              <button key={p.ord} className={`rnum${n === at ? " on" : ""}`} onClick={() => go(n)}>
+                {p.ord}
+              </button>
+            ))}
+            <button
+              className="rstep"
+              onClick={() => go(at + 1)}
+              disabled={at === passages.length - 1}
+            >
+              ›
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 function Section({ label, children }) {
@@ -138,7 +267,7 @@ export default function Dossier({ id, onClose }) {
             </Section>
 
             {thing.kind === "books" && (
-              <Section label="the book itself">
+              <Section label={thing.book?.godhead ? "law, and nothing may contradict it" : "the book"}>
                 {thing.book ? (
                   <p className="dline">
                     {thing.book.author_id ? (
@@ -151,11 +280,11 @@ export default function Dossier({ id, onClose }) {
                     {thing.book.godhead && <Tag tone="gold">godhead</Tag>}
                     <span className="bdate">[{thing.book.written || "no date of writing"}]</span>
                     <span>{thing.book.rarity || "no rarity recorded"}</span>
-                    <span>{thing.passages.length} passage(s)</span>
                   </p>
                 ) : (
                   <Empty>it is named as a book but nobody has shelved it</Empty>
                 )}
+                <Reader thing={thing} />
               </Section>
             )}
 

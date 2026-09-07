@@ -261,7 +261,7 @@ export default function Library({ dossier, onOpen }) {
         box.current?.blur();
         return;
       }
-      if (typing) return;
+      if (typing || dossier) return;
 
       if (e.key === "/") {
         e.preventDefault();

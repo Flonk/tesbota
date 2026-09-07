@@ -1,6 +1,6 @@
 # 015 — read a book properly
 
-**Status:** todo
+**Status:** done
 **Depends on:** 014
 
 ## What

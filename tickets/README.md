@@ -16,7 +16,7 @@ Work them in numeric order. One commit per ticket.
 - [x] [012-library-search-and-filters.md](012-library-search-and-filters.md) — search and filters across the library
 - [x] [013-library-keyboard.md](013-library-keyboard.md) — drive the library from the keyboard
 - [x] [014-dossier-panel.md](014-dossier-panel.md) — clicking a thing opens its dossier
-- [ ] [015-book-reader.md](015-book-reader.md) — read a book properly
+- [x] [015-book-reader.md](015-book-reader.md) — read a book properly
 - [ ] [016-deeplink-navigation.md](016-deeplink-navigation.md) — every address in the app is a link
 - [ ] [017-map-geometry-model.md](017-map-geometry-model.md) — decide what the map is allowed to know
 - [ ] [018-map-layout-solver.md](018-map-layout-solver.md) — solve a layout from the graph
