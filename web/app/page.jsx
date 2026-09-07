@@ -19,6 +19,35 @@ const PHASE = {
   done: "done",
 };
 
+const MOOD = {
+  explorer: "the adventurer is deciding",
+  propose: "the adventurer is deciding",
+  answer: "it looks closer",
+  gm: "the world turns",
+  lore1: "the record is being checked",
+  narrate: "the narrator is writing",
+  done: "the world sleeps",
+  uninitialised: "nothing has begun",
+};
+
+function mood(status, busy) {
+  if (busy) return "the world turns";
+  if (status.state === "awaiting_human") return "the world is silent";
+  if (status.state === "awaiting_clock") {
+    return `the adventurer walks${status.wakesIn ? ` — ${status.wakesIn} to go` : ""}`;
+  }
+  return MOOD[status.state] || "the world sleeps";
+}
+
+function Brand({ status, busy }) {
+  return (
+    <header className="brand">
+      <span className="mark">BOTA</span>
+      <span className="mood">{mood(status, busy)}</span>
+    </header>
+  );
+}
+
 function Status({ status }) {
   if (status.state === "awaiting_clock") {
     return (
@@ -476,6 +505,8 @@ export default function Page() {
       data-avoiding={keyboard.collapse || undefined}
       style={keyboard.inset ? { height: `calc(100dvh - ${keyboard.inset}px)` } : undefined}
     >
+      <Brand status={status} busy={busy} />
+
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">
           {error}
