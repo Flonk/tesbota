@@ -293,6 +293,8 @@ export default function Page() {
   const [sub, setSub] = useState({ chat: "lore", library: "places" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
+  const [reading, setReading] = useState(null);
+  const [face, setFace] = useState("content");
   const keyboard = useKeyboardAvoid();
   const [at, setAt] = useState(0);
   const [split, setSplit] = useState(50);
@@ -326,6 +328,8 @@ export default function Page() {
   useEffect(() => {
     const open = (e) => {
       setQuest(null);
+      setReading(null);
+      setFace("content");
       setDossier(e.detail);
     };
     window.addEventListener("bota:open", open);
@@ -601,6 +605,15 @@ export default function Page() {
           />
         )}
 
+        {reading === "books" && (
+          <Tabs
+            className="sub"
+            items={[{ id: "content", label: "content" }, { id: "meta", label: "meta" }]}
+            value={face}
+            onChange={setFace}
+          />
+        )}
+
         <div className="tabbody">
           <div className={`tabpanel${tab === "chat" || tab === "library" ? " flush" : ""}`}>
           {tab === "chat" && sub.chat === "lore" && (
@@ -642,7 +655,15 @@ export default function Page() {
             />
           )}
           </div>
-          <Dossier at={dossier} onClose={() => setDossier(null)} />
+          <Dossier
+            at={dossier}
+            face={face}
+            onKind={setReading}
+            onClose={() => {
+              setDossier(null);
+              setReading(null);
+            }}
+          />
           <QuestPanel quest={quest} onClose={() => setQuest(null)} />
         </div>
       </section>

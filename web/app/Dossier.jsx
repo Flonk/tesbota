@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Empty, openDossier, Overlay, Prose, Stub, Table, Tabs, Tag } from "./ui";
+import { Empty, openDossier, Overlay, Prose, Stub, Table, Tag } from "./ui";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -135,16 +135,16 @@ function Trail({ chain, self }) {
   );
 }
 
-export default function Dossier({ at, onClose }) {
+export default function Dossier({ at, onClose, face = "content", onKind }) {
   const id = at?.id || null;
   const fragment = at?.fragment || null;
   const [thing, setThing] = useState(null);
   const [missing, setMissing] = useState(false);
-  const [face, setFace] = useState("content");
+
 
   useEffect(() => {
-    setFace(fragment && fragment.startsWith("p") ? "content" : "content");
-  }, [id, fragment]);
+    onKind?.(thing?.kind || null);
+  }, [thing?.kind, onKind]);
 
   useEffect(() => {
     if (!id) return;
@@ -205,15 +205,6 @@ export default function Dossier({ at, onClose }) {
               </p>
             )}
             <Address address={thing.address} />
-
-            {thing.kind === "books" && (
-              <Tabs
-                className="sub dsub"
-                items={[{ id: "content", label: "content" }, { id: "meta", label: "meta" }]}
-                value={face}
-                onChange={setFace}
-              />
-            )}
 
             {thing.kind === "books" && face === "content" && (
               <Leaves thing={thing} fragment={fragment} />
