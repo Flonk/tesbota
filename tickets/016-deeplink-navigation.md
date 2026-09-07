@@ -1,6 +1,6 @@
 # 016 — every address in the app is a link
 
-**Status:** todo
+**Status:** done
 **Depends on:** 014
 
 ## What

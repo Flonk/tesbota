@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Empty, Note, Tag } from "./ui";
+import { Empty, Note, Prose, Tag } from "./ui";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
 const TONE = { unique: "gold", rare: "warn", uncommon: "good", common: "dim" };
@@ -79,21 +79,6 @@ function compare(a, b, key) {
   const y = b[key] ?? "";
   if (typeof x === "number" && typeof y === "number") return x - y;
   return String(x).toLowerCase().localeCompare(String(y).toLowerCase());
-}
-
-export function Marked({ text }) {
-  const parts = String(text || "").split(/(<<[^>]*>>)/);
-  return (
-    <>
-      {parts.map((part, n) =>
-        part.startsWith("<<") && part.endsWith(">>") ? (
-          <mark key={n}>{part.slice(2, -2)}</mark>
-        ) : (
-          <span key={n}>{part}</span>
-        )
-      )}
-    </>
-  );
 }
 
 function Shelf({ books, selected, onOpen }) {
@@ -197,9 +182,7 @@ function Hits({ named, hits, selected, onOpen }) {
             <span>{h.name}</span>
             <span className="hitsec">{h.section}</span>
           </div>
-          <p className="hitline">
-            <Marked text={h.hit} />
-          </p>
+          <Prose className="hitline" text={h.hit} />
         </div>
       ))}
     </div>

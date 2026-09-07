@@ -73,3 +73,72 @@ export function Empty({ children = "nothing" }) {
 export function Note({ tone = "dim", children }) {
   return <p className={`hint hint-${tone}`}>{children}</p>;
 }
+
+const ADDRESS =
+  /\[([^\]]*)\]\((bota:\/\/[^)\s]+)\)|(bota:\/\/[a-z]+\/[a-z0-9][a-z0-9-]*(?:#[pc]\d+)?)|(<<[^>]*>>)|(\$BOTA)/g;
+
+let NAMES = null;
+
+export function knowNames(index) {
+  NAMES = index || {};
+}
+
+export function target(address) {
+  const found = /^bota:\/\/(people|places|books|items)\/([a-z0-9][a-z0-9-]*)(?:#([pc]\d+))?$/.exec(
+    String(address || "")
+  );
+  return found ? { kind: found[1], id: found[2], fragment: found[3] || null } : null;
+}
+
+export function openDossier(id, fragment = null) {
+  if (id) window.dispatchEvent(new CustomEvent("bota:open", { detail: { id: String(id), fragment } }));
+}
+
+function Link({ at, label, raw }) {
+  const known = !NAMES || !!NAMES[at.id];
+  return (
+    <button
+      className={`dlink${known ? "" : " dangling"}`}
+      title={known ? raw : `${raw} — nobody has written this`}
+      onClick={() => openDossier(at.id, at.fragment)}
+    >
+      {label}
+    </button>
+  );
+}
+
+export function Prose({ text, className = "", as: As = "p" }) {
+  const src = String(text || "");
+  const out = [];
+  let last = 0;
+  for (const m of src.matchAll(ADDRESS)) {
+    if (m.index > last) out.push(src.slice(last, m.index));
+    last = m.index + m[0].length;
+    if (m[5]) {
+      out.push(
+        <span className="stubmark" key={last} title="somebody left this deliberately unwritten">
+          nobody has written this yet
+        </span>
+      );
+      continue;
+    }
+    if (m[4]) {
+      out.push(<mark key={last}>{m[4].slice(2, -2)}</mark>);
+      continue;
+    }
+    const raw = m[2] || m[3];
+    const at = target(raw);
+    if (!at) {
+      out.push(raw);
+      continue;
+    }
+    const label = m[1] || NAMES?.[at.id]?.name || raw;
+    out.push(<Link key={last} at={at} label={label} raw={raw} />);
+  }
+  out.push(src.slice(last));
+  return (
+    <As className={className}>
+      {out.map((piece, n) => (typeof piece === "string" ? <span key={n}>{piece}</span> : piece))}
+    </As>
+  );
+}

@@ -123,7 +123,7 @@ export async function snapshot() {
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, slides, gap, chat, vitals, skills, inventory, notebook, quests, job: await job(), note: campaign.note || null };
+  return { status, slides, gap, chat, vitals, skills, inventory, notebook, quests, names: names(), job: await job(), note: campaign.note || null };
 }
 
 function alive(pid) {
@@ -212,6 +212,24 @@ const ROWS = `
     LEFT JOIN edge p ON p.src = e.id AND p.rel = 'within'
     LEFT JOIN entity pe ON pe.id = p.dst
 `;
+
+export function names() {
+  let db;
+  try {
+    db = canon();
+  } catch {
+    return {};
+  }
+  try {
+    const out = {};
+    for (const r of db.prepare(`SELECT id, kind, name FROM entity`).all()) {
+      out[r.id] = { kind: r.kind, name: r.name };
+    }
+    return out;
+  } finally {
+    db.close();
+  }
+}
 
 export function entities(kind) {
   let db;

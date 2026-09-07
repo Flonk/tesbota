@@ -523,3 +523,12 @@ textarea {
   font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
   color: var(--warn); border-bottom: 1px dashed var(--warn);
 }
+
+.dlink.dangling {
+  color: var(--bad);
+  text-decoration-style: dashed;
+  text-decoration-color: var(--bad);
+}
+.dclaim.lit { border-left: 1px solid var(--gold); padding-left: .5rem; }
+.dclaimtext { margin: 0; }
+.body mark, .dsnip mark, .hitline mark { background: none; color: var(--gold); }

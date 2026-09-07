@@ -1,59 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Empty, Tag } from "./ui";
+import { Empty, openDossier, Prose, Tag } from "./ui";
 
-export function openDossier(id) {
-  if (id) window.dispatchEvent(new CustomEvent("bota:open", { detail: String(id) }));
-}
-
-const ADDRESS =
-  /\[([^\]]*)\]\((bota:\/\/[^)\s]+)\)|(bota:\/\/[a-z]+\/[a-z0-9][a-z0-9-]*(?:#[pc]\d+)?)|(\$BOTA)/g;
-
-export function target(address) {
-  const found = /^bota:\/\/(people|places|books|items)\/([a-z0-9][a-z0-9-]*)(?:#([pc]\d+))?$/.exec(
-    String(address || "")
-  );
-  return found ? { kind: found[1], id: found[2], fragment: found[3] || null } : null;
-}
-
-export function Prose({ text, className = "" }) {
-  const src = String(text || "");
-  const out = [];
-  let last = 0;
-  for (const m of src.matchAll(ADDRESS)) {
-    if (m.index > last) out.push(src.slice(last, m.index));
-    last = m.index + m[0].length;
-    if (m[4]) {
-      out.push(
-        <span className="stubmark" key={last} title="somebody left this deliberately unwritten">
-          nobody has written this yet
-        </span>
-      );
-      continue;
-    }
-    const address = m[2] || m[3];
-    const at = target(address);
-    const label = m[1] || (at ? at.id.replace(/-/g, " ") : address);
-    out.push(
-      at ? (
-        <button className="dlink" key={last} onClick={() => openDossier(at.id)}>
-          {label}
-        </button>
-      ) : (
-        address
-      )
-    );
-  }
-  out.push(src.slice(last));
-  return (
-    <p className={className}>
-      {out.map((piece, n) => (typeof piece === "string" ? <span key={n}>{piece}</span> : piece))}
-    </p>
-  );
-}
-
-function Reader({ thing }) {
+function Reader({ thing, fragment }) {
+  const opening = /^p(\d+)$/.exec(fragment || "");
   const [at, setAt] = useState(0);
   const [whole, setWhole] = useState(false);
   const deck = useRef(null);
@@ -64,6 +15,13 @@ function Reader({ thing }) {
     if (!el || !el.clientWidth) return;
     el.scrollTo({ left: Math.max(0, i) * el.clientWidth, behavior: "smooth" });
   }, []);
+
+  useEffect(() => {
+    if (!opening) return;
+    const ord = Number(opening[1]);
+    const n = passages.findIndex((p) => p.ord === ord);
+    if (n >= 0) requestAnimationFrame(() => go(n));
+  }, [opening?.[1], go, passages.length]);
 
   useEffect(() => {
     if (whole) return;
@@ -181,7 +139,9 @@ function Trail({ chain, self }) {
   );
 }
 
-export default function Dossier({ id, onClose }) {
+export default function Dossier({ at, onClose }) {
+  const id = at?.id || null;
+  const fragment = at?.fragment || null;
   const [thing, setThing] = useState(null);
   const [missing, setMissing] = useState(false);
   const panel = useRef(null);
@@ -256,13 +216,17 @@ export default function Dossier({ id, onClose }) {
             <Section label="what is written">
               {thing.claims.length === 0 && <Empty>nothing written yet</Empty>}
               {thing.claims.map((c) => (
-                <p className="dclaim" key={c.id}>
-                  <span className="cap dclaimhead">
+                <div
+                  className={`dclaim${fragment === `c${c.id}` ? " lit" : ""}`}
+                  key={c.id}
+                  ref={fragment === `c${c.id}` ? (el) => el?.scrollIntoView({ block: "nearest" }) : undefined}
+                >
+                  <p className="cap dclaimhead">
                     <span className="dsection">{c.section}</span>
                     <span>{c.turn_id || "no turn"}</span>
-                  </span>
-                  {c.text}
-                </p>
+                  </p>
+                  <Prose text={c.text} className="dclaimtext" />
+                </div>
               ))}
             </Section>
 
@@ -284,7 +248,7 @@ export default function Dossier({ id, onClose }) {
                 ) : (
                   <Empty>it is named as a book but nobody has shelved it</Empty>
                 )}
-                <Reader thing={thing} />
+                <Reader thing={thing} fragment={fragment} />
               </Section>
             )}
 
@@ -366,7 +330,7 @@ export default function Dossier({ id, onClose }) {
                     </button>
                     <span className="dsection">{m.section}</span>
                   </p>
-                  <p className="dsnip">{m.snippet}</p>
+                  <Prose className="dsnip" text={m.snippet} />
                 </div>
               ))}
             </Section>

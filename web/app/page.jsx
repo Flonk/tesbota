@@ -7,7 +7,7 @@ import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Map from "./Map";
-import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, Note, Tag } from "./ui";
+import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tag } from "./ui";
 
 const PHASE = {
   explorer: "deciding",
@@ -122,13 +122,13 @@ function Pair({ said, told }) {
   const label = [SAID_LABEL[said.kind] || said.kind, ...(told ? toll(told) : [])].join(" · ");
   return (
     <Fold open={wide || !told?.text} label={label}>
-      <p className="body said">{said.kind === "say" ? `“${said.text}”` : said.text}</p>
+      <Prose className="body said" text={said.kind === "say" ? `“${said.text}”` : said.text} />
       {told?.check && <Check c={told.check} />}
       {told?.outcomes?.length > 0 && (
         <Table rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
       )}
       {told?.text ? (
-        <p className="body told">{told.text}</p>
+        <Prose className="body told" text={told.text} />
       ) : (
         <p className="body told waiting">waiting for an answer…</p>
       )}
@@ -141,7 +141,7 @@ function Alone({ x }) {
   const label = toll(x);
   return (
     <Block kind={x.kind} label={label.length ? label.join(" · ") : GM_LABEL[x.kind]}>
-      {x.text ? <p className="body told">{x.text}</p> : <p className="body waiting">waiting for an answer…</p>}
+      {x.text ? <Prose className="body told" text={x.text} /> : <p className="body waiting">waiting for an answer…</p>}
       <Checked x={x} />
     </Block>
   );
@@ -199,7 +199,7 @@ function Turn({ s, i, last, blocked, busy, pendingNote, noteOpen, setNoteOpen, n
               <Tag tone={VERDICT[c.verdict?.result] || "dim"}>
                 {c.verdict?.result || "unruled"}
               </Tag>
-              {c.text}
+              <Prose as="span" text={c.text} />
               {c.verdict?.why && <span className="why">{c.verdict.why}</span>}
             </div>
           ))}
@@ -209,9 +209,7 @@ function Turn({ s, i, last, blocked, busy, pendingNote, noteOpen, setNoteOpen, n
       {s.chronicle.length > 0 && (
         <Block kind="chronicle" label="the narrator">
           {s.chronicle.map((x) => (
-            <p className="body told" key={x.ord}>
-              {x.text}
-            </p>
+            <Prose className="body told" key={x.ord} text={x.text} />
           ))}
         </Block>
       )}
@@ -322,6 +320,10 @@ export default function Page() {
     const id = setInterval(load, 4000);
     return () => clearInterval(id);
   }, [load]);
+
+  useEffect(() => {
+    if (data?.names) knowNames(data.names);
+  }, [data]);
 
   useEffect(() => {
     const open = (e) => setDossier(e.detail);
@@ -571,9 +573,9 @@ export default function Page() {
             />
           )}
           {tab === "quests" && <Quests quests={quests} />}
-          {tab === "library" && <Library dossier={dossier} onOpen={setDossier} />}
+          {tab === "library" && <Library dossier={dossier} onOpen={openDossier} />}
         </div>
-        <Dossier id={dossier} onClose={() => setDossier(null)} />
+        <Dossier at={dossier} onClose={() => setDossier(null)} />
       </section>
     </div>
   );
