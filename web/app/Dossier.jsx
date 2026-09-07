@@ -62,6 +62,29 @@ const KEEPS = {
   ],
 };
 
+const WRITING = {
+  cols: "minmax(8rem, 2fr) minmax(5rem, 1fr)",
+  fields: [
+    {
+      key: "author",
+      label: "author",
+      strong: true,
+      cell: (r) => (
+        <>
+          {r.author || <Stub />}
+          {r.godhead && <Tag tone="gold">godhead</Tag>}
+        </>
+      ),
+    },
+    {
+      key: "written",
+      label: "written",
+      dim: true,
+      cell: (r) => (settled(r.written) ? r.written : <Stub />),
+    },
+  ],
+};
+
 const HELD_BY = {
   cols: "minmax(9rem, 2fr) 4rem",
   fields: [
@@ -236,25 +259,15 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
             )}
 
             {thing.kind === "books" && face === "meta" && (
-              <Section label={thing.book?.godhead ? "law, and nothing may contradict it" : "the book"}>
-                {thing.book ? (
-                  <p className="dline">
-                    {thing.book.author_id ? (
-                      <button className="dlink" onClick={() => openDossier(thing.book.author_id)}>
-                        {thing.book.author}
-                      </button>
-                    ) : (
-                      <span>{thing.book.author || "unattributed"}</span>
-                    )}
-                    {thing.book.godhead && <Tag tone="gold">godhead</Tag>}
-                    <span className="bdate">
-                      [<Prose as="span" text={thing.book.written || "$BOTA"} />]
-                    </span>
-                  </p>
-                ) : (
-                  <Empty>it is named as a book but nobody has shelved it</Empty>
-                )}
-              </Section>
+              thing.book ? (
+                <Table
+                  {...WRITING}
+                  rows={[{ ...thing.book, id: thing.book.author_id || undefined }]}
+                  onOpen={thing.book.author_id ? openDossier : undefined}
+                />
+              ) : (
+                <Empty>it is named as a book but nobody has shelved it</Empty>
+              )
             )}
 
             {thing.kind === "people" && (
