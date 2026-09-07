@@ -7,6 +7,7 @@ Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
 
   entity(id, kind, name, introduced, extent)      kind: people | places | books | items
   book(id, author, author_id, written, rarity)    author_id is the person who wrote it, when one is written
+  person(id, lives, work)                         where somebody is and what they do for a living
   passage(book_id, ord, text)                     a book's text, one paragraph to a row
   claim(id, entity_id, section, turn_id, text)    section: attested | map
   edge(src, rel, dst, bearing, distance)          rel: within | exits
@@ -43,6 +44,8 @@ author chose. Follow an address by querying the row it names.
     SELECT ord, text FROM passage WHERE book_id = 'petra-volls-route-notes' ORDER BY ord;
     SELECT ref, body FROM writing WHERE body LIKE '%/petra-voll%';
     SELECT id FROM book WHERE author_id = 'petra-voll';
+    SELECT e.name, p.work, p.lives FROM person p JOIN entity e ON e.id = p.id
+      WHERE p.lives = 'alheim';
     SELECT name, qty, note FROM holding WHERE holder = 'alheim-mill';
     SELECT ref, snippet(search, 3, '[', ']', '…', 12) FROM search
       WHERE search MATCH 'sawmill' ORDER BY rank LIMIT 5;
@@ -495,6 +498,20 @@ document, it is a rumour. Where that author is a person of this world, give them
 an entity row of their own and point the book's `author_id` at it, so everything
 they wrote can be found from them, and everything known about them from anything
 they wrote.
+
+Every person you write gets a `person` row: where they are, and what they do.
+
+    INSERT INTO person (id, lives, work) VALUES ('petra-voll', 'flotburg', 'carter');
+
+`lives` is the id of a place that exists — the smallest one that is true of them,
+so a house rather than the village holding it — and `work` is their trade in a
+word or two, in the world's own terms: `miller`, `reeve`, `carter`, `innkeeper`.
+
+Leave either NULL when the question simply has not come up; that is silence, and
+it comes back to you as something still to settle. Write `$BOTA` in `work` only
+when somebody has decided there is nothing to say — a child with no trade yet, a
+figure whose living is deliberately not ours to know. Never invent a trade or a
+home to fill the column in; an empty one is an honest one.
 
 Every book also carries `written` and `rarity`.
 

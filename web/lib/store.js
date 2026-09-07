@@ -205,6 +205,10 @@ const ROWS = `
          (SELECT count(*) FROM holding h WHERE h.holder = e.id) AS keeps,
          (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
          (SELECT count(*) FROM book b WHERE b.author_id = e.id) AS wrote,
+         (SELECT pr.work FROM person pr WHERE pr.id = e.id) AS work,
+         (SELECT pr.lives FROM person pr WHERE pr.id = e.id) AS lives,
+         (SELECT coalesce(le.name, replace(pr.lives, '-', ' ')) FROM person pr
+            LEFT JOIN entity le ON le.id = pr.lives WHERE pr.id = e.id) AS livesName,
          (SELECT h.holder FROM holding h WHERE lower(h.name) = lower(e.name) LIMIT 1) AS holder,
          EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
          EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%') AS stub
@@ -246,6 +250,9 @@ export function entities(kind) {
       parent: r.parent || null,
       parentName: r.parent ? r.parentName : null,
       holder: r.holder || null,
+      work: r.work || "",
+      lives: r.lives || null,
+      livesName: r.lives ? r.livesName : "",
       unwritten: !!r.unwritten,
       stub: !!r.stub,
     });
@@ -354,6 +361,13 @@ export function entity(id) {
     }
 
     if (row.kind === "people") {
+      bundle.person =
+        db
+          .prepare(
+            `SELECT p.work, p.lives, coalesce(l.name, replace(p.lives, '-', ' ')) AS livesName
+               FROM person p LEFT JOIN entity l ON l.id = p.lives WHERE p.id = ?`
+          )
+          .get(ident) || null;
       bundle.wrote = db
         .prepare(
           `SELECT b.id, e.name, b.written, b.rarity

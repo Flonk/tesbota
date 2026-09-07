@@ -23,6 +23,12 @@ CREATE TABLE IF NOT EXISTS book (
   rarity    TEXT
 );
 
+CREATE TABLE IF NOT EXISTS person (
+  id    TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  lives TEXT REFERENCES entity(id),
+  work  TEXT
+);
+
 CREATE TABLE IF NOT EXISTS passage (
   book_id TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
   ord     INTEGER NOT NULL,

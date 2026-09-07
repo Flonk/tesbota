@@ -20,7 +20,8 @@ const FILTERS = [
   { id: "ways", label: "has exits", kinds: ["places"], test: (r) => r.exits > 0 },
   { id: "keeps", label: "holds something", kinds: ["places"], test: (r) => r.keeps > 0 },
   { id: "wrote", label: "wrote something", kinds: ["people"], test: (r) => r.wrote > 0 },
-  { id: "known", label: "mentioned somewhere", kinds: ["people"], test: (r) => r.mentions > 0 },
+  { id: "jobless", label: "no trade", kinds: ["people"], test: (r) => !r.work },
+  { id: "adrift", label: "nowhere", kinds: ["people"], test: (r) => !r.lives },
   { id: "godhead", label: "godhead", kinds: ["books"], test: (r) => r.godhead },
   { id: "authored", label: "has an author row", kinds: ["books"], test: (r) => !!r.authorId },
   ...ORDER.filter(Boolean).map((rarity) => ({
@@ -120,12 +121,11 @@ const COLUMNS = {
     ],
   },
   people: {
-    cols: "minmax(8rem, 2fr) 4rem 5rem 4rem",
+    cols: "minmax(7rem, 2fr) minmax(5rem, 1.2fr) minmax(6rem, 1.6fr)",
     fields: [
       { key: "name", strong: true, label: "person", cell: (r) => r.name },
-      { key: "wrote", label: "wrote", cell: (r) => COUNT(r.wrote), num: true },
-      { key: "mentions", label: "mentioned", cell: (r) => COUNT(r.mentions), num: true },
-      { key: "keeps", label: "keeps", cell: (r) => COUNT(r.keeps), num: true },
+      { key: "work", label: "trade", dim: true, cell: (r) => r.work || "—" },
+      { key: "livesName", label: "where", dim: true, cell: (r) => r.livesName || "—" },
     ],
   },
   items: {

@@ -26,6 +26,8 @@ def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
             "INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)",
             (entity_id, kind, name or entity_id.replace("-", " ").title(), turn_id),
         )
+        if kind == "people":
+            con.execute("INSERT OR IGNORE INTO person (id) VALUES (?)", (entity_id,))
         if kind == "books":
             author = author or "unknown"
             con.execute(
@@ -121,6 +123,51 @@ def library():
     return shelf
 
 
+def folk():
+    return [
+        {
+            "id": r["id"],
+            "name": r["name"],
+            "work": r["work"] or "",
+            "lives": r["lives"] or "",
+            "lives_name": r["lives_name"] or "",
+        }
+        for r in db.rows(
+            """
+            SELECT e.id, e.name, p.work, p.lives,
+                   coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
+              FROM entity e
+              LEFT JOIN person p ON p.id = e.id
+              LEFT JOIN entity l ON l.id = p.lives
+             WHERE e.kind = 'people'
+             ORDER BY lower(e.name)
+            """
+        )
+    ]
+
+
+def person(entity_id):
+    return db.row(
+        """
+        SELECT p.id, p.work, p.lives, coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
+          FROM person p LEFT JOIN entity l ON l.id = p.lives
+         WHERE p.id = ?
+        """,
+        (slug(entity_id),),
+    )
+
+
+def settle(entity_id, work=None, lives=None):
+    entity_id = slug(entity_id)
+    ensure_entity("people", entity_id)
+    with db.writing() as con:
+        if work is not None:
+            con.execute("UPDATE person SET work = ? WHERE id = ?", (work, entity_id))
+        if lives is not None:
+            con.execute("UPDATE person SET lives = ? WHERE id = ?", (slug(lives) or None, entity_id))
+    return entity_id
+
+
 def godhead_books():
     return [
         r["id"] for r in db.rows("SELECT id, lower(trim(author)) a FROM book ORDER BY id")
@@ -165,6 +212,16 @@ def stubs():
         out.append((db.link(r["kind"], r["id"]), "nothing written yet"))
     for r in db.rows("SELECT id FROM book WHERE written IS NULL OR trim(written) = '' ORDER BY id"):
         out.append((db.link("books", r["id"]), "no date of writing"))
+    for r in db.rows(
+        """
+        SELECT e.id, p.work, p.lives FROM entity e LEFT JOIN person p ON p.id = e.id
+         WHERE e.kind = 'people' ORDER BY e.id
+        """
+    ):
+        if not (r["work"] or "").strip():
+            out.append((db.link("people", r["id"]), "nothing says what they do"))
+        if not (r["lives"] or "").strip():
+            out.append((db.link("people", r["id"]), "nothing says where they are"))
     return out
 
 

@@ -277,6 +277,21 @@ export default function Dossier({ at, onClose }) {
             )}
 
             {thing.kind === "people" && (
+              <Section label="who they are">
+                <p className="dline">
+                  <span>{thing.person?.work || "no trade is recorded"}</span>
+                  {thing.person?.lives ? (
+                    <button className="dlink" onClick={() => openDossier(thing.person.lives)}>
+                      {thing.person.livesName}
+                    </button>
+                  ) : (
+                    <span className="dsection">nowhere recorded</span>
+                  )}
+                </p>
+              </Section>
+            )}
+
+            {thing.kind === "people" && (
               <Section label="what they wrote">
                 <Table
                   {...WROTE}
