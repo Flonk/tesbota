@@ -516,12 +516,14 @@ person's age in every scene they appear in, so write one only where the record
 gives it to you, or where you and the person you are talking to have just decided
 it together.
 
-Leave any of them NULL when the question simply has not come up; that is silence,
-and it comes back to you as something still to settle. Write `$BOTA` only when
-somebody has decided there is nothing to say — a child with no trade yet, a figure
-whose living is deliberately not ours to know, a birth nobody recorded and nobody
-ever will. Never invent a trade, a home or a date to fill a column in; an empty
-one is an honest one.
+Never leave one of them empty. Where you do not know yet, write `$BOTA` — that is
+the whole of this world's backlog, and every mark is a promise that somebody will
+come back to it. A row that says `$BOTA` is telling the truth; a row you filled in
+with a guess is not.
+
+So: write what the record gives you, write what you and the person you are talking
+to have just decided together, and mark the rest `$BOTA`. Never invent a trade, a
+home or a date to make a row look finished.
 
 Every book also carries `written` and `rarity`.
 

@@ -5,6 +5,12 @@ ATTESTED = "attested"
 MAP = "map"
 
 
+def open_question(value):
+    """Empty and $BOTA both mean the world has not settled this yet."""
+    text = (value or "").strip()
+    return not text or STUB in text
+
+
 def slug(text):
     return "-".join(str(text or "").split()).strip("-").lower()
 
@@ -221,16 +227,19 @@ def stubs():
         out.append((db.link("books", r["id"]), "no date of writing"))
     for r in db.rows(
         """
-        SELECT e.id, p.work, p.lives, p.born FROM entity e LEFT JOIN person p ON p.id = e.id
+        SELECT e.id, p.work, p.lives, p.born, p.died
+          FROM entity e LEFT JOIN person p ON p.id = e.id
          WHERE e.kind = 'people' ORDER BY e.id
         """
     ):
-        if not (r["work"] or "").strip():
-            out.append((db.link("people", r["id"]), "nothing says what they do"))
-        if not (r["lives"] or "").strip():
-            out.append((db.link("people", r["id"]), "nothing says where they are"))
-        if not (r["born"] or "").strip():
-            out.append((db.link("people", r["id"]), "nothing says when they were born"))
+        for field, wanting in (
+            ("work", "what they do"),
+            ("lives", "where they are"),
+            ("born", "when they were born"),
+            ("died", "whether they died"),
+        ):
+            if open_question(r[field]):
+                out.append((db.link("people", r["id"]), f"nobody has written {wanting}"))
     return out
 
 

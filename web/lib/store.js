@@ -173,7 +173,10 @@ export async function library() {
                 (SELECT count(*) FROM passage p WHERE p.book_id = b.id) AS passages,
                 (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
                 EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
-                EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%') AS stub
+                (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
+          OR EXISTS (SELECT 1 FROM person pr WHERE pr.id = e.id
+                       AND (pr.work LIKE '%$BOTA%' OR pr.lives LIKE '%$BOTA%'
+                            OR pr.born LIKE '%$BOTA%' OR pr.died LIKE '%$BOTA%'))) AS stub
            FROM book b JOIN entity e ON e.id = b.id
           ORDER BY lower(e.name)`
       )
@@ -213,7 +216,10 @@ const ROWS = `
             LEFT JOIN entity le ON le.id = pr.lives WHERE pr.id = e.id) AS livesName,
          (SELECT h.holder FROM holding h WHERE lower(h.name) = lower(e.name) LIMIT 1) AS holder,
          EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
-         EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%') AS stub
+         (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
+          OR EXISTS (SELECT 1 FROM person pr WHERE pr.id = e.id
+                       AND (pr.work LIKE '%$BOTA%' OR pr.lives LIKE '%$BOTA%'
+                            OR pr.born LIKE '%$BOTA%' OR pr.died LIKE '%$BOTA%'))) AS stub
     FROM entity e
     LEFT JOIN edge p ON p.src = e.id AND p.rel = 'within'
     LEFT JOIN entity pe ON pe.id = p.dst

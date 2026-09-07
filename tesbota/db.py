@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS book (
 
 CREATE TABLE IF NOT EXISTS person (
   id    TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
-  lives TEXT REFERENCES entity(id),
+  lives TEXT,
   work  TEXT,
   born  TEXT,
   died  TEXT
@@ -147,6 +147,12 @@ def setup():
             if column not in held:
                 con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
         con.commit()
+        shape = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='person'") or ""
+        if "lives TEXT REFERENCES" in shape:
+            con.execute("PRAGMA foreign_keys = OFF")
+            con.executescript(FREE_LIVES)
+            con.commit()
+            con.execute("PRAGMA foreign_keys = ON")
     finally:
         con.close()
     return CANON_DB
@@ -155,6 +161,21 @@ def setup():
 def claim_check_is_old():
     sql = value("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'claim'") or ""
     return "witnessed" in sql
+
+
+FREE_LIVES = """
+CREATE TABLE person_rebuilt (
+  id    TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  lives TEXT,
+  work  TEXT,
+  born  TEXT,
+  died  TEXT
+);
+INSERT INTO person_rebuilt (id, lives, work, born, died)
+  SELECT id, lives, work, born, died FROM person;
+DROP TABLE person;
+ALTER TABLE person_rebuilt RENAME TO person;
+"""
 
 
 REBUILD = """

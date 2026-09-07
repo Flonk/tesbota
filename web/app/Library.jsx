@@ -7,10 +7,14 @@ import { Btn, Empty, Note, Prose, Table, Toggle } from "./ui";
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
 
+const OPEN = (v) => !String(v || "").trim() || String(v).includes("$BOTA");
+const settled = (v) => (OPEN(v) ? "" : String(v).trim());
+const mark = <span className="unwrit" title="nobody has written this yet">—</span>;
+
 function span(person) {
-  const born = (person.born || "").trim();
-  const died = (person.died || "").trim();
-  if (!born && !died) return "—";
+  const born = settled(person.born);
+  const died = settled(person.died);
+  if (!born && !died) return mark;
   if (born && died) return `${born}–${died}`;
   return born ? `${born}–` : `–${died}`;
 }
@@ -28,10 +32,11 @@ const FILTERS = [
   { id: "ways", label: "has exits", kinds: ["places"], test: (r) => r.exits > 0 },
   { id: "keeps", label: "holds something", kinds: ["places"], test: (r) => r.keeps > 0 },
   { id: "wrote", label: "wrote something", kinds: ["people"], test: (r) => r.wrote > 0 },
-  { id: "jobless", label: "no trade", kinds: ["people"], test: (r) => !r.work },
-  { id: "adrift", label: "nowhere", kinds: ["people"], test: (r) => !r.lives },
-  { id: "undated", label: "no dates", kinds: ["people"], test: (r) => !r.born && !r.died },
-  { id: "gone", label: "dead", kinds: ["people"], test: (r) => !!r.died },
+  { id: "jobless", label: "no trade", kinds: ["people"], test: (r) => OPEN(r.work) },
+  { id: "adrift", label: "nowhere", kinds: ["people"], test: (r) => OPEN(r.lives) },
+  { id: "undated", label: "no dates", kinds: ["people"],
+    test: (r) => OPEN(r.born) && OPEN(r.died) },
+  { id: "gone", label: "dead", kinds: ["people"], test: (r) => !OPEN(r.died) },
   { id: "godhead", label: "godhead", kinds: ["books"], test: (r) => r.godhead },
   { id: "authored", label: "has an author row", kinds: ["books"], test: (r) => !!r.authorId },
   ...ORDER.filter(Boolean).map((rarity) => ({
@@ -134,8 +139,9 @@ const COLUMNS = {
     cols: "minmax(6rem, 2fr) minmax(4.5rem, 1.1fr) minmax(5rem, 1.4fr) 5.5rem",
     fields: [
       { key: "name", strong: true, label: "person", cell: (r) => r.name },
-      { key: "work", label: "trade", dim: true, cell: (r) => r.work || "—" },
-      { key: "livesName", label: "where", dim: true, cell: (r) => r.livesName || "—" },
+      { key: "work", label: "trade", dim: true, cell: (r) => settled(r.work) || mark },
+      { key: "livesName", label: "where", dim: true,
+        cell: (r) => (OPEN(r.lives) ? mark : r.livesName) },
       { key: "born", label: "lived", dim: true, cell: (r) => span(r) },
     ],
   },

@@ -279,20 +279,20 @@ export default function Dossier({ at, onClose }) {
             {thing.kind === "people" && (
               <Section label="who they are">
                 <p className="dline">
-                  <span>{thing.person?.work || "no trade is recorded"}</span>
-                  {thing.person?.lives ? (
+                  <Prose as="span" text={thing.person?.work || "$BOTA"} />
+                  {thing.person?.lives && !thing.person.lives.includes("$BOTA") ? (
                     <button className="dlink" onClick={() => openDossier(thing.person.lives)}>
                       {thing.person.livesName}
                     </button>
                   ) : (
-                    <span className="dsection">nowhere recorded</span>
+                    <Prose as="span" text="$BOTA" />
                   )}
                 </p>
                 <p className="dline">
                   <span className="dsection">born</span>
-                  <span>{thing.person?.born || "nobody wrote it down"}</span>
+                  <Prose as="span" text={thing.person?.born || "$BOTA"} />
                   <span className="dsection">died</span>
-                  <span>{thing.person?.died || (thing.person?.born ? "still living" : "nobody wrote it down")}</span>
+                  <Prose as="span" text={thing.person?.died || "$BOTA"} />
                 </p>
               </Section>
             )}

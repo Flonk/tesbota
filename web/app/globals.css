@@ -510,6 +510,7 @@ textarea {
 
 .erow.unwritten .ename { color: var(--dim); text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
 .erow.stub .ename { text-decoration: underline dotted var(--gold); text-underline-offset: 3px; }
+.unwrit { color: var(--gold); opacity: .5; border-bottom: 1px dotted var(--gold); }
 .twig { display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0; }
 .twig { padding-left: calc(var(--depth) * 1.1rem); }
 .knot {
