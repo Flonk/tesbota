@@ -409,6 +409,7 @@ export default function Library({
         )}
       </form>
 
+      <div className="libbody">
       {hits === null && (
         <div className="filters">
           {filters.map((f) => (
@@ -444,6 +445,7 @@ export default function Library({
           empty="nothing here matches"
         />
       )}
+      </div>
     </div>
   );
 }

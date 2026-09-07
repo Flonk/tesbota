@@ -4,6 +4,8 @@
   --line: #2c281e;
   --ink: #ddd6c4;
   --dim: #8a8271;
+  --bright: #ffffff;
+  --faint: #6a6357;
   --gold: #c8a24a;
   --warn: #d98b4a;
   --good: #7f9c6b;
@@ -479,7 +481,8 @@ textarea {
 
 /* ---- library ---- */
 
-.lib { display: flex; flex-direction: column; min-width: 0; }
+.lib { flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.libbody { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: .8rem 1.2rem 1.2rem; }
 .etable { display: flex; flex-direction: column; min-width: 0; max-width: 62rem; }
 .erow {
   display: grid;
@@ -495,7 +498,7 @@ textarea {
 .ecell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; }
 .ecell.num { font: var(--mono); letter-spacing: .06em; text-align: right; color: var(--gold); }
 .ecell.dim { font: var(--mono); letter-spacing: .06em; color: var(--ink); }
-.ename { color: var(--ink); }
+.ename { color: var(--bright); }
 
 .ehead { border-bottom: 1px solid var(--line); padding-bottom: .2rem; margin-bottom: .2rem; }
 .ecol {
@@ -508,7 +511,6 @@ textarea {
 .ecol.on { color: var(--gold); }
 .ecol .dir { opacity: .7; }
 
-.erow.unwritten .ename { color: var(--dim); }
 .twig { display: inline-flex; align-items: baseline; gap: .35rem; min-width: 0; }
 .twig { padding-left: calc(var(--depth) * 1.1rem); }
 .knot {
@@ -524,14 +526,21 @@ textarea {
 .erow.trained .ecell.num { color: var(--gold); }
 .etable + .cap { margin-top: 1.2rem; }
 
-.seek { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; min-width: 0; }
+.seek {
+  flex: 0 0 auto;
+  display: flex; align-items: stretch; min-width: 0;
+  min-height: 33px;
+  padding: 0 .8rem;
+  border-bottom: 1px solid var(--line);
+}
 .seekbox {
   flex: 1 1 auto; min-width: 0;
-  background: var(--panel); border: 1px solid var(--line); color: var(--ink);
-  font: var(--mono); letter-spacing: .06em; padding: .35rem .5rem;
+  background: none; border: 0; color: var(--ink);
+  font: var(--mono); letter-spacing: .06em; padding: 0;
 }
-.seekbox:focus { outline: none; border-color: var(--gold); }
+.seekbox:focus { outline: none; }
 .seekbox::placeholder { color: var(--dim); }
+.seek .btn { align-self: center; }
 
 .filters { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 .7rem; }
 .toggle {
@@ -655,7 +664,7 @@ textarea {
 
 .stubmark {
   font: var(--mono); letter-spacing: .08em;
-  color: var(--dim);
+  color: var(--faint);
   white-space: nowrap;
 }
 
@@ -667,3 +676,8 @@ textarea {
 .dclaim.lit { border-left: 1px solid var(--gold); padding-left: .5rem; }
 .dclaimtext { margin: 0; }
 .body mark, .dsnip mark, .hitline mark { background: none; color: var(--gold); }
+
+@media (max-width: 640px) {
+  .seek { padding: 0 .5rem; }
+  .libbody { padding: .8rem .9rem 1.2rem; }
+}

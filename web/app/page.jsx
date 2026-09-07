@@ -602,7 +602,7 @@ export default function Page() {
         )}
 
         <div className="tabbody">
-          <div className={`tabpanel${tab === "chat" ? " flush" : ""}`}>
+          <div className={`tabpanel${tab === "chat" || tab === "library" ? " flush" : ""}`}>
           {tab === "chat" && sub.chat === "lore" && (
             <Lore
               gap={gap}
