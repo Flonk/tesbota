@@ -55,7 +55,7 @@ const SKILLS = {
 };
 
 const CARRYING = {
-  cols: "minmax(8rem, 1.4fr) 4rem minmax(6rem, 2fr) 4rem",
+  cols: "minmax(7rem, 2fr) 3rem minmax(4.5rem, 1.2fr) 3.2rem",
   fields: [
     { key: "name", label: "carrying", strong: true, cell: (r) => r.name },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
@@ -92,24 +92,18 @@ export default function Sheet({ vitals, skills, inventory = [] }) {
 
   return (
     <div className="sheet">
+      <Table
+        {...CARRYING}
+        rows={inventory.map((i, n) => ({ ...i, id: `${i.name}-${n}` }))}
+        empty="it carries nothing"
+      />
+
       <div className="pair">
         <Table {...CONDITION} rows={condition} />
         <Table {...ABILITY} rows={scores} />
       </div>
 
-      <div className="cols">
-        <div>
-          <Table
-            {...CARRYING}
-            rows={inventory.map((i, n) => ({ ...i, id: `${i.name}-${n}` }))}
-            empty="it carries nothing"
-          />
-        </div>
-
-        <div>
-          <Table {...SKILLS} rows={trained} rowClass={(r) => (r.trained ? "trained" : "untrained")} />
-        </div>
-      </div>
+      <Table {...SKILLS} rows={trained} rowClass={(r) => (r.trained ? "trained" : "untrained")} />
     </div>
   );
 }
