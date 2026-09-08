@@ -352,6 +352,8 @@ textarea {
   border-right-color: var(--line);
   background: var(--panel);
 }
+.tab .icon { flex: 0 0 auto; opacity: .75; }
+.tab.on .icon { opacity: 1; }
 .tab .pip { width: 5px; height: 5px; border-radius: 50%; background: var(--warn); }
 .tab .count { color: var(--gold); }
 
@@ -483,6 +485,7 @@ textarea {
 }
 
 @media (max-width: 640px) {
+  .roomy { display: none; }
   body { font-size: 15px; }
   .slide { padding: .8rem .9rem 1.2rem; }
   .thead { gap: .7rem; }
@@ -556,6 +559,7 @@ textarea {
   background: none; border: 0; color: var(--ink);
   font: var(--mono); letter-spacing: .06em; padding: 0;
 }
+.seek .glass { flex: 0 0 auto; display: flex; align-items: center; color: var(--faint); padding-right: .5rem; }
 .seekbox:focus { outline: none; }
 .seekbox::placeholder { color: var(--dim); }
 .seek .btn { align-self: center; }

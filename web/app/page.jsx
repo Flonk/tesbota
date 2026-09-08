@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Icon from "./icons";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
@@ -41,15 +42,6 @@ function mood(status, busy) {
   return MOOD[status.state] || "the world sleeps";
 }
 
-function Gear() {
-  return (
-    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="3.6" />
-      <path d="M19.2 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1.03H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.08A1.7 1.7 0 0 0 10.1 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1.03 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.55 1.03H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.55 1.03z" />
-    </svg>
-  );
-}
-
 const given = (who) => String(who || "").split(" ")[0];
 
 function Brand({ status, busy, onSettings }) {
@@ -59,7 +51,7 @@ function Brand({ status, busy, onSettings }) {
       {status.who && <span className="who">— {status.who}</span>}
       <span className="mood">{mood(status, busy)}</span>
       <button className="cog" onClick={onSettings} title="settings" aria-label="settings">
-        <Gear />
+        <Icon name="settings" size={15} />
       </button>
     </header>
   );
@@ -278,24 +270,26 @@ function Turn({ s, last, blocked, vitals }) {
 const KINDS = ["places", "people", "books", "items"];
 const REMEMBER = "tesbota.sub";
 
+const ICONS = { places: "pin", people: "people", books: "book", items: "box" };
+
 const SUBS = {
   chat: [
-    { id: "talk", label: "lore master" },
-    { id: "gm", label: "game master" },
-    { id: "lore", label: "the silence" },
+    { id: "talk", label: "lore master", icon: "pen" },
+    { id: "gm", label: "game master", icon: "dice" },
+    { id: "lore", label: "the silence", icon: "silence" },
   ],
   me: [
-    { id: "stats", label: "stats" },
-    { id: "quests", label: "quests" },
+    { id: "stats", label: "stats", icon: "pulse" },
+    { id: "quests", label: "quests", icon: "flag" },
   ],
-  library: KINDS.map((id) => ({ id, label: id })),
+  library: KINDS.map((id) => ({ id, label: id, icon: ICONS[id] })),
 };
 
 const TABS = [
-  { id: "chat", label: "chat" },
-  { id: "map", label: "map" },
-  { id: "me", label: "you" },
-  { id: "library", label: "library" },
+  { id: "chat", label: "chat", icon: "chat" },
+  { id: "map", label: "map", icon: "map" },
+  { id: "me", label: "you", icon: "person" },
+  { id: "library", label: "library", icon: "shelf" },
 ];
 
 export default function Page() {
@@ -612,7 +606,13 @@ export default function Page() {
               onClick={() => post("/api/step", null, "step")}
               disabled={!!busy || blocked}
             >
-              {busy === "step" ? "…" : "next step"}
+              {busy === "step" ? (
+                "…"
+              ) : (
+                <>
+                  <span className="roomy">next </span>step
+                </>
+              )}
             </Btn>
           </div>
         </div>
@@ -633,7 +633,10 @@ export default function Page() {
         {reading === "books" && (
           <Tabs
             className="sub reading"
-            items={[{ id: "content", label: "content" }, { id: "meta", label: "meta" }]}
+            items={[
+              { id: "content", label: "content", icon: "lines" },
+              { id: "meta", label: "meta", icon: "info" },
+            ]}
             value={face}
             onChange={setFace}
           />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Icon from "./icons";
 
 export function Btn({ tone = "plain", className = "", ...rest }) {
   return <button className={`btn btn-${tone} ${className}`.trim()} {...rest} />;
@@ -152,6 +153,7 @@ export function Tabs({ items, value, onChange, className = "" }) {
           className={`tab${value === t.id ? " on" : ""}`}
           onClick={() => onChange(t.id)}
         >
+          {t.icon && <Icon name={t.icon} />}
           {t.label}
           {t.pip && <span className="pip" />}
           {t.count > 0 && <span className="count">{t.count}</span>}

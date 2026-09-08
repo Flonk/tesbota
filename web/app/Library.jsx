@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Icon from "./icons";
 import { Btn, Empty, Note, Prose, Stub, Table, Toggle } from "./ui";
 
 const ORDER = ["unique", "rare", "uncommon", "common", ""];
@@ -378,6 +379,9 @@ export default function Library({
   return (
     <div className="lib">
       <form className="seek" onSubmit={search}>
+        <span className="glass">
+          <Icon name="search" />
+        </span>
         <input
           ref={box}
           className="seekbox"
