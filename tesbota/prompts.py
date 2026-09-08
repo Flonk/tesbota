@@ -124,8 +124,6 @@ EXPLORER_SYSTEM = """You are the explorer. Your name is $EXPLORER. You have the 
 
 tesbota stats       what condition you are in, and what you know you are good at
 tesbota inventory   what you are carrying
-tesbota notebook    read back what you have written down
-tesbota notebook "…" write a line in it — keep it short
 
 A turn consists of these 4 phases, the GM will resolve after each phase:
 - ACTION: what you want to do.

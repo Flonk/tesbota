@@ -90,12 +90,10 @@ async def explorer_permission(tool_name, tool_input, context):
     command = normalise_command(raw)
     if command in EXPLORER_COMMANDS:
         return PermissionResultAllow()
-    if command.split()[:2] == ["tesbota", "notebook"]:
-        return PermissionResultAllow()
     return PermissionResultDeny(
         message=(
-            "Nothing happens. The only things you can do are `tesbota stats`, "
-            "`tesbota inventory` and `tesbota notebook`."
+            "Nothing happens. The only things you can do are `tesbota stats` "
+            "and `tesbota inventory`."
         )
     )
 

@@ -66,7 +66,6 @@ def new_campaign():
         "clock": dict(DEFAULTS),
         "time": dict(WORLD_START),
         "vitals": {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0},
-        "notebook": [],
         "quests": [],
         "skills": json.loads(json.dumps(STARTING_SKILLS)),
         "last_narration": None,
@@ -102,7 +101,7 @@ def load_campaign():
     if not campaign.get("explorer"):
         campaign["explorer"] = pick_name()
         changed = True
-    for key in ("note", "location", "location_path", "notebook", "quests", "time"):
+    for key in ("note", "location", "location_path", "quests", "time"):
         if key not in campaign:
             campaign[key] = blank[key]
             changed = True

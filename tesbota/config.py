@@ -151,9 +151,6 @@ MAX_ASKS = 3
 MAX_LOOKS = 1
 MAX_TALKS = 2
 
-NOTEBOOK_MAX_CHARS = 120
-NOTEBOOK_MAX_NOTES = 24
-
 DIE = 400
 BANDS = ("common", "common", "rare", "rare", "very_rare", "very_rare")
 BAND_WEIGHT = {"common": 0.35, "rare": 0.12, "very_rare": 0.03}

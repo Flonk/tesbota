@@ -667,12 +667,7 @@ export default function Page() {
           )}
           {tab === "map" && <Map where={status.where} at={status.now} />}
           {tab === "me" && sub.me === "stats" && (
-            <Sheet
-              vitals={vitals}
-              skills={skills}
-              inventory={inventory || []}
-              notebook={data.notebook || []}
-            />
+            <Sheet vitals={vitals} skills={skills} inventory={inventory || []} />
           )}
           {tab === "me" && sub.me === "quests" && (
             <Quests

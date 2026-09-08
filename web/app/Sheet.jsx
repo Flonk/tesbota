@@ -32,7 +32,7 @@ const CONDITION = {
   cols: "minmax(4rem, 1fr) 3rem",
   fields: [
     { key: "name", label: "condition", strong: true, cell: (r) => r.name },
-    { key: "value", label: "of 100", num: true, cell: (r) => r.value },
+    { key: "value", label: "level", num: true, cell: (r) => r.value },
   ],
 };
 
@@ -64,12 +64,7 @@ const CARRYING = {
   ],
 };
 
-const NOTEBOOK = {
-  cols: "1fr",
-  fields: [{ key: "line", label: "notebook", strong: true, cell: (r) => r.line }],
-};
-
-export default function Sheet({ vitals, skills, inventory = [], notebook = [] }) {
+export default function Sheet({ vitals, skills, inventory = [] }) {
   const abilities = skills?.abilities || {};
   const proficient = new Set(skills?.proficient || []);
   const bonus = Number(skills?.proficiency || 0);
@@ -108,12 +103,6 @@ export default function Sheet({ vitals, skills, inventory = [], notebook = [] })
             {...CARRYING}
             rows={inventory.map((i, n) => ({ ...i, id: `${i.name}-${n}` }))}
             empty="it carries nothing"
-          />
-
-          <Table
-            {...NOTEBOOK}
-            rows={notebook.map((line, n) => ({ id: n, line }))}
-            empty="nothing written"
           />
         </div>
 

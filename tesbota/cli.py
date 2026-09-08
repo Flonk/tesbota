@@ -180,10 +180,6 @@ def cmd_holdings(args):
     print(sheet.render_holdings(args.entity))
 
 
-def cmd_notebook(args):
-    print(sheet.write_note(args.text) if args.text else sheet.render_notebook())
-
-
 def cmd_note(args):
     print(json.dumps(actions.set_note(args.text), ensure_ascii=False))
 
@@ -252,10 +248,6 @@ def main(argv=None):
     holdings = sub.add_parser("holdings")
     holdings.add_argument("entity", nargs="?")
     holdings.set_defaults(func=cmd_holdings)
-
-    notebook = sub.add_parser("notebook")
-    notebook.add_argument("text", nargs="?")
-    notebook.set_defaults(func=cmd_notebook)
 
     book = sub.add_parser("chronicle")
     book.add_argument("-n", type=int, default=0)
