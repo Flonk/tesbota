@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
-import { QuestPanel } from "./Quests";
+import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
@@ -48,6 +48,8 @@ function Gear() {
     </svg>
   );
 }
+
+const given = (who) => String(who || "").split(" ")[0];
 
 function Brand({ status, busy, onSettings }) {
   return (
@@ -272,7 +274,7 @@ function Turn({ s, last, blocked, vitals }) {
   );
 }
 
-const KINDS = ["places", "people", "books", "items", "quests"];
+const KINDS = ["places", "people", "books", "items"];
 const REMEMBER = "tesbota.sub";
 
 const SUBS = {
@@ -280,13 +282,17 @@ const SUBS = {
     { id: "lore", label: "lore master" },
     { id: "gm", label: "game master" },
   ],
+  me: [
+    { id: "stats", label: "stats" },
+    { id: "quests", label: "quests" },
+  ],
   library: KINDS.map((id) => ({ id, label: id })),
 };
 
 const TABS = [
   { id: "chat", label: "chat" },
   { id: "map", label: "map" },
-  { id: "stats", label: "stats" },
+  { id: "me", label: "you" },
   { id: "library", label: "library" },
 ];
 
@@ -296,7 +302,7 @@ export default function Page() {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("chat");
   const [dossier, setDossier] = useState(null);
-  const [sub, setSub] = useState({ chat: "lore", library: "places" });
+  const [sub, setSub] = useState({ chat: "lore", me: "stats", library: "places" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const [settings, setSettings] = useState(false);
@@ -579,7 +585,8 @@ export default function Page() {
           <Tabs
             items={TABS.map((t) => ({
               ...t,
-              count: t.id === "library" && tab !== "library" ? open : 0,
+              label: t.id === "me" ? given(status.who) || t.label : t.label,
+              count: t.id === "me" && tab !== "me" ? open : 0,
               pip: t.id === "chat" && blocked,
             }))}
             value={tab}
@@ -613,7 +620,7 @@ export default function Page() {
             className="sub"
             items={SUBS[tab].map((option) => ({
               ...option,
-              count: counts[option.id],
+              count: option.id === "quests" ? open : counts[option.id],
               pip: tab === "chat" && option.id === "lore" && blocked,
             }))}
             value={sub[tab]}
@@ -650,12 +657,18 @@ export default function Page() {
             />
           )}
           {tab === "map" && <Map where={status.where} at={status.now} />}
-          {tab === "stats" && (
+          {tab === "me" && sub.me === "stats" && (
             <Sheet
               vitals={vitals}
               skills={skills}
               inventory={inventory || []}
               notebook={data.notebook || []}
+            />
+          )}
+          {tab === "me" && sub.me === "quests" && (
+            <Quests
+              quests={quests}
+              onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
             />
           )}
           {tab === "library" && (
@@ -666,8 +679,6 @@ export default function Page() {
               kinds={KINDS}
               onKind={(next) => pickSub("library", next)}
               onCounts={setCounts}
-              quests={quests}
-              onQuest={(id) => setQuest(quests.find((q) => q.id === id) || null)}
             />
           )}
           </div>

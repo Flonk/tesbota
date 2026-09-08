@@ -608,8 +608,8 @@ Re-opening an existing id is ignored, closing an already-closed or unknown quest
 a no-op, and the turn that opened or closed each one is recorded.
 
 `tesbota quests` prints ongoing and finished. In the web UI the active quest sits
-under the location breadcrumb, and a `quests` button opens the full log with a count
-of what is still open.
+under the location breadcrumb, and the full log is the `quests` tab under the
+adventurer's own name, carrying a count of what is still open.
 
 ## The world clock
 
