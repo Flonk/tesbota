@@ -7,6 +7,7 @@ STATE = ROOT / "state"
 TURNS = STATE / "turns"
 PENDING = ROOT / "pending"
 CAMPAIGN = STATE / "campaign.json"
+DEATH = STATE / "death.json"
 
 KINDS = ("people", "places", "books", "items")
 
@@ -23,6 +24,8 @@ NARRATOR = "The Narrator"
 GODHEADS = (GODHEAD, NARRATOR.lower())
 
 SURNAME = "Bota"
+
+MYSTERY = "died of a mysterious cause"
 
 FIRST_NAMES = (
     "Ansel", "Arndt", "Bastian", "Berta", "Bram", "Clemens", "Corda", "Detlev",

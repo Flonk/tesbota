@@ -23,7 +23,14 @@ def bare(raw):
     return "".join(out)
 
 
-def sqlite_gate(readonly=True, tables=None):
+def spoken(raw):
+    words = (raw or "").strip().split()
+    if words[:2] == ["uv", "run"]:
+        words = words[2:]
+    return words
+
+
+def sqlite_gate(readonly=True, tables=None, also=()):
     async def gate(tool_name, tool_input, context):
         from claude_agent_sdk import PermissionResultAllow, PermissionResultDeny
 
@@ -36,6 +43,10 @@ def sqlite_gate(readonly=True, tables=None):
             return PermissionResultDeny(
                 message=f"One command at a time, with no shell around it: {how}"
             )
+        said = spoken(raw)
+        for command in also:
+            if said[:len(command.split())] == command.split():
+                return PermissionResultAllow()
         words = raw.strip().split()
         if not words or words[0] != "sqlite3":
             return PermissionResultDeny(message=f"The only command you have is {how}")

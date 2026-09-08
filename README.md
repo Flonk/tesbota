@@ -67,10 +67,21 @@ kind of claim doing the same job badly.
 
 Every life gets its own book. The adventurer is named when a campaign starts — a
 first name off a pool, the family name always `Bota` — and the title and the id
-follow the name. Kill one (`tesbota reborn`, or the gear in the web header) and their
-turns are put away under `state/lives/`, whatever they carried stays where they fell,
-and somebody new sets out in the same world with a fresh kit and a fresh book. The
-closed book stays on the shelf; the world keeps everything it has been told.
+follow the name.
+
+A life ends with `tesbota kill "<cause>"`. That only *records* the death, in
+`state/death.json`, because whoever calls for one may be in the middle of a turn that
+still has to be written; the driver carries it out at the top of its next pass. The
+game master may call it itself when something the adventurer chose anyway kills them,
+and the cause it gives finishes the sentence `who …`. The gear in the web header does
+the same thing without a cause, and the book closes on *died of a mysterious cause* —
+the godhead does not explain itself.
+
+Carrying it out means: a last passage, `Here ends the life of Lene Bota, who …`; the
+dead one's turns put away under `state/lives/`; whatever they carried left at the
+place they fell; and a new name, a fresh kit and a fresh book set walking in the same
+world at the same hour. The closed book stays on the shelf; the world keeps
+everything it has been told.
 
 The book still holds instances and not kinds — *a figure challenged them at the gate*
 and never *the town keeps gatekeepers* — but that line is no longer the narrator's to
@@ -128,7 +139,7 @@ uv run tesbota lore      # sit down with lore master 3 and end a silence
 uv run tesbota chronicle # the narrator's book, the life so far
 uv run tesbota holdings  # what everybody in the world is keeping
 uv run tesbota map       # the world as mermaid; --json for the solved layout
-uv run tesbota reborn    # end this life and set a new one walking in the same world
+uv run tesbota kill      # end this life; the next step sets a new one walking
 ```
 
 Make it tick on its own with a user timer:

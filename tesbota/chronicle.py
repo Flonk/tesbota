@@ -1,5 +1,5 @@
 from . import canon, db
-from .config import NARRATOR, WORLD_START
+from .config import MYSTERY, NARRATOR, WORLD_START
 from .state import explorer_name
 
 
@@ -68,6 +68,22 @@ def write(turn):
         con.execute(
             "INSERT INTO passage (book_id, ord, text) VALUES (?,?,?)",
             (book_id(), ord_, canon.link_names(text)),
+        )
+    return since(ord_)
+
+
+def close(cause=None):
+    """The last passage of a life, in the same voice as the rest of the book. The
+    cause completes `who …`, so a life reads as one sentence at its end."""
+    said = " ".join(str(cause or MYSTERY).split()).rstrip(".")
+    if said.lower().startswith("who "):
+        said = said[4:]
+    text = f"Here ends the life of {explorer_name()}, who {canon.link_names(said)}."
+    ord_ = next_ord()
+    with db.writing() as con:
+        con.execute(
+            "INSERT INTO passage (book_id, ord, text) VALUES (?,?,?)",
+            (book_id(), ord_, text),
         )
     return since(ord_)
 

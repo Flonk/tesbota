@@ -529,7 +529,7 @@ export default function Page() {
         <Settings
           who={status.who}
           busy={busy}
-          onKill={() => post("/api/reborn", null, "a new life")}
+          onKill={() => post("/api/kill", null, "a new life")}
           onClose={() => setSettings(false)}
         />
       )}

@@ -1,17 +1,23 @@
 import json
 import random
 
-from . import travel
-from .config import PENDING
+from . import canon, chronicle, travel
+from .config import EXPLORER, PENDING, STARTING_INVENTORY
 from .state import (
+    clear_death,
     ensure_layout,
     stamp,
     load_campaign,
     load_turn,
+    new_campaign,
     new_turn,
     now,
+    pending_death,
+    pick_name,
+    retire,
     save_campaign,
     save_turn,
+    stock,
 )
 from .steps import STEPS
 
@@ -48,6 +54,33 @@ def open_world(campaign):
     campaign, turn = step_lore1(campaign, turn)
     save_turn(turn)
     save_campaign(campaign)
+    return turn
+
+
+def bury(campaign, cause=None):
+    """End this life and set another walking in the same world. The book closes
+    with what killed them and stays on the shelf; the world keeps everything it
+    has been told."""
+    chronicle.close(cause)
+
+    fell = campaign.get("location")
+    if fell:
+        for item in canon.holdings(EXPLORER):
+            canon.give(fell, item["name"], item["qty"], note=item.get("note") or "")
+    canon.strip(EXPLORER)
+
+    retire(campaign)
+    clear_death()
+
+    life = new_campaign()
+    life["explorer"] = pick_name()
+    life["time"] = campaign.get("time") or life["time"]
+    life["clock"] = campaign.get("clock") or life["clock"]
+    save_campaign(life)
+    stock(STARTING_INVENTORY)
+
+    turn = open_world(life)
+    chronicle.ensure_book(turn["turn_id"])
     return turn
 
 
@@ -132,6 +165,10 @@ def run(limit=1):
     while True:
         turn = load_turn(campaign["current_turn"])
         state = turn["state"]
+
+        death = pending_death()
+        if death and (state == "done" or state in SUSPENDED):
+            return "done", bury(campaign, death.get("cause"))
 
         if state == "awaiting_human":
             write_pending(turn)

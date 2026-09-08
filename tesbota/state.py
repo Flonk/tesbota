@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from . import canon
 from .config import (
     CAMPAIGN,
+    DEATH,
     EXPLORER,
     DEFAULTS,
     FIRST_NAMES,
@@ -125,6 +126,21 @@ def load_campaign():
 
 def save_campaign(campaign):
     write_json(CAMPAIGN, campaign)
+
+
+def record_death(cause):
+    """A death is asked for here and carried out by the driver, because whoever
+    calls for one may be in the middle of a turn that still has to be written."""
+    write_json(DEATH, {"cause": cause, "at": stamp()})
+    return cause
+
+
+def pending_death():
+    return read_json(DEATH) if DEATH.exists() else None
+
+
+def clear_death():
+    DEATH.unlink(missing_ok=True)
 
 
 def retire(campaign):
