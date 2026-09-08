@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from . import chronicle
 from .state import explorer_name
 
@@ -13,46 +15,7 @@ def fill(text):
     )
 
 
-READING = """The world is a SQLite database at canon.db, and querying it is the only way you can see it:
-
-    sqlite3 -readonly canon.db "SELECT ..."
-
-Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
-
-    entity(id, kind, name, introduced, extent, about)  kind: people | places | books | items
-    book(id, author, author_id, written, rarity)       author_id when the author has a row
-    person(id, lives, work, born, died)
-    passage(book_id, ord, text)                        a book's text, one paragraph a row
-    claim(id, entity_id, section, turn_id, text)       testimony no document holds
-    edge(src, rel, dst, bearing, distance)             rel: within | exits
-    holding(holder, name, qty, note, worn)             what a place, a person or the explorer keeps
-
-    writing(ref, entity, kind, section, body)          every passage and claim, with its address
-    search(ref, entity, section, body)                 fts5: WHERE search MATCH 'mill NEAR/5 boy'
-    unwritten(id, kind, name)                          named by somebody, written by nobody
-
-Fact lives in books. `entity.about` is a thing describing itself and claims nothing. A `claim` is testimony with no document behind it, and it names who said it.
-
-Two authors are not fallible. `the godhead` states the laws of this world. `The Narrator` keeps one book — bota://books/$CHRONICLE_ID, $CHRONICLE_NAME — a passage set down after every turn of what has actually happened. Nothing may contradict either. Every other author may be wrong, and they disagree constantly.
-
-`$BOTA` marks something deliberately left unwritten: it came up and is owed. That is not silence, which means the subject never came up. Never read around a $BOTA, guess at it, or quote it — say by name that the record leaves it unwritten.
-
-Everything has an address, and the writing is full of them:
-
-    bota://places/alheim-mill
-    bota://books/petra-volls-route-notes#p2     passage 2
-    bota://people/petra-voll#c14                claim 14
-
-In prose an address is wrapped so the sentence still reads, and the words in brackets are the author's: [the mill](bota://places/alheim-mill).
-
-    SELECT dst, bearing, distance FROM edge WHERE src = 'alheim' AND rel = 'exits';
-    SELECT ord, text FROM passage WHERE book_id = 'petra-volls-route-notes' ORDER BY ord;
-    SELECT ref, body FROM writing WHERE body LIKE '%/petra-voll%';
-    SELECT e.name, p.work, p.lives FROM person p JOIN entity e ON e.id = p.id
-      WHERE p.lives = 'alheim';
-    SELECT ref, snippet(search, 3, '[', ']', '…', 12) FROM search
-      WHERE search MATCH 'sawmill' ORDER BY rank LIMIT 5;
-"""
+READING = (Path(__file__).parent / "common.md").read_text()
 
 
 def tally(qty):
@@ -356,6 +319,7 @@ You are told where the world is silent, and your work is to end that silence, wi
 
 What reaches you is a question about a kind, never about a moment. Not "is this one wearing that" but "do they wear such things, and what do the markings mean". If a question looks like a moment, answer the general thing behind it — the custom, the craft, the make of the thing — and let the particular follow. Do not ask who saw it. Nobody saw it; you are writing what is so.
 
+""" + READING + """
 """ + LORE_WRITING + """You decide when the silence is filled. Once the rows are actually in canon.db — not merely agreed to — end your reply with a line containing only:
 
 RESOLVED
@@ -369,6 +333,7 @@ Nothing is being asked of you. There is no silence to end and no question waitin
 
 The world is moving while you talk. Somebody is walking through it and a turn may be resolving in the next room, so anything you write becomes true underneath them the moment it is written. Write about kinds and about what has always been so — a custom, a craft, a place that stood there before anybody arrived — never about what is happening right now, and never against what has already happened.
 
+""" + READING + """
 """ + LORE_WRITING + """Nothing here needs resolving and no word ends the sitting. It stops when they stop talking and picks up where it left off.
 """
 
@@ -553,6 +518,7 @@ def lore3_turn(gap):
 
 
 LAYERS = (
+    ("common", "common", "READING"),
     ("explorer", "explorer", "EXPLORER_SYSTEM"),
     ("gm", "game master", "GM_SYSTEM"),
     ("propose", "propose", "GM_PROPOSE_SYSTEM"),

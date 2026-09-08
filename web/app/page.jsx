@@ -274,6 +274,7 @@ const REMEMBER = "tesbota.sub";
 const ICONS = { places: "pin", people: "people", books: "book", items: "box" };
 
 const LAYER_ICON = {
+  common: "lines",
   explorer: "person",
   gm: "dice",
   propose: "dice",
