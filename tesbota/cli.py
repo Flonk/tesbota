@@ -6,9 +6,10 @@ from . import actions, canon, chronicle, db, driver, mapping, prompts, sheet, vi
 from .gate import sqlite_gate
 from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
-from .config import NARRATOR, STUB
+from .config import FIRST_NAMES, NARRATOR, STUB, SURNAME
 from .state import (
     all_turns,
+    explorer_name,
     load_campaign,
     load_turn,
     now,
@@ -129,6 +130,26 @@ def cmd_resolve(args):
     print(json.dumps(actions.resolve(), ensure_ascii=False))
 
 
+def cmd_data(args):
+    taken = canon.given_names()
+    payload = {
+        "names": {
+            "surname": SURNAME,
+            "current": explorer_name(),
+            "pool": [{"name": n, "taken": n.lower() in taken} for n in FIRST_NAMES],
+        },
+        "prompts": prompts.catalogue(),
+    }
+    if getattr(args, "json", False):
+        print(json.dumps(payload, ensure_ascii=False))
+        return
+    free = sum(1 for n in payload["names"]["pool"] if not n["taken"])
+    print(f"names: {free} of {len(payload['names']['pool'])} still free, "
+          f"{payload['names']['current']} walking")
+    for entry in payload["prompts"]:
+        print(f"  {entry['label']:14} {len(entry['text']):6} chars")
+
+
 def cmd_talk(args):
     result = actions.talk(args.text)
     if getattr(args, "json", False):
@@ -221,6 +242,10 @@ def main(argv=None):
     say.set_defaults(func=cmd_say)
 
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
+
+    world_data = sub.add_parser("data")
+    world_data.add_argument("--json", action="store_true")
+    world_data.set_defaults(func=cmd_data)
 
     talk = sub.add_parser("talk")
     talk.add_argument("text")

@@ -81,6 +81,26 @@ const GLYPHS = {
       <circle cx="12" cy="7.9" r="1" fill="currentColor" stroke="none" />
     </>
   ),
+  list: (
+    <>
+      <path d="M9 6.5h11M9 12h11M9 17.5h11" />
+      <circle cx="4.8" cy="6.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="4.8" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="4.8" cy="17.5" r="1.1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  scales: (
+    <>
+      <path d="M12 4.5v15M6 19.5h12M4 9h16M8.5 8 5.5 14h6zM15.5 8l-3 6h6z" />
+    </>
+  ),
+  db: (
+    <>
+      <ellipse cx="12" cy="6.5" rx="7.5" ry="3" />
+      <path d="M4.5 6.5v11c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-11" />
+      <path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3" />
+    </>
+  ),
   search: (
     <>
       <circle cx="10.5" cy="10.5" r="6" />

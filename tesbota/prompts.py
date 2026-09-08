@@ -952,3 +952,22 @@ def lore3_turn(gap):
         "Talk it through with me first. Look up whatever already exists before "
         "proposing anything. When we agree, write the documents."
     )
+
+
+LAYERS = (
+    ("explorer", "explorer", "EXPLORER_SYSTEM"),
+    ("gm", "game master", "GM_SYSTEM"),
+    ("propose", "propose", "GM_PROPOSE_SYSTEM"),
+    ("lore1", "lore 1", "LORE1_SYSTEM"),
+    ("queries", "queries", "LORE1_QUERY_SYSTEM"),
+    ("lore3", "lore 3", "LORE3_SYSTEM"),
+    ("lore4", "lore 4", "LORE4_SYSTEM"),
+)
+
+
+def catalogue():
+    """Every system prompt as the agent it belongs to actually receives it."""
+    return [
+        {"id": key, "label": label, "text": fill(globals()[const])}
+        for key, label, const in LAYERS
+    ]

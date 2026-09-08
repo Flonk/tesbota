@@ -5,6 +5,7 @@ import Icon from "./icons";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
+import Data from "./Data";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Settings from "./Settings";
@@ -272,6 +273,16 @@ const REMEMBER = "tesbota.sub";
 
 const ICONS = { places: "pin", people: "people", books: "book", items: "box" };
 
+const LAYER_ICON = {
+  explorer: "person",
+  gm: "dice",
+  propose: "dice",
+  lore1: "scales",
+  queries: "scales",
+  lore3: "silence",
+  lore4: "pen",
+};
+
 const SUBS = {
   chat: [
     { id: "talk", label: "lore master", icon: "pen" },
@@ -282,7 +293,10 @@ const SUBS = {
     { id: "stats", label: "stats", icon: "pulse" },
     { id: "quests", label: "quests", icon: "flag" },
   ],
-  library: KINDS.map((id) => ({ id, label: id, icon: ICONS[id] })),
+  library: [
+    ...KINDS.map((id) => ({ id, label: id, icon: ICONS[id] })),
+    { id: "data", label: "data", icon: "db" },
+  ],
 };
 
 const TABS = [
@@ -301,6 +315,8 @@ export default function Page() {
   const [sub, setSub] = useState({ chat: "talk", me: "stats", library: "places" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
+  const [catalogue, setCatalogue] = useState(null);
+  const [datum, setDatum] = useState("names");
   const [settings, setSettings] = useState(false);
   const [reading, setReading] = useState(null);
   const [face, setFace] = useState("content");
@@ -333,6 +349,14 @@ export default function Page() {
   useEffect(() => {
     if (data?.names) knowNames(data.names);
   }, [data]);
+
+  useEffect(() => {
+    if (tab !== "library" || sub.library !== "data" || catalogue) return;
+    fetch("/api/data", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { error: "the machine did not answer" }))
+      .then(setCatalogue)
+      .catch(() => setCatalogue({ error: "the machine did not answer" }));
+  }, [tab, sub.library, catalogue]);
 
   useEffect(() => {
     const open = (e) => {
@@ -630,6 +654,22 @@ export default function Page() {
           />
         )}
 
+        {tab === "library" && sub.library === "data" && (
+          <Tabs
+            className="sub reading"
+            items={[
+              { id: "names", label: "names", icon: "list" },
+              ...(catalogue?.prompts || []).map((p) => ({
+                id: p.id,
+                label: p.label,
+                icon: LAYER_ICON[p.id] || "lines",
+              })),
+            ]}
+            value={datum}
+            onChange={setDatum}
+          />
+        )}
+
         {reading === "books" && (
           <Tabs
             className="sub reading"
@@ -643,7 +683,11 @@ export default function Page() {
         )}
 
         <div className="tabbody">
-          <div className={`tabpanel${tab === "chat" || tab === "library" ? " flush" : ""}`}>
+          <div
+            className={`tabpanel${
+              tab === "chat" || (tab === "library" && sub.library !== "data") ? " flush" : ""
+            }`}
+          >
           {tab === "chat" && sub.chat === "talk" && (
             <Talk
               said={data.talk || []}
@@ -678,7 +722,10 @@ export default function Page() {
               onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
             />
           )}
-          {tab === "library" && (
+          {tab === "library" && sub.library === "data" && (
+            <Data catalogue={catalogue} at={datum} />
+          )}
+          {tab === "library" && sub.library !== "data" && (
             <Library
               dossier={dossier}
               onOpen={openDossier}

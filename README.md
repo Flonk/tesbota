@@ -287,6 +287,13 @@ through. The **map** is drawn from the solved layout, pans and zooms, and weight
 every place by whether the explorer has walked it, whether something merely records
 it, or whether it is only a name somebody wrote down.
 
+The library's last tab is **data**: the machine looking at itself. `names` is the
+pool a new adventurer is drawn from, marked where a name is already spoken for, and
+after it comes one tab per system prompt — explorer, game master, propose, lore 1,
+queries, lore 3, lore 4 — each shown exactly as that agent receives it, deeplinks
+and current name filled in. It is a lookup and nothing else; nothing there is
+editable. `tesbota data` prints the same thing, `--json` for the whole payload.
+
 Reads come straight off `state/` and `canon.db` in the Next process, so the UI
 hot-reloads while you change it. Anything that needs the Agent SDK shells out to the
 CLI (`tesbota say`, `tesbota talk`, `tesbota resolve`, `tesbota step --json`), which also means those
