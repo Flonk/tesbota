@@ -58,7 +58,7 @@ const CARRYING = {
   cols: "minmax(7rem, 2fr) 3rem minmax(4.5rem, 1.2fr) 3.2rem",
   fields: [
     { key: "name", label: "carrying", strong: true, cell: (r) => r.name },
-    { key: "qty", label: "count", num: true, cell: (r) => (r.qty > 1 ? r.qty : "") },
+    { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
     { key: "note", label: "condition", dim: true, cell: (r) => r.note || "—" },
     { key: "worn", label: "worn", dim: true, cell: (r) => (r.worn ? "worn" : "") },
   ],

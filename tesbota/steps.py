@@ -729,6 +729,7 @@ def apply_inventory(draft, turn_id=None):
             canon.slug(entry.get("to") or "") or None,
             entry["name"],
             entry.get("qty") or 1,
+            note=entry.get("note") or "",
             turn_id=turn_id,
         )
 

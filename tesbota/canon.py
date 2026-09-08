@@ -304,7 +304,11 @@ def give(holder, name, qty=1, note="", worn=False, turn_id=None):
             "SELECT id, qty FROM holding WHERE holder = ? AND lower(name) = lower(?)", (holder, name)
         ).fetchone()
         if row:
-            con.execute("UPDATE holding SET qty = ? WHERE id = ?", (int(row["qty"]) + qty, row["id"]))
+            left = int(row["qty"]) + qty
+            if left == 0:
+                con.execute("DELETE FROM holding WHERE id = ?", (row["id"],))
+            else:
+                con.execute("UPDATE holding SET qty = ? WHERE id = ?", (left, row["id"]))
         else:
             con.execute(
                 "INSERT INTO holding (holder, name, qty, note, worn, turn_id) VALUES (?,?,?,?,?,?)",
@@ -340,19 +344,42 @@ def strip(holder):
         return con.execute("DELETE FROM holding WHERE holder = ?", (holder,)).rowcount
 
 
-def transfer(src, dst, name, qty=1, turn_id=None):
-    """Move a thing between two holders. Either side may be nothing — bread is
-    eaten, wood is cut — and a holder cannot hand over what it does not have."""
+def owe(holder, name, qty=1, note=""):
+    """Take from a holder past what they have, leaving them short by the rest. A
+    negative row is a debt somebody has written and is good for."""
+    name = str(name or "").strip()
+    if not holder or not name:
+        return 0
     qty = int(qty or 1)
-    note, worn = "", False
+    with db.writing() as con:
+        row = con.execute(
+            "SELECT id, qty FROM holding WHERE holder = ? AND lower(name) = lower(?)", (holder, name)
+        ).fetchone()
+        left = (int(row["qty"]) if row else 0) - qty
+        if row and left == 0:
+            con.execute("DELETE FROM holding WHERE id = ?", (row["id"],))
+        elif row:
+            con.execute("UPDATE holding SET qty = ? WHERE id = ?", (left, row["id"]))
+        else:
+            con.execute(
+                "INSERT INTO holding (holder, name, qty, note) VALUES (?,?,?,?)",
+                (holder, name, left, str(note or "")),
+            )
+        return left
+
+
+def transfer(src, dst, name, qty=1, note="", turn_id=None):
+    """Move a thing between two holders. Either side may be nothing — bread is eaten,
+    wood is cut — and a holder may hand over what they do not have, which leaves them
+    short by it. That is how a promise is written down."""
+    qty = int(qty or 1)
+    worn = False
     if src:
         row = held(src, name)
-        if not row:
-            return 0
-        note, worn = row["note"] or "", bool(row["worn"])
-        qty = take(src, name, qty)
-        if not qty:
-            return 0
+        if row:
+            note = row["note"] or note
+            worn = bool(row["worn"])
+        owe(src, name, qty, note=note)
     if dst:
         give(dst, name, qty, note=note, worn=worn, turn_id=turn_id)
     return qty

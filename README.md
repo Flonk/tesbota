@@ -495,19 +495,24 @@ Hunger accrues with in-world time (about 4 an hour) rather than being narrated i
 existence; the game master overrides it only when the adventurer actually eats, by
 setting `hunger` on the draft.
 
+A fight can kill them, and so can a river, a fall or cold. The game master is told to
+warn before the danger and then let the dice mean what they say — never death by
+fiat, and never a reprieve by fiat either. When one lands it runs
+`tesbota kill "<cause>"`, and the cause becomes the last line of their book.
+
 ## Checks
 
 The adventurer has six ability scores and a proficiency bonus. A skill's bonus is
 its ability modifier plus proficiency if trained; the sheet starts trained in
 perception and survival, with otherwise unremarkable scores.
 
-When an action could plainly fail, the game master sets
+Most actions get one. The game master sets
 `"check": {"skill": "athletics", "dc": 12}` on its reply — 10 is something most
-people manage, 15 takes doing, 20 is a long shot — and the driver rolls a d20,
-adds the bonus and compares. A pass delivers. A failure sends the draft back with
-the numbers and an instruction to renarrate the attempt not working, without
-undoing the attempt itself. The game master never rolls, and most actions need no
-check.
+people manage, 15 takes doing, 20 is a long shot — and the driver rolls a d20, adds
+the bonus and compares. A pass delivers. A failure sends the draft back with the
+numbers and an instruction to renarrate the attempt not working, without undoing the
+attempt itself. The game master never rolls, and it is told to roll for anything with
+a way to go wrong rather than decide it; only what cannot fail goes unrolled.
 
 Checks and the d400 are resolved in the same pass, so an action needs at most one
 redraft even when both land.
@@ -590,12 +595,24 @@ the same from a terminal, and an empty string clears a queued one.
 and nothing else happens. Up to four before acting, against two for `LOOK:`.
 Talking settles nothing: a price named is not a price paid.
 
-The game master is shown what the adventurer carries on every turn and is told the
-list is the truth — they cannot hand over, spend or use what is not on it, and a
-coin is never invented into their hand. When something actually changes hands it
-records `gain` (name, qty, note) and `lose` (name, qty), applied by the driver.
-Quantities stack case-insensitively, losing more than is held empties the entry
-rather than going negative, and losing something unheld is a no-op.
+The game master is shown what the adventurer carries on every turn, and what
+everything else at the place carries, and is told those lists are the truth — nobody
+hands over, spends or uses what is not on one, and a coin is never invented into
+anybody's hand.
+
+Nearly every exchange is a `move` between two named holders, applied by the driver.
+`gain` and `lose` are the exception, for what enters or leaves the world on the
+adventurer's own side: bread eaten, a plank cut, a coin found in the mud.
+
+A holder may move something they do not have, which leaves them short by it. That is
+how a promise is written down: Greta Marsch owing a bed for finding her child moves a
+voucher for it into the adventurer's pack and goes to `-1` herself, and the game
+master reading her holdings next time sees `(owes 1)` — the debt is the proof the
+voucher is good. Redeeming it is another move, and her row clears when she settles.
+The prompt governs when a short is legitimate: only what the holder can actually
+underwrite. Quantities stack case-insensitively, a row at exactly zero is deleted,
+and `lose` still clips rather than going negative, because the adventurer cannot
+spend what they do not have.
 
 ## Quests
 
