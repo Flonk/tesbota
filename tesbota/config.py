@@ -22,8 +22,18 @@ GODHEAD = "the godhead"
 NARRATOR = "The Narrator"
 GODHEADS = (GODHEAD, NARRATOR.lower())
 
-CHRONICLE = "the-life-of-explorer-1"
-CHRONICLE_NAME = "The Life of Explorer #1"
+SURNAME = "Bota"
+
+FIRST_NAMES = (
+    "Ansel", "Arndt", "Bastian", "Berta", "Bram", "Clemens", "Corda", "Detlev",
+    "Edda", "Eike", "Elsbet", "Everd", "Frauke", "Gerd", "Gesa", "Gunda",
+    "Hanne", "Harm", "Heike", "Hilke", "Ilse", "Immo", "Jelle", "Joost",
+    "Karsten", "Katrin", "Klaas", "Lene", "Levke", "Lubbert", "Maren", "Meike",
+    "Menno", "Mette", "Nanne", "Neele", "Onno", "Otte", "Rike", "Roelof",
+    "Sanne", "Sibbe", "Sieger", "Silke", "Sonke", "Swantje", "Tammo", "Telse",
+    "Thies", "Tomke", "Ubbo", "Uwe", "Vibeke", "Volkert", "Wibke", "Wiard",
+    "Wilke", "Wobke", "Ynse", "Zwaantje",
+)
 
 STUB = "$BOTA"
 

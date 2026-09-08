@@ -1,3 +1,18 @@
+from . import chronicle
+from .state import explorer_name
+
+
+def fill(text):
+    """The explorer has a name and their book is named after them; both change when
+    a new one sets out."""
+    return (
+        (text or "")
+        .replace("$CHRONICLE_ID", chronicle.book_id())
+        .replace("$CHRONICLE_NAME", chronicle.book_title())
+        .replace("$EXPLORER", explorer_name())
+    )
+
+
 READING = """The world is a SQLite database at canon.db, and querying it is the only way you
 can see it:
 
@@ -31,7 +46,7 @@ Fact lives in books, and only in books. A book whose `author` is `the godhead` o
 `The Narrator` is not testimony and its author is not fallible. The Narrator keeps
 exactly one book:
 
-    bota://books/the-life-of-explorer-1     The Life of Explorer #1
+    bota://books/$CHRONICLE_ID     $CHRONICLE_NAME
 
 That is the record of what has actually happened — one passage set down after each
 turn, as it happened. Nothing in the world may contradict it.
@@ -105,7 +120,7 @@ def render_holdings(holders):
     return "\n".join(lines) or "  (nothing)"
 
 
-EXPLORER_SYSTEM = """You are the explorer. You have the following cli commands available to you:
+EXPLORER_SYSTEM = """You are the explorer. Your name is $EXPLORER. You have the following cli commands available to you:
 
 tesbota stats       what condition you are in, and what you know you are good at
 tesbota inventory   what you are carrying
@@ -212,8 +227,10 @@ You may never write to it.
   this world. Nothing you narrate may contradict one. Every other author may be
   wrong, and often is — they disagree with each other constantly.
 - `The Narrator` is the other author you cannot argue with. Its one book,
-  bota://books/the-life-of-explorer-1, is what has already happened — read it when
+  bota://books/$CHRONICLE_ID, is what has already happened — read it when
   you need to know what they have already seen, done, been told or walked past.
+- The explorer is $EXPLORER. That is the name they give when they are asked for one,
+  and the name anybody who has met them uses.
 - When the explorer reads a book, copy a passage's `text` verbatim out of its row.
   You choose the passage; you never paraphrase it and never invent it.
 - `$BOTA` marks lore deliberately left unwritten. Never narrate around it, never
@@ -310,10 +327,10 @@ Ground truth is books, and only books. Two authors are not fallible.
 possible.
 
 `The Narrator` keeps the record of what has actually happened. It has one book,
-bota://books/the-life-of-explorer-1, and it sets down a passage after every turn.
+bota://books/$CHRONICLE_ID, and it sets down a passage after every turn.
 Read it before you rule; it is where you find out what has already been seen.
 
-    SELECT ord, text FROM passage WHERE book_id = 'the-life-of-explorer-1'
+    SELECT ord, text FROM passage WHERE book_id = '$CHRONICLE_ID'
      ORDER BY ord DESC LIMIT 12;
 
 A passage of the narrator's about a thing covers that thing's properties, not
@@ -519,9 +536,9 @@ says it, with its author attached, and its passages are addresses anybody can
 follow. A claim that paraphrases a passage is the same fact written twice, and the
 two will drift apart.
 
-A claim's section is `attested` or `map` and nothing else. What the one moving
+A claim's section is `attested` and nothing else. What the one moving
 through this world has actually seen is not yours to write down at all — the
-narrator keeps that record, in bota://books/the-life-of-explorer-1, and adds to it
+narrator keeps that record, in bota://books/$CHRONICLE_ID, and adds to it
 after every turn.
 
 Every book carries an `author`. No exceptions — an unattributed document is not a
@@ -581,7 +598,7 @@ than opinion. It is where the world's mechanics live: how things work, what is
 possible, what cannot happen. Write one only when you are explicitly asked for
 one, keep it plain and declarative, and never hedge in it.
 
-`The Narrator` is the second, and its one book — The Life of Explorer #1 — is the
+`The Narrator` is the second, and its one book — $CHRONICLE_NAME — is the
 record of what has happened. Never write a passage into it and never attribute
 anything to it. Read it freely: it is often where the answer to what you have been
 asked already is.

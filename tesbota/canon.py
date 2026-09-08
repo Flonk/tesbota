@@ -1,7 +1,7 @@
 import re
 
 from . import db
-from .config import CHRONICLE, EXPLORER, FORBIDDEN_AUTHORS, GODHEADS, KINDS, STUB
+from .config import EXPLORER, FORBIDDEN_AUTHORS, GODHEADS, KINDS, NARRATOR, STUB
 
 ATTESTED = "attested"
 
@@ -92,9 +92,24 @@ def library():
             "written": r["written"] or "",
             "rarity": (r["rarity"] or "").lower(),
             "godhead": (r["author"] or "").strip().lower() in GODHEADS,
-            "chronicle": r["id"] == CHRONICLE,
+            "chronicle": (r["author"] or "").strip() == NARRATOR,
         })
     return shelf
+
+
+def given_names():
+    """First names already spoken for, so a new life is not named after somebody
+    who is already in the world or after an explorer who has already lived."""
+    try:
+        people = db.rows("SELECT name FROM entity WHERE kind = 'people'")
+        lives = db.rows("SELECT e.name FROM book b JOIN entity e ON e.id = b.id WHERE b.author = ?", (NARRATOR,))
+    except Exception:
+        return set()
+    taken = {(r["name"] or "").split(" ")[0].lower() for r in people}
+    for r in lives:
+        rest = (r["name"] or "").removeprefix("The Life of ").split(" ")
+        taken.add(rest[0].lower())
+    return taken - {""}
 
 
 def person(entity_id):

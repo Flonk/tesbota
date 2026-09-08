@@ -6,7 +6,7 @@ from . import actions, canon, chronicle, db, driver, mapping, prompts, sheet, vi
 from .gate import sqlite_gate
 from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
-from .config import CHRONICLE_NAME, NARRATOR, STUB
+from .config import NARRATOR, STUB
 from .state import (
     all_turns,
     load_campaign,
@@ -184,7 +184,7 @@ def cmd_chronicle(args):
     if not passages:
         print("the narrator has not written anything yet")
         return
-    print(f"{view.BOLD}{CHRONICLE_NAME}{view.OFF} {view.DIM}— {NARRATOR}{view.OFF}")
+    print(f"{view.BOLD}{chronicle.book_title()}{view.OFF} {view.DIM}— {NARRATOR}{view.OFF}")
     print()
     for entry in passages[-args.n:] if args.n else passages:
         print(f"{view.DIM}{entry['ord']}{view.OFF}")

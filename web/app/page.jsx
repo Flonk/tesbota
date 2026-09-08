@@ -43,6 +43,7 @@ function Brand({ status, busy }) {
   return (
     <header className="brand">
       <span className="mark">BOTA</span>
+      {status.who && <span className="who">— {status.who}</span>}
       <span className="mood">{mood(status, busy)}</span>
     </header>
   );

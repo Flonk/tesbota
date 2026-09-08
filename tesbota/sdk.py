@@ -4,6 +4,7 @@ import re
 import time
 import warnings
 
+from . import prompts
 from .config import ROOT
 
 warnings.filterwarnings("ignore", message=".*can_use_tool.*")
@@ -93,6 +94,7 @@ async def _ask(prompt, system, tools, session, model, permission=None):
 
 
 def ask(prompt, *, system, tools=(), session=None, model=None, attempts=2, permission=None):
+    prompt, system = prompts.fill(prompt), prompts.fill(system)
     last = None
     for attempt in range(attempts):
         try:

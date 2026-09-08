@@ -196,6 +196,14 @@ textarea {
   text-transform: uppercase;
 }
 .brand .mark { font-weight: 700; letter-spacing: .26em; flex: 0 0 auto; }
+.brand .who {
+  flex: 0 1 auto;
+  min-width: 0;
+  letter-spacing: .1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .brand .mood {
   flex: 1 1 auto;
   min-width: 0;

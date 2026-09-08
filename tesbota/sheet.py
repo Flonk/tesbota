@@ -9,8 +9,7 @@ from .config import (
     NOTEBOOK_MAX_NOTES,
     SKILL_ABILITY,
 )
-from .state import save_campaign
-from .state import load_campaign
+from .state import explorer_name, load_campaign, save_campaign
 
 HEALTH_WORDS = [(90, "unhurt"), (70, "bruised"), (45, "hurt"), (20, "badly hurt"), (0, "failing")]
 FATIGUE_WORDS = [(0, "rested"), (25, "warm"), (50, "tiring"), (75, "weary"), (90, "spent")]
@@ -104,6 +103,8 @@ def render_stats(campaign=None):
     hunger = v.get("hunger", 0)
 
     lines = [
+        explorer_name(campaign),
+        "",
         f"health    {health:3} / {MAX_HEALTH}   {descend(health, HEALTH_WORDS)}",
         f"fatigue   {fatigue:3} / {MAX_FATIGUE}   {ascend(fatigue, FATIGUE_WORDS)}",
         f"hunger    {hunger:3} / {MAX_HUNGER}   {ascend(hunger, HUNGER_WORDS)}",

@@ -1,27 +1,37 @@
 from . import canon, db
-from .config import CHRONICLE, CHRONICLE_NAME, NARRATOR, WORLD_START
+from .config import NARRATOR, WORLD_START
+from .state import explorer_name
+
+
+def book_title(name=None):
+    return f"The Life of {name or explorer_name()}"
+
+
+def book_id(name=None):
+    return canon.slug(book_title(name))
 
 
 def ensure_book(turn_id=None):
     era, year = WORLD_START["era"], WORLD_START["year"]
+    book, title = book_id(), book_title()
     with db.writing() as con:
         con.execute(
             "INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)",
-            (CHRONICLE, "books", CHRONICLE_NAME, turn_id),
+            (book, "books", title, turn_id),
         )
         con.execute(
             "INSERT OR IGNORE INTO book (id, author, author_id, written, rarity) VALUES (?,?,?,?,?)",
-            (CHRONICLE, NARRATOR, None, f"{era}E{year}", "unique"),
+            (book, NARRATOR, None, f"{era}E{year}", "unique"),
         )
-    return CHRONICLE
+    return book
 
 
 def passages():
-    return [dict(ord=r["ord"], text=r["text"]) for r in canon.passages(CHRONICLE)]
+    return [dict(ord=r["ord"], text=r["text"]) for r in canon.passages(book_id())]
 
 
 def next_ord():
-    return (db.value("SELECT max(ord) FROM passage WHERE book_id = ?", (CHRONICLE,)) or 0) + 1
+    return (db.value("SELECT max(ord) FROM passage WHERE book_id = ?", (book_id(),)) or 0) + 1
 
 
 def since(start):
@@ -29,7 +39,7 @@ def since(start):
         dict(ord=r["ord"], text=r["text"])
         for r in db.rows(
             "SELECT ord, text FROM passage WHERE book_id = ? AND ord >= ? ORDER BY ord",
-            (CHRONICLE, start),
+            (book_id(), start),
         )
     ]
 
@@ -57,7 +67,7 @@ def write(turn):
     with db.writing() as con:
         con.execute(
             "INSERT INTO passage (book_id, ord, text) VALUES (?,?,?)",
-            (CHRONICLE, ord_, canon.link_names(text)),
+            (book_id(), ord_, canon.link_names(text)),
         )
     return since(ord_)
 
@@ -65,7 +75,7 @@ def write(turn):
 def clear():
     """Take the book back to nothing, so it can be set down again in one voice."""
     with db.writing() as con:
-        return con.execute("DELETE FROM passage WHERE book_id = ?", (CHRONICLE,)).rowcount
+        return con.execute("DELETE FROM passage WHERE book_id = ?", (book_id(),)).rowcount
 
 
 def played(turn):

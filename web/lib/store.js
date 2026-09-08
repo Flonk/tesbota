@@ -101,6 +101,7 @@ export async function snapshot() {
 
   const status = {
     state: current?.state || "uninitialised",
+    who: campaign.explorer || null,
     turn: campaign.current_turn || null,
     where: campaign.location_path || [],
     now,

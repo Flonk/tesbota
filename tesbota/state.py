@@ -1,5 +1,6 @@
 import json
 import os
+import random
 from datetime import datetime, timezone
 
 from . import canon
@@ -7,10 +8,12 @@ from .config import (
     CAMPAIGN,
     EXPLORER,
     DEFAULTS,
+    FIRST_NAMES,
     MAX_FATIGUE,
     MAX_HEALTH,
     STARTING_SKILLS,
     STATE,
+    SURNAME,
     WORLD_START,
     TURNS,
 )
@@ -39,8 +42,21 @@ def read_json(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def pick_name():
+    """Every life gets its own name. The family name never changes; the world only
+    ever meets one Bota at a time."""
+    taken = canon.given_names()
+    pool = [n for n in FIRST_NAMES if n.lower() not in taken] or list(FIRST_NAMES)
+    return f"{random.choice(pool)} {SURNAME}"
+
+
+def explorer_name(campaign=None):
+    return (campaign or load_campaign()).get("explorer") or "the explorer"
+
+
 def new_campaign():
     return {
+        "explorer": None,
         "sessions": {"explorer": None, "gm": None, "lore3_sitting": None},
         "current_turn": None,
         "turn_counter": 0,
@@ -73,12 +89,16 @@ def stock(inventory):
 def load_campaign():
     if not CAMPAIGN.exists():
         campaign = new_campaign()
+        campaign["explorer"] = pick_name()
         write_json(CAMPAIGN, campaign)
         return campaign
 
     campaign = read_json(CAMPAIGN)
     blank = new_campaign()
     changed = False
+    if not campaign.get("explorer"):
+        campaign["explorer"] = pick_name()
+        changed = True
     for key in ("note", "location", "location_path", "notebook", "quests", "time"):
         if key not in campaign:
             campaign[key] = blank[key]
