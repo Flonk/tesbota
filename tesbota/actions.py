@@ -1,17 +1,22 @@
 import threading
 
-from . import canon, driver, prompts, view
+from . import canon, chronicle, driver, prompts, view
 from .gate import sqlite_gate
-from .config import MODELS, STATE, WRITE_TOOLS
+from .config import EXPLORER, MODELS, STARTING_INVENTORY, STATE, WRITE_TOOLS
 from .sdk import ask
 from .state import (
     all_turns,
+    explorer_name,
     load_campaign,
     load_turn,
+    new_campaign,
     now,
     parse,
+    pick_name,
     read_json,
+    retire,
     save_campaign,
+    stock,
     write_json,
 )
 
@@ -111,6 +116,37 @@ def resolve():
             return {"ok": True, "error": f"{type(exc).__name__}: {exc}"[:600],
                     "turn": campaign.get("current_turn")}
     return {"ok": True, "state": state, "turn": turn["turn_id"]}
+
+
+def reborn():
+    """End this life and set another walking in the same world. The world keeps
+    everything it has been told; only the one walking through it is new."""
+    with LOCK:
+        campaign = load_campaign()
+        gone = explorer_name(campaign)
+        fell = campaign.get("location")
+        if fell:
+            for item in canon.holdings(EXPLORER):
+                canon.give(fell, item["name"], item["qty"], note=item.get("note") or "")
+        canon.strip(EXPLORER)
+
+        retire(campaign)
+        write_json(CHAT_FILE, [])
+
+        life = new_campaign()
+        life["explorer"] = pick_name()
+        life["time"] = campaign.get("time") or life["time"]
+        life["clock"] = campaign.get("clock") or life["clock"]
+        save_campaign(life)
+        stock(STARTING_INVENTORY)
+
+        try:
+            turn = driver.open_world(life)
+            chronicle.ensure_book(turn["turn_id"])
+        except Exception as exc:
+            return {"ok": True, "gone": gone, "explorer": life["explorer"],
+                    "error": f"{type(exc).__name__}: {exc}"[:600]}
+    return {"ok": True, "gone": gone, "explorer": life["explorer"], "turn": turn["turn_id"]}
 
 
 def step():

@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import shutil
 from datetime import datetime, timezone
 
 from . import canon
@@ -9,6 +10,7 @@ from .config import (
     EXPLORER,
     DEFAULTS,
     FIRST_NAMES,
+    PENDING,
     MAX_FATIGUE,
     MAX_HEALTH,
     STARTING_SKILLS,
@@ -123,6 +125,22 @@ def load_campaign():
 
 def save_campaign(campaign):
     write_json(CAMPAIGN, campaign)
+
+
+def retire(campaign):
+    """Put a finished life away whole — its turns, its campaign file, whatever the
+    world was still waiting on it for. What it wrote stays in the library."""
+    home = STATE / "lives" / (canon.slug(explorer_name(campaign)) or "the-nameless")
+    home.mkdir(parents=True, exist_ok=True)
+    (home / "turns").mkdir(exist_ok=True)
+    for path in sorted(TURNS.glob("t*.json")):
+        shutil.move(str(path), home / "turns" / path.name)
+    if PENDING.exists():
+        for path in sorted(PENDING.glob("*.md")):
+            shutil.move(str(path), home / path.name)
+    if CAMPAIGN.exists():
+        shutil.move(str(CAMPAIGN), home / "campaign.json")
+    return home
 
 
 def turn_path(turn_id):

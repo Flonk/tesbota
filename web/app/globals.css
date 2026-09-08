@@ -137,8 +137,11 @@ body {
 .btn:disabled { opacity: .35; cursor: default; }
 .btn-gold { color: var(--gold); border-color: var(--gold); }
 .btn-gold:hover:not(:disabled) { background: var(--gold); color: var(--bg); }
+.btn-bad { color: var(--bad); border-color: var(--bad); }
+.btn-bad:hover:not(:disabled) { background: var(--bad); color: var(--bg); border-color: var(--bad); }
 
 .actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .5rem; }
+.actions.left { justify-content: flex-start; }
 
 textarea {
   width: 100%; min-height: 4.5rem; background: var(--bg); color: var(--ink);
@@ -204,6 +207,18 @@ textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.brand .cog {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--bg);
+  opacity: .72;
+  cursor: pointer;
+}
+.brand .cog:hover { opacity: 1; }
 .brand .mood {
   flex: 1 1 auto;
   min-width: 0;
@@ -610,6 +625,7 @@ textarea {
   text-transform: none; letter-spacing: .06em;
   margin: .25rem 0 1rem;
 }
+.dnote { color: var(--dim); margin: .8rem 0 1.2rem; }
 .dbody > .etable { margin: 0 0 1.1rem; }
 .dbody > .etable .erow { padding-left: 0; margin-left: -1px; }
 .daddr {

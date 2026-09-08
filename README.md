@@ -55,15 +55,22 @@ There is a second godhead-class author and it is writing a book. It is not an ag
 
 After every turn that survives adjudication, the driver takes what the game master
 actually said that turn — every `gm` phase, in order, joined into one paragraph — and
-appends it as a passage of `bota://books/the-life-of-explorer-1`, *The Life of
-Explorer #1*. No call, no prompt, no model. The turn is already on disk; setting it
-down is string work.
+appends it as a passage of the book of whoever is walking — *The Life of Lene Bota*,
+at `bota://books/the-life-of-lene-bota`. No call, no prompt, no model. The turn is
+already on disk; setting it down is string work.
 
 The book is one row in `entity`, one in `book` — author `The Narrator`, rarity
 `unique` — and one `passage` row per turn, in turn order. Because it is godhead-class
 it is law, and nothing any other layer narrates or claims may contradict it. That is
 what holds the observed world together, and it is why there is no longer a special
 kind of claim doing the same job badly.
+
+Every life gets its own book. The adventurer is named when a campaign starts — a
+first name off a pool, the family name always `Bota` — and the title and the id
+follow the name. Kill one (`tesbota reborn`, or the gear in the web header) and their
+turns are put away under `state/lives/`, whatever they carried stays where they fell,
+and somebody new sets out in the same world with a fresh kit and a fresh book. The
+closed book stays on the shelf; the world keeps everything it has been told.
 
 The book still holds instances and not kinds — *a figure challenged them at the gate*
 and never *the town keeps gatekeepers* — but that line is no longer the narrator's to
@@ -121,6 +128,7 @@ uv run tesbota lore      # sit down with lore master 3 and end a silence
 uv run tesbota chronicle # the narrator's book, the life so far
 uv run tesbota holdings  # what everybody in the world is keeping
 uv run tesbota map       # the world as mermaid; --json for the solved layout
+uv run tesbota reborn    # end this life and set a new one walking in the same world
 ```
 
 Make it tick on its own with a user timer:

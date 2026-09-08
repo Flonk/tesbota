@@ -129,6 +129,19 @@ def cmd_resolve(args):
     print(json.dumps(actions.resolve(), ensure_ascii=False))
 
 
+def cmd_reborn(args):
+    result = actions.reborn()
+    if getattr(args, "json", False):
+        print(json.dumps(result, ensure_ascii=False))
+        return
+    print(f"{result['gone']} is done walking. {result['explorer']} sets out.")
+    if result.get("error"):
+        print(result["error"])
+        return
+    print()
+    print(load_campaign()["last_narration"])
+
+
 def cmd_stats(args):
     print(sheet.render_stats())
 
@@ -209,6 +222,11 @@ def main(argv=None):
     say.set_defaults(func=cmd_say)
 
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
+
+    reborn = sub.add_parser("reborn")
+    reborn.add_argument("--json", action="store_true")
+    reborn.set_defaults(func=cmd_reborn)
+
     sub.add_parser("stats").set_defaults(func=cmd_stats)
     world_map = sub.add_parser("map")
     world_map.add_argument("--json", action="store_true")

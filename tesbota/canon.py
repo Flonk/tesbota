@@ -334,6 +334,12 @@ def take(holder, name, qty=1):
         return qty
 
 
+def strip(holder):
+    """Everything a holder had, gone from them. Used when a life ends."""
+    with db.writing() as con:
+        return con.execute("DELETE FROM holding WHERE holder = ?", (holder,)).rowcount
+
+
 def transfer(src, dst, name, qty=1, turn_id=None):
     """Move a thing between two holders. Either side may be nothing — bread is
     eaten, wood is cut — and a holder cannot hand over what it does not have."""

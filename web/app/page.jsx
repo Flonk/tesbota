@@ -6,6 +6,7 @@ import { QuestPanel } from "./Quests";
 import Library from "./Library";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
+import Settings from "./Settings";
 import Steer from "./Steer";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
@@ -39,12 +40,24 @@ function mood(status, busy) {
   return MOOD[status.state] || "the world sleeps";
 }
 
-function Brand({ status, busy }) {
+function Gear() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.6" />
+      <path d="M19.2 14.6a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1.03H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.55-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.08A1.7 1.7 0 0 0 10.1 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1.03 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.55 1.03H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.55 1.03z" />
+    </svg>
+  );
+}
+
+function Brand({ status, busy, onSettings }) {
   return (
     <header className="brand">
       <span className="mark">BOTA</span>
       {status.who && <span className="who">— {status.who}</span>}
       <span className="mood">{mood(status, busy)}</span>
+      <button className="cog" onClick={onSettings} title="settings" aria-label="settings">
+        <Gear />
+      </button>
     </header>
   );
 }
@@ -286,6 +299,7 @@ export default function Page() {
   const [sub, setSub] = useState({ chat: "lore", library: "places" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
+  const [settings, setSettings] = useState(false);
   const [reading, setReading] = useState(null);
   const [face, setFace] = useState("content");
   const keyboard = useKeyboardAvoid();
@@ -509,7 +523,16 @@ export default function Page() {
           : undefined
       }
     >
-      <Brand status={status} busy={busy} />
+      <Brand status={status} busy={busy} onSettings={() => setSettings(true)} />
+
+      {settings && (
+        <Settings
+          who={status.who}
+          busy={busy}
+          onKill={() => post("/api/reborn", null, "a new life")}
+          onClose={() => setSettings(false)}
+        />
+      )}
 
       {error && (
         <div className="error" onClick={() => setError(null)} title="click to dismiss">
