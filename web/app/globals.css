@@ -559,7 +559,10 @@ textarea {
   background: none; border: 0; color: var(--ink);
   font: var(--mono); letter-spacing: .06em; padding: 0;
 }
-.seek .glass { flex: 0 0 auto; display: flex; align-items: center; color: var(--faint); padding-right: .5rem; }
+.seek .glass {
+  flex: 0 0 auto; display: flex; align-items: center; color: var(--faint);
+  padding: 0 .4rem 0 calc(.8rem + 1px);
+}
 .seekbox:focus { outline: none; }
 .seekbox::placeholder { color: var(--dim); }
 .seek .btn { align-self: center; }
@@ -684,5 +687,6 @@ textarea {
 
 @media (max-width: 640px) {
   .seek { padding: 0 .5rem; }
+  .seek .glass { padding-left: calc(.5rem + 1px); }
   .libbody { padding: .8rem .9rem 1.2rem; }
 }
