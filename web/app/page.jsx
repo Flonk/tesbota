@@ -237,14 +237,6 @@ function Turn({ s, last, blocked, vitals }) {
         </Fold>
       )}
 
-      {s.chronicle.length > 0 && (
-        <Block kind="chronicle" label="the narrator">
-          {s.chronicle.map((x) => (
-            <Prose className="body told" key={x.ord} text={x.text} />
-          ))}
-        </Block>
-      )}
-
       {s.lore.length > 0 && (
         <Fold label={`lore session · ${s.lore.length} message${s.lore.length > 1 ? "s" : ""}`}>
           {s.loreGap && <p className="body ask">{s.loreGap}</p>}

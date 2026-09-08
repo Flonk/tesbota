@@ -92,7 +92,6 @@ export async function snapshot() {
       note: turn.note || null,
       lore: turn.lore || [],
       loreGap: turn.lore_gap || null,
-      chronicle: turn.chronicle || [],
     });
   }
 
