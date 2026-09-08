@@ -7,6 +7,9 @@ state/turns/*.json
 pending/*.md
 state/secret.txt
 state/lore3.json
+state/lore4.json
+state/death.json
+state/lives/
 web/node_modules/
 web/.next/
 state/job.json

@@ -17,6 +17,7 @@ from .state import (
 )
 
 CHAT_FILE = STATE / "lore3.json"
+TALK_FILE = STATE / "lore4.json"
 LOCK = threading.Lock()
 
 
@@ -75,6 +76,42 @@ def say(text):
     if finished:
         resolve()
     return {"reply": reply, "resolved": finished}
+
+
+def sitting():
+    """Lore master 4 keeps its own thread and its own session, away from the
+    campaign file, because it is talked to while a turn is running and two writers
+    of that file would lose each other's work."""
+    return read_json(TALK_FILE) if TALK_FILE.exists() else {"session": None, "log": []}
+
+
+def talk(text):
+    said = (text or "").strip()
+    if not said:
+        return {"error": "nothing was said"}
+
+    with LOCK:
+        book = sitting()
+        book["log"].append({"role": "you", "text": said})
+        write_json(TALK_FILE, book)
+
+    reply, session = ask(
+        said,
+        system=prompts.LORE4_SYSTEM,
+        tools=WRITE_TOOLS,
+        permission=sqlite_gate(readonly=False),
+        session=book.get("session"),
+        model=MODELS["lore4"],
+    )
+
+    canon.link_writing()
+
+    with LOCK:
+        book = sitting()
+        book["session"] = session
+        book["log"].append({"role": "lore master", "text": reply})
+        write_json(TALK_FILE, book)
+    return {"reply": reply}
 
 
 def set_note(text):

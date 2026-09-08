@@ -36,6 +36,7 @@ function duration(minutes) {
 export async function snapshot() {
   const campaign = await readJson(path.join(STATE, "campaign.json"), {});
   const chat = await readJson(path.join(STATE, "lore3.json"), []);
+  const sitting = await readJson(path.join(STATE, "lore4.json"), { log: [] });
 
   let files = [];
   try {
@@ -123,7 +124,7 @@ export async function snapshot() {
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, slides, gap, chat, vitals, skills, inventory, notebook, quests, names: names(), job: await job(), note: campaign.note || null };
+  return { status, slides, gap, chat, talk: sitting.log || [], vitals, skills, inventory, notebook, quests, names: names(), job: await job(), note: campaign.note || null };
 }
 
 function alive(pid) {

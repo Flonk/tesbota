@@ -129,6 +129,14 @@ def cmd_resolve(args):
     print(json.dumps(actions.resolve(), ensure_ascii=False))
 
 
+def cmd_talk(args):
+    result = actions.talk(args.text)
+    if getattr(args, "json", False):
+        print(json.dumps(result, ensure_ascii=False))
+        return
+    print(result.get("reply") or result.get("error"))
+
+
 def cmd_kill(args):
     result = actions.kill(args.cause)
     if getattr(args, "json", False):
@@ -217,6 +225,11 @@ def main(argv=None):
     say.set_defaults(func=cmd_say)
 
     sub.add_parser("resolve").set_defaults(func=cmd_resolve)
+
+    talk = sub.add_parser("talk")
+    talk.add_argument("text")
+    talk.add_argument("--json", action="store_true")
+    talk.set_defaults(func=cmd_talk)
 
     kill = sub.add_parser("kill")
     kill.add_argument("cause", nargs="?", default=None)

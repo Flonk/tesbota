@@ -17,6 +17,7 @@ a rule anyone is asked to respect.
 | **Game master** | An action, a verdict | read | scene-scoped |
 | **Lore master 1** | Bare claims | read | stateless |
 | **Lore master 3** | A silence in the world | read/write | per sitting |
+| **Lore master 4** | Whatever you bring it | read/write | standing |
 | **Narrator** | One finished turn, verbatim | none — it is an append log | none |
 
 The Explorer cannot see the world at all, so the game master must reproduce book
@@ -26,6 +27,14 @@ can be checked with `==`.
 
 Lore master 3 has never heard of an adventurer. It thinks it is cataloguing a
 library.
+
+Lore master 4 is the same keeper of texts with the same writing manual, standing
+rather than summoned: it is nobody's blocker, it has no gap to fill and no
+`RESOLVED` to reach, and you can talk to it while a turn is running. It keeps its
+thread and its session in `state/lore4.json` and never touches `campaign.json`, so
+it cannot lose a step's work by writing over it — which is what makes talking
+during a turn safe. What it writes lands in canon the moment it is written, so it
+is told to write kinds and standing facts, never what is happening right now.
 
 ## What is true
 
@@ -136,6 +145,7 @@ uv run tesbota init
 uv run tesbota step      # advance until something suspends
 uv run tesbota status    # where things stand, how long until the adventurer wakes
 uv run tesbota lore      # sit down with lore master 3 and end a silence
+uv run tesbota talk "…"  # say one thing to lore master 4, any time
 uv run tesbota chronicle # the narrator's book, the life so far
 uv run tesbota holdings  # what everybody in the world is keeping
 uv run tesbota map       # the world as mermaid; --json for the solved layout
@@ -260,8 +270,10 @@ TESBOTA_KEY=$(openssl rand -base64 18 | tr -d /+=) npm --prefix web run dev
 ```
 
 Three panes: the **Explorer** story, the **Game master** machinery (every claim
-with its verdict, redrafts, quote checks), and the **Lore master** — the pending
-gap with a box to talk it through and a resolve button.
+with its verdict, redrafts, quote checks), and the **chat**, which is three
+conversations under one bar: *lore master* (4) any time you like, *game master* to
+steer the next turn, and *the silence* (lore master 3) which only opens when the
+world is actually blocked on you.
 
 The tab area beside the story holds the rest of the world. The **library** has its
 own bar over places, people, books and items, one dense line to a row, with a search
@@ -277,7 +289,7 @@ it, or whether it is only a name somebody wrote down.
 
 Reads come straight off `state/` and `canon.db` in the Next process, so the UI
 hot-reloads while you change it. Anything that needs the Agent SDK shells out to the
-CLI (`tesbota say`, `tesbota resolve`, `tesbota step --json`), which also means those
+CLI (`tesbota say`, `tesbota talk`, `tesbota resolve`, `tesbota step --json`), which also means those
 commands work on their own from a terminal. The map does the same for
 `tesbota map --json`, because solving a layout is Python.
 

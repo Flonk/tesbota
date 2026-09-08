@@ -8,6 +8,7 @@ import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Settings from "./Settings";
 import Steer from "./Steer";
+import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
 import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tabs, Tag } from "./ui";
@@ -279,8 +280,9 @@ const REMEMBER = "tesbota.sub";
 
 const SUBS = {
   chat: [
-    { id: "lore", label: "lore master" },
+    { id: "talk", label: "lore master" },
     { id: "gm", label: "game master" },
+    { id: "lore", label: "the silence" },
   ],
   me: [
     { id: "stats", label: "stats" },
@@ -302,7 +304,7 @@ export default function Page() {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("chat");
   const [dossier, setDossier] = useState(null);
-  const [sub, setSub] = useState({ chat: "lore", me: "stats", library: "places" });
+  const [sub, setSub] = useState({ chat: "talk", me: "stats", library: "places" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const [settings, setSettings] = useState(false);
@@ -639,6 +641,13 @@ export default function Page() {
 
         <div className="tabbody">
           <div className={`tabpanel${tab === "chat" || tab === "library" ? " flush" : ""}`}>
+          {tab === "chat" && sub.chat === "talk" && (
+            <Talk
+              said={data.talk || []}
+              busy={busy}
+              onSay={(t) => post("/api/talk", { text: t }, "talk")}
+            />
+          )}
           {tab === "chat" && sub.chat === "lore" && (
             <Lore
               gap={gap}
