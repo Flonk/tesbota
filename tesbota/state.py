@@ -153,8 +153,10 @@ def retire(campaign):
     if PENDING.exists():
         for path in sorted(PENDING.glob("*.md")):
             shutil.move(str(path), home / path.name)
-    if CAMPAIGN.exists():
-        shutil.move(str(CAMPAIGN), home / "campaign.json")
+    for name in ("campaign.json", "lore3.json"):
+        kept = STATE / name
+        if kept.exists():
+            shutil.move(str(kept), home / name)
     return home
 
 
