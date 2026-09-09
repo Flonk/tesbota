@@ -35,6 +35,7 @@ const MOOD = {
 };
 
 function mood(status, busy) {
+  if (status.paused) return "the world is held";
   if (busy) return "the world turns";
   if (status.state === "awaiting_human") return "the world is silent";
   if (status.state === "awaiting_clock") {
@@ -556,8 +557,12 @@ export default function Page() {
       {settings && (
         <Settings
           who={status.who}
+          speed={status.speed}
           busy={busy}
           onKill={() => post("/api/kill", null, "a new life")}
+          onSpeed={(factor) => post("/api/speed", { factor }, "speed")}
+          paused={status.paused}
+          onPause={(on) => post("/api/pause", { on }, "pause")}
           onClose={() => setSettings(false)}
         />
       )}
@@ -626,19 +631,6 @@ export default function Page() {
               title="jump to the latest turn"
             >
               »
-            </Btn>
-            <Btn
-              tone="gold"
-              onClick={() => post("/api/step", null, "step")}
-              disabled={!!busy || blocked}
-            >
-              {busy === "step" ? (
-                "…"
-              ) : (
-                <>
-                  <span className="roomy">next </span>step
-                </>
-              )}
             </Btn>
           </div>
         </div>

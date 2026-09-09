@@ -158,6 +158,27 @@ def cmd_talk(args):
     print(result.get("reply") or result.get("error"))
 
 
+def cmd_pause(args):
+    on = load_campaign().get("paused") if args.state is None else args.state == "on"
+    result = actions.pause(on) if args.state is not None else {"ok": True, "paused": bool(on)}
+    if getattr(args, "json", False):
+        print(json.dumps(result, ensure_ascii=False))
+        return
+    print("the world is paused" if result["paused"] else "the world is running")
+
+
+def cmd_speed(args):
+    if args.factor is None:
+        speed = (load_campaign().get("clock") or {}).get("speed_factor")
+        result = {"ok": True, "speed": speed}
+    else:
+        result = actions.set_speed(args.factor)
+    if getattr(args, "json", False):
+        print(json.dumps(result, ensure_ascii=False))
+        return
+    print(f"{result['speed']} minutes of world time to the minute")
+
+
 def cmd_kill(args):
     result = actions.kill(args.cause)
     if getattr(args, "json", False):
@@ -251,6 +272,16 @@ def main(argv=None):
     talk.add_argument("text")
     talk.add_argument("--json", action="store_true")
     talk.set_defaults(func=cmd_talk)
+
+    hold = sub.add_parser("pause")
+    hold.add_argument("state", nargs="?", choices=("on", "off"), default=None)
+    hold.add_argument("--json", action="store_true")
+    hold.set_defaults(func=cmd_pause)
+
+    speed = sub.add_parser("speed")
+    speed.add_argument("factor", nargs="?", type=float, default=None)
+    speed.add_argument("--json", action="store_true")
+    speed.set_defaults(func=cmd_speed)
 
     kill = sub.add_parser("kill")
     kill.add_argument("cause", nargs="?", default=None)

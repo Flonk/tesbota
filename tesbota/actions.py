@@ -151,6 +151,27 @@ def resolve():
     return {"ok": True, "state": state, "turn": turn["turn_id"]}
 
 
+def pause(on=True):
+    """Stop the clock turning the world over. Nothing in flight is lost — the next
+    step simply does not run until it is let go again."""
+    with LOCK:
+        campaign = load_campaign()
+        campaign["paused"] = bool(on)
+        save_campaign(campaign)
+    return {"ok": True, "paused": campaign["paused"]}
+
+
+def set_speed(factor):
+    """How many minutes of world time pass in a minute of ours. 1 is real time; the
+    prototype runs thousands to the minute so a day's walk is not a day's wait."""
+    with LOCK:
+        campaign = load_campaign()
+        clock = campaign.setdefault("clock", {})
+        clock["speed_factor"] = max(1, min(20000, int(float(factor))))
+        save_campaign(campaign)
+    return {"ok": True, "speed": clock["speed_factor"]}
+
+
 def kill(cause=None):
     """Ask for a death. The driver carries it out, because the game master may be
     calling for one in the middle of a turn that still has to be written."""

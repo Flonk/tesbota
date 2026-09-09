@@ -161,6 +161,9 @@ def run(limit=1):
     if not campaign.get("current_turn"):
         new_turn(campaign, state="explorer")
 
+    if campaign.get("paused"):
+        return "paused", load_turn(campaign["current_turn"])
+
     completed = 0
     while True:
         turn = load_turn(campaign["current_turn"])

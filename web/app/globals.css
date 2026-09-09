@@ -642,6 +642,7 @@ textarea {
   margin: .25rem 0 1rem;
 }
 .dnote { color: var(--dim); margin: .8rem 0 1.2rem; }
+.dial { width: 100%; max-width: 22rem; accent-color: var(--gold); display: block; margin: .2rem 0 0; }
 .dbody > .etable { margin: 0 0 1.1rem; }
 .dbody > .etable .erow { padding-left: 0; margin-left: -1px; }
 .daddr {

@@ -301,6 +301,11 @@ CLI (`tesbota say`, `tesbota talk`, `tesbota resolve`, `tesbota step --json`), w
 commands work on their own from a terminal. The map does the same for
 `tesbota map --json`, because solving a layout is Python.
 
+The gear opens settings: pause, which stops the driver stepping at all until it is
+let go (`tesbota pause on|off`), a game-speed dial from real time to 20000 minutes a
+minute (`tesbota speed <n>`; the prototype runs at 6000, the target is 10), and
+killing the adventurer. The step button is gone from the tab bar.
+
 `TESBOTA_KEY` gates every route. Open `https://host/?k=<key>` once and it sets a
 cookie; without it every path 404s. Expose it with
 `cloudflared tunnel --url http://127.0.0.1:3000`.
