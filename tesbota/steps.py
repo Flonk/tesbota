@@ -667,6 +667,7 @@ def apply_quests(campaign, draft, turn_id):
             "closed": None,
             "where": list(campaign.get("location_path") or []),
         }
+        quest["script"] = script_for(quest, campaign)
         quests.append(quest)
         by_id[ident] = quest
 
@@ -683,6 +684,23 @@ def apply_quests(campaign, draft, turn_id):
         quest["closed"] = turn_id
         quest["closed_at"] = worldclock.stamp(campaign.get("time"))
     return campaign
+
+
+def script_for(quest, campaign):
+    """A new errand gets a shape before the game master ever plays it. Nothing here
+    is canon: it is ideation, and the walls it runs into are the point."""
+    try:
+        text, _ = ask(
+            prompts.questmaster_turn(quest, where=campaign.get("location_path")),
+            system=prompts.QUESTMASTER_SYSTEM,
+            tools=READ_TOOLS,
+            permission=sqlite_gate(),
+            session=None,
+            model=MODELS["questmaster"],
+        )
+        return str(extract_json(text).get("script") or "").strip()
+    except Exception:
+        return ""
 
 
 def apply_inventory(draft, turn_id=None):

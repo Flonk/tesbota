@@ -58,6 +58,13 @@ export function QuestPanel({ quest, onClose }) {
           )}
         </div>
 
+        {quest.script && (
+          <div className="dsec">
+            <p className="cap">script — the game master sees this, the adventurer never does</p>
+            <pre className="prompt">{quest.script}</pre>
+          </div>
+        )}
+
         <div className="dsec">
           <p className="cap">set by</p>
           {quest.giver ? (

@@ -615,6 +615,12 @@ mentions is not a quest, a thing they said they would do is. One entry per erran
 Re-opening an existing id is ignored, closing an already-closed or unknown quest is
 a no-op, and the turn that opened or closed each one is recorded.
 
+When a quest opens, a questmaster — Opus, one stateless read-only call — writes it a
+`script`: twists, branches, and $BOTA marks filled in with whatever it likes. None of
+it is canon. The game master is shown it with the quest and plays toward it; the
+explorer never sees it, and every hard thing in it has to survive lore master 1 to
+become true, which is where the ideas meet the world.
+
 `tesbota quests` prints ongoing and finished. In the web UI the active quest sits
 under the location breadcrumb, and the full log is the `quests` tab under the
 adventurer's own name, carrying a count of what is still open.

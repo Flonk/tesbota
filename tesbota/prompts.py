@@ -35,6 +35,11 @@ def render_quests(quests):
         lines.append(f"  [{q['id']}] {q.get('title')}{giver}")
         if q.get("detail"):
             lines.append(f"      {q['detail']}")
+        if q.get("script"):
+            lines.append("      script, yours alone:")
+            for beat in str(q["script"]).splitlines():
+                if beat.strip():
+                    lines.append(f"        {beat.strip()}")
     return "\n".join(lines) or "  (nothing)"
 
 
@@ -129,6 +134,8 @@ Your personality:
 - Be fair, and let the dice decide. Never "it strikes you and you go down", always "it comes at you: dexterity, dc 13". Never death by fiat, never a reprieve by fiat.
 - 0 health kills them. So does a warned-of risk taken anyway — a fight, a river, a fall, cold. They are one ordinary person and this world does not know they are the main one.
 - To kill them, in the same turn you narrate it: `tesbota kill "walked into the mill race after a dropped lamp"`. The cause finishes `who …` and becomes the last line of their book. Never mention the command.
+- Your job is the errands. Push the open ones — the world acts on them between turns, people are waiting, things are going wrong while nobody watches — and steer $EXPLORER toward new ones. A turn that advances nothing is a wasted turn.
+- An open quest may carry a `script`: the shape somebody has in mind for it, twists included. Play toward it, adapt it when the world says otherwise, and never let $EXPLORER see or sense that it exists.
 - Every scene owes them something to want, somebody to deal with, or a reason to hurry. A flat answer is a failure even when it is accurate.
 - Two or three sentences. Name nothing they did not ask about, and leave proper nouns to the lore master — "a woman is loading a cart", not "the reeve's daughter".
 
@@ -435,6 +442,39 @@ def lore3_turn(gap):
     )
 
 
+QUESTMASTER_SYSTEM = """You invent the shape of an errand somebody has just taken on in a world that is mostly unwritten.
+
+""" + READING + """
+Go wild. This is the one place in this machine where nothing is being adjudicated yet, so reach for the strange answer over the sensible one: the errand is not what it looked like, the person who set it wants something else, the thing at the end of it is older or stranger or more ordinary than anybody expects.
+
+$BOTA is your invitation. Every mark is a hole somebody deliberately left, and you may fill any of them with anything at all — that is what they are for. Look for them, and build the errand out of them where you can.
+
+Give it twists and give it branches: what happens if they go straight at it, what happens if they are careful, what happens if they are too late. Two or three ways it can bend, not a corridor.
+
+None of this is canon. It is a prototype, and every hard thing in it will have to be argued through the lore master before it becomes true — write it anyway. That argument is the point.
+
+Reply with a single fenced json block and nothing else:
+
+```json
+{
+  "script": "the whole thing, terse, at most 200 words. beats separated by newlines. no prose, no scene-setting, no explanation."
+}
+```
+"""
+
+
+def questmaster_turn(quest, where=None):
+    parts = [f"The errand: {quest.get('title')}"]
+    if quest.get("detail"):
+        parts.append(f"As it was put to them: {quest['detail']}")
+    if quest.get("giver"):
+        parts.append(f"Set by: {quest['giver']}")
+    if where:
+        parts.append("Taken on at: " + " > ".join(where))
+    parts.append("Read what the world already says about any of this, then write the script.")
+    return "\n\n".join(parts)
+
+
 LAYERS = (
     ("common", "common", "READING"),
     ("writing", "writing", "LORE_WRITING"),
@@ -445,6 +485,7 @@ LAYERS = (
     ("queries", "queries", "LORE1_QUERY_SYSTEM"),
     ("lore3", "lore 3", "LORE3_SYSTEM"),
     ("lore4", "lore 4", "LORE4_SYSTEM"),
+    ("questmaster", "questmaster", "QUESTMASTER_SYSTEM"),
 )
 
 
