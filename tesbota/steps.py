@@ -465,76 +465,60 @@ def plain(text):
     return " ".join((text or "").lower().split()).strip(" .,;:!?\u2014-")
 
 
-def match_verdicts(verdicts, claims):
-    """Tie each verdict to a claim. The lore master keys them by id when it
-    remembers to and by the claim's own text when it does not."""
-    ids = {c["id"] for c in claims}
-    by_text = {(c.get("text") or "").strip().lower(): c["id"] for c in claims}
-    seen, out = set(), []
-    for v in verdicts:
-        if not isinstance(v, dict):
+def derived(entries):
+    """The lore master writes the claims and rules on them in one pass. Split what
+    it sends back into the claim rows and the verdicts on them."""
+    claims, verdicts = [], []
+    for n, entry in enumerate(entries or [], 1):
+        if not isinstance(entry, dict) or not str(entry.get("text") or "").strip():
             continue
-        key = str(v.get("claim") or "").strip()
-        ident = key if key in ids else by_text.get(key.lower())
-        if not ident and key:
-            low = key.lower().rstrip("… .")
-            for text, cid in by_text.items():
-                if text.startswith(low) or low.startswith(text):
-                    ident = cid
-                    break
-        if not ident or ident in seen:
-            continue
-        seen.add(ident)
-        out.append({**v, "claim": ident})
-    return out
+        ident = str(entry.get("id") or f"c{n}").strip() or f"c{n}"
+        claims.append({
+            "id": ident,
+            "text": str(entry["text"]).strip(),
+            "entity": canon.slug(entry.get("entity") or ""),
+            "kind": str(entry.get("kind") or "places"),
+        })
+        verdicts.append({
+            "claim": ident,
+            "result": str(entry.get("result") or "WITHIN_BOUNDS").upper(),
+            "why": entry.get("why") or "",
+            "question": entry.get("question") or "",
+            "alternative": entry.get("alternative") or "",
+            "sources": entry.get("sources") or [],
+        })
+    return claims, verdicts
 
 
 def step_lore1(campaign, turn):
     draft = turn["draft"]
-    claims = draft.get("claims") or []
 
     if turn.get("opening"):
+        claims = draft.get("claims") or []
         turn["verdicts"] = [
             {"claim": c["id"], "result": "TRUE", "why": "the world opens here"} for c in claims
         ]
         return deliver(campaign, turn)
 
-    settled = {plain(t) for t in (campaign.get("settled") or [])}
-    already = [c for c in claims if plain(c.get("text")) in settled]
-    claims = [c for c in claims if plain(c.get("text")) not in settled]
+    text, _ = ask(
+        prompts.lore1_turn(draft.get("narration") or ""),
+        system=prompts.LORE1_SYSTEM,
+        tools=READ_TOOLS,
+        permission=sqlite_gate(),
+        session=None,
+        model=MODELS["lore1"],
+    )
+    claims, verdicts = derived(extract_json(text).get("claims", []))
+    draft["claims"] = claims
 
-    verdicts = [
-        {"claim": c["id"], "result": "WITHIN_BOUNDS", "why": "already ruled on"}
-        for c in already
-    ]
-    if claims:
-        text, _ = ask(
-            prompts.lore1_turn(claims),
-            system=prompts.LORE1_SYSTEM,
-            tools=READ_TOOLS,
-            permission=sqlite_gate(),
-            session=None,
-            model=MODELS["lore1"],
-        )
-        verdicts += match_verdicts(extract_json(text).get("verdicts", []), claims)
-        ruled = {v["claim"] for v in verdicts}
-        unruled = [c for c in claims if c["id"] not in ruled]
-        if unruled:
-            turn["lore1_retries"] = turn.get("lore1_retries", 0) + 1
-            if turn["lore1_retries"] < MAX_GM_RETRIES:
-                turn["state"] = "lore1"
-                return campaign, turn
-            verdicts = list(verdicts) + [
-                {
-                    "claim": c["id"],
-                    "result": "UNRESOLVED",
-                    "why": "the lore master returned no ruling on this claim",
-                }
-                for c in unruled
-            ]
+    settled = {plain(t) for t in (campaign.get("settled") or [])}
+    for verdict in verdicts:
+        claim = next((c for c in claims if c["id"] == verdict["claim"]), None)
+        if claim and plain(claim.get("text")) in settled:
+            verdict.update(result="WITHIN_BOUNDS", why="already ruled on")
     turn["verdicts"] = verdicts
 
-    by_id = {c["id"]: c for c in claims + already}
+    by_id = {c["id"]: c for c in claims}
     false_ones = [v for v in verdicts if v.get("result") == "FALSE"]
     unresolved = [v for v in verdicts if v.get("result") == "UNRESOLVED"]
 
@@ -866,7 +850,6 @@ def deliver(campaign, turn):
         turn["draft"] = None
         turn["verdicts"] = []
         turn["gm_retries"] = 0
-        turn["lore1_retries"] = 0
         turn["state"] = "explorer"
         return campaign, turn
 
@@ -875,7 +858,6 @@ def deliver(campaign, turn):
         turn["draft"] = None
         turn["verdicts"] = []
         turn["gm_retries"] = 0
-        turn["lore1_retries"] = 0
         turn["state"] = "explorer"
         return campaign, turn
 

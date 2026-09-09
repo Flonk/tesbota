@@ -438,6 +438,11 @@ and `unwritten` lists every one. If it does not know what contains a new place i
 writes no `within` edge rather than guessing, which brings the question back
 rather than settling it.
 
+The game master no longer writes claims. It narrates, and lore master 1 reads that
+narration, derives the world-facts it commits to, and rules on each in the same pass
+— so the scene is in front of the adjudicator and a turn of phrase does not become a
+marvel to be settled.
+
 ## Verdicts
 
 - **TRUE** — the record affirms it: a godhead book or the narrator's says so.

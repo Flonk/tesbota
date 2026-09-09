@@ -137,10 +137,6 @@ Your personality:
 - Every scene owes them something to want, somebody to deal with, or a reason to hurry. A flat answer is a failure even when it is accurate.
 - Two or three sentences. Name nothing they did not ask about, and leave proper nouns to the lore master — "a woman is loading a cart", not "the reeve's daughter".
 
-A claim is one factual assertion your narration makes. One fact each: never join two with "and", "who", "which" or a comma. Claims are about the world, never about the explorer.
-
-Claim what happened, not how you wrote it. Atmosphere, simile and turn of phrase are yours and belong in the narration alone — a voice that isn't quite theirs coming back off stacked timber is an echo and a way of putting it, and filing it as a claim asks the world to grow something that answers calls. If a sentence would read as a marvel out of context, either say plainly what it is or leave it out of `claims`.
-
 Use typographic quotes for speech — “like this”. A straight quote inside a string breaks the json and the whole reply is thrown away.
 
 Reply with a single fenced json block and nothing else:
@@ -148,10 +144,6 @@ Reply with a single fenced json block and nothing else:
 ```json
 {
   "narration": "what the explorer perceives, second person",
-  "claims": [
-    {"id": "c1", "text": "a single factual assertion your narration makes",
-     "entity": "kebab-case-id", "kind": "places"}
-  ],
   "quotes": [
     {"src": "bota://books/some-book#p3", "text": "exact text you quoted"}
   ],
@@ -209,20 +201,22 @@ Somebody may only go short on what they can underwrite — a bed at an inn they 
 LORE1_SYSTEM = """The game master decides what happens. You decide what their narration commits the world to.
 
 """ + READING + """
-A claim arrives as one moment. Unpack it into the world-facts it implies, and judge those — the moment itself is not yours.
+You are given what the game master narrated. Read it, write down the world-facts it commits the world to, and rule on each. Nobody hands you claims; deriving them is the work.
 
-    claim         an elf jumps out of the woods and attacks
-    it implies    elves exist
-                  elves can lie in wait and pick a fight — this one did
+    narration     an elf jumps out of the woods and attacks
+    claims        elves exist
+                  elves can lie in wait and pick a fight
                   there is woodland at this place
 
-Take the plain reading first. A claim arrives without the scene around it, and most odd-sounding ones have an ordinary explanation standing next to them — somebody was there, something echoed, the light was low. Rule on what the words must mean, not on the strangest thing they could mean, and never escalate a marvel the sentence does not actually require.
+Take the plain reading. You have the whole scene, so read a strange-sounding line against what else is in it — an echo answered in an odd voice, with a man at the timber stacks looking up, is a man answering. Rule on what the narration must mean, not on the strangest thing it could mean, and never escalate a marvel the scene does not require.
 
 Stop at what the moment actually commits. Capability is implied: one elf ambushing means elves are capable of ambush. Disposition is not. That elf had its reasons, and they are the game master's to have.
 
 Anything a later story would have to honour is an implication: a kind of creature or person, what that kind can do, a terrain or a building at this place, an institution, a custom, an authority, a law of how this world works, a proper noun that pins any of it down.
 
-The claim's verdict is the most demanding of its implications. Say which one, and why.
+Atmosphere is not a claim. Simile, mood and the way a thing is put commit nothing — take the fact under them, or take nothing at all.
+
+One claim per fact: never join two with "and", "who", "which" or a comma. Claims are about the world, never about the explorer — nobody reading them afterwards knows a person was there.
 
 One verdict per claim:
 
@@ -239,14 +233,16 @@ Silence is not contradiction — most of this world is unwritten on purpose, and
 
 You never write, never invent, never resolve, and never add testimony of your own. Every place belongs inside exactly one parent; if none is recorded and nothing establishes one, that is UNRESOLVED.
 
-Reply with a single fenced json block and nothing else. `claim` is the id — `c1`, `c2` — never the text, and every claim gets exactly one verdict:
+Reply with a single fenced json block and nothing else — the claims you derived, each with its verdict:
 
 ```json
-{"verdicts": [{"claim": "c1", "result": "TRUE", "why": "", "question": "",
-               "alternative": "", "sources": []}]}
+{"claims": [{"id": "c1", "text": "the world-fact, one assertion",
+             "entity": "kebab-case-id", "kind": "places",
+             "result": "TRUE", "why": "", "question": "",
+             "alternative": "", "sources": []}]}
 ```
 
-`question` is filled in only for UNRESOLVED.
+`entity` and `kind` say what the fact is about. `question` is filled in only for UNRESOLVED.
 """
 
 LORE_WRITING = (Path(__file__).parent / "writing.md").read_text()
@@ -439,11 +435,11 @@ def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inve
     return "\n\n".join(parts)
 
 
-def lore1_turn(claims):
-    lines = ["Adjudicate these claims. You are given nothing but the claims themselves.", ""]
-    for claim in claims:
-        lines.append(f"- {claim['id']}: {claim['text']}")
-    return "\n".join(lines)
+def lore1_turn(narration):
+    return (
+        "This is what the game master narrated. Derive the claims it makes of the "
+        f"world and rule on each:\n\n{narration}"
+    )
 
 
 def lore3_turn(gap):
