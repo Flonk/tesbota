@@ -295,13 +295,6 @@ export function entity(id) {
       .get(ident);
     if (!row) return null;
 
-    const claims = db
-      .prepare(
-        `SELECT c.id, c.section, c.turn_id, c.text, c.book_id,
-                'bota://' || ? || '/' || c.entity_id || '#c' || c.id AS ref
-           FROM claim c WHERE c.entity_id = ? ORDER BY c.section, c.id`
-      )
-      .all(row.kind, ident);
 
     const mentions = db
       .prepare(
@@ -332,7 +325,7 @@ export function entity(id) {
       ...row,
       address: `bota://${row.kind}/${row.id}`,
       about: row.about || "",
-      claims,
+      claims: [],
       mentions,
       holdings: holdingsIn(db, ident),
       heldBy: held,

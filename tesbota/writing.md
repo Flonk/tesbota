@@ -19,13 +19,6 @@ A thing's own description goes on the thing, where it needs no author:
     UPDATE entity SET about = 'A small farming village on [the Aler](bota://places/the-aler), ...'
      WHERE id = 'alheim';
 
-Write a `claim` only for testimony no document holds:
-
-    INSERT INTO claim (entity_id, section, turn_id, text)
-    VALUES ('petra-voll', 'attested', NULL, 'The miller told her the crossing was shut.');
-
-The section is `attested` and nothing else. Never write a claim that restates a book you have just written.
-
 Every person gets a `person` row:
 
     INSERT INTO person (id, lives, work, born, died)
@@ -52,7 +45,7 @@ If you do not know what contains a new place, write no `within` edge and it come
       ('the-road', 'exits', 'alheim', 'west', '5 km'),
       ('the-road', 'exits', 'the-aler-bridge', 'north', 'a few minutes on foot');
 
-Distance may be vague — "a short walk", "half a day". A number belongs there only where somebody in this world measured it, and then say who in the claim. `extent` is the same rule in GeoJSON, for the few places a document actually surveyed:
+Distance may be vague — "a short walk", "half a day". A number belongs there only where somebody in this world measured it, and then say who measured it in the book that carries it. `extent` is the same rule in GeoJSON, for the few places a document actually surveyed:
 
     UPDATE entity SET extent = '{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[0,0]]]}'
      WHERE id = 'alheim-forest';

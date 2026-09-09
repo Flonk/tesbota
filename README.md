@@ -15,7 +15,7 @@ a rule anyone is asked to respect.
 |---|---|---|---|
 | **Explorer** | Narration, nothing else | none | campaign-long |
 | **Game master** | An action, a verdict | read | scene-scoped |
-| **Lore master 1** | Bare claims | read | stateless |
+| **Lore master 1** | The narration | read | stateless |
 | **Lore master 3** | A silence in the world | read/write | per sitting |
 | **Lore master 4** | Whatever you bring it | read/write | standing |
 | **Narrator** | One finished turn, verbatim | none — it is an append log | none |
@@ -44,7 +44,7 @@ not a defect.
 
 Ground truth is a book, and only a book. Two authors are not fallible: `the
 godhead`, who states the world's laws, and `The Narrator`, who keeps the record of
-what has actually happened. Everything else — every claim, every other author — is
+what has actually happened. Every other author is
 testimony, and may be contradicted freely.
 
 So lore master 1 returns four verdicts:
@@ -194,12 +194,11 @@ writes at all.
 entity(id, kind, name, introduced, extent)      people | places | books | items
 book(id, author, author_id, written, rarity)    author_id points at the person who wrote it
 passage(book_id, ord, text)                     a book's text, one paragraph to a row
-claim(id, entity_id, section, turn_id, text)    testimony no document holds
 entity.about                                    a thing describing itself, no author
 edge(src, rel, dst, bearing, distance)          within | exits
 holding(holder, name, qty, note, worn)          what a place, a person or the explorer keeps
 
-writing(ref, entity, kind, section, body)       every passage and claim, with its address
+writing(ref, entity, kind, section, body)       every passage, with its address
 search(ref, entity, section, body)              fts5 over all of it
 unwritten(id, kind, name)                       named by somebody, written by nobody
 ```

@@ -39,17 +39,6 @@ CREATE TABLE IF NOT EXISTS passage (
   PRIMARY KEY (book_id, ord)
 );
 
-CREATE TABLE IF NOT EXISTS claim (
-  id        INTEGER PRIMARY KEY,
-  entity_id TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
-  section   TEXT NOT NULL CHECK (section IN ('attested')),
-  turn_id   TEXT,
-  text      TEXT NOT NULL,
-  book_id   TEXT REFERENCES entity(id)
-);
-CREATE UNIQUE INDEX IF NOT EXISTS claim_once ON claim(entity_id, section, text);
-CREATE INDEX IF NOT EXISTS claim_entity ON claim(entity_id, section);
-
 CREATE TABLE IF NOT EXISTS edge (
   src      TEXT NOT NULL,
   rel      TEXT NOT NULL CHECK (rel IN ('within','exits')),
@@ -76,10 +65,6 @@ CREATE VIEW IF NOT EXISTS writing AS
   SELECT 'bota://books/' || p.book_id || '#p' || p.ord AS ref,
          p.book_id AS entity, 'books' AS kind, 'passage' AS section, p.text AS body
     FROM passage p
-  UNION ALL
-  SELECT 'bota://' || e.kind || '/' || c.entity_id || '#c' || c.id,
-         c.entity_id, e.kind, c.section, c.text
-    FROM claim c JOIN entity e ON e.id = c.entity_id
   UNION ALL
   SELECT 'bota://' || e.kind || '/' || e.id || '#about',
          e.id, e.kind, 'about', e.about
@@ -120,20 +105,6 @@ CREATE TRIGGER IF NOT EXISTS entity_about_ad AFTER DELETE ON entity BEGIN
   DELETE FROM search WHERE ref = 'bota://' || old.kind || '/' || old.id || '#about';
 END;
 
-CREATE TRIGGER IF NOT EXISTS claim_ai AFTER INSERT ON claim BEGIN
-  INSERT INTO search(ref, entity, section, body)
-  VALUES ('bota://' || (SELECT kind FROM entity WHERE id = new.entity_id) || '/' || new.entity_id || '#c' || new.id,
-          new.entity_id, new.section, new.text);
-END;
-CREATE TRIGGER IF NOT EXISTS claim_ad AFTER DELETE ON claim BEGIN
-  DELETE FROM search WHERE ref LIKE '%/' || old.entity_id || '#c' || old.id;
-END;
-CREATE TRIGGER IF NOT EXISTS claim_au AFTER UPDATE ON claim BEGIN
-  DELETE FROM search WHERE ref LIKE '%/' || old.entity_id || '#c' || old.id;
-  INSERT INTO search(ref, entity, section, body)
-  VALUES ('bota://' || (SELECT kind FROM entity WHERE id = new.entity_id) || '/' || new.entity_id || '#c' || new.id,
-          new.entity_id, new.section, new.text);
-END;
 """
 
 

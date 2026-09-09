@@ -34,18 +34,6 @@ def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
     return entity_id
 
 
-def append_section(entity_id, turn_id, text, kind="places", section=ATTESTED):
-    entity_id = slug(entity_id)
-    if not find_entity(entity_id):
-        ensure_entity(kind, entity_id, turn_id=turn_id)
-    with db.writing() as con:
-        con.execute(
-            "INSERT OR IGNORE INTO claim (entity_id, section, turn_id, text) VALUES (?,?,?,?)",
-            (entity_id, section, turn_id, text.strip()),
-        )
-    return entity_id
-
-
 def passages(book_id):
     return db.rows("SELECT * FROM passage WHERE book_id = ? ORDER BY ord", (slug(book_id),))
 
@@ -172,7 +160,7 @@ def link_names(text):
 
 
 def link_writing():
-    """Run every passage and claim past the linker, so a name in a book is an
+    """Run every passage past the linker, so a name in a book is an
     address you can follow back. Books that never linked their own subjects are
     why the record needed restating in the first place."""
     touched = 0
@@ -185,10 +173,6 @@ def link_writing():
                     (linked, r["book_id"], r["ord"]),
                 )
                 touched += 1
-        for r in con.execute("SELECT id, text FROM claim").fetchall():
-            linked = link_names(r["text"])
-            if linked != r["text"]:
-                con.execute("UPDATE claim SET text = ? WHERE id = ?", (linked, r["id"]))
                 touched += 1
         for r in con.execute("SELECT id, about FROM entity WHERE about IS NOT NULL").fetchall():
             linked = link_names(r["about"])

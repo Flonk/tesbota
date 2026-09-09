@@ -231,24 +231,6 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
               </Section>
             )}
 
-            {!(thing.kind === "books" && face === "content") && thing.claims.length > 0 && (
-              <Section label="said of it, with no book behind it">
-              {thing.claims.map((c) => (
-                <div
-                  className={`dclaim${fragment === `c${c.id}` ? " lit" : ""}`}
-                  key={c.id}
-                  ref={fragment === `c${c.id}` ? (el) => el?.scrollIntoView({ block: "nearest" }) : undefined}
-                >
-                  <p className="cap dclaimhead">
-                    <span className="dsection">{c.section}</span>
-                    <span>{c.turn_id || "no turn"}</span>
-                  </p>
-                  <Prose text={c.text} className="dclaimtext" />
-                </div>
-              ))}
-              </Section>
-            )}
-
             {thing.kind === "books" && face === "meta" && (
               thing.book ? (
                 <Table
