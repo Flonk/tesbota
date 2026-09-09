@@ -207,9 +207,8 @@ The claim's verdict is the most demanding of its implications. Say which one, an
 One verdict per claim:
 
 - TRUE: the record affirms it, or it implies nothing beyond the moment. Weather, mud, a sound, a shut door, what a figure is doing right now — the game master's to decide, and nothing needs a document's permission to exist.
-- WITHIN_BOUNDS: its implications are not written down but are ordinary for what is already here. Woodland at a village, a carter with a cart, a villager who can shout. This is the common verdict.
-- FRICTION: an implication contradicts a document, but nothing by a godhead author. Allowed and interesting. Name the text and its author — the game master is shown your reason and asked to make the disagreement deliberate.
-- FALSE: it contradicts a godhead book or the narrator's record. Supply an alternative that fits.
+- WITHIN_BOUNDS: its implications are not written down but follow from what is. Ordinary furniture of the world — woodland at a village, a carter with a cart, a villager who can shout — and also anything the record makes the only sensible continuation. Someburgh is known for its pikes and has troops stationed in it: that those troops carry pikes is not written anywhere and does not need to be. Settle that yourself rather than escalating it. This is the common verdict, and it is where you are allowed to invent: only ever the step the record was already taking.
+- FALSE: it contradicts a godhead book or the narrator's record. Supply an alternative that fits. Contradicting anybody else is not FALSE — authors of this world are wrong all the time, and a claim that disagrees with one is simply the claim standing against a fallible text.
 - UNRESOLVED: an implication decides something the world does not yet have. Elves nobody has written, a gate nobody has built, a rule nobody has laid down. Put the general question — "do elves live in the Greater Plains" — in `question`, in the world's own terms, with nobody looking at it. Ask only what the claim actually forced. It goes to the lore master, who writes the book that settles it.
 
 Do not escalate the individual. "Why did this elf attack" is nobody's question; "do elves live here" is a book somebody can write, and the instance follows from it. Grep for the kind before you rule: the individual has no file, its kind may have a whole one.

@@ -50,7 +50,6 @@ testimony, and may be contradicted freely.
 So lore master 1 returns four verdicts:
 
 - **TRUE** — nothing contradicts it
-- **FRICTION** — contradicts a document but not the record. Allowed. Interesting.
 - **FALSE** — contradicts a godhead book. The game master must revise.
 - **UNRESOLVED** — the world is silent. Escalates to you.
 
@@ -361,7 +360,7 @@ driver, so the narration cannot quietly re-price what was agreed.
 
 A narrator's passage covers a thing's properties, not just its existence — if the
 narrator has set down that a stone is carved with two names, a claim that it reads
-something else is FALSE, not FRICTION. What a thing says, reads, looks like or is
+something else is FALSE. What a thing says, reads, looks like or is
 made of is as fixed as the fact that it is there.
 
 Claims are no longer written to canon by the driver at all. They are the unit lore
@@ -393,18 +392,6 @@ removed or reattributed; the sitting refuses to resolve while one stands.
 
 Delivery is idempotent — a turn stamps itself once delivered, so a re-run after a
 crashed agent call cannot write a second, contradictory set of facts.
-
-## Friction goes back to the game master
-
-A `FRICTION` verdict no longer passes straight through. The claim and the text it
-rubs against are sent back to the game master once, with the standing instruction
-that contradiction is allowed here but must be deliberate: either renarrate so it
-sits with the record, or keep it and make the discrepancy part of what happens —
-the text is wrong, out of date, or its author lied.
-
-It bounces exactly once. If the game master stands by the claim after being shown
-what it contradicts, the contradiction is taken as intended and recorded as
-`attested`.
 
 ## When an agent call fails
 
@@ -445,15 +432,15 @@ rather than settling it.
 ## Verdicts
 
 - **TRUE** — the record affirms it: a godhead book or the narrator's says so.
-- **WITHIN_BOUNDS** — nothing establishes it, but it is mundane or the only sensible
-  reading of what is written. It stands. This is the ordinary verdict for the
-  ordinary world and should be the common one.
-- **FRICTION** — contradicts testimony, but nothing godhead-class. Goes back to the
-  game master once to make the disagreement deliberate.
+- **WITHIN_BOUNDS** — nothing establishes it, but it follows from what does: ordinary
+  furniture, or the only sensible continuation of the record. It stands, and lore
+  master 1 settles it rather than escalating. The common verdict.
 - **FALSE** — contradicts a godhead book, the narrator's record included. Redraft.
-- **UNRESOLVED** — the claim constrains the world. Escalates to you.
+  Contradicting any other author is not FALSE; they are wrong all the time.
+- **UNRESOLVED** — the claim commits the world to something it does not have.
+  Escalates to you.
 
-TRUE and WITHIN_BOUNDS both deliver; only FRICTION and FALSE cost a redraft. What
+TRUE and WITHIN_BOUNDS both deliver; only FALSE costs a redraft. What
 is recorded is the narrator's passage, written once the whole turn is through.
 
 A lore session is archived onto the turn that triggered it. When the silence is

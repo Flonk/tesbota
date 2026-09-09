@@ -589,30 +589,6 @@ def step_lore1(campaign, turn):
             turn["state"] = redraft_state(turn)
             return campaign, turn
 
-    frictions = [v for v in verdicts if v.get("result") == "FRICTION"]
-    if frictions and not turn.get("friction_bounced") and not false_ones and not bad_quotes:
-        turn["friction_bounced"] = True
-        turn["gm_retries"] += 1
-        turn["correction"] = json.dumps({
-            "friction": [
-                {
-                    "claim": by_id.get(v["claim"], {}).get("text", v["claim"]),
-                    "rubs_against": v.get("why"),
-                }
-                for v in frictions
-            ],
-            "instruction": (
-                "These rub against something already written down. Contradiction is "
-                "allowed in this world — its authors disagree constantly — but it must be "
-                "deliberate, not accidental. Either renarrate so it sits with the record, "
-                "or keep it and make the discrepancy part of what happens: the text is "
-                "wrong, or out of date, or its author lied, and that is worth noticing. "
-                "Do not silently differ. If you keep it, it stands."
-            ),
-        }, indent=2)
-        turn["state"] = redraft_state(turn)
-        return campaign, turn
-
     if false_ones or bad_quotes:
         if turn["gm_retries"] >= MAX_GM_RETRIES:
             turn["gap"] = (
