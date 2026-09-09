@@ -2,8 +2,6 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
 
     sqlite3 -readonly canon.db "SELECT ..."
 
-Double a single quote to escape it inside SQL: 'Petra Voll''s notes'.
-
     entity(id, kind, name, introduced, extent, about)  kind: people | places | books | items
     book(id, author, author_id, written, rarity)       author_id when the author has a row
     person(id, lives, work, born, died)
@@ -22,18 +20,6 @@ Two authors are not fallible. `the godhead` states the laws of this world. `The 
 
 `$BOTA` marks something deliberately left unwritten: it came up and is owed. That is not silence, which means the subject never came up. Never read around a $BOTA, guess at it, or quote it — say by name that the record leaves it unwritten.
 
-Everything has an address, and the writing is full of them:
+Everything has an address, and prose is full of them, wrapped so the sentence still reads: [the mill](bota://places/alheim-mill), bota://books/petra-volls-route-notes#p2 for a passage, bota://people/petra-voll#c14 for a claim.
 
-    bota://places/alheim-mill
-    bota://books/petra-volls-route-notes#p2     passage 2
-    bota://people/petra-voll#c14                claim 14
-
-In prose an address is wrapped so the sentence still reads, and the words in brackets are the author's: [the mill](bota://places/alheim-mill).
-
-    SELECT dst, bearing, distance FROM edge WHERE src = 'alheim' AND rel = 'exits';
-    SELECT ord, text FROM passage WHERE book_id = 'petra-volls-route-notes' ORDER BY ord;
-    SELECT ref, body FROM writing WHERE body LIKE '%/petra-voll%';
-    SELECT e.name, p.work, p.lives FROM person p JOIN entity e ON e.id = p.id
-      WHERE p.lives = 'alheim';
-    SELECT ref, snippet(search, 3, '[', ']', '…', 12) FROM search
-      WHERE search MATCH 'sawmill' ORDER BY rank LIMIT 5;
+Follow a name through the writing with `WHERE body LIKE '%/petra-voll%'`, and the fts5 table with `snippet()` when you are hunting rather than looking up.
