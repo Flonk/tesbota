@@ -1,6 +1,9 @@
 import asyncio
+import glob
 import json
+import os
 import re
+import shutil
 import time
 import warnings
 
@@ -93,7 +96,19 @@ async def _ask(prompt, system, tools, session, model, permission=None):
     return "\n".join(chunks).strip(), session_id
 
 
+def with_sqlite():
+    """Every agent above the explorer reads the world with sqlite3. Started outside
+    nix-shell it is not on the path, and they burn their turn hunting for a binary
+    the gate will not let them use anyway."""
+    if shutil.which("sqlite3"):
+        return
+    found = sorted(glob.glob("/nix/store/*-sqlite-*-bin/bin/sqlite3"))
+    if found:
+        os.environ["PATH"] = os.path.dirname(found[-1]) + os.pathsep + os.environ.get("PATH", "")
+
+
 def ask(prompt, *, system, tools=(), session=None, model=None, attempts=2, permission=None):
+    with_sqlite()
     prompt, system = prompts.fill(prompt), prompts.fill(system)
     last = None
     for attempt in range(attempts):
