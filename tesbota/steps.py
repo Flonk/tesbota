@@ -98,6 +98,18 @@ async def explorer_permission(tool_name, tool_input, context):
     )
 
 
+ACTION_PREFIX = ("ACTION:", "DO:", "ACT:")
+
+
+def unprefixed(text):
+    """The explorer is told the action needs no prefix and writes one anyway."""
+    bare = (text or "").strip()
+    for mark in ACTION_PREFIX:
+        if bare.upper().startswith(mark):
+            return bare[len(mark):].strip()
+    return bare
+
+
 def first_utterance(text):
     lines = (text or "").strip().splitlines()
     kept = []
@@ -114,7 +126,7 @@ def first_utterance(text):
                 break
             return bare
         kept.append(bare)
-    return " ".join(kept).strip()
+    return unprefixed(" ".join(kept).strip())
 
 
 DONE_WORDS = (
@@ -130,7 +142,7 @@ def classify(text, turn):
     """Work out whether an utterance is a look, a say, or the end of the turn.
     The prefixes are honoured when given; otherwise a question is a look and
     speech is a say, so the explorer need not remember the syntax."""
-    stripped = (text or "").strip()
+    stripped = unprefixed(text)
     upper = stripped.upper()
 
     if upper.startswith("LOOK:"):
