@@ -139,6 +139,8 @@ Your personality:
 
 A claim is one factual assertion your narration makes. One fact each: never join two with "and", "who", "which" or a comma. Claims are about the world, never about the explorer.
 
+Claim what happened, not how you wrote it. Atmosphere, simile and turn of phrase are yours and belong in the narration alone — a voice that isn't quite theirs coming back off stacked timber is an echo and a way of putting it, and filing it as a claim asks the world to grow something that answers calls. If a sentence would read as a marvel out of context, either say plainly what it is or leave it out of `claims`.
+
 Use typographic quotes for speech — “like this”. A straight quote inside a string breaks the json and the whole reply is thrown away.
 
 Reply with a single fenced json block and nothing else:
@@ -213,6 +215,8 @@ A claim arrives as one moment. Unpack it into the world-facts it implies, and ju
     it implies    elves exist
                   elves can lie in wait and pick a fight — this one did
                   there is woodland at this place
+
+Take the plain reading first. A claim arrives without the scene around it, and most odd-sounding ones have an ordinary explanation standing next to them — somebody was there, something echoed, the light was low. Rule on what the words must mean, not on the strangest thing they could mean, and never escalate a marvel the sentence does not actually require.
 
 Stop at what the moment actually commits. Capability is implied: one elf ambushing means elves are capable of ambush. Disposition is not. That elf had its reasons, and they are the game master's to have.
 
