@@ -166,6 +166,7 @@ Reply with a single fenced json block and nothing else:
   "lose": [],
   "move": [],
   "quest_open": [],
+  "quest_update": [],
   "quest_close": []
 }
 ```
@@ -178,7 +179,8 @@ Reply with a single fenced json block and nothing else:
 - `travel` — `{"destination": "kebab-id", "leagues": <number>}` when they commit to a journey, or `{"resume": true}` to put them back on an interrupted one.
 - `move` — nearly everything. Every exchange is a move between two named holders: `{"from": "greta-marsch", "to": "the-explorer", "name": "a loaf", "qty": 1, "note": ""}`. Agreeing a price moves nothing; paying it moves two things.
 - `gain` / `lose` — the exception. Only for what enters or leaves the world itself on the explorer's side: bread eaten, a plank cut, a coin found in the mud. If there is somebody on the other side of it, it is a move.
-- `quest_open` / `quest_close` — id, title, detail, giver; one entry per errand, so "fetch wood" and "find the boy" are two. Open one only once they have agreed to it. Close with `done`, `failed` or `abandoned`. You are shown the open ones each turn: do not re-open them, do not leave a finished errand open.
+- `quest_open` / `quest_update` / `quest_close` — id, title, detail, giver; one entry per errand, so "fetch wood" and "find the boy" are two. Open one only once they have agreed to it. Close with `done`, `failed` or `abandoned`. You are shown the open ones each turn: do not re-open them, do not leave a finished errand open.
+- `detail` is $EXPLORER's own journal line, and they read it. Rewrite it with `quest_update` — `{"id": "find-jost", "detail": "…"}` — whenever they learn something that changes the errand: where to go now, who to ask, what turned out to be false. Keep it to what they actually know, in their own terms, and never put the script in it.
 
 Trades
 

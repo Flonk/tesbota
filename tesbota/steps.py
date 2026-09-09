@@ -66,7 +66,7 @@ def open_phase(turn):
     return None
 
 
-EXPLORER_COMMANDS = ("tesbota stats", "tesbota inventory")
+EXPLORER_COMMANDS = ("tesbota stats", "tesbota inventory", "tesbota quests")
 
 
 def normalise_command(text):
@@ -81,7 +81,7 @@ async def explorer_permission(tool_name, tool_input, context):
 
     if tool_name != "Bash":
         return PermissionResultDeny(
-            message="You have no such power. You may run tesbota stats or tesbota inventory."
+            message="You have no such power. You may run tesbota stats, tesbota inventory or tesbota quests."
         )
     raw = (tool_input or {}).get("command") or ""
     if any(ch in raw for ch in ";|&$`><\n"):
@@ -92,8 +92,8 @@ async def explorer_permission(tool_name, tool_input, context):
         return PermissionResultAllow()
     return PermissionResultDeny(
         message=(
-            "Nothing happens. The only things you can do are `tesbota stats` "
-            "and `tesbota inventory`."
+            "Nothing happens. The only things you can do are `tesbota stats`, "
+            "`tesbota inventory` and `tesbota quests`."
         )
     )
 
@@ -432,6 +432,7 @@ def step_gm(campaign, turn):
     draft.setdefault("lose", [])
     draft.setdefault("move", [])
     draft.setdefault("quest_open", [])
+    draft.setdefault("quest_update", [])
     draft.setdefault("quest_close", [])
     draft.setdefault("risk", BASE_RISK)
 
@@ -670,6 +671,15 @@ def apply_quests(campaign, draft, turn_id):
         quest["script"] = script_for(quest, campaign)
         quests.append(quest)
         by_id[ident] = quest
+
+    for entry in draft.get("quest_update") or []:
+        if not isinstance(entry, dict):
+            continue
+        quest = by_id.get(canon.slug(str(entry.get("id") or "")))
+        if not quest or quest["status"] != "active":
+            continue
+        if entry.get("detail"):
+            quest["detail"] = str(entry["detail"])
 
     for entry in draft.get("quest_close") or []:
         if isinstance(entry, dict):

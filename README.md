@@ -474,6 +474,7 @@ Two commands, and the adventurer may run them itself:
 ```
 tesbota stats       health, fatigue, hunger, and the skill sheet
 tesbota inventory   what it is carrying
+tesbota quests      the journal: what it has taken on and what it knows
 ```
 
 It is given `Bash` for this and nothing else — a permission callback denies every
@@ -614,6 +615,10 @@ mentions is not a quest, a thing they said they would do is. One entry per erran
 
 Re-opening an existing id is ignored, closing an already-closed or unknown quest is
 a no-op, and the turn that opened or closed each one is recorded.
+
+A quest's `detail` is the adventurer's own journal line — it reads it with
+`tesbota quests`, and the game master rewrites it with `quest_update` as things are
+learned, the way a journal entry changes under you. The script is never in it.
 
 When a quest opens, a questmaster — Opus, one stateless read-only call — writes it a
 `script`: twists, branches, and $BOTA marks filled in with whatever it likes. None of
