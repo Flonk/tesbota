@@ -435,8 +435,9 @@ rather than settling it.
 - **WITHIN_BOUNDS** — nothing establishes it, but it follows from what does: ordinary
   furniture, or the only sensible continuation of the record. It stands, and lore
   master 1 settles it rather than escalating. The common verdict.
-- **FALSE** — contradicts a godhead book, the narrator's record included. Redraft.
-  Contradicting any other author is not FALSE; they are wrong all the time.
+- **FALSE** — the record will not bear it. Redraft. Godhead books and the narrator's
+  are never arguable; against any other author it is lore master 1's call, weighing
+  whether that document is authoritative on the point.
 - **UNRESOLVED** — the claim commits the world to something it does not have.
   Escalates to you.
 
