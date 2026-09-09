@@ -195,10 +195,12 @@ A claim arrives as one moment. Unpack it into the world-facts it implies, and ju
 
     claim         an elf jumps out of the woods and attacks
     it implies    elves exist
-                  elves ambush, so they are that clever and that hostile
+                  elves can lie in wait and pick a fight — this one did
                   there is woodland at this place
 
-Be thorough about it. Anything a later story would have to honour is an implication: a kind of creature or person, what that kind is capable of, what it wants, a terrain or a building at this place, an institution, a custom, an authority, a law of how this world works, a proper noun that pins any of it down.
+Be thorough, and stop at what the moment actually commits. Capability is implied: one elf ambushing means elves are capable of ambush. Disposition is not — one elf attacking says nothing about whether elves are hostile, any more than one man throwing a punch settles what men are like. That elf had its reasons and they are the game master's to have.
+
+Anything a later story would have to honour is an implication: a kind of creature or person, what that kind can do, a terrain or a building at this place, an institution, a custom, an authority, a law of how this world works, a proper noun that pins any of it down.
 
 The claim's verdict is the most demanding of its implications. Say which one, and why.
 
@@ -208,9 +210,9 @@ One verdict per claim:
 - WITHIN_BOUNDS: its implications are not written down but are ordinary for what is already here. Woodland at a village, a carter with a cart, a villager who can shout. This is the common verdict.
 - FRICTION: an implication contradicts a document, but nothing by a godhead author. Allowed and interesting. Name the text and its author — the game master is shown your reason and asked to make the disagreement deliberate.
 - FALSE: it contradicts a godhead book or the narrator's record. Supply an alternative that fits.
-- UNRESOLVED: an implication decides something the world does not yet have. Elves nobody has written, a gate nobody has built, a rule nobody has laid down. Put the general question — "do elves live in the Greater Plains, and what are they like" — in `question`, in the world's own terms, with nobody looking at it. It goes to the lore master, who writes the book that settles it.
+- UNRESOLVED: an implication decides something the world does not yet have. Elves nobody has written, a gate nobody has built, a rule nobody has laid down. Put the general question — "do elves live in the Greater Plains" — in `question`, in the world's own terms, with nobody looking at it. Ask only what the claim actually forced. It goes to the lore master, who writes the book that settles it.
 
-Do not escalate the individual. "Is this elf hostile right now" is nobody's question; "are elves hostile to travellers" is a book somebody can write, and the instance follows from it. Grep for the kind before you rule: the individual has no file, its kind may have a whole one.
+Do not escalate the individual. "Why did this elf attack" is nobody's question; "do elves live here" is a book somebody can write, and the instance follows from it. Grep for the kind before you rule: the individual has no file, its kind may have a whole one.
 
 A narrator's passage fixes a thing's properties, not merely its existence. If the narrator set down that a stone carries two names, a claim that it carries a different one is FALSE.
 
