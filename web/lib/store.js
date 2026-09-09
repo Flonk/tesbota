@@ -33,6 +33,9 @@ function duration(minutes) {
   return `${m}m`;
 }
 
+const PREFIX = /^\s*(action|do|act)\s*:\s*/i;
+const plain = (text) => (typeof text === "string" ? text.replace(PREFIX, "") : text);
+
 export async function snapshot() {
   const campaign = await readJson(path.join(STATE, "campaign.json"), {});
   const chat = await readJson(path.join(STATE, "lore3.json"), []);
@@ -59,7 +62,7 @@ export async function snapshot() {
     const verdicts = {};
     for (const v of turn.verdicts || []) verdicts[v.claim] = v;
 
-    const phases = turn.phases || [];
+    const phases = (turn.phases || []).map((x) => ({ ...x, text: plain(x.text) }));
     if (!phases.length && !turn.action && !draft.narration && !cue) continue;
 
     slides.push({
@@ -67,7 +70,7 @@ export async function snapshot() {
       state: turn.state,
       cue,
       phases,
-      action: turn.action,
+      action: plain(turn.action),
       narration: turn.looking ? null : draft.narration,
       pending: turn.looking
         ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
