@@ -275,6 +275,7 @@ const ICONS = { places: "pin", people: "people", books: "book", items: "box" };
 
 const LAYER_ICON = {
   common: "lines",
+  writing: "pen",
   explorer: "person",
   gm: "dice",
   propose: "dice",
