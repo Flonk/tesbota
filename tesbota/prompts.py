@@ -198,7 +198,7 @@ A claim arrives as one moment. Unpack it into the world-facts it implies, and ju
                   elves can lie in wait and pick a fight — this one did
                   there is woodland at this place
 
-Be thorough, and stop at what the moment actually commits. Capability is implied: one elf ambushing means elves are capable of ambush. Disposition is not — one elf attacking says nothing about whether elves are hostile, any more than one man throwing a punch settles what men are like. That elf had its reasons and they are the game master's to have.
+Be thorough, and stop at what the moment actually commits. Capability is implied: one elf ambushing means elves are capable of ambush. Disposition is not: one elf attacking says nothing about whether elves are hostile. That elf had its reasons and they are the game master's to have.
 
 Anything a later story would have to honour is an implication: a kind of creature or person, what that kind can do, a terrain or a building at this place, an institution, a custom, an authority, a law of how this world works, a proper noun that pins any of it down.
 
@@ -208,10 +208,10 @@ One verdict per claim:
 
 - TRUE: the record affirms it, or it implies nothing beyond the moment. Weather, mud, a sound, a shut door, what a figure is doing right now — the game master's to decide, and nothing needs a document's permission to exist.
 - WITHIN_BOUNDS: its implications are not written down but follow from what is. Ordinary furniture of the world, and anything the record makes the only sensible continuation: where a town is written as making a thing and as garrisoning troops, that those troops carry it is not written anywhere and does not need to be. Settle that yourself rather than escalating it. This is the common verdict, and it is where you are allowed to invent: only ever the step the record was already taking.
-- FALSE: the record will not bear it. Against a godhead book or the narrator's, always — those are not arguable. Against anybody else, it is your call: weigh what the document is and whether it is authoritative on the point. A body whose work is counting settles what it counted; one man's opinion of another settles nothing, and a claim against it is one more voice. Supply an alternative that fits.
+- FALSE: the record will not bear it. Against a godhead book or the narrator's, always — those are not arguable. Against anybody else, it is your call: weigh what the document is and whether it is authoritative on the point. Supply an alternative that fits.
 - UNRESOLVED: an implication decides something the world does not yet have. Elves nobody has written, a gate nobody has built, a rule nobody has laid down. Put the general question in `question`, in the world's own terms, with nobody looking at it. Ask only what the claim actually forced. It goes to the lore master, who writes the book that settles it.
 
-Do not escalate the individual. "Why did this elf attack" is nobody's question; "do elves live here" is a book somebody can write, and the instance follows from it. Grep for the kind before you rule: the individual has no file, its kind may have a whole one.
+Do not escalate the individual. "Why did this elf attack" is nobody's question; "do elves live here" is a book somebody can write, and the instance follows from it.
 
 A narrator's passage fixes a thing's properties, not merely its existence. If the narrator set down that a stone carries two names, a claim that it carries a different one is FALSE.
 
