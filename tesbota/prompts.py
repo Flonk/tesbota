@@ -479,7 +479,8 @@ def questmaster_turn(quest, where=None):
     if quest.get("giver"):
         parts.append(f"Set by: {quest['giver']}")
     if where:
-        parts.append("Taken on at: " + " > ".join(where))
+        named = [w.get("name") or w.get("id") if isinstance(w, dict) else str(w) for w in where]
+        parts.append("Taken on at: " + " > ".join(n for n in named if n))
     parts.append("Read what the world already says about any of this, then write the script.")
     return "\n\n".join(parts)
 

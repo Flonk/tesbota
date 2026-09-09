@@ -705,8 +705,8 @@ def script_for(quest, campaign):
             model=MODELS["questmaster"],
         )
         return str(extract_json(text).get("script") or "").strip()
-    except Exception:
-        return ""
+    except Exception as exc:
+        return f"the questmaster fell over: {type(exc).__name__}: {exc}"[:400]
 
 
 def apply_inventory(draft, turn_id=None):
