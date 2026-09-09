@@ -151,6 +151,10 @@ uv run tesbota map       # the world as mermaid; --json for the solved layout
 uv run tesbota kill      # end this life; the next step sets a new one walking
 ```
 
+Autoplay is `uv run tesbota play`, a loop that steps, honours the pause switch and
+waits `--every` seconds in between. Without it — or the timer below — nothing turns
+the world over; the web UI has no stepper of its own.
+
 Make it tick on its own with a user timer:
 
 ```nix

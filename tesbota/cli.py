@@ -158,6 +158,25 @@ def cmd_talk(args):
     print(result.get("reply") or result.get("error"))
 
 
+def cmd_play(args):
+    """Turn the world over on its own until it is paused, blocked or stopped."""
+    import time
+
+    while True:
+        campaign = load_campaign()
+        if campaign.get("paused"):
+            time.sleep(args.every)
+            continue
+        state, turn = driver.run(limit=1)
+        print(f"[{turn['turn_id']}] {state}", flush=True)
+        if state == "awaiting_human":
+            time.sleep(args.every)
+        elif state == "awaiting_clock":
+            time.sleep(min(args.every, 30))
+        else:
+            time.sleep(args.every)
+
+
 def cmd_pause(args):
     on = load_campaign().get("paused") if args.state is None else args.state == "on"
     result = actions.pause(on) if args.state is not None else {"ok": True, "paused": bool(on)}
@@ -272,6 +291,10 @@ def main(argv=None):
     talk.add_argument("text")
     talk.add_argument("--json", action="store_true")
     talk.set_defaults(func=cmd_talk)
+
+    play = sub.add_parser("play")
+    play.add_argument("--every", type=float, default=5.0)
+    play.set_defaults(func=cmd_play)
 
     hold = sub.add_parser("pause")
     hold.add_argument("state", nargs="?", choices=("on", "off"), default=None)
