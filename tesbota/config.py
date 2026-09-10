@@ -17,7 +17,7 @@ WRITE_TOOLS = ["Bash"]
 MAX_GM_RETRIES = 3
 
 MODEL = "claude-sonnet-5"
-MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore3": MODEL, "lore4": MODEL,
+MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore2": MODEL, "lore3": MODEL, "lore4": MODEL,
           "questmaster": "claude-opus-5"}
 
 GODHEAD = "the godhead"

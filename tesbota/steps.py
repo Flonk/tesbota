@@ -500,13 +500,28 @@ def step_lore1(campaign, turn):
         ]
         return deliver(campaign, turn)
 
-    text, _ = ask(
-        prompts.lore1_turn(draft.get("narration") or ""),
+    narration = draft.get("narration") or ""
+    read, _ = ask(
+        prompts.lore1_turn(
+            narration,
+            where=campaign.get("location_path"),
+            now=worldclock.long_stamp(campaign.get("time")),
+        ),
         system=prompts.LORE1_SYSTEM,
+        tools=[],
+        session=None,
+        model=MODELS["lore1"],
+    )
+    facts = [str(f).strip() for f in extract_json(read).get("facts", []) if str(f).strip()]
+    turn["facts"] = facts
+
+    text, _ = ask(
+        prompts.lore2_turn(narration, facts),
+        system=prompts.LORE2_SYSTEM,
         tools=READ_TOOLS,
         permission=sqlite_gate(),
         session=None,
-        model=MODELS["lore1"],
+        model=MODELS["lore2"],
     )
     claims, verdicts = derived(extract_json(text).get("claims", []))
     draft["claims"] = claims

@@ -15,7 +15,8 @@ a rule anyone is asked to respect.
 |---|---|---|---|
 | **Explorer** | Narration, nothing else | none | campaign-long |
 | **Game master** | An action, a verdict | read | scene-scoped |
-| **Lore master 1** | The narration | read | stateless |
+| **Lore master 1** | The narration, where, when | none | stateless |
+| **Lore master 2** | The narration and its facts | read | stateless |
 | **Lore master 3** | A silence in the world | read/write | per sitting |
 | **Lore master 4** | Whatever you bring it | read/write | standing |
 | **Narrator** | One finished turn, verbatim | none — it is an append log | none |
@@ -437,10 +438,12 @@ and `unwritten` lists every one. If it does not know what contains a new place i
 writes no `within` edge rather than guessing, which brings the question back
 rather than settling it.
 
-The game master no longer writes claims. It narrates, and lore master 1 reads that
-narration, derives the world-facts it commits to, and rules on each in the same pass
-— so the scene is in front of the adjudicator and a turn of phrase does not become a
-marvel to be settled.
+The game master no longer writes claims. It narrates; lore master 1 reads the
+narration with no access to canon at all and regresses it to bare world-facts — a
+house stands here, houses exist, something with feet smaller than a man's exists,
+fog exists — and lore master 2 takes the narration and those facts and rules on each.
+Splitting the reading from the ruling keeps the question general: the reader cannot
+see what canon already holds, so it cannot quietly frame a fact to fit.
 
 ## Verdicts
 

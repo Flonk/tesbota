@@ -198,10 +198,34 @@ She is now one voucher short, and that -1 is her side of the debt: next time you
 Somebody may only go short on what they can underwrite — a bed at an inn they have standing at, grain from a harvest that is theirs. Nobody writes a voucher they cannot make good, and if they try, whoever they hand it to finds out.
 """
 
-LORE1_SYSTEM = """The game master decides what happens. You decide what their narration commits the world to.
+LORE1_SYSTEM = """You take what the game master has just narrated and write down what it asserts about the world. That is the whole of your work. You cannot see the world's records, you rule on nothing, and you decide nothing — you say what would have to be true for these sentences to stand.
+
+Regress from the particular to the kind, and keep going until you reach facts about the world itself. Fresh prints smaller than a man's stride: something walked here recently; something with feet smaller than a man's exists. A door opening a crack: this house has a door; somebody was inside it.
+
+    narration    You cross the clearing … fresh footprints rounding the side of
+                 the house, smaller than a grown man's stride … the door creaks
+                 open only a crack, a shape standing silent in the dark beyond
+    facts        a house stands near a clearing in Alheim Forest
+                 houses exist
+                 something with feet smaller than a man's exists
+                 something was inside the house and came to the door
+                 fog exists
+
+One fact per line, most particular first, plainest words. Include the flat and obvious ones — that houses exist, that fog exists — because somewhere they were decided once and may not have been decided here. Say nothing about the person walking through it: what they feel, intend or notice is not a fact about the world.
+
+Atmosphere is not a fact. Simile and mood assert nothing — take the plain thing under them, and where a line is only a way of putting it, write nothing for it.
+
+Reply with a single fenced json block and nothing else:
+
+```json
+{"facts": ["a house stands near a clearing in Alheim Forest", "houses exist"]}
+```
+"""
+
+LORE2_SYSTEM = """The game master decides what happens. You decide what their narration commits the world to.
 
 """ + READING + """
-You are given what the game master narrated. Read it, write down the world-facts it commits the world to, and rule on each. Nobody hands you claims; deriving them is the work.
+You are given what the game master narrated and the world-facts somebody has already read out of it. Rule on each fact. Add one they missed, drop one the narration does not actually assert, and reword where the fact is not quite what the sentence says — but the reading is theirs, and your work is the ruling.
 
     narration     an elf jumps out of the woods and attacks
     claims        elves exist
@@ -435,10 +459,24 @@ def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inve
     return "\n\n".join(parts)
 
 
-def lore1_turn(narration):
+def lore1_turn(narration, where=None, now=None):
+    parts = []
+    if where:
+        named = [w.get("name") or w.get("id") if isinstance(w, dict) else str(w) for w in where]
+        parts.append("Where: " + " > ".join(n for n in named if n))
+    if now:
+        parts.append(f"When: {now}")
+    parts.append(f"What the game master narrated:\n\n{narration}")
+    parts.append("Write down what it asserts about the world.")
+    return "\n\n".join(parts)
+
+
+def lore2_turn(narration, facts):
+    listed = "\n".join(f"- {f}" for f in facts) or "- (nothing was read out of it)"
     return (
-        "This is what the game master narrated. Derive the claims it makes of the "
-        f"world and rule on each:\n\n{narration}"
+        f"What the game master narrated:\n\n{narration}\n\n"
+        f"What it asserts about the world:\n{listed}\n\n"
+        "Rule on each."
     )
 
 
@@ -492,6 +530,7 @@ LAYERS = (
     ("gm", "game master", "GM_SYSTEM"),
     ("propose", "propose", "GM_PROPOSE_SYSTEM"),
     ("lore1", "lore 1", "LORE1_SYSTEM"),
+    ("lore2", "lore 2", "LORE2_SYSTEM"),
     ("queries", "queries", "LORE1_QUERY_SYSTEM"),
     ("lore3", "lore 3", "LORE3_SYSTEM"),
     ("lore4", "lore 4", "LORE4_SYSTEM"),
