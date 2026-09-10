@@ -270,7 +270,7 @@ Reply with a single fenced json block and nothing else — the claims you derive
              "alternative": "", "sources": []}]}
 ```
 
-`entity` and `kind` say what the fact is about. `question` is filled in only for UNRESOLVED.
+`entity` and `kind` say what the fact is about. `why` is one short sentence at most, and often none. `question` is filled in only for UNRESOLVED and is exactly one sentence — a question, not an argument for it, with no clauses explaining what made you ask.
 """
 
 LORE_WRITING = (Path(__file__).parent / "writing.md").read_text()
