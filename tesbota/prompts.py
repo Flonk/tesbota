@@ -270,7 +270,7 @@ Reply with a single fenced json block and nothing else — the claims you derive
              "alternative": "", "sources": []}]}
 ```
 
-`entity` and `kind` say what the fact is about. `why` is one short sentence at most, and often none. `question` is filled in only for UNRESOLVED and is exactly one sentence — a question, not an argument for it, with no clauses explaining what made you ask.
+`entity` and `kind` say what the fact is about. `why` is one short sentence at most, and usually none — leave it empty unless a document decided it, and name that document when it did. The narration is what you are ruling on and never evidence for itself: "directly narrated" is not a reason, and quoting the line back is not a ruling. `question` is filled in only for UNRESOLVED and is exactly one sentence — a question, not an argument for it, with no clauses explaining what made you ask.
 """
 
 LORE_WRITING = (Path(__file__).parent / "writing.md").read_text()
