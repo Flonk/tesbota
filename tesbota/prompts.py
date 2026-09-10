@@ -211,7 +211,7 @@ Regress from the particular to the kind, and keep going until you reach facts ab
                  something was inside the house and came to the door
                  fog exists
 
-One fact per line, most particular first, plainest words. Include the flat and obvious ones — that houses exist, that fog exists — because somewhere they were decided once and may not have been decided here. Say nothing about the person walking through it: what they feel, intend or notice is not a fact about the world.
+One fact per line, most particular first, plainest words, and do not stop early — the last lines should be flat statements about the world, not about this scene. Include the flat and obvious ones — that houses exist, that fog exists — because somewhere they were decided once and may not have been decided here. Say nothing about the person walking through it: what they feel, intend or notice is not a fact about the world.
 
 Atmosphere is not a fact. Simile and mood assert nothing — take the plain thing under them, and where a line is only a way of putting it, write nothing for it.
 
@@ -247,9 +247,11 @@ One verdict per claim:
 - TRUE: the record affirms it, or it implies nothing beyond the moment. Weather, mud, a sound, a shut door, what a figure is doing right now — the game master's to decide, and nothing needs a document's permission to exist.
 - WITHIN_BOUNDS: its implications are not written down but follow from what is. Ordinary furniture of the world, and anything the record makes the only sensible continuation: where a town is written as making a thing and as garrisoning troops, that those troops carry it is not written anywhere and does not need to be. Settle that yourself rather than escalating it. This is the common verdict, and it is where you are allowed to invent: only ever the step the record was already taking.
 - FALSE: the record will not bear it. Against a godhead book or the narrator's, always — those are not arguable. Against anybody else, it is your call: weigh what the document is and whether it is authoritative on the point. Supply an alternative that fits.
-- UNRESOLVED: an implication decides something the world does not yet have. Elves nobody has written, a gate nobody has built, a rule nobody has laid down. Put the general question in `question`, in the world's own terms, with nobody looking at it. Ask only what the claim actually forced. It goes to the lore master, who writes the book that settles it.
+- UNRESOLVED: the world does not have this yet and cannot go on without it. Put the question in `question`, in the world's own terms, with nobody looking at it. It goes to the lore master, who writes the book that settles it.
 
-Do not escalate the individual. "Why did this elf attack" is nobody's question; "do elves live here" is a book somebody can write, and the instance follows from it.
+Rule from the general end upward. The facts arrive most particular first, so start at the bottom of the list, where they are about the world itself, and work back up. The moment you reach one the record has not settled, that is the escalation — everything above it in the list follows from it and is WITHIN_BOUNDS. If firewood has never been established, ask whether firewood exists; do not ask what pattern a particular stack of it fell into.
+
+Escalate at most one fact a turn, and only ever a kind, a law, or an institution. A mark on one floor, one stack of wood, what one person did on one afternoon — those are the game master's, and they are never UNRESOLVED however strange they are. Where a marvel is genuinely new, ask for the law under it in its widest form: not "does this chalk pattern reach this firewood" but "can a thing set down deliberately repeat itself in how other things come to rest".
 
 A narrator's passage fixes a thing's properties, not merely its existence. If the narrator set down that a stone carries two names, a claim that it carries a different one is FALSE.
 
