@@ -559,6 +559,20 @@ textarea {
   background: none; border: 0; color: var(--ink);
   font: var(--mono); letter-spacing: .06em; padding: 0;
 }
+.editor { display: flex; flex-direction: column; min-height: 0; height: 100%; gap: .6rem; }
+.editor .actions { flex: 0 0 auto; flex-wrap: wrap; margin: 0; }
+textarea.prompt {
+  flex: 1 1 auto;
+  min-height: 14rem;
+  width: 100%;
+  max-width: 62rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: .7rem;
+  resize: none;
+}
+textarea.prompt:focus { outline: none; border-color: var(--gold); }
+
 .prompt {
   margin: 0;
   font: var(--mono);

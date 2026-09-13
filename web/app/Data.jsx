@@ -1,6 +1,7 @@
 "use client";
 
-import { Empty, Table } from "./ui";
+import { useEffect, useRef, useState } from "react";
+import { Btn, Empty, Table } from "./ui";
 
 const NAMES = {
   cols: "minmax(6rem, 1fr) minmax(5rem, 1.4fr)",
@@ -10,7 +11,16 @@ const NAMES = {
   ],
 };
 
-export default function Data({ catalogue, at }) {
+export default function Data({ catalogue, at, onSave }) {
+  const box = useRef(null);
+  const [draft, setDraft] = useState(null);
+  const prompt = (catalogue?.prompts || []).find((p) => p.id === at);
+  const source = prompt?.source ?? prompt?.text ?? "";
+
+  useEffect(() => {
+    setDraft(null);
+  }, [at]);
+
   if (!catalogue) return <Empty>reading the machine…</Empty>;
   if (catalogue.error) return <Empty>{catalogue.error}</Empty>;
 
@@ -33,7 +43,38 @@ export default function Data({ catalogue, at }) {
     );
   }
 
-  const prompt = (catalogue.prompts || []).find((p) => p.id === at);
   if (!prompt) return <Empty>nothing under that name</Empty>;
-  return <pre className="prompt">{prompt.text}</pre>;
+
+  const text = draft ?? source;
+  const dirty = draft !== null && draft !== source;
+
+  function put(line) {
+    const el = box.current;
+    const cut = el ? el.selectionStart : text.length;
+    const before = text.slice(0, cut).replace(/\n*$/, "");
+    const after = text.slice(cut).replace(/^\n*/, "");
+    setDraft(`${before}\n\n${line}\n\n${after}`);
+  }
+
+  return (
+    <div className="editor">
+      <textarea
+        ref={box}
+        className="prompt"
+        value={text}
+        spellCheck={false}
+        onChange={(e) => setDraft(e.target.value)}
+      />
+      <div className="actions left">
+        <Btn tone={dirty ? "gold" : "plain"} disabled={!dirty} onClick={() => onSave(at, text)}>
+          save
+        </Btn>
+        <Btn disabled={!dirty} onClick={() => setDraft(null)}>
+          abort
+        </Btn>
+        <Btn onClick={() => put("→ common")}>link common</Btn>
+        <Btn onClick={() => put("→ writing")}>link writing</Btn>
+      </div>
+    </div>
+  );
 }

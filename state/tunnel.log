@@ -42,3 +42,5 @@
 2026-09-11T11:09:55Z INF precheck complete hard_fail=false run_id=0f5933d9-7fe2-4117-a693-c7b78b388070 suggested_protocol=quic
 2026-09-12T11:09:49Z WRN Your version 2026.6.1 is outdated. We recommend upgrading it to 2026.9.1
 2026-09-13T11:09:49Z WRN Your version 2026.6.1 is outdated. We recommend upgrading it to 2026.9.1
+2026-09-13T16:21:40Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:21:40Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http

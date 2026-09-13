@@ -718,7 +718,14 @@ export default function Page() {
             />
           )}
           {tab === "library" && sub.library === "data" && (
-            <Data catalogue={catalogue} at={datum} />
+            <Data
+              catalogue={catalogue}
+              at={datum}
+              onSave={async (id, text) => {
+                await post("/api/prompt", { id, text }, "prompt");
+                setCatalogue(null);
+              }}
+            />
           )}
           {tab === "library" && sub.library !== "data" && (
             <Library

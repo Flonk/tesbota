@@ -304,7 +304,8 @@ LAYERS = (
 def catalogue():
     """Every prompt as it is written on disk — the shared blocks stay a pointer to
     the tab that holds them rather than repeated under each agent."""
-    return [
-        {"id": key, "label": label, "text": fill((PROMPTS / f"{key}.md").read_text())}
-        for key, label, _ in LAYERS
-    ]
+    out = []
+    for key, label, _ in LAYERS:
+        raw = (PROMPTS / f"{key}.md").read_text()
+        out.append({"id": key, "label": label, "text": fill(raw), "source": raw})
+    return out
