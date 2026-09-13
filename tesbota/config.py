@@ -59,7 +59,6 @@ OPENING = {
         {"id": "o3", "text": "The road runs away in two directions.",
          "entity": "the-road", "kind": "places"},
     ],
-    "quotes": [],
     "travel": None,
     "minutes": 0,
     "fatigue": 0,

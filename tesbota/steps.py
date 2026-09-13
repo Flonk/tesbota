@@ -1,6 +1,6 @@
 import json
 
-from . import canon, chronicle, prompts, quotes, sheet, worldclock
+from . import canon, chronicle, prompts, sheet, worldclock
 import random
 
 from .gate import sqlite_gate
@@ -264,7 +264,6 @@ def step_answer(campaign, turn):
     campaign["sessions"]["gm"] = session
     draft = extract_json(text)
     draft.setdefault("claims", [])
-    draft.setdefault("quotes", [])
     draft["travel"] = None
     draft["minutes"] = 0
     draft["fatigue"] = 0
@@ -432,7 +431,6 @@ def step_gm(campaign, turn):
     campaign["sessions"]["gm"] = session
     draft = extract_json(text)
     draft.setdefault("claims", [])
-    draft.setdefault("quotes", [])
     draft.setdefault("travel", None)
     draft.setdefault("minutes", 0)
     draft.setdefault("fatigue", 0)
@@ -553,7 +551,6 @@ def step_lore1(campaign, turn):
         turn["state"] = "awaiting_human"
         return campaign, turn
 
-    bad_quotes = quotes.verify(draft.get("quotes"))
 
     exhausted = too_tired(campaign, draft)
     if exhausted and not turn.get("fate") and turn["gm_retries"] < MAX_GM_RETRIES:
@@ -573,7 +570,7 @@ def step_lore1(campaign, turn):
         turn["state"] = redraft_state(turn)
         return campaign, turn
 
-    if not (false_ones or bad_quotes) and not turn.get("rolled") and not turn.get("looking"):
+    if not false_ones and not turn.get("rolled") and not turn.get("looking"):
         check = roll_check(campaign, turn)
         fate = roll_fate(turn)
         payload = {}
@@ -600,17 +597,17 @@ def step_lore1(campaign, turn):
             turn["state"] = redraft_state(turn)
             return campaign, turn
 
-    if false_ones or bad_quotes:
+    if false_ones:
         if turn["gm_retries"] >= MAX_GM_RETRIES:
             turn["gap"] = (
                 "The game master could not produce a draft that survives adjudication.\n\n"
-                + json.dumps({"false": false_ones, "quotes": bad_quotes}, indent=2)
+                + json.dumps({"false": false_ones}, indent=2)
             )
             turn["state"] = "awaiting_human"
             return campaign, turn
         turn["gm_retries"] += 1
         turn["correction"] = json.dumps(
-            {"contradicts_the_record": false_ones, "bad_quotes": bad_quotes}, indent=2
+            {"contradicts_the_record": false_ones}, indent=2
         )
         turn["state"] = redraft_state(turn)
         return campaign, turn

@@ -21,11 +21,6 @@ a rule anyone is asked to respect.
 | **Lore master 4** | Whatever you bring it | read/write | standing |
 | **Narrator** | One finished turn, verbatim | none — it is an append log | none |
 
-The Explorer cannot see the world at all, so the game master must reproduce book
-text **verbatim** — and the driver diffs every quotation against the passage it
-cites before the Explorer sees it. It is the only assertion in the system that
-can be checked with `==`.
-
 Lore master 3 has never heard of an adventurer. It thinks it is cataloguing a
 library.
 
@@ -273,7 +268,7 @@ TESBOTA_KEY=$(openssl rand -base64 18 | tr -d /+=) npm --prefix web run dev
 ```
 
 Three panes: the **Explorer** story, the **Game master** machinery (every claim
-with its verdict, redrafts, quote checks), and the **chat**, which is three
+with its verdict and redrafts), and the **chat**, which is three
 conversations under one bar: *lore master* (4) any time you like, *game master* to
 steer the next turn, and *the silence* (lore master 3) which only opens when the
 world is actually blocked on you.

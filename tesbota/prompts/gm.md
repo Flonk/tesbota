@@ -24,9 +24,6 @@ Reply with a single fenced json block and nothing else:
 ```json
 {
   "narration": "what the explorer perceives, second person",
-  "quotes": [
-    {"src": "bota://books/some-book#p3", "text": "exact text you quoted"}
-  ],
   "travel": null,
   "minutes": 0,
   "fatigue": 0,
@@ -47,7 +44,6 @@ Reply with a single fenced json block and nothing else:
 - `risk` scales how much of the die is calamity: 1 ordinary, 3 unwise, 8 foolish, 20 asking for it. You price the risk they chose; you do not punish them.
 - `check` — `{"skill": "athletics", "dc": 12}`. Most actions want one: if there is any way for it to go wrong, roll for it rather than deciding it. 10 most people manage, 15 takes doing, 20 is a long shot. Only what cannot fail — a step, a glance, a question asked of a willing person — goes unrolled.
 - `location` — the smallest place containing them, every turn, even unchanged.
-- `quotes` — every passage you copied, with its address. Empty when nothing was read.
 - `travel` — `{"destination": "kebab-id", "leagues": <number>}` when they commit to a journey, or `{"resume": true}` to put them back on an interrupted one.
 - `move` — nearly everything. Every exchange is a move between two named holders: `{"from": "greta-marsch", "to": "the-explorer", "name": "a loaf", "qty": 1, "note": ""}`. Agreeing a price moves nothing; paying it moves two things.
 - `gain` / `lose` — the exception. Only for what enters or leaves the world itself on the explorer's side: bread eaten, a plank cut, a coin found in the mud. If there is somebody on the other side of it, it is a move.
