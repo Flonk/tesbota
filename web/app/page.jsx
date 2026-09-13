@@ -320,6 +320,7 @@ export default function Page() {
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const [catalogue, setCatalogue] = useState(null);
+  const [sheaf, setSheaf] = useState("lists");
   const [datum, setDatum] = useState("names");
   const [draft, setDraft] = useState(null);
   const pen = useRef(null);
@@ -359,6 +360,10 @@ export default function Page() {
   useEffect(() => {
     setDraft(null);
   }, [datum]);
+
+  useEffect(() => {
+    setDatum(sheaf === "lists" ? "names" : "common");
+  }, [sheaf]);
 
   useEffect(() => {
     if (tab !== "library" || sub.library !== "data" || catalogue) return;
@@ -679,19 +684,32 @@ export default function Page() {
           <Tabs
             className="sub reading"
             items={[
-              { id: "names", label: "names", icon: "list" },
-              ...(catalogue?.prompts || []).map((p) => ({
-                id: p.id,
-                label: p.label,
-                icon: LAYER_ICON[p.id] || "lines",
-              })),
+              { id: "lists", label: "lists", icon: "list" },
+              { id: "prompts", label: "prompts", icon: "pen" },
             ]}
+            value={sheaf}
+            onChange={setSheaf}
+          />
+        )}
+
+        {tab === "library" && sub.library === "data" && (
+          <Tabs
+            className="sub"
+            items={
+              sheaf === "lists"
+                ? [{ id: "names", label: "names", icon: "people" }]
+                : (catalogue?.prompts || []).map((p) => ({
+                    id: p.id,
+                    label: p.label,
+                    icon: LAYER_ICON[p.id] || "lines",
+                  }))
+            }
             value={datum}
             onChange={setDatum}
           />
         )}
 
-        {tab === "library" && sub.library === "data" && datum !== "names" && (
+        {tab === "library" && sub.library === "data" && sheaf === "prompts" && (
           <Tabs
             className="sub"
             items={[
@@ -721,7 +739,7 @@ export default function Page() {
           <div
             className={`tabpanel${
               tab === "chat" || (tab === "library" && sub.library !== "data") ? " flush" : ""
-            }${tab === "library" && sub.library === "data" && datum !== "names" ? " edit" : ""}`}
+            }${tab === "library" && sub.library === "data" && sheaf === "prompts" ? " edit" : ""}`}
           >
           {tab === "chat" && sub.chat === "talk" && (
             <Talk
