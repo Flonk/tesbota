@@ -151,6 +151,7 @@ export function Tabs({ items, value, onChange, className = "" }) {
         <button
           key={t.id}
           className={`tab${value === t.id ? " on" : ""}`}
+          disabled={t.off || undefined}
           onClick={() => onChange(t.id)}
         >
           {t.icon && <Icon name={t.icon} />}

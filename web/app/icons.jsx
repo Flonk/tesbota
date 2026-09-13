@@ -101,6 +101,7 @@ const GLYPHS = {
       <path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3" />
     </>
   ),
+  cross: <path d="M6 6l12 12M18 6L6 18" />,
   search: (
     <>
       <circle cx="10.5" cy="10.5" r="6" />

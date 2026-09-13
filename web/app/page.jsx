@@ -321,6 +321,8 @@ export default function Page() {
   const [quest, setQuest] = useState(null);
   const [catalogue, setCatalogue] = useState(null);
   const [datum, setDatum] = useState("names");
+  const [draft, setDraft] = useState(null);
+  const pen = useRef(null);
   const [settings, setSettings] = useState(false);
   const [reading, setReading] = useState(null);
   const [face, setFace] = useState("content");
@@ -353,6 +355,10 @@ export default function Page() {
   useEffect(() => {
     if (data?.names) knowNames(data.names);
   }, [data]);
+
+  useEffect(() => {
+    setDraft(null);
+  }, [datum]);
 
   useEffect(() => {
     if (tab !== "library" || sub.library !== "data" || catalogue) return;
@@ -506,6 +512,26 @@ export default function Page() {
     splitNow.current = 50;
     setSplit(50);
     localStorage.setItem("tesbota.split", "50");
+  }
+
+  function editing(what) {
+    const kept = (catalogue?.prompts || []).find((p) => p.id === datum);
+    const text = draft ?? kept?.source ?? "";
+    if (what === "abort") return setDraft(null);
+    if (what === "save") {
+      if (draft === null) return;
+      post("/api/prompt", { id: datum, text }, "prompt").then(() => {
+        setDraft(null);
+        setCatalogue(null);
+      });
+      return;
+    }
+    const el = pen.current;
+    const cut = el ? el.selectionStart : text.length;
+    const line = what === "common" ? "→ common" : "→ writing";
+    setDraft(
+      `${text.slice(0, cut).replace(/\n*$/, "")}\n\n${line}\n\n${text.slice(cut).replace(/^\n*/, "")}`
+    );
   }
 
   async function post(path, body, label) {
@@ -665,6 +691,20 @@ export default function Page() {
           />
         )}
 
+        {tab === "library" && sub.library === "data" && datum !== "names" && (
+          <Tabs
+            className="sub"
+            items={[
+              { id: "save", label: "save", icon: "pen", off: draft === null },
+              { id: "abort", label: "abort", icon: "cross", off: draft === null },
+              { id: "common", label: "link common", icon: "lines" },
+              { id: "writing", label: "link writing", icon: "book" },
+            ]}
+            value={null}
+            onChange={(what) => editing(what)}
+          />
+        )}
+
         {reading === "books" && (
           <Tabs
             className="sub reading"
@@ -721,10 +761,9 @@ export default function Page() {
             <Data
               catalogue={catalogue}
               at={datum}
-              onSave={async (id, text) => {
-                await post("/api/prompt", { id, text }, "prompt");
-                setCatalogue(null);
-              }}
+              draft={draft}
+              onDraft={setDraft}
+              boxRef={pen}
             />
           )}
           {tab === "library" && sub.library !== "data" && (

@@ -353,6 +353,8 @@ textarea {
   background: var(--panel);
 }
 .tab .icon { flex: 0 0 auto; opacity: .75; }
+.tab:disabled { opacity: .35; cursor: default; }
+.tab:disabled:hover { color: var(--dim); }
 .tab.on .icon { opacity: 1; }
 .tab .pip { width: 5px; height: 5px; border-radius: 50%; background: var(--warn); }
 .tab .count { color: var(--gold); }
@@ -559,11 +561,8 @@ textarea {
   background: none; border: 0; color: var(--ink);
   font: var(--mono); letter-spacing: .06em; padding: 0;
 }
-.editor { display: flex; flex-direction: column; min-height: 0; height: 100%; gap: .6rem; }
-.editor .actions { flex: 0 0 auto; flex-wrap: wrap; margin: 0; }
 textarea.prompt {
-  flex: 1 1 auto;
-  min-height: 14rem;
+  min-height: 60vh;
   width: 100%;
   max-width: 62rem;
   background: var(--bg);
