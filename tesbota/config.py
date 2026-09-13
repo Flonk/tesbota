@@ -21,6 +21,7 @@ MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore2": MODEL, "lore3
           "questmaster": "claude-opus-5"}
 
 GODHEAD = "the godhead"
+GODHEAD_ID = "the-godhead"
 NARRATOR = "The Narrator"
 GODHEADS = (GODHEAD, NARRATOR.lower())
 

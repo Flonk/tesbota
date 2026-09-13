@@ -586,9 +586,9 @@ everything else at the place carries, and is told those lists are the truth — 
 hands over, spends or uses what is not on one, and a coin is never invented into
 anybody's hand.
 
-Nearly every exchange is a `move` between two named holders, applied by the driver.
-`gain` and `lose` are the exception, for what enters or leaves the world on the
-adventurer's own side: bread eaten, a plank cut, a coin found in the mud.
+Everything that changes hands is one `transactions` ledger, applied by the driver:
+`{from, to, name, qty, note}`. `the-godhead` on either side is the world itself —
+bread eaten goes to it, a coin found in the mud comes from it.
 
 A holder may move something they do not have, which leaves them short by it. That is
 how a promise is written down: Greta Marsch owing a bed for finding her child moves a
@@ -597,8 +597,8 @@ master reading her holdings next time sees `(owes 1)` — the debt is the proof 
 voucher is good. Redeeming it is another move, and her row clears when she settles.
 The prompt governs when a short is legitimate: only what the holder can actually
 underwrite. Quantities stack case-insensitively, a row at exactly zero is deleted,
-and `lose` still clips rather than going negative, because the adventurer cannot
-spend what they do not have.
+and a transfer to the world clips at zero rather than going negative, because
+nothing can be owed to the world.
 
 ## Quests
 

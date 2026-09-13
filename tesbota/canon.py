@@ -354,8 +354,8 @@ def owe(holder, name, qty=1, note=""):
 
 def transfer(src, dst, name, qty=1, note="", turn_id=None):
     """Move a thing between two holders. Either side may be nothing — bread is eaten,
-    wood is cut — and a holder may hand over what they do not have, which leaves them
-    short by it. That is how a promise is written down."""
+    wood is cut. A holder may hand over to somebody what they do not have, going short
+    by it, which is how a promise is written down; nothing can be owed to the world."""
     qty = int(qty or 1)
     worn = False
     if src:
@@ -363,7 +363,12 @@ def transfer(src, dst, name, qty=1, note="", turn_id=None):
         if row:
             note = row["note"] or note
             worn = bool(row["worn"])
-        owe(src, name, qty, note=note)
+        if dst:
+            owe(src, name, qty, note=note)
+        else:
+            qty = take(src, name, qty)
+            if not qty:
+                return 0
     if dst:
         give(dst, name, qty, note=note, worn=worn, turn_id=turn_id)
     return qty

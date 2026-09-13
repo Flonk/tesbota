@@ -5,6 +5,7 @@ import random
 
 from .gate import sqlite_gate
 from .config import (
+    GODHEAD_ID,
     BANDS,
     EXPLORER,
     BAND_WEIGHT,
@@ -439,9 +440,7 @@ def step_gm(campaign, turn):
     draft.setdefault("hunger", None)
     draft.setdefault("check", None)
     draft.setdefault("location", None)
-    draft.setdefault("gain", [])
-    draft.setdefault("lose", [])
-    draft.setdefault("move", [])
+    draft.setdefault("transactions", [])
     draft.setdefault("quest_open", [])
     draft.setdefault("quest_update", [])
     draft.setdefault("quest_close", [])
@@ -722,23 +721,16 @@ def script_for(quest, campaign):
 
 
 def apply_inventory(draft, turn_id=None):
-    for entry in draft.get("lose") or []:
-        name = entry.get("name") if isinstance(entry, dict) else entry
-        qty = int((entry.get("qty") if isinstance(entry, dict) else 1) or 1)
-        canon.take(EXPLORER, name, qty)
-
-    for entry in draft.get("gain") or []:
+    """One ledger. `the-godhead` on either side is the world itself — where bread
+    eaten goes, and where a coin found in the mud comes from."""
+    for entry in draft.get("transactions") or []:
         if not isinstance(entry, dict) or not entry.get("name"):
             continue
-        canon.give(EXPLORER, entry["name"], entry.get("qty") or 1,
-                   note=entry.get("note") or "", worn=bool(entry.get("worn")), turn_id=turn_id)
-
-    for entry in draft.get("move") or []:
-        if not isinstance(entry, dict) or not entry.get("name"):
-            continue
+        src = canon.slug(entry.get("from") or "")
+        dst = canon.slug(entry.get("to") or "")
         canon.transfer(
-            canon.slug(entry.get("from") or "") or None,
-            canon.slug(entry.get("to") or "") or None,
+            None if src in ("", GODHEAD_ID) else src,
+            None if dst in ("", GODHEAD_ID) else dst,
             entry["name"],
             entry.get("qty") or 1,
             note=entry.get("note") or "",
@@ -841,8 +833,7 @@ def deliver(campaign, turn):
             current["outcomes"] = turn.get("outcomes") or []
             current["chosen"] = turn.get("chosen")
             current["fortune"] = turn.get("fortune")
-            current["gain"] = draft.get("gain") or []
-            current["lose"] = draft.get("lose") or []
+            current["transactions"] = draft.get("transactions") or []
             current["check"] = turn.get("check")
     turn["location_path"] = campaign.get("location_path") or []
     turn["vitals"] = dict(campaign.get("vitals") or {})

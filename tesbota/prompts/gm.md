@@ -31,9 +31,7 @@ Reply with a single fenced json block and nothing else:
   "risk": 1,
   "check": null,
   "location": "kebab-id of where they are now",
-  "gain": [],
-  "lose": [],
-  "move": [],
+  "transactions": [],
   "quest_open": [],
   "quest_update": [],
   "quest_close": []
@@ -45,8 +43,7 @@ Reply with a single fenced json block and nothing else:
 - `check` — `{"skill": "athletics", "dc": 12}`. Most actions want one: if there is any way for it to go wrong, roll for it rather than deciding it. 10 most people manage, 15 takes doing, 20 is a long shot. Only what cannot fail — a step, a glance, a question asked of a willing person — goes unrolled.
 - `location` — the smallest place containing them, every turn, even unchanged.
 - `travel` — `{"destination": "kebab-id", "leagues": <number>}` when they commit to a journey. A journey that was interrupted comes back as a shorter one: commit what is left of it the same way.
-- `move` — nearly everything. Every exchange is a move between two named holders: `{"from": "greta-marsch", "to": "the-explorer", "name": "a loaf", "qty": 1, "note": ""}`. Agreeing a price moves nothing; paying it moves two things.
-- `gain` / `lose` — the exception. Only for what enters or leaves the world itself on the explorer's side: bread eaten, a plank cut, a coin found in the mud. If there is somebody on the other side of it, it is a move.
+- `transactions` — everything that changes hands, one ledger: `{"from": "greta-marsch", "to": "the-explorer", "name": "a loaf", "qty": 1, "note": ""}`. Agreeing a price moves nothing; paying it moves two things. `the-godhead` on either side is the world itself — bread eaten goes to the godhead, a coin found in the mud comes from it.
 - `quest_open` / `quest_update` / `quest_close` — see below.
 
 Quests
