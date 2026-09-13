@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from . import actions, canon, chronicle, db, driver, mapping, prompts, sheet, view, worldclock
 from .gate import sqlite_gate
@@ -158,6 +159,27 @@ def cmd_talk(args):
     print(result.get("reply") or result.get("error"))
 
 
+def cmd_prompts(args):
+    """Carry the prompts out to somewhere they can be edited, and back again."""
+    import shutil
+    from .prompts import PROMPTS
+
+    there = Path(args.dir).expanduser()
+    if args.back:
+        moved = []
+        for path in sorted(there.glob("*.md")):
+            kept = PROMPTS / path.name
+            if kept.exists() and kept.read_text() != path.read_text():
+                shutil.copyfile(path, kept)
+                moved.append(path.name)
+        print("\n".join(f"  {n}" for n in moved) or "  nothing changed")
+        return
+    there.mkdir(parents=True, exist_ok=True)
+    for path in sorted(PROMPTS.glob("*.md")):
+        shutil.copyfile(path, there / path.name)
+    print(f"{len(list(PROMPTS.glob('*.md')))} prompts written to {there}")
+
+
 def cmd_play(args):
     """Turn the world over on its own until it is paused, blocked or stopped."""
     import time
@@ -291,6 +313,11 @@ def main(argv=None):
     talk.add_argument("text")
     talk.add_argument("--json", action="store_true")
     talk.set_defaults(func=cmd_talk)
+
+    carry = sub.add_parser("prompts")
+    carry.add_argument("dir")
+    carry.add_argument("--back", action="store_true", help="copy edits back into the repo")
+    carry.set_defaults(func=cmd_prompts)
 
     play = sub.add_parser("play")
     play.add_argument("--every", type=float, default=5.0)
