@@ -63,9 +63,9 @@ def render_status(campaign, turn):
 
     if state == "awaiting_clock":
         remaining = parse(turn["wake_at"]) - now()
-        unfired = sum(1 for e in turn.get("schedule", []) if not e["fired"])
         lines.append(f"  the adventurer is on the road to {turn.get('destination')}")
-        lines.append(f"  wakes in {duration(remaining)}" + (f", {unfired} event(s) pending" if unfired else ""))
+        lines.append(f"  wakes in {duration(remaining)}"
+                     + (", and the road does not get them there" if turn.get("leagues_left") else ""))
     elif state == "awaiting_human":
         lines.append(f"  {WARN}the lore master is waiting on you{OFF} — run: tesbota lore")
         lines.append("")
@@ -75,10 +75,6 @@ def render_status(campaign, turn):
         lines.append("  the adventurer is between turns")
     else:
         lines.append(f"  mid-turn: {state}")
-
-    if campaign.get("suspended_journey"):
-        held = campaign["suspended_journey"]
-        lines.append(f"  {DIM}journey to {held.get('destination')} is held{OFF}")
 
     turns = all_turns()
     seen = campaign.get("last_seen")

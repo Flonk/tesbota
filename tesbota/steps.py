@@ -412,6 +412,7 @@ def step_gm(campaign, turn):
             vitals=campaign.get("vitals"),
             correction=turn.get("correction"),
             event=turn.get("event"),
+            left=turn.get("leagues_left"),
             arrival=turn.get("arrival"),
             agreed=turn.get("proposal") if turn.get("confirmed") else None,
             note=turn.get("note"),

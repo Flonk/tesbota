@@ -73,41 +73,23 @@ def real_delay(clock, in_world_minutes):
     return timedelta(seconds=(float(in_world_minutes) * 60.0) / factor)
 
 
-def plan_journey(clock, leagues, rng, start):
+def leg(clock, leagues, rng):
+    """How far this stretch of road gets before something interrupts it. One coin a
+    league; the first that lands says where the walking stops."""
     hours_per_league = clock["hours_per_league"]
     min_leg = int(clock["min_leg_minutes"])
     chance = clock["encounter_chance_per_league"]
 
     total = max(min_leg, round(float(leagues) * hours_per_league * 60))
-    rolls = sum(1 for _ in range(max(1, int(leagues))) if rng.random() < chance)
+    if total <= min_leg * 2:
+        return total, 0.0, False
 
-    candidates = sorted(rng.randint(min_leg, total) for _ in range(rolls)) if total > min_leg else []
-
-    picked = []
-    last = 0
-    for offset in candidates:
-        if offset - last >= min_leg and total - offset >= min_leg:
-            picked.append(offset)
-            last = offset
-
-    schedule = [
-        {
-            "at": stamp(start + real_delay(clock, offset)),
-            "kind": "encounter",
-            "fired": False,
-        }
-        for offset in picked
-    ]
-    return stamp(start + real_delay(clock, total)), schedule
-
-
-def due(turn, moment):
-    from .state import parse
-
-    for entry in turn.get("schedule", []):
-        if not entry["fired"] and parse(entry["at"]) <= moment:
-            return entry
-    return None
+    for _ in range(max(1, int(leagues))):
+        if rng.random() >= chance:
+            continue
+        minutes = rng.randint(min_leg, total - min_leg)
+        return minutes, round(float(leagues) * (1 - minutes / total), 3), True
+    return total, 0.0, False
 
 
 def arrived(turn, moment):

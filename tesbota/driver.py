@@ -89,26 +89,7 @@ def advance(campaign, turn):
     journey = draft.get("travel") or {}
 
     if journey.get("leagues"):
-        wake_at, schedule = plan(campaign, journey["leagues"])
-        return new_turn(
-            campaign,
-            state="awaiting_clock",
-            wake_at=wake_at,
-            schedule=schedule,
-            destination=journey.get("destination"),
-        )
-
-    if journey.get("resume"):
-        held = campaign.pop("suspended_journey", None)
-        if held:
-            save_campaign(campaign)
-            return new_turn(
-                campaign,
-                state="awaiting_clock",
-                wake_at=held["wake_at"],
-                schedule=held["schedule"],
-                destination=held.get("destination"),
-            )
+        return walk(campaign, journey["leagues"], journey.get("destination"))
 
     minutes = int(turn.get("minutes") or 0)
     if minutes > 0:
@@ -116,35 +97,32 @@ def advance(campaign, turn):
             campaign,
             state="awaiting_clock",
             wake_at=stamp(now() + travel.real_delay(campaign["clock"], minutes)),
-            schedule=[],
         )
 
     return new_turn(campaign, state="explorer")
 
 
-def plan(campaign, leagues, rng=None):
-    return travel.plan_journey(campaign["clock"], leagues, rng or random, now())
+def walk(campaign, leagues, destination, rng=None):
+    """Set them walking. The road either runs out at the destination or stops early,
+    and what is left of it comes back as another leg once the interruption is done."""
+    minutes, left, cut = travel.leg(campaign["clock"], leagues, rng or random)
+    return new_turn(
+        campaign,
+        state="awaiting_clock",
+        wake_at=stamp(now() + travel.real_delay(campaign["clock"], minutes)),
+        destination=destination,
+        leagues_left=left if cut else 0,
+    )
 
 
 def tick_clock(turn, moment, campaign=None):
-    entry = travel.due(turn, moment)
-    if entry:
-        entry["fired"] = True
-        turn["event"] = True
-        turn["state"] = "gm"
-        if campaign is not None:
-            campaign["suspended_journey"] = {
-                "wake_at": turn["wake_at"],
-                "schedule": turn["schedule"],
-                "destination": turn.get("destination"),
-            }
-            save_campaign(campaign)
-        turn["wake_at"] = None
-        turn["schedule"] = []
-        return True
     if travel.arrived(turn, moment):
         destination = turn.get("destination")
         turn["wake_at"] = None
+        if turn.get("leagues_left"):
+            turn["event"] = True
+            turn["state"] = "gm"
+            return True
         if destination:
             turn["arrival"] = destination
             turn["state"] = "gm"

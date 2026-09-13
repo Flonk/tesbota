@@ -182,7 +182,6 @@ def new_turn(campaign, state="explorer", **fields):
         "gm_retries": 0,
         "gap": None,
         "wake_at": None,
-        "schedule": [],
         "minutes": 0,
     }
     turn.update(fields)

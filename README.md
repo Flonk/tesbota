@@ -115,22 +115,6 @@ tesbota chronicle -n 5   the last five passages
 
 A deeplink pointing at a row nobody has written is an unresolved fact.
 
-## Suspend and resume
-
-Two states end a run. Neither costs anything to sit in, because nothing is
-running: the state is a file, and the driver holds no memory between invocations.
-
-- `awaiting_human` — the world is silent. Writes `pending/<turn>.md` and exits.
-- `awaiting_clock` — the adventurer is travelling. Real hours, wall clock.
-
-Journeys roll their *schedule* at departure but not their *content*: the driver
-knows an interruption is due at +2h17m, and the game master invents what it is
-when the moment arrives — so it can involve a book you wrote at midnight. During
-an encounter the journey is held, the adventurer acts normally, and the road
-resumes when the game master says so.
-
-The driver checkpoints after every step, so a crash costs one call.
-
 ## Use
 
 ```

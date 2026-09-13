@@ -156,7 +156,7 @@ Narrate it as what happens. Do not hedge it, do not offer it as a possibility, a
 STRANGE = """This one is strange, and that is deliberate. Put it in front of them plainly and without explanation. Nobody in the scene remarks on it, nothing accounts for it, and you do not hint at what it means — you do not know. Write it as a claim like any other and let it be ruled on."""
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, left=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -184,10 +184,16 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, arr
     if arrival:
         parts.append(f"The adventurer has arrived at {arrival}. Narrate the arrival.")
     if event:
-        parts.append(
+        said = (
             "Something interrupts the journey here. Invent what, and narrate it. "
             "The adventurer has been travelling and does not know how long."
         )
+        if left:
+            said += (
+                f" The road still has {left} leagues in it: when they are done here, "
+                "set them walking again with what is left."
+            )
+        parts.append(said)
     if inventory is not None:
         parts.append("What they are carrying:\n" + render_inventory(inventory))
     if others:
