@@ -721,7 +721,7 @@ export default function Page() {
           <div
             className={`tabpanel${
               tab === "chat" || (tab === "library" && sub.library !== "data") ? " flush" : ""
-            }`}
+            }${tab === "library" && sub.library === "data" && datum !== "names" ? " edit" : ""}`}
           >
           {tab === "chat" && sub.chat === "talk" && (
             <Talk

@@ -561,16 +561,19 @@ textarea {
   background: none; border: 0; color: var(--ink);
   font: var(--mono); letter-spacing: .06em; padding: 0;
 }
+.tabpanel.edit { display: flex; overflow: hidden; padding: 0; }
 textarea.prompt {
-  min-height: 60vh;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
-  max-width: 62rem;
+  max-width: none;
   background: var(--bg);
-  border: 1px solid var(--line);
-  padding: .7rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
   resize: none;
 }
-textarea.prompt:focus { outline: none; border-color: var(--gold); }
+textarea.prompt:focus { outline: none; }
 
 .prompt {
   margin: 0;

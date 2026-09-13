@@ -44,3 +44,32 @@
 2026-09-13T11:09:49Z WRN Your version 2026.6.1 is outdated. We recommend upgrading it to 2026.9.1
 2026-09-13T16:21:40Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
 2026-09-13T16:21:40Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="stream 1453 canceled by remote with error code 0" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="stream 1453 canceled by remote with error code 0" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR  error="stream 1457 canceled by remote with error code 0" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="stream 1457 canceled by remote with error code 0" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T16:33:14Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-13T16:33:14Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-13T21:19:59Z ERR Failed to refresh DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
