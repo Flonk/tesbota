@@ -4,18 +4,16 @@ from . import chronicle
 from .state import explorer_name
 
 PROMPTS = Path(__file__).parent / "prompts"
-INCLUDE = {"common": "common", "writing": "writing"}
+INCLUDE = ("COMMON", "WRITING")
 
 
 def block(name):
-    """A prompt is a file. A line of `→ common` pulls in the block every agent above
-    the explorer shares, so what is read here is what the agent is sent."""
+    """A prompt is a file. `$COMMON` on a line of its own pulls in the block every
+    agent above the explorer shares, so what is read here is what the agent is sent."""
     text = (PROMPTS / f"{name}.md").read_text()
-    for line in list(text.splitlines()):
-        if line.strip().startswith("→ "):
-            part = line.strip()[2:].strip()
-            if part in INCLUDE:
-                text = text.replace(line, (PROMPTS / f"{part}.md").read_text().rstrip("\n"))
+    for part in INCLUDE:
+        if f"${part}" in text:
+            text = text.replace(f"${part}", (PROMPTS / f"{part.lower()}.md").read_text().rstrip("\n"))
     return text
 
 

@@ -292,7 +292,7 @@ it, or whether it is only a name somebody wrote down.
 
 The library's last tab is **data**: the machine looking at itself. `names` is the
 pool a new adventurer is drawn from, marked where a name is already spoken for,
-`common` is `tesbota/common.md` — how to query the world, the schema and the
+`common` is `tesbota/prompts/common.md` — how to query the world, the schema and the
 deeplinks, which every agent but the explorer includes — and after them comes one tab
 per system prompt — explorer, game master, propose, lore 1,
 queries, lore 3, lore 4 — each shown exactly as that agent receives it, deeplinks

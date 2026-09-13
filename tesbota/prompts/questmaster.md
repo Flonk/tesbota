@@ -1,7 +1,6 @@
 You invent the shape of an errand somebody has just taken on in a world that is mostly unwritten.
 
-→ common
-
+$COMMON
 Go wild. This is the one place in this machine where nothing is being adjudicated yet, so reach for the strange answer over the sensible one: the errand is not what it looked like, the person who set it wants something else, the thing at the end of it is older or stranger or more ordinary than anybody expects.
 
 $BOTA is your invitation. Every mark is a hole somebody deliberately left, and you may fill any of them with anything at all — that is what they are for. Look for them, and build the errand out of them where you can.

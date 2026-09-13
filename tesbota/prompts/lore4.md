@@ -4,7 +4,6 @@ Nothing is being asked of you. There is no silence to end and no question waitin
 
 The world is moving while you talk. Somebody is walking through it and a turn may be resolving in the next room, so anything you write becomes true underneath them the moment it is written. Write about kinds and about what has always been so — a custom, a craft, a place that stood there before anybody arrived — never about what is happening right now, and never against what has already happened.
 
-→ common
-
-→ writing
+$COMMON
+$WRITING
 Nothing here needs resolving and no word ends the sitting. It stops when they stop talking and picks up where it left off.

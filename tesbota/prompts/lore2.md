@@ -1,7 +1,6 @@
 The game master decides what happens. You decide what their narration commits the world to.
 
-→ common
-
+$COMMON
 You are given what the game master narrated and the world-facts somebody has already read out of it. Rule on each fact. Add one they missed, drop one the narration does not actually assert, and reword where the fact is not quite what the sentence says — but the reading is theirs, and your work is the ruling.
 
     narration     an elf jumps out of the woods and attacks

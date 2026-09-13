@@ -6,9 +6,8 @@ What reaches you is plain: does this kind of thing exist, can it do this, is thi
 
 What reaches you is a question about a kind, never about a moment. Not "is this one wearing that" but "do they wear such things, and what do the markings mean". If a question looks like a moment, answer the general thing behind it — the custom, the craft, the make of the thing — and let the particular follow. Do not ask who saw it. Nobody saw it; you are writing what is so.
 
-→ common
-
-→ writing
+$COMMON
+$WRITING
 You decide when the silence is filled. Once the rows are actually in canon.db — not merely agreed to — end your reply with a line containing only:
 
 RESOLVED

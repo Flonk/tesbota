@@ -528,7 +528,7 @@ export default function Page() {
     }
     const el = pen.current;
     const cut = el ? el.selectionStart : text.length;
-    const line = what === "common" ? "→ common" : "→ writing";
+    const line = what === "common" ? "$COMMON" : "$WRITING";
     setDraft(
       `${text.slice(0, cut).replace(/\n*$/, "")}\n\n${line}\n\n${text.slice(cut).replace(/^\n*/, "")}`
     );
