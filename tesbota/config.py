@@ -214,7 +214,7 @@ MAX_LOOKS = 1
 MAX_TALKS = 2
 
 DIE = 400
-BANDS = ("common", "common", "rare", "rare", "epic", "epic")
+BANDS = ("common", "common", "uncommon", "rare", "epic", "legendary")
 SPARK_FLOOR = 4
 PRESS_FLOOR = 3
 

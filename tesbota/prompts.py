@@ -218,7 +218,7 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, lef
         parts.append(PRESS)
     if chosen:
         parts.append(CHOSEN.format(text=chosen["text"]))
-        if chosen.get("band") == "epic":
+        if chosen.get("band") in ("epic", "legendary"):
             parts.append(STRANGE)
     if correction:
         parts.append(

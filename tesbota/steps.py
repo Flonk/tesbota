@@ -344,7 +344,7 @@ def step_propose(campaign, turn):
         strange = campaign.get("quiet", 0) >= SPARK_FLOOR
         turn["outcomes"] = outcomes
         turn["fortune"] = random.random()
-        turn["chosen"] = spin(outcomes, turn["fortune"], only="epic" if strange else None)
+        turn["chosen"] = spin(outcomes, turn["fortune"], only=("epic", "legendary") if strange else None)
         turn["forced_strange"] = strange
 
     turn["confirmed"] = True
@@ -359,7 +359,7 @@ def due_press(turn, campaign=None):
 
 
 def weigh_outcomes(raw):
-    """Six ways it could go, two to a band, with the weights made to add up.
+    """Six ways it could go, one to a band up the ladder, weights made to add up.
     A malformed table is thrown away; a missing weight falls back to its band."""
     entries = [e for e in (raw or []) if isinstance(e, dict) and (e.get("text") or "").strip()]
     kept, used = [], []
@@ -387,7 +387,8 @@ def weigh_outcomes(raw):
 
 
 def spin(outcomes, fortune, only=None):
-    pool = [e for e in outcomes if e["band"] == only] if only else list(outcomes)
+    wanted = (only,) if isinstance(only, str) else only
+    pool = [e for e in outcomes if e["band"] in wanted] if wanted else list(outcomes)
     if not pool:
         pool = list(outcomes)
     total = sum(e["p"] for e in pool)
