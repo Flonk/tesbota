@@ -5,7 +5,7 @@ import { rare } from "./Data";
 import Icon from "./icons";
 import { Btn, Empty, Note, Prose, Stub, Table, Toggle } from "./ui";
 
-const ORDER = ["unique", "very_rare", "rare", "uncommon", "common", ""];
+const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
 
 const OPEN = (v) => !String(v || "").trim() || String(v).includes("$BOTA");

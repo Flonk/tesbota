@@ -344,7 +344,7 @@ def step_propose(campaign, turn):
         strange = campaign.get("quiet", 0) >= SPARK_FLOOR
         turn["outcomes"] = outcomes
         turn["fortune"] = random.random()
-        turn["chosen"] = spin(outcomes, turn["fortune"], only="very_rare" if strange else None)
+        turn["chosen"] = spin(outcomes, turn["fortune"], only="epic" if strange else None)
         turn["forced_strange"] = strange
 
     turn["confirmed"] = True

@@ -90,7 +90,7 @@ function toll(x) {
 
 const SAID_LABEL = { action: "action", look: "looks", say: "says" };
 const GM_LABEL = { world: "what happens", answer: "the answer", outcome: "what happens" };
-const BAND = { common: "common", rare: "rare", very_rare: "very rare" };
+const BAND = { common: "common", rare: "rare", epic: "epic" };
 const VERDICT = {
   TRUE: "good",
   WITHIN_BOUNDS: "good",
@@ -136,7 +136,7 @@ function Outcomes({ rows, chosen, fortune }) {
         const hit = chosen && r.text === chosen.text && r.band === chosen.band;
         return (
           <p key={n} className={`outrow${hit ? " hit" : ""}`}>
-            <Tag tone={r.band === "very_rare" ? "place" : r.band === "rare" ? "warn" : "dim"}>
+            <Tag tone={r.band === "epic" ? "place" : r.band === "rare" ? "warn" : "dim"}>
               {BAND[r.band] || r.band}
             </Tag>
             <span className="outp">{(r.p * 100).toFixed(1)}%</span>

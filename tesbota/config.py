@@ -54,32 +54,33 @@ TRAITS = (
     ("easily shamed", "uncommon"), ("shameless", "uncommon"),
     ("incurious about anything new", "uncommon"),
 
-    ("cruel", "rare"), ("fearless", "rare"), ("saintly", "rare"),
+    ("cruel", "epic"), ("fearless", "epic"), ("saintly", "epic"),
     ("incapable of anger", "rare"), ("incapable of stillness", "rare"),
-    ("delights in ruin", "rare"), ("trusts nobody", "rare"),
-    ("trusts everybody", "rare"), ("cannot feel fear", "rare"),
-    ("laughs at the wrong moments", "rare"), ("weeps easily and without cause", "rare"),
-    ("never sleeps a full night", "rare"), ("forgets faces", "rare"),
+    ("delights in ruin", "epic"), ("trusts nobody", "rare"),
+    ("trusts everybody", "rare"), ("cannot feel fear", "epic"),
+    ("laughs at the wrong moments", "epic"), ("weeps easily and without cause", "epic"),
+    ("never sleeps a full night", "epic"), ("forgets faces", "rare"),
 
-    ("autism", "very_rare"), ("bipolar disorder", "very_rare"),
-    ("mania", "very_rare"), ("schizophrenia", "very_rare"),
-    ("paranoia", "very_rare"), ("melancholia", "very_rare"),
-    ("obsessive-compulsive disorder", "very_rare"),
-    ("multiple personality disorder", "very_rare"),
-    ("psychopathy", "very_rare"), ("narcissistic personality disorder", "very_rare"),
-    ("selective mutism", "very_rare"), ("alexithymia", "very_rare"),
-    ("auditory hallucinations", "very_rare"), ("synesthesia", "very_rare"),
-    ("hyperthymesia", "very_rare"), ("prosopagnosia", "very_rare"),
-    ("catatonia", "very_rare"), ("kleptomania", "very_rare"),
+    ("autism", "legendary"), ("bipolar disorder", "legendary"),
+    ("mania", "legendary"), ("schizophrenia", "legendary"),
+    ("paranoia", "legendary"), ("melancholia", "legendary"),
+    ("obsessive-compulsive disorder", "legendary"),
+    ("multiple personality disorder", "legendary"),
+    ("psychopathy", "legendary"), ("narcissistic personality disorder", "legendary"),
+    ("selective mutism", "legendary"), ("alexithymia", "legendary"),
+    ("auditory hallucinations", "legendary"), ("synesthesia", "legendary"),
+    ("hyperthymesia", "legendary"), ("prosopagnosia", "legendary"),
+    ("catatonia", "legendary"), ("kleptomania", "legendary"),
 )
 
 
 RARITY = (
     ("common", 0.60),
-    ("uncommon", 0.28),
+    ("uncommon", 0.26),
     ("rare", 0.10),
-    ("very_rare", 0.02),
-    ("unique", 0.005),
+    ("epic", 0.03),
+    ("legendary", 0.01),
+    ("unique", 0.0),
 )
 WEIGHT = dict(RARITY)
 RARITIES = tuple(name for name, _ in RARITY)
@@ -213,7 +214,7 @@ MAX_LOOKS = 1
 MAX_TALKS = 2
 
 DIE = 400
-BANDS = ("common", "common", "rare", "rare", "very_rare", "very_rare")
+BANDS = ("common", "common", "rare", "rare", "epic", "epic")
 SPARK_FLOOR = 4
 PRESS_FLOOR = 3
 

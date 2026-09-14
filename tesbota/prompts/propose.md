@@ -21,8 +21,8 @@ Reply with a single fenced json block and nothing else:
     {"band": "common",    "p": 0.35, "text": "…"},
     {"band": "rare",      "p": 0.12, "text": "…"},
     {"band": "rare",      "p": 0.12, "text": "…"},
-    {"band": "very_rare", "p": 0.03, "text": "…"},
-    {"band": "very_rare", "p": 0.03, "text": "…"}
+    {"band": "epic", "p": 0.03, "text": "…"},
+    {"band": "epic", "p": 0.03, "text": "…"}
   ]
 }
 ```
@@ -31,6 +31,6 @@ To ask instead, set `ask` to your question and leave `proposal` null.
 
 `outcomes` is six ways this could go; one will be rolled for and become what happened. A clause each — what happens, not how you would narrate it. Exactly two per band, `p` your own estimate, normalised for you.
 
-The scale is ordinary to strange, never good to bad. Common is the action simply working. Rare is a turn you would not have predicted but would accept without blinking. The two very rare ones must put something in front of them that no document in this world can account for — strangeness, not danger, and specific enough that somebody would have to sit down and decide what it means.
+The scale is ordinary to strange, never good to bad. Common is the action simply working. Rare is a turn you would not have predicted but would accept without blinking. The two epic ones must put something in front of them that no document in this world can account for — strangeness, not danger, and specific enough that somebody would have to sit down and decide what it means.
 
 An hour of walking is about 4 fatigue; 100 is a day of hard labour. Never propose past 100 — propose the rest first. Price a glance or a question honestly small and it is waved through without troubling them to confirm.

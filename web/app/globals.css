@@ -31,8 +31,9 @@ body {
 .rare-common { color: var(--dim); }
 .rare-uncommon { color: var(--good); }
 .rare-rare { color: var(--place); }
-.rare-very_rare { color: var(--gold); }
-.rare-unique { color: var(--warn); }
+.rare-epic { color: var(--gold); }
+.rare-legendary { color: var(--warn); }
+.rare-unique { color: var(--bad); }
 .swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; background: currentColor; }
 
 /* ---- primitives ---- */
