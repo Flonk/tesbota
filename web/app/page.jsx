@@ -136,9 +136,7 @@ function Outcomes({ rows, chosen, fortune }) {
         const hit = chosen && r.text === chosen.text && r.band === chosen.band;
         return (
           <p key={n} className={`outrow${hit ? " hit" : ""}`}>
-            <Tag tone={r.band === "epic" ? "place" : r.band === "rare" ? "warn" : "dim"}>
-              {BAND[r.band] || r.band}
-            </Tag>
+            <span className={`chip rare-${r.band}`}>{BAND[r.band] || r.band}</span>
             <span className="outp">{(r.p * 100).toFixed(1)}%</span>
             <span className="outtext">{r.text}</span>
           </p>

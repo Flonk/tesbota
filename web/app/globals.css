@@ -11,6 +11,7 @@
   --good: #7f9c6b;
   --place: #7d93a6;
   --bad: #b5573f;
+  --myth: #9b7bc4;
   --mono: 10px/1.6 ui-monospace, SFMono-Regular, monospace;
 }
 
@@ -32,7 +33,7 @@ body {
 .rare-uncommon { color: var(--good); }
 .rare-rare { color: var(--place); }
 .rare-epic { color: var(--gold); }
-.rare-legendary { color: var(--warn); }
+.rare-legendary { color: var(--myth); }
 .rare-unique { color: var(--bad); }
 .swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; background: currentColor; }
 
@@ -62,6 +63,12 @@ body {
 .chip-warn { color: var(--warn); border-color: var(--warn); }
 .chip-bad { color: var(--bad); border-color: var(--bad); }
 .chip-place { color: var(--place); border-color: var(--place); }
+.chip.rare-common { color: var(--dim); border-color: var(--dim); }
+.chip.rare-uncommon { color: var(--good); border-color: var(--good); }
+.chip.rare-rare { color: var(--place); border-color: var(--place); }
+.chip.rare-epic { color: var(--gold); border-color: var(--gold); }
+.chip.rare-legendary { color: var(--myth); border-color: var(--myth); }
+.chip.rare-unique { color: var(--bad); border-color: var(--bad); }
 .chip-gold { color: var(--gold); border-color: var(--gold); }
 .chip-dim { color: var(--dim); border-color: var(--line); border-style: dashed; }
 

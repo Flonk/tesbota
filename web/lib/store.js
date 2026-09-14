@@ -34,6 +34,8 @@ function duration(minutes) {
 }
 
 const PREFIX = /^\s*(action|do|act)\s*:\s*/i;
+const BANDS = { very_rare: "epic" };
+const band = (name) => BANDS[name] || name;
 const plain = (text) => (typeof text === "string" ? text.replace(PREFIX, "") : text);
 
 export async function snapshot() {
@@ -62,7 +64,12 @@ export async function snapshot() {
     const verdicts = {};
     for (const v of turn.verdicts || []) verdicts[v.claim] = v;
 
-    const phases = (turn.phases || []).map((x) => ({ ...x, text: plain(x.text) }));
+    const phases = (turn.phases || []).map((x) => ({
+      ...x,
+      text: plain(x.text),
+      outcomes: (x.outcomes || []).map((o) => ({ ...o, band: band(o.band) })),
+      chosen: x.chosen ? { ...x.chosen, band: band(x.chosen.band) } : x.chosen,
+    }));
     if (!phases.length && !turn.action && !draft.narration && !cue) continue;
 
     slides.push({

@@ -75,11 +75,11 @@ TRAITS = (
 
 
 RARITY = (
-    ("common", 0.60),
-    ("uncommon", 0.26),
-    ("rare", 0.10),
-    ("epic", 0.03),
-    ("legendary", 0.01),
+    ("common", 0.62),
+    ("uncommon", 0.27),
+    ("rare", 0.098),
+    ("epic", 0.01),
+    ("legendary", 0.002),
     ("unique", 0.0),
 )
 WEIGHT = dict(RARITY)
