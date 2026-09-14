@@ -250,7 +250,7 @@ export function Toggle({ on, onClick, className = "", children }) {
   );
 }
 
-export function Overlay({ title, tags, face, onClose, children }) {
+export function Overlay({ title, tags, face, under, onClose, children }) {
   const panel = useRef(null);
   useEffect(() => {
     function key(e) {
@@ -274,8 +274,11 @@ export function Overlay({ title, tags, face, onClose, children }) {
         <div className="dhead">
           {face && <Icon name={face} size={34} />}
           <div className="dtitle">
-            {title}
-            {tags}
+            <span className="dname">
+              {title}
+              {tags}
+            </span>
+            {under}
           </div>
           <button className="dclose" onClick={onClose} title="close">
             ×

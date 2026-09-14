@@ -197,9 +197,10 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
   return (
     <Overlay
       onClose={onClose}
-      face={face_of(thing)}
+      face={face_of(thing) || "search"}
       title={thing?.name || id.replace(/-/g, " ")}
       tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
+      under={thing ? <Address address={thing.address} /> : null}
     >
         {missing && <Empty>nothing in the world has this address — it is a dangling link</Empty>}
         {!thing && !missing && <Empty>looking it up…</Empty>}
@@ -219,7 +220,6 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
                 )}
               </p>
             ) : null}
-            <Address address={thing.address} />
 
             {thing.kind === "books" && face === "content" && (
               <Leaves thing={thing} fragment={fragment} />

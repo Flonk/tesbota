@@ -37,7 +37,9 @@ export function QuestPanel({ quest, onClose }) {
   return (
     <Overlay
       onClose={onClose}
+      face="flag"
       title={quest.title}
+      under={<span className="cap dmeta">{quest.id}</span>}
       tags={
         <Tag tone={finished ? TONE[quest.status] || "dim" : "gold"}>
           {finished ? WORDS[quest.status] || quest.status : "ongoing"}
@@ -45,10 +47,6 @@ export function QuestPanel({ quest, onClose }) {
       }
     >
       <div className="dbody">
-        <p className="cap dmeta">
-          <span>{quest.id}</span>
-        </p>
-
         <div className="dsec">
           <p className="cap">what it asks</p>
           {quest.detail ? (

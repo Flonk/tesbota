@@ -24,7 +24,7 @@ export default function Settings({ who, speed, paused, busy, onKill, onSpeed, on
   }, [speed]);
 
   return (
-    <Overlay title="settings" onClose={onClose}>
+    <Overlay title="settings" face="settings" onClose={onClose}>
       <div className="dbody">
         <Cap>the adventurer</Cap>
         <p className="cap dwho">{who || "nobody is walking"}</p>
@@ -63,7 +63,7 @@ export default function Settings({ who, speed, paused, busy, onKill, onSpeed, on
       </div>
 
       {asking && (
-        <Overlay title={`kill ${who}?`} onClose={() => setAsking(false)}>
+        <Overlay title={`kill ${who}?`} face="cross" onClose={() => setAsking(false)}>
           <div className="dbody">
             <p className="body dnote">
               {who} stops here, dead of a mysterious cause — the last line of their book, since
