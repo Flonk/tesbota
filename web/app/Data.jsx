@@ -13,7 +13,6 @@ const NAMES = {
 
 export const ICON = {
   weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer", valuable: "coin", voucher: "scroll", material: "sack",
-  keepsake: "gem",
 };
 
 export const rare = (name) => (

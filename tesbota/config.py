@@ -201,10 +201,9 @@ ITEM_TYPES = (
     ("apparel", "protection", "shirt"),
     ("consumable", "heals, uses", "flask"),
     ("tool", "what it lets them do, how long it lasts", "hammer"),
-    ("valuable", "worth", "coin"),
+    ("valuable", "worth, and to whom", "coin"),
     ("voucher", "owed by, redeemed at", "scroll"),
     ("material", "—", "sack"),
-    ("keepsake", "—", "gem"),
 )
 
 STARTING_INVENTORY = [
