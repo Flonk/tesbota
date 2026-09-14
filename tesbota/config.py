@@ -60,16 +60,17 @@ TRAITS = (
     ("trusts everybody", "rare"), ("cannot feel fear", "rare"),
     ("laughs at the wrong moments", "rare"), ("weeps easily and without cause", "rare"),
     ("never sleeps a full night", "rare"), ("forgets faces", "rare"),
-    ("remembers every word ever said to them", "rare"),
 
-    ("autistic", "very rare"), ("bipolar", "very rare"), ("manic", "very rare"),
-    ("schizophrenic", "very rare"), ("paranoid", "very rare"),
-    ("melancholic", "very rare"), ("obsessive", "very rare"),
-    ("dissociative", "very rare"), ("without conscience", "very rare"),
-    ("narcissistic", "very rare"), ("mute by choice", "very rare"),
-    ("unable to name what they feel", "very rare"),
-    ("hears voices nobody else hears", "very rare"),
-    ("sees sound as colour", "very rare"),
+    ("autism", "very rare"), ("bipolar disorder", "very rare"),
+    ("mania", "very rare"), ("schizophrenia", "very rare"),
+    ("paranoia", "very rare"), ("melancholia", "very rare"),
+    ("obsessive-compulsive disorder", "very rare"),
+    ("multiple personality disorder", "very rare"),
+    ("psychopathy", "very rare"), ("narcissistic personality disorder", "very rare"),
+    ("selective mutism", "very rare"), ("alexithymia", "very rare"),
+    ("auditory hallucinations", "very rare"), ("synesthesia", "very rare"),
+    ("hyperthymesia", "very rare"), ("prosopagnosia", "very rare"),
+    ("catatonia", "very rare"), ("kleptomania", "very rare"),
 )
 
 
