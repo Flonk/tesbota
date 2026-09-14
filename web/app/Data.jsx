@@ -1,7 +1,7 @@
 "use client";
 
 import Icon from "./icons";
-import { Empty, Table } from "./ui";
+import { Empty, openDossier, Table } from "./ui";
 
 const NAMES = {
   cols: "minmax(6rem, 1fr) minmax(5rem, 1.4fr)",
@@ -87,8 +87,14 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
   }
 
   if (at === "kit") {
-    const rows = (catalogue.kit || []).map((r) => ({ ...r, id: r.name }));
-    return <Table {...KIT} rows={rows} empty="they start with nothing" />;
+    return (
+      <Table
+        {...KIT}
+        rows={catalogue.kit || []}
+        onOpen={openDossier}
+        empty="they start with nothing"
+      />
+    );
   }
 
   if (at === "rarity") {

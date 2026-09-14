@@ -13,14 +13,12 @@ PULL = 0.2
 
 
 def places():
-    unwritten = {r["id"] for r in db.rows("SELECT id FROM unwritten")}
     known = {
         r["id"]: {
             "name": r["name"],
             "extent": r["extent"],
             "parent": None,
             "children": [],
-            "unwritten": r["id"] in unwritten,
         }
         for r in db.rows("SELECT id, name, extent FROM entity WHERE kind = 'places' ORDER BY id")
     }
@@ -240,7 +238,7 @@ def walked():
 def knowledge(ident, place, been):
     if ident in been:
         return "walked"
-    return "named" if place["unwritten"] else "recorded"
+    return "recorded"
 
 
 def solve(seed=SEED, rounds=ROUNDS):
@@ -270,7 +268,6 @@ def layout(seed=SEED, rounds=ROUNDS):
                 "name": known[ident]["name"],
                 "parent": known[ident]["parent"],
                 "children": sorted(known[ident]["children"]),
-                "unwritten": known[ident]["unwritten"],
                 "extent": known[ident]["extent"],
                 "knowledge": knowledge(ident, known[ident], been),
                 **solved[ident],

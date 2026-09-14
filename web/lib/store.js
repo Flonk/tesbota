@@ -182,8 +182,7 @@ export async function library() {
         `SELECT e.id, e.name, b.author, b.author_id, b.written, b.rarity,
                 (SELECT count(*) FROM passage p WHERE p.book_id = b.id) AS passages,
                 (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
-                EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
-                (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
+                       (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
           OR EXISTS (SELECT 1 FROM person pr WHERE pr.id = e.id
                        AND (pr.work LIKE '%$BOTA%' OR pr.lives LIKE '%$BOTA%'
                             OR pr.born LIKE '%$BOTA%' OR pr.died LIKE '%$BOTA%'))) AS stub
@@ -200,7 +199,6 @@ export async function library() {
       rarity: (r.rarity || "").toLowerCase(),
       passages: r.passages,
       mentions: r.mentions,
-      unwritten: !!r.unwritten,
       stub: !!r.stub,
       godhead: ["the godhead", "the narrator"].includes((r.author || "").trim().toLowerCase()),
     }));
@@ -225,7 +223,6 @@ const ROWS = `
          (SELECT coalesce(le.name, replace(pr.lives, '-', ' ')) FROM person pr
             LEFT JOIN entity le ON le.id = pr.lives WHERE pr.id = e.id) AS livesName,
          (SELECT h.holder FROM holding h WHERE h.item = e.id LIMIT 1) AS holder,
-         EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
          (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
           OR EXISTS (SELECT 1 FROM person pr WHERE pr.id = e.id
                        AND (pr.work LIKE '%$BOTA%' OR pr.lives LIKE '%$BOTA%'
@@ -273,7 +270,6 @@ export function entities(kind) {
       died: r.died || "",
       lives: r.lives || null,
       livesName: r.lives ? r.livesName : "",
-      unwritten: !!r.unwritten,
       stub: !!r.stub,
     });
     if (kind) return rows.all(kind).map(shape);
@@ -334,7 +330,6 @@ export function entity(id) {
       mentions,
       holdings: holdingsIn(db, ident),
       heldBy: held,
-      unwritten: !!db.prepare(`SELECT 1 FROM unwritten WHERE id = ?`).get(ident),
       stub: !!db
         .prepare(`SELECT 1 FROM writing WHERE entity = ? AND body LIKE '%$BOTA%'`)
         .get(ident),

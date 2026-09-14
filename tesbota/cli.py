@@ -150,7 +150,7 @@ def cmd_data(args):
         },
         "personality": [{"trait": t, "rarity": r} for t, r in TRAITS],
         "rarity": [{"rarity": name, "weight": weight} for name, weight in RARITY],
-        "kit": STARTING_INVENTORY,
+        "kit": [dict(entry, id=canon.slug(entry["name"])) for entry in STARTING_INVENTORY],
         "items": [{"type": t, "stats": stats, "icon": icon} for t, stats, icon in ITEM_TYPES],
         "prompts": prompts.catalogue(),
     }

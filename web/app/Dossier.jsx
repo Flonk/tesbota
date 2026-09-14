@@ -276,6 +276,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
               <Table
                 {...KEEPS}
                 rows={thing.holdings}
+                onOpen={openDossier}
                 empty="nothing anybody has written down"
               />
             )}

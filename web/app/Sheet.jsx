@@ -94,7 +94,8 @@ export default function Sheet({ vitals, skills, inventory = [] }) {
     <div className="sheet">
       <Table
         {...CARRYING}
-        rows={inventory.map((i, n) => ({ ...i, id: `${i.name}-${n}` }))}
+        rows={inventory}
+        onOpen={openDossier}
         empty="it carries nothing"
       />
 

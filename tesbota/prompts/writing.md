@@ -33,8 +33,6 @@ Link every name you write in a passage, or the book cannot be found from the per
     INSERT INTO entity (id, kind, name, introduced)
     VALUES ('the-aler-bridge', 'places', 'The Aler Bridge', 't0012');
 
-`unwritten` lists every row with nothing written against it: that is your backlog.
-
 Every place sits inside exactly one parent, written as a row of its own — no place is nowhere, and what a place contains is that same column read backwards, so never restate it in prose:
 
     INSERT INTO place (id, parent) VALUES ('the-aler-bridge', 'alheim');

@@ -231,9 +231,8 @@ def illegal_books():
 
 def graph():
     nodes, edges, links = {}, [], []
-    unwritten = {r["id"] for r in db.rows("SELECT id FROM unwritten")}
     for r in db.rows("SELECT id, name FROM entity WHERE kind = 'places' ORDER BY id"):
-        nodes[r["id"]] = {"name": r["name"], "stub": r["id"] in unwritten}
+        nodes[r["id"]] = {"name": r["name"]}
     for r in db.rows("SELECT id, parent FROM place WHERE parent IS NOT NULL ORDER BY id"):
         links.append((r["parent"], r["id"]))
     for r in db.rows("SELECT src, dst, bearing, distance FROM way ORDER BY src, dst"):
@@ -280,10 +279,6 @@ def mermaid():
         arrow = f"-- {label} -->" if label else "-->"
         out.append(f"  {src} {arrow} {dst}")
 
-    stubs_ = [i for i, m in sorted(nodes.items()) if m["stub"] and not children.get(i)]
-    if stubs_:
-        out.append("  classDef unwritten stroke-dasharray: 4 3")
-        out.append(f"  class {','.join(stubs_)} unwritten")
     return "\n".join(out)
 
 

@@ -23,7 +23,6 @@ function span(person) {
 const WRITTEN = ["places", "people", "books", "items"];
 
 const FILTERS = [
-  { id: "unwritten", label: "unwritten", kinds: WRITTEN, test: (r) => r.unwritten },
   { id: "stub", label: "has $BOTA", kinds: WRITTEN, test: (r) => r.stub },
   { id: "orphan", label: "orphan", kinds: ["places"], test: (r) => !r.parent },
   { id: "ways", label: "has exits", kinds: ["places"], test: (r) => r.exits > 0 },

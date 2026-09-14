@@ -87,14 +87,6 @@ CREATE VIEW IF NOT EXISTS writing AS
          e.id, e.kind, 'about', e.about
     FROM entity e WHERE e.about IS NOT NULL AND trim(e.about) <> '';
 
-CREATE VIEW IF NOT EXISTS unwritten AS
-  SELECT e.id, e.kind, e.name FROM entity e
-   WHERE e.id <> 'the-explorer'
-     AND NOT EXISTS (
-     SELECT 1 FROM writing w
-      WHERE w.entity = e.id AND trim(w.body) <> '$BOTA'
-   );
-
 CREATE VIRTUAL TABLE IF NOT EXISTS search USING fts5(
   ref UNINDEXED, entity UNINDEXED, section UNINDEXED, body
 );

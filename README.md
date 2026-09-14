@@ -182,7 +182,6 @@ holding(holder, item, qty, note, worn)          what a place, a person or the ex
 
 writing(ref, entity, kind, section, body)       every passage, with its address
 search(ref, entity, section, body)              fts5 over all of it
-unwritten(id, kind, name)                       named by somebody, written by nobody
 ```
 
 Containment is stored once, as a place's `parent`; what a place contains is that
@@ -261,8 +260,8 @@ world is actually blocked on you.
 
 The tab area beside the story holds the rest of the world. The **library** has its
 own bar over places, people, books and items, one dense line to a row, with a search
-box that filters by name as you type and runs the fts5 index on enter; unwritten
-rows and `$BOTA` rows are dashed rather than badged, and the whole panel drives from
+box that filters by name as you type and runs the fts5 index on enter; `$BOTA`
+rows are dashed rather than badged, and the whole panel drives from
 the keyboard. Clicking any row — or any `bota://` address anywhere in the app, since
 one renderer draws them all and a link to a row nobody has written looks like the
 dangling link it is — opens a **dossier**: what is written about the thing, every
@@ -414,7 +413,7 @@ something here and has not written it yet, so:
 The lore master stubs whatever it names: mentioning a place, person, item or book
 that has no row inserts that row in the same breath. A deeplink pointing at
 nothing is a loose end; a bare row with nothing written against it is a promise,
-and `unwritten` lists every one. If it does not know what contains a new place it
+If it does not know what contains a new place it
 leaves the place unwritten rather than guessing a parent, which brings the question back
 rather than settling it.
 

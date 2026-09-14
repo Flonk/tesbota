@@ -13,7 +13,6 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
 
     writing(ref, entity, kind, section, body)          every passage, with its address
     search(ref, entity, section, body)                 fts5: WHERE search MATCH 'mill NEAR/5 boy'
-    unwritten(id, kind, name)                          named by somebody, written by nobody
 
 Fact lives in books. `entity.about` is a thing describing itself and claims nothing.
 
