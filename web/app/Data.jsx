@@ -28,7 +28,7 @@ const TRAITS = {
 };
 
 const ITEMS = {
-  cols: "2.2rem minmax(6rem, 1fr) minmax(8rem, 1.6fr)",
+  cols: "1.1rem minmax(6rem, 1fr) minmax(8rem, 1.6fr)",
   fields: [
     { key: "icon", label: "", cell: (r) => <Icon name={r.icon} /> },
     { key: "type", label: "item", strong: true, cell: (r) => r.type },
@@ -37,7 +37,7 @@ const ITEMS = {
 };
 
 const KIT = {
-  cols: "2.2rem minmax(6rem, 1.3fr) minmax(6rem, 1.2fr) minmax(6rem, 1.4fr)",
+  cols: "1.1rem minmax(6rem, 1.3fr) minmax(6rem, 1.2fr) minmax(6rem, 1.4fr)",
   fields: [
     { key: "icon", label: "", cell: (r) => <Icon name={ICON[r.type]} /> },
     { key: "name", label: "they start with", strong: true, cell: (r) => r.name },

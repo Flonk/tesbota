@@ -387,6 +387,15 @@ export function entity(id) {
         .all(ident);
     }
 
+    if (row.kind === "items") {
+      bundle.item =
+        db
+          .prepare(
+            `SELECT type, damage, protection, heals, uses, worth, owed_by FROM item WHERE id = ?`
+          )
+          .get(ident) || null;
+    }
+
     if (row.kind === "books") {
       const book = db
         .prepare(`SELECT author, author_id, written, rarity FROM book WHERE id = ?`)

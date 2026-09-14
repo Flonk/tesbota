@@ -524,8 +524,8 @@ textarea {
 .erow {
   display: grid;
   grid-template-columns: var(--cols);
-  align-items: baseline;
-  gap: .8rem;
+  align-items: center;
+  gap: .55rem;
   padding: .04rem .3rem;
   line-height: 1.35;
   min-width: 0;
@@ -650,7 +650,8 @@ textarea.prompt:focus { outline: none; }
   overflow-y: auto;
   padding: .9rem 1.2rem 2rem;
 }
-.dhead { display: flex; align-items: baseline; gap: .8rem; }
+.dhead { display: flex; align-items: center; gap: .7rem; }
+.dhead > .icon { flex: 0 0 auto; color: var(--dim); }
 .dtitle { flex: 1 1 auto; min-width: 0; font-size: 1.1rem; }
 .dtitle .chip { margin-left: .6em; margin-right: 0; }
 .dclose {

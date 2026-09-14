@@ -1,6 +1,6 @@
 "use client";
 
-import { rare } from "./Data";
+import { ICON, rare } from "./Data";
 import { useEffect, useState } from "react";
 import { Empty, openDossier, Overlay, Prose, Stub, Table, Tag } from "./ui";
 
@@ -93,6 +93,14 @@ const HELD_BY = {
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
   ],
 };
+
+const KIND = { people: "person", places: "pin", books: "book", items: "box" };
+
+function face_of(thing) {
+  if (!thing) return null;
+  if (thing.kind === "items") return ICON[thing.item?.type] || "box";
+  return KIND[thing.kind] || null;
+}
 
 const settled = (v) => {
   const text = String(v || "").trim();
@@ -189,6 +197,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
   return (
     <Overlay
       onClose={onClose}
+      face={face_of(thing)}
       title={thing?.name || id.replace(/-/g, " ")}
       tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
     >
