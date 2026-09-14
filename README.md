@@ -312,12 +312,11 @@ injuries the game master narrates.
 
 ## Calamity
 
-The game master never rolls. It sets `risk` — how many faces of a hundred bring
-calamity — and the driver rolls a d100 and records it on the turn. `risk` is 1
-for anything ordinary, so a natural 100 can always go wrong however careful the
-adventurer is; the game master raises it when they choose something reckless
-(walking on past fatigue 99, wet rock in the dark, a river in spate). Clamped to
-1–50.
+The game master never rolls. The driver rolls a d400 on every delivered action and
+records it on the turn: 1 is a greater calamity, 2 a lesser one, 399 a lesser
+fortune, 400 a greater one. Nobody dials it — the odds are the same for a careful
+step and a reckless one, and what the adventurer chooses shows up in the skill check
+instead.
 
 On a hit the draft is sent back with the numbers and an instruction to renarrate
 the same action going wrong — not to undo it. A calamity is exempt from the
@@ -447,17 +446,17 @@ narration it produced.
 
 ## The die
 
-calamity; fortune does not scale, because luck is not earned by being careless.
+Every delivered action is rolled against a d400.
 
 | roll | outcome |
 |---|---|
-| ≤ risk | greater calamity |
-| ≤ 2 × risk | lesser calamity |
+| 1 | greater calamity |
+| 2 | lesser calamity |
 | 399 | lesser fortune |
 | 400 | greater fortune |
 | anything else | the action as narrated |
 
-At the base risk of 1 that is a quarter of a percent each way. The game master
+A quarter of a percent each way. The game master
 never rolls; it is told which way the die landed and asked to renarrate the same
 action with that having happened — never to undo it.
 
