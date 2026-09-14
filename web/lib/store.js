@@ -391,7 +391,7 @@ export function entity(id) {
       bundle.item =
         db
           .prepare(
-            `SELECT type, damage, protection, heals, uses, worth, owed_by FROM item WHERE id = ?`
+            `SELECT type, slot, damage, protection, heals, uses, worth, owed_by FROM item WHERE id = ?`
           )
           .get(ident) || null;
     }

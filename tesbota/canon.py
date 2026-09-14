@@ -299,6 +299,23 @@ def thing(name, kind="items", turn_id=None):
     return ident
 
 
+STATS = ("type", "damage", "protection", "heals", "uses", "worth", "owed_by", "slot")
+
+
+def describe(name, **stats):
+    """What a thing is, written on the thing itself. A kind of thing the world has
+    not met yet gets a row here before anybody is handed one."""
+    item = thing(name)
+    if not item:
+        return None
+    known = {k: v for k, v in stats.items() if k in STATS and v is not None}
+    if known:
+        sets = ", ".join(f"{k} = ?" for k in known)
+        with db.writing() as con:
+            con.execute(f"UPDATE item SET {sets} WHERE id = ?", (*known.values(), item))
+    return item
+
+
 def held(holder, name):
     return db.row(
         "SELECT * FROM holding WHERE holder = ? AND item = ?", (holder, slug(name))

@@ -77,9 +77,18 @@ def new_campaign():
     }
 
 
+def catalogue(inventory):
+    """Every kind of thing in the kit has a row of its own, held or not, so what a
+    thing is does not depend on somebody carrying one."""
+    for entry in inventory:
+        if isinstance(entry, dict) and entry.get("name"):
+            canon.describe(entry["name"], **{k: entry.get(k) for k in canon.STATS})
+
+
 def stock(inventory):
     """Move what the explorer was carrying in the campaign file into canon, where
     everything anybody holds now lives."""
+    catalogue(inventory)
     for entry in inventory:
         if isinstance(entry, dict):
             note = ", ".join(p for p in (entry.get("note"), entry.get("effect")) if p)

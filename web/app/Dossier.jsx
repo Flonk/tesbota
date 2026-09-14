@@ -1,6 +1,6 @@
 "use client";
 
-import { ICON, rare } from "./Data";
+import { face as itemFace, rare } from "./Data";
 import { useEffect, useState } from "react";
 import { Empty, openDossier, Overlay, Prose, Stub, Table, Tag } from "./ui";
 
@@ -98,7 +98,7 @@ const KIND = { people: "person", places: "pin", books: "book", items: "box" };
 
 function face_of(thing) {
   if (!thing) return null;
-  if (thing.kind === "items") return ICON[thing.item?.type] || "box";
+  if (thing.kind === "items") return itemFace(thing.item);
   return KIND[thing.kind] || null;
 }
 
@@ -146,7 +146,7 @@ function Made({ item }) {
     .filter(Boolean);
   return (
     <p className="cap dwho">
-      {item.type || <Stub />}
+      {item.type ? (item.slot ? `${item.type}:${item.slot}` : item.type) : <Stub />}
       {said.length ? `, ${said.join(", ")}` : ""}
     </p>
   );

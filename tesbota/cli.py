@@ -8,6 +8,7 @@ from .gate import sqlite_gate
 from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
 from .config import (
+    APPAREL_ICON,
     FIRST_NAMES,
     ITEM_TYPES,
     NARRATOR,
@@ -19,6 +20,7 @@ from .config import (
 )
 from .state import (
     all_turns,
+    catalogue,
     explorer_name,
     load_campaign,
     load_turn,
@@ -26,6 +28,7 @@ from .state import (
     parse,
     save_campaign,
     save_turn,
+    stock,
 )
 
 
@@ -36,9 +39,10 @@ def cmd_init(args):
     db.setup()
     chronicle.ensure_book()
     campaign = load_campaign()
-    if not canon.holdings(EXPLORER):
-        for item in STARTING_INVENTORY:
-            canon.give(EXPLORER, item["name"], item["qty"], note=item["note"], worn=item["worn"])
+    if canon.holdings(EXPLORER):
+        catalogue(STARTING_INVENTORY)
+    else:
+        stock(STARTING_INVENTORY)
     if campaign.get("current_turn"):
         print(f"already initialised — turn {campaign['current_turn']}")
         return
@@ -152,7 +156,8 @@ def cmd_data(args):
         "rarity": [{"rarity": name, "weight": weight} for name, weight in RARITY],
         "kit": [dict(entry, id=canon.slug(entry["name"]), slot=entry.get("slot"))
                 for entry in STARTING_INVENTORY],
-        "items": [{"type": t, "stats": stats, "icon": icon, "slots": list(slots)}
+        "items": [{"type": t, "stats": stats, "icon": icon,
+                   "slots": [{"slot": s, "icon": APPAREL_ICON.get(s, icon)} for s in slots]}
                   for t, stats, icon, slots in ITEM_TYPES],
         "prompts": prompts.catalogue(),
     }

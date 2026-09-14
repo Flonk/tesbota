@@ -1,6 +1,6 @@
 "use client";
 
-import { ICON } from "./Data";
+import { face } from "./Data";
 import Icon from "./icons";
 import { openDossier, Table } from "./ui";
 
@@ -31,7 +31,7 @@ function Slot({ slot, item }) {
     <button className={`${cls} worn`} onClick={() => openDossier(item.id)} title={item.name}>
       <span className="slotname">{slot}</span>
       <span className="slotitem">
-        <Icon name={ICON[item.type]} />
+        <Icon name={face(item)} />
         <span className="slottext">{item.name}</span>
       </span>
     </button>

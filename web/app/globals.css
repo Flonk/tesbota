@@ -602,6 +602,7 @@ textarea {
 .knot.leaf { cursor: default; opacity: .35; }
 .folded { font: var(--mono); font-size: .7rem; color: var(--gold); opacity: .8; }
 
+.erow.under .ename { color: var(--dim); padding-left: .9rem; }
 .erow.untrained .ename { color: var(--dim); }
 .erow.untrained .ecell.num { color: var(--dim); }
 .erow.trained .ecell.num { color: var(--gold); }

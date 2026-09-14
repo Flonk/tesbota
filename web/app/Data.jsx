@@ -15,6 +15,13 @@ export const ICON = {
   weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer", valuable: "coin", material: "sack",
 };
 
+export const APPAREL_ICON = {
+  helmet: "helm", chest: "shirt", legs: "trousers", feet: "boot", offhand: "shield", ring: "ring",
+};
+
+export const face = (item) =>
+  (item?.type === "apparel" && APPAREL_ICON[item?.slot]) || ICON[item?.type] || "box";
+
 export const rare = (name) => (
   <span className={`rare-${name}`}>{String(name || "").replace(/_/g, " ")}</span>
 );
@@ -28,19 +35,18 @@ const TRAITS = {
 };
 
 const ITEMS = {
-  cols: "1.1rem minmax(6rem, 1fr) minmax(8rem, 1.6fr) minmax(6rem, 1.2fr)",
+  cols: "1.1rem minmax(8rem, 1.2fr) minmax(8rem, 1.6fr)",
   fields: [
     { key: "icon", label: "", cell: (r) => <Icon name={r.icon} /> },
-    { key: "type", label: "item", strong: true, cell: (r) => r.type },
+    { key: "type", label: "item", strong: true, cell: (r) => r.label },
     { key: "stats", label: "what it carries", dim: true, cell: (r) => r.stats },
-    { key: "slots", label: "slot", dim: true, cell: (r) => (r.slots || []).join(", ") },
   ],
 };
 
 const KIT = {
   cols: "1.1rem minmax(6rem, 1.3fr) minmax(6rem, 1.2fr) minmax(6rem, 1.4fr)",
   fields: [
-    { key: "icon", label: "", cell: (r) => <Icon name={ICON[r.type]} /> },
+    { key: "icon", label: "", cell: (r) => <Icon name={face(r)} /> },
     { key: "name", label: "they start with", strong: true, cell: (r) => r.name },
     { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
     { key: "note", label: "condition", dim: true, cell: (r) => r.note || "" },
@@ -83,8 +89,21 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
   }
 
   if (at === "items") {
-    const rows = (catalogue.items || []).map((r) => ({ ...r, id: r.type }));
-    return <Table {...ITEMS} rows={rows} empty="no kinds of thing yet" />;
+    const rows = [];
+    for (const kind of catalogue.items || []) {
+      rows.push({ ...kind, id: kind.type, label: kind.type });
+      for (const slot of kind.type === "apparel" ? kind.slots || [] : []) {
+        rows.push({
+          id: `${kind.type}:${slot.slot}`,
+          label: `${kind.type}:${slot.slot}`,
+          icon: slot.icon,
+          stats: kind.stats,
+          slot: slot.slot,
+          under: true,
+        });
+      }
+    }
+    return <Table {...ITEMS} rows={rows} rowClass={(r) => (r.under ? "under" : "")} empty="no kinds of thing yet" />;
   }
 
   if (at === "kit") {
