@@ -82,8 +82,8 @@ the same thing without a cause, and the book closes on *died of a mysterious cau
 the godhead does not explain itself.
 
 Carrying it out means: a last passage, `Here ends the life of Lene Bota, who …`; the
-dead one's turns put away under `state/lives/`; whatever they carried left at the
-place they fell; and a new name, a fresh kit and a fresh book set walking in the same
+dead one's turns put away under `state/lives/`; whatever they carried gone with them;
+and a new name, a fresh kit and a fresh book set walking in the same
 world at the same hour. The closed book stays on the shelf; the world keeps
 everything it has been told.
 

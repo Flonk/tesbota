@@ -67,7 +67,7 @@ export default function Settings({ who, speed, paused, busy, onKill, onSpeed, on
           <div className="dbody">
             <p className="body dnote">
               {who} stops here, dead of a mysterious cause — the last line of their book, since
-              the godhead does not explain itself. Whatever they carried stays where they fell,
+              the godhead does not explain itself. Whatever they carried goes with them,
               the book stays on the shelf, and somebody else sets out in the same world with
               nothing. This cannot be undone.
             </p>

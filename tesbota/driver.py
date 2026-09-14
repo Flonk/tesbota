@@ -63,10 +63,6 @@ def bury(campaign, cause=None):
     has been told."""
     chronicle.close(cause)
 
-    fell = campaign.get("location")
-    if fell:
-        for item in canon.holdings(EXPLORER):
-            canon.give(fell, item["name"], item["qty"], note=item.get("note") or "")
     canon.strip(EXPLORER)
 
     retire(campaign)
