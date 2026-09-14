@@ -7,7 +7,16 @@ from . import actions, canon, chronicle, db, driver, mapping, prompts, sheet, vi
 from .gate import sqlite_gate
 from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
-from .config import FIRST_NAMES, NARRATOR, RARITY, STARTING_INVENTORY, STUB, SURNAME, TRAITS
+from .config import (
+    FIRST_NAMES,
+    ITEM_TYPES,
+    NARRATOR,
+    RARITY,
+    STARTING_INVENTORY,
+    STUB,
+    SURNAME,
+    TRAITS,
+)
 from .state import (
     all_turns,
     explorer_name,
@@ -142,6 +151,7 @@ def cmd_data(args):
         "personality": [{"trait": t, "rarity": r} for t, r in TRAITS],
         "rarity": [{"rarity": name, "weight": weight} for name, weight in RARITY],
         "kit": STARTING_INVENTORY,
+        "items": [{"type": t, "stats": stats, "icon": icon} for t, stats, icon in ITEM_TYPES],
         "prompts": prompts.catalogue(),
     }
     if getattr(args, "json", False):

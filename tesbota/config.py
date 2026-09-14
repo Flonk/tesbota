@@ -196,14 +196,26 @@ STARTING_SKILLS = {
 
 SKILL_DIE = 20
 
+ITEM_TYPES = (
+    ("weapon", "damage", "sword"),
+    ("apparel", "protection", "shirt"),
+    ("consumable", "heals, uses", "flask"),
+    ("tool", "what it lets them do", "hammer"),
+    ("light", "burns for", "lantern"),
+    ("valuable", "worth", "coin"),
+    ("voucher", "owed by, redeemed at", "scroll"),
+    ("material", "—", "sack"),
+    ("keepsake", "—", "gem"),
+)
+
 STARTING_INVENTORY = [
-    {"name": "travelling clothes", "qty": 1,
-     "note": "plain and hard-wearing, none of it new", "worn": True},
-    {"name": "walking boots", "qty": 1,
-     "note": "worn down at the heel but sound", "worn": True},
-    {"name": "piece of bread", "qty": 1,
-     "note": "a day old, wrapped in cloth", "effect": "+15 health when eaten"},
-    {"name": "walking cane", "qty": 1,
+    {"name": "travelling clothes", "type": "apparel", "qty": 1, "worn": True,
+     "note": "plain and hard-wearing, none of it new", "effect": "no protection to speak of"},
+    {"name": "walking boots", "type": "apparel", "qty": 1, "worn": True,
+     "note": "worn down at the heel but sound", "effect": "no protection to speak of"},
+    {"name": "piece of bread", "type": "consumable", "qty": 1,
+     "note": "a day old, wrapped in cloth", "effect": "+15 health, one use"},
+    {"name": "walking cane", "type": "weapon", "qty": 1,
      "note": "hazel, waist-high, worn smooth at the grip", "effect": "1–2 damage"},
 ]
 

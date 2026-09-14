@@ -1,5 +1,6 @@
 "use client";
 
+import Icon from "./icons";
 import { Empty, Table } from "./ui";
 
 const NAMES = {
@@ -8,6 +9,12 @@ const NAMES = {
     { key: "name", label: "names", strong: true, cell: (r) => r.name },
     { key: "state", label: "spoken for", dim: true, cell: (r) => r.state },
   ],
+};
+
+export const ICON = {
+  weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer",
+  light: "lantern", valuable: "coin", voucher: "scroll", material: "sack",
+  keepsake: "gem",
 };
 
 export const rare = (name) => (
@@ -22,9 +29,19 @@ const TRAITS = {
   ],
 };
 
-const KIT = {
-  cols: "minmax(7rem, 1.4fr) minmax(6rem, 1.2fr) minmax(7rem, 1.6fr)",
+const ITEMS = {
+  cols: "2.2rem minmax(6rem, 1fr) minmax(8rem, 1.6fr)",
   fields: [
+    { key: "icon", label: "", cell: (r) => <Icon name={r.icon} /> },
+    { key: "type", label: "item", strong: true, cell: (r) => r.type },
+    { key: "stats", label: "what it carries", dim: true, cell: (r) => r.stats },
+  ],
+};
+
+const KIT = {
+  cols: "2.2rem minmax(6rem, 1.3fr) minmax(6rem, 1.2fr) minmax(6rem, 1.4fr)",
+  fields: [
+    { key: "icon", label: "", cell: (r) => <Icon name={ICON[r.type]} /> },
     { key: "name", label: "they start with", strong: true, cell: (r) => r.name },
     { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
     { key: "note", label: "condition", dim: true, cell: (r) => r.note || "" },
@@ -64,6 +81,11 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
         empty="no names to draw from"
       />
     );
+  }
+
+  if (at === "items") {
+    const rows = (catalogue.items || []).map((r) => ({ ...r, id: r.type }));
+    return <Table {...ITEMS} rows={rows} empty="no kinds of thing yet" />;
   }
 
   if (at === "kit") {
