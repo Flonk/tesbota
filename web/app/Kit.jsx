@@ -1,6 +1,6 @@
 "use client";
 
-import { face, rare, worth } from "./Data";
+import { face, rare, tone, worth } from "./Data";
 import Icon from "./icons";
 import { openDossier, Table } from "./ui";
 
@@ -29,15 +29,15 @@ function Slot({ slot, item }) {
     );
   }
   const said = worth(item);
-  const tone = item.rarity && item.rarity !== "common" ? `tint-${item.rarity}` : "";
+  const tint = tone(item.rarity);
   return (
     <button className={`${cls} worn`} onClick={() => openDossier(item.id)} title={item.name}>
       <span className="slotname">{slot}</span>
       <span className="slotitem">
-        <span className={tone}>
+        <span className={tint}>
           <Icon name={face(item)} />
         </span>
-        <span className="slottext">{item.name}</span>
+        <span className={`slottext ${tint}`}>{item.name}</span>
       </span>
       <span className="slotstat">{said}</span>
     </button>

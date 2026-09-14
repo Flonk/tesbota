@@ -223,6 +223,7 @@ const ROWS = `
          (SELECT coalesce(le.name, replace(pr.lives, '-', ' ')) FROM person pr
             LEFT JOIN entity le ON le.id = pr.lives WHERE pr.id = e.id) AS livesName,
          (SELECT h.holder FROM holding h WHERE h.item = e.id LIMIT 1) AS holder,
+         (SELECT it.rarity FROM item it WHERE it.id = e.id) AS rarity,
          (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
           OR EXISTS (SELECT 1 FROM person pr WHERE pr.id = e.id
                        AND (pr.work LIKE '%$BOTA%' OR pr.lives LIKE '%$BOTA%'
@@ -265,6 +266,7 @@ export function entities(kind) {
       parent: r.parent || null,
       parentName: r.parent ? r.parentName : null,
       holder: r.holder || null,
+      rarity: r.rarity || null,
       work: r.work || "",
       born: r.born || "",
       died: r.died || "",

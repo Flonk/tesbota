@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { rare } from "./Data";
+import { rare, tone } from "./Data";
 import Icon from "./icons";
 import { Btn, Empty, Note, Prose, Stub, Table, Toggle } from "./ui";
 
@@ -144,7 +144,8 @@ const COLUMNS = {
   items: {
     cols: "minmax(8rem, 2fr) minmax(6rem, 1.4fr) 5rem",
     fields: [
-      { key: "name", strong: true, label: "item", cell: (r) => r.name },
+      { key: "name", strong: true, label: "item",
+        cell: (r) => <span className={tone(r.rarity)}>{r.name}</span> },
       { key: "holder", label: "held by", cell: (r) => holderOf(r), dim: true },
       { key: "mentions", label: "mentioned", cell: (r) => COUNT(r.mentions), num: true },
     ],

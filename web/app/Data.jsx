@@ -32,6 +32,9 @@ export const worth = (item) => {
   return said.join(", ");
 };
 
+export const tone = (rarity) =>
+  rarity && rarity !== "common" ? `tint-${rarity}` : "";
+
 export const rare = (name) => (
   <span className={`rare-${name}`}>{String(name || "").replace(/_/g, " ")}</span>
 );

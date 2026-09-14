@@ -1,6 +1,6 @@
 "use client";
 
-import { face as itemFace, rare } from "./Data";
+import { face as itemFace, rare, tone } from "./Data";
 import { useEffect, useState } from "react";
 import { Empty, openDossier, Overlay, Prose, Stub, Table, Tag } from "./ui";
 
@@ -279,6 +279,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
     <Overlay
       onClose={onClose}
       face={face_of(thing) || "search"}
+      tone={thing?.kind === "items" ? tone(thing.item?.rarity) : ""}
       title={thing?.name || id.replace(/-/g, " ")}
       tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
       under={
