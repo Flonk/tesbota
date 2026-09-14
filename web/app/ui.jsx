@@ -284,7 +284,7 @@ export function Overlay({ title, tags, face, under, onClose, children }) {
             ×
           </button>
         </div>
-        {children}
+        <div className="dpad">{children}</div>
       </div>
     </div>
   );

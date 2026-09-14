@@ -692,13 +692,17 @@ textarea.prompt:focus { outline: none; }
   flex: 0 1 40rem; min-width: 0;
   background: var(--bg);
   border-left: 1px solid var(--line);
-  overflow-y: auto;
-  padding: .9rem 1.2rem 2rem;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  padding: 0;
 }
+.dpad { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 1.1rem 1.2rem 2rem; }
 .dhead {
+  flex: 0 0 auto;
   display: flex; align-items: center; gap: .7rem;
-  padding-bottom: .8rem; margin-bottom: 1.1rem;
+  padding: .9rem 1.2rem .8rem;
   border-bottom: 1px solid var(--line);
+  background: var(--panel);
 }
 .dhead > .icon { flex: 0 0 auto; color: var(--dim); }
 .dtitle { flex: 1 1 auto; min-width: 0; font-size: 1.1rem; display: flex; flex-direction: column; gap: .15rem; }
@@ -758,7 +762,11 @@ textarea.prompt:focus { outline: none; }
 }
 .dlink:hover { color: var(--gold); }
 
-@media (max-width: 720px) { .dpanel { flex: 1 1 auto; border-left: 0; padding: .8rem .9rem 2rem; } }
+@media (max-width: 720px) {
+  .dpanel { flex: 1 1 auto; border-left: 0; padding: 0; }
+  .dhead { padding: .8rem .9rem; }
+  .dpad { padding: 1rem .9rem 2rem; }
+}
 
 /* ---- reader ---- */
 
