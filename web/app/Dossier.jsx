@@ -102,6 +102,22 @@ function face_of(thing) {
   return KIND[thing.kind] || null;
 }
 
+function Who({ person }) {
+  return (
+    <p className="cap dwho">
+      <Prose as="span" text={person?.work || "$BOTA"} />
+      {", "}
+      {settled(person?.lives) ? (
+        <button className="dlink" onClick={() => openDossier(person.lives)}>
+          {person.livesName}
+        </button>
+      ) : (
+        <Stub />
+      )}
+    </p>
+  );
+}
+
 const settled = (v) => {
   const text = String(v || "").trim();
   return text && !text.includes("$BOTA") ? text : "";
@@ -200,27 +216,20 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
       face={face_of(thing) || "search"}
       title={thing?.name || id.replace(/-/g, " ")}
       tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
-      under={thing ? <Address address={thing.address} /> : null}
+      under={
+        thing ? (
+          <>
+            {thing.kind === "people" && <Who person={thing.person} />}
+            <Address address={thing.address} />
+          </>
+        ) : null
+      }
     >
         {missing && <Empty>nothing in the world has this address — it is a dangling link</Empty>}
         {!thing && !missing && <Empty>looking it up…</Empty>}
 
         {thing && (
           <div className="dbody">
-            {thing.kind === "people" ? (
-              <p className="cap dwho">
-                <Prose as="span" text={thing.person?.work || "$BOTA"} />
-                {", "}
-                {settled(thing.person?.lives) ? (
-                  <button className="dlink" onClick={() => openDossier(thing.person.lives)}>
-                    {thing.person.livesName}
-                  </button>
-                ) : (
-                  <Stub />
-                )}
-              </p>
-            ) : null}
-
             {thing.kind === "books" && face === "content" && (
               <Leaves thing={thing} fragment={fragment} />
             )}

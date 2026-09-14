@@ -654,7 +654,7 @@ textarea.prompt:focus { outline: none; }
 .dhead > .icon { flex: 0 0 auto; color: var(--dim); }
 .dtitle { flex: 1 1 auto; min-width: 0; font-size: 1.1rem; display: flex; flex-direction: column; gap: .15rem; }
 .dtitle .dname { min-width: 0; overflow-wrap: anywhere; }
-.dtitle .daddr, .dtitle .dmeta { align-self: flex-start; margin: 0; }
+.dtitle .daddr, .dtitle .dmeta, .dtitle .dwho { align-self: flex-start; margin: 0; }
 .dtitle .chip { margin-left: .6em; margin-right: 0; }
 .dclose {
   flex: 0 0 auto; background: none; border: 0; color: var(--dim);
