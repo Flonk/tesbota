@@ -7,7 +7,7 @@ from . import actions, canon, chronicle, db, driver, mapping, prompts, sheet, vi
 from .gate import sqlite_gate
 from .config import EXPLORER, MODELS, STARTING_INVENTORY, WRITE_TOOLS
 from .sdk import ask
-from .config import FIRST_NAMES, NARRATOR, STUB, SURNAME
+from .config import FIRST_NAMES, NARRATOR, STUB, SURNAME, TRAITS
 from .state import (
     all_turns,
     explorer_name,
@@ -139,6 +139,7 @@ def cmd_data(args):
             "current": explorer_name(),
             "pool": [{"name": n, "taken": n.lower() in taken} for n in FIRST_NAMES],
         },
+        "personality": [{"trait": t, "rarity": r} for t, r in TRAITS],
         "prompts": prompts.catalogue(),
     }
     if getattr(args, "json", False):
@@ -147,6 +148,7 @@ def cmd_data(args):
     free = sum(1 for n in payload["names"]["pool"] if not n["taken"])
     print(f"names: {free} of {len(payload['names']['pool'])} still free, "
           f"{payload['names']['current']} walking")
+    print(f"personality: {len(payload['personality'])} traits")
     for entry in payload["prompts"]:
         print(f"  {entry['label']:14} {len(entry['text']):6} chars")
 

@@ -25,6 +25,50 @@ GODHEAD_ID = "the-godhead"
 NARRATOR = "The Narrator"
 GODHEADS = (GODHEAD, NARRATOR.lower())
 
+TRAITS = (
+    ("blunt", "common"), ("patient", "common"), ("curious", "common"),
+    ("wary", "common"), ("stubborn", "common"), ("generous", "common"),
+    ("thrifty", "common"), ("proud", "common"), ("anxious", "common"),
+    ("loyal", "common"), ("lazy", "common"), ("industrious", "common"),
+    ("cheerful", "common"), ("sullen", "common"), ("talkative", "common"),
+    ("quiet", "common"), ("pious", "common"), ("superstitious", "common"),
+    ("practical", "common"), ("sentimental", "common"), ("hot-tempered", "common"),
+    ("even-tempered", "common"), ("nosy", "common"), ("private", "common"),
+    ("boastful", "common"), ("self-effacing", "common"), ("greedy", "common"),
+    ("hospitable", "common"), ("suspicious of strangers", "common"),
+    ("fond of children", "common"), ("hard on themselves", "common"),
+    ("quick to laugh", "common"), ("slow to forgive", "common"),
+    ("soft-hearted about animals", "common"), ("early to bed", "common"),
+    ("fond of drink", "common"), ("careful with money", "common"),
+    ("bad at goodbyes", "common"), ("always working", "common"),
+    ("never on time", "common"),
+
+    ("vain", "uncommon"), ("cowardly", "uncommon"), ("reckless", "uncommon"),
+    ("vengeful", "uncommon"), ("forgiving to a fault", "uncommon"),
+    ("secretly literate", "uncommon"), ("tone-deaf and singing anyway", "uncommon"),
+    ("deep in debt", "uncommon"), ("owed a favour by someone important", "uncommon"),
+    ("keeps a tally of every slight", "uncommon"), ("lies for no reason", "uncommon"),
+    ("cannot lie at all", "uncommon"), ("terrified of water", "uncommon"),
+    ("will not go out after dark", "uncommon"), ("collects something useless", "uncommon"),
+    ("names every tool they own", "uncommon"), ("talks to the dead", "uncommon"),
+    ("dreams of leaving", "uncommon"), ("has left once and come back", "uncommon"),
+    ("reads weather in their knees", "uncommon"), ("believes they are cursed", "uncommon"),
+    ("sends money somewhere", "uncommon"), ("raising a child not theirs", "uncommon"),
+    ("was somebody else's servant", "uncommon"), ("keeps a weapon they never use", "uncommon"),
+    ("fasts on a day nobody else does", "uncommon"), ("counts under their breath", "uncommon"),
+    ("cannot bear to be touched", "uncommon"), ("gives away what they need", "uncommon"),
+    ("remembers every name", "uncommon"),
+
+    ("has killed someone", "rare"), ("is hiding from somebody", "rare"),
+    ("keeps a book nobody knows about", "rare"), ("has a second family elsewhere", "rare"),
+    ("sees things others do not", "rare"), ("has never been ill", "rare"),
+    ("does not age as they should", "rare"), ("cannot sleep indoors", "rare"),
+    ("hears their own words come back", "rare"), ("is not from here at all", "rare"),
+    ("has an arrangement with something", "rare"), ("was dead once, briefly", "rare"),
+    ("is the last of a line", "rare"), ("knows a trade nobody practises", "rare"),
+    ("has a name they never use", "rare"), ("is waiting for a signal", "rare"),
+)
+
 SURNAME = "Bota"
 
 MYSTERY = "died of a mysterious cause"

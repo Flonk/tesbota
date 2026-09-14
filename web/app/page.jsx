@@ -700,7 +700,10 @@ export default function Page() {
             className="sub"
             items={
               sheaf === "lists"
-                ? [{ id: "names", label: "names", icon: "people" }]
+                ? [
+                    { id: "names", label: "names", icon: "people" },
+                    { id: "personality", label: "personality", icon: "pulse" },
+                  ]
                 : (catalogue?.prompts || []).map((p) => ({
                     id: p.id,
                     label: p.label,

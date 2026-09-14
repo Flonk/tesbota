@@ -10,6 +10,14 @@ const NAMES = {
   ],
 };
 
+const TRAITS = {
+  cols: "minmax(9rem, 2fr) 6rem",
+  fields: [
+    { key: "trait", label: "personality", strong: true, cell: (r) => r.trait },
+    { key: "rarity", label: "how often", dim: true, cell: (r) => r.rarity },
+  ],
+};
+
 export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
   const prompt = (catalogue?.prompts || []).find((p) => p.id === at);
   const source = prompt?.source ?? prompt?.text ?? "";
@@ -34,6 +42,11 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
         empty="no names to draw from"
       />
     );
+  }
+
+  if (at === "personality") {
+    const rows = (catalogue.personality || []).map((r) => ({ ...r, id: r.trait }));
+    return <Table {...TRAITS} rows={rows} empty="nobody is anybody yet" />;
   }
 
   if (!prompt) return <Empty>nothing under that name</Empty>;
