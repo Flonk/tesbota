@@ -224,7 +224,7 @@ const ROWS = `
          (SELECT pr.lives FROM person pr WHERE pr.id = e.id) AS lives,
          (SELECT coalesce(le.name, replace(pr.lives, '-', ' ')) FROM person pr
             LEFT JOIN entity le ON le.id = pr.lives WHERE pr.id = e.id) AS livesName,
-         (SELECT h.holder FROM holding h WHERE lower(h.name) = lower(e.name) LIMIT 1) AS holder,
+         (SELECT h.holder FROM holding h WHERE h.item = e.id LIMIT 1) AS holder,
          EXISTS (SELECT 1 FROM unwritten u WHERE u.id = e.id) AS unwritten,
          (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
           OR EXISTS (SELECT 1 FROM person pr WHERE pr.id = e.id
@@ -322,9 +322,9 @@ export function entity(id) {
       .prepare(
         `SELECT h.holder, coalesce(e.name, replace(h.holder, '-', ' ')) AS name, h.qty, h.note
            FROM holding h LEFT JOIN entity e ON e.id = h.holder
-          WHERE lower(h.name) = lower(?) ORDER BY h.holder`
+          WHERE h.item = ? ORDER BY h.holder`
       )
-      .all(row.name);
+      .all(ident);
 
     const bundle = {
       ...row,
@@ -427,9 +427,15 @@ function around(body, needle, width = 90) {
 
 function holdingsIn(db, holder) {
   return db
-    .prepare(`SELECT name, qty, note, worn FROM holding WHERE holder = ? ORDER BY id`)
+    .prepare(
+      `SELECT h.item, coalesce(e.name, replace(h.item, '-', ' ')) AS name, i.type, h.qty, h.note, h.worn
+         FROM holding h
+         LEFT JOIN entity e ON e.id = h.item
+         LEFT JOIN item i ON i.id = h.item
+        WHERE h.holder = ? ORDER BY h.id`
+    )
     .all(holder)
-    .map((r) => ({ name: r.name, qty: r.qty || 1, note: r.note || "", worn: !!r.worn }));
+    .map((r) => ({ id: r.item, name: r.name, type: r.type || "", qty: r.qty || 1, note: r.note || "", worn: !!r.worn }));
 }
 
 export async function look(question) {

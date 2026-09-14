@@ -177,7 +177,8 @@ passage(book_id, ord, text)                     a book's text, one paragraph to 
 entity.about                                    a thing describing itself, no author
 place(id, parent)                               every place sits inside one
 way(src, dst, bearing, distance)                what leads where
-holding(holder, name, qty, note, worn)          what a place, a person or the explorer keeps
+item(id, type, damage, protection, heals, uses, worth, owed_by)
+holding(holder, item, qty, note, worn)          what a place, a person or the explorer keeps
 
 writing(ref, entity, kind, section, body)       every passage, with its address
 search(ref, entity, section, body)              fts5 over all of it
@@ -507,10 +508,11 @@ now reads calamity at 1 and 2 the same way it reads fortune at 399 and 400.
 Checks and the d400 are resolved in the same pass, so an action needs at most one
 redraft even when both land.
 
-Inventory entries are objects — `name`, `qty`, `note`, and `worn` — so the
-adventurer's clothes sit apart from what it is carrying, and quantities and
-condition are recorded rather than baked into a sentence. String entries from
-older campaigns are converted on load.
+Everything anybody carries is an entity of kind `items` with an `item` row saying
+what it is — `type`, and the columns that type asks for. A holding is a holder, an
+item id, a count, a note and whether it is worn, so the thing in a pack and the
+thing in the library are the same thing, and naming one the world lacks writes it
+down on the spot.
 
 The web header keeps health, fatigue and hunger as bars; clicking them opens the
 character sheet — condition, ability scores, all eighteen skills with their

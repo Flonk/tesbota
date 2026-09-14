@@ -65,6 +65,8 @@ She is now one voucher short, serving as a reminder in both inventories. People 
 
 When spawning an item ex nihilo, or consuming/destroying an item, you can set from/to to "the-godhead". Use it sparingly.
 
+Everything anybody carries is a thing the world has a row for. Naming one it does not have writes it down on the spot, so name it as it should stand in the library — "hazel cane", not "the cane he was holding".
+
 
 # Death 
 

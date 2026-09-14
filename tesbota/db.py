@@ -55,16 +55,27 @@ CREATE TABLE IF NOT EXISTS way (
 );
 CREATE INDEX IF NOT EXISTS way_dst ON way(dst);
 
+CREATE TABLE IF NOT EXISTS item (
+  id         TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  type       TEXT,
+  damage     TEXT,
+  protection TEXT,
+  heals      TEXT,
+  uses       TEXT,
+  worth      TEXT,
+  owed_by    TEXT
+);
+
 CREATE TABLE IF NOT EXISTS holding (
   id       INTEGER PRIMARY KEY,
   holder   TEXT NOT NULL,
-  name     TEXT NOT NULL,
+  item     TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
   qty      INTEGER NOT NULL DEFAULT 1,
   note     TEXT,
   worn     INTEGER NOT NULL DEFAULT 0,
   turn_id  TEXT
 );
-CREATE UNIQUE INDEX IF NOT EXISTS holding_once ON holding(holder, lower(name));
+CREATE UNIQUE INDEX IF NOT EXISTS holding_once ON holding(holder, item);
 CREATE INDEX IF NOT EXISTS holding_holder ON holding(holder);
 
 CREATE VIEW IF NOT EXISTS writing AS

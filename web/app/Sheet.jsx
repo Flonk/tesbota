@@ -1,6 +1,6 @@
 "use client";
 
-import { Table } from "./ui";
+import { openDossier, Table } from "./ui";
 
 const SKILL_ABILITY = {
   acrobatics: "dex",

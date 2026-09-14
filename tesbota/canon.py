@@ -17,7 +17,7 @@ ATTESTED = "attested"
 
 
 def slug(text):
-    return "-".join(str(text or "").split()).strip("-").lower()
+    return "-".join(str(text or "").replace("'", "").replace("\u2019", "").split()).strip("-").lower()
 
 
 def find_entity(entity_id):
@@ -287,17 +287,47 @@ def mermaid():
     return "\n".join(out)
 
 
+def thing(name, kind="items", turn_id=None):
+    """Everything anybody carries is a thing the world has a row for. Naming one
+    that has none writes it down, the same as naming a place."""
+    ident = slug(name)
+    if not ident:
+        return None
+    if not find_entity(ident):
+        title = str(name).strip()
+        with db.writing() as con:
+            con.execute(
+                "INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)",
+                (ident, kind, title[:1].upper() + title[1:], turn_id),
+            )
+            con.execute("INSERT OR IGNORE INTO item (id) VALUES (?)", (ident,))
+    return ident
+
+
 def held(holder, name):
     return db.row(
-        "SELECT * FROM holding WHERE holder = ? AND lower(name) = lower(?)",
-        (holder, str(name or "").strip()),
+        "SELECT * FROM holding WHERE holder = ? AND item = ?", (holder, slug(name))
     )
 
 
 def holdings(holder):
     return [
-        {"name": r["name"], "qty": r["qty"], "note": r["note"] or "", "worn": bool(r["worn"])}
-        for r in db.rows("SELECT * FROM holding WHERE holder = ? ORDER BY id", (holder,))
+        {
+            "item": r["item"],
+            "name": r["name"] or r["item"].replace("-", " "),
+            "type": r["type"],
+            "qty": r["qty"],
+            "note": r["note"] or "",
+            "worn": bool(r["worn"]),
+        }
+        for r in db.rows(
+            """SELECT h.item, h.qty, h.note, h.worn, e.name, i.type
+                 FROM holding h
+                 LEFT JOIN entity e ON e.id = h.item
+                 LEFT JOIN item i ON i.id = h.item
+                WHERE h.holder = ? ORDER BY h.id""",
+            (holder,),
+        )
     ]
 
 
@@ -318,13 +348,13 @@ def holders():
 
 
 def give(holder, name, qty=1, note="", worn=False, turn_id=None):
-    name = str(name or "").strip()
-    if not holder or not name:
+    item = thing(name, turn_id=turn_id)
+    if not holder or not item:
         return 0
     qty = int(qty or 1)
     with db.writing() as con:
         row = con.execute(
-            "SELECT id, qty FROM holding WHERE holder = ? AND lower(name) = lower(?)", (holder, name)
+            "SELECT id, qty FROM holding WHERE holder = ? AND item = ?", (holder, item)
         ).fetchone()
         if row:
             left = int(row["qty"]) + qty
@@ -334,8 +364,8 @@ def give(holder, name, qty=1, note="", worn=False, turn_id=None):
                 con.execute("UPDATE holding SET qty = ? WHERE id = ?", (left, row["id"]))
         else:
             con.execute(
-                "INSERT INTO holding (holder, name, qty, note, worn, turn_id) VALUES (?,?,?,?,?,?)",
-                (holder, name, qty, str(note or ""), int(bool(worn)), turn_id),
+                "INSERT INTO holding (holder, item, qty, note, worn, turn_id) VALUES (?,?,?,?,?,?)",
+                (holder, item, qty, str(note or ""), int(bool(worn)), turn_id),
             )
     return qty
 
@@ -343,13 +373,13 @@ def give(holder, name, qty=1, note="", worn=False, turn_id=None):
 def take(holder, name, qty=1):
     """Give up what is asked for, or everything held if that is less. Taking
     what nobody has is nothing happening."""
-    name = str(name or "").strip()
-    if not holder or not name:
+    item = slug(name)
+    if not holder or not item:
         return 0
     qty = int(qty or 1)
     with db.writing() as con:
         row = con.execute(
-            "SELECT id, qty FROM holding WHERE holder = ? AND lower(name) = lower(?)", (holder, name)
+            "SELECT id, qty FROM holding WHERE holder = ? AND item = ?", (holder, item)
         ).fetchone()
         if not row:
             return 0
@@ -370,13 +400,13 @@ def strip(holder):
 def owe(holder, name, qty=1, note=""):
     """Take from a holder past what they have, leaving them short by the rest. A
     negative row is a debt somebody has written and is good for."""
-    name = str(name or "").strip()
-    if not holder or not name:
+    item = thing(name)
+    if not holder or not item:
         return 0
     qty = int(qty or 1)
     with db.writing() as con:
         row = con.execute(
-            "SELECT id, qty FROM holding WHERE holder = ? AND lower(name) = lower(?)", (holder, name)
+            "SELECT id, qty FROM holding WHERE holder = ? AND item = ?", (holder, item)
         ).fetchone()
         left = (int(row["qty"]) if row else 0) - qty
         if row and left == 0:
@@ -385,8 +415,8 @@ def owe(holder, name, qty=1, note=""):
             con.execute("UPDATE holding SET qty = ? WHERE id = ?", (left, row["id"]))
         else:
             con.execute(
-                "INSERT INTO holding (holder, name, qty, note) VALUES (?,?,?,?)",
-                (holder, name, left, str(note or "")),
+                "INSERT INTO holding (holder, item, qty, note) VALUES (?,?,?,?)",
+                (holder, item, left, str(note or "")),
             )
         return left
 
