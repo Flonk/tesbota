@@ -1,5 +1,6 @@
 "use client";
 
+import { rare } from "./Data";
 import { useEffect, useState } from "react";
 import { Empty, openDossier, Overlay, Prose, Stub, Table, Tag } from "./ui";
 
@@ -32,7 +33,7 @@ const WROTE = {
     { key: "name", label: "authored", strong: true, cell: (r) => r.name },
     { key: "written", label: "written", dim: true,
       cell: (r) => (String(r.written || "").includes("$BOTA") || !r.written ? <Stub /> : r.written) },
-    { key: "rarity", label: "rarity", dim: true, cell: (r) => r.rarity || <Stub /> },
+    { key: "rarity", label: "rarity", cell: (r) => (r.rarity ? rare(r.rarity) : <Stub />) },
   ],
 };
 

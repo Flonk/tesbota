@@ -8,7 +8,7 @@ from .config import (
     GODHEAD_ID,
     BANDS,
     EXPLORER,
-    BAND_WEIGHT,
+    WEIGHT,
     SPARK_FLOOR,
     PRESS_FLOOR,
     DIE,
@@ -378,7 +378,7 @@ def weigh_outcomes(raw):
         except (TypeError, ValueError):
             weight = 0
         if not weight > 0:
-            weight = BAND_WEIGHT[entry["band"]]
+            weight = WEIGHT[entry["band"]]
         out.append({"band": entry["band"], "text": entry["text"].strip(), "p": weight})
     total = sum(e["p"] for e in out)
     for entry in out:

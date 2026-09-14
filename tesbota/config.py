@@ -61,20 +61,29 @@ TRAITS = (
     ("laughs at the wrong moments", "rare"), ("weeps easily and without cause", "rare"),
     ("never sleeps a full night", "rare"), ("forgets faces", "rare"),
 
-    ("autism", "very rare"), ("bipolar disorder", "very rare"),
-    ("mania", "very rare"), ("schizophrenia", "very rare"),
-    ("paranoia", "very rare"), ("melancholia", "very rare"),
-    ("obsessive-compulsive disorder", "very rare"),
-    ("multiple personality disorder", "very rare"),
-    ("psychopathy", "very rare"), ("narcissistic personality disorder", "very rare"),
-    ("selective mutism", "very rare"), ("alexithymia", "very rare"),
-    ("auditory hallucinations", "very rare"), ("synesthesia", "very rare"),
-    ("hyperthymesia", "very rare"), ("prosopagnosia", "very rare"),
-    ("catatonia", "very rare"), ("kleptomania", "very rare"),
+    ("autism", "very_rare"), ("bipolar disorder", "very_rare"),
+    ("mania", "very_rare"), ("schizophrenia", "very_rare"),
+    ("paranoia", "very_rare"), ("melancholia", "very_rare"),
+    ("obsessive-compulsive disorder", "very_rare"),
+    ("multiple personality disorder", "very_rare"),
+    ("psychopathy", "very_rare"), ("narcissistic personality disorder", "very_rare"),
+    ("selective mutism", "very_rare"), ("alexithymia", "very_rare"),
+    ("auditory hallucinations", "very_rare"), ("synesthesia", "very_rare"),
+    ("hyperthymesia", "very_rare"), ("prosopagnosia", "very_rare"),
+    ("catatonia", "very_rare"), ("kleptomania", "very_rare"),
 )
 
 
-TRAIT_WEIGHT = {"common": 0.60, "uncommon": 0.28, "rare": 0.10, "very rare": 0.02}
+RARITY = (
+    ("common", 0.60),
+    ("uncommon", 0.28),
+    ("rare", 0.10),
+    ("very_rare", 0.02),
+    ("unique", 0.005),
+)
+WEIGHT = dict(RARITY)
+RARITIES = tuple(name for name, _ in RARITY)
+
 TRAITS_ROLLED = 3
 
 SURNAME = "Bota"
@@ -205,11 +214,9 @@ MAX_TALKS = 2
 
 DIE = 400
 BANDS = ("common", "common", "rare", "rare", "very_rare", "very_rare")
-BAND_WEIGHT = {"common": 0.35, "rare": 0.12, "very_rare": 0.03}
 SPARK_FLOOR = 4
 PRESS_FLOOR = 3
 
-RARITIES = ("common", "uncommon", "rare", "unique")
 
 FATE_LABELS = {
     "greater_calamity": "greater calamity",

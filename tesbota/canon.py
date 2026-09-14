@@ -10,7 +10,7 @@ from .config import (
     STUB,
     TRAITS,
     TRAITS_ROLLED,
-    TRAIT_WEIGHT,
+    WEIGHT,
 )
 
 ATTESTED = "attested"
@@ -118,7 +118,7 @@ def roll_traits(rng=None, how_many=TRAITS_ROLLED):
     pool = list(TRAITS)
     picked = []
     while pool and len(picked) < how_many:
-        weights = [TRAIT_WEIGHT.get(r, 0.1) for _, r in pool]
+        weights = [WEIGHT.get(r, 0.1) for _, r in pool]
         trait, _ = rng.choices(pool, weights=weights, k=1)[0]
         picked.append(trait)
         pool = [(t, r) for t, r in pool if t != trait]

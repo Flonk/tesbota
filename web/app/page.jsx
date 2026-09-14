@@ -703,6 +703,7 @@ export default function Page() {
                 ? [
                     { id: "names", label: "names", icon: "people" },
                     { id: "personality", label: "personality", icon: "pulse" },
+                    { id: "rarity", label: "rarity", icon: "dice" },
                   ]
                 : (catalogue?.prompts || []).map((p) => ({
                     id: p.id,

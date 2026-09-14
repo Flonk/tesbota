@@ -10,11 +10,24 @@ const NAMES = {
   ],
 };
 
+export const rare = (name) => (
+  <span className={`rare-${name}`}>{String(name || "").replace(/_/g, " ")}</span>
+);
+
 const TRAITS = {
   cols: "minmax(9rem, 2fr) 6rem",
   fields: [
     { key: "trait", label: "personality", strong: true, cell: (r) => r.trait },
-    { key: "rarity", label: "how often", dim: true, cell: (r) => r.rarity },
+    { key: "rarity", label: "how often", cell: (r) => rare(r.rarity) },
+  ],
+};
+
+const RARITY = {
+  cols: "minmax(6rem, 1fr) 5rem 3rem",
+  fields: [
+    { key: "rarity", label: "rarity", cell: (r) => rare(r.rarity) },
+    { key: "weight", label: "weight", num: true, cell: (r) => r.weight },
+    { key: "swatch", label: "", cell: (r) => <span className={`swatch rare-${r.rarity}`} /> },
   ],
 };
 
@@ -42,6 +55,11 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
         empty="no names to draw from"
       />
     );
+  }
+
+  if (at === "rarity") {
+    const rows = (catalogue.rarity || []).map((r) => ({ ...r, id: r.rarity }));
+    return <Table {...RARITY} rows={rows} empty="no ladder" />;
   }
 
   if (at === "personality") {

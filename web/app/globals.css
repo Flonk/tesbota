@@ -28,6 +28,13 @@ body {
   overflow-wrap: anywhere;
 }
 
+.rare-common { color: var(--dim); }
+.rare-uncommon { color: var(--good); }
+.rare-rare { color: var(--place); }
+.rare-very_rare { color: var(--gold); }
+.rare-unique { color: var(--warn); }
+.swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; background: currentColor; }
+
 /* ---- primitives ---- */
 
 .cap {

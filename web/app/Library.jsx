@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { rare } from "./Data";
 import Icon from "./icons";
 import { Btn, Empty, Note, Prose, Stub, Table, Toggle } from "./ui";
 
-const ORDER = ["unique", "rare", "uncommon", "common", ""];
+const ORDER = ["unique", "very_rare", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
 
 const OPEN = (v) => !String(v || "").trim() || String(v).includes("$BOTA");
@@ -37,7 +38,7 @@ const FILTERS = [
   { id: "authored", label: "has an author row", kinds: ["books"], test: (r) => !!r.authorId },
   ...ORDER.filter(Boolean).map((rarity) => ({
     id: `rarity:${rarity}`,
-    label: rarity,
+    label: rarity.replace(/_/g, " "),
     kinds: ["books"],
     group: "rarity",
     test: (r) => r.rarity === rarity,
