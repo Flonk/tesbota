@@ -432,14 +432,14 @@ function around(body, needle, width = 90) {
 function holdingsIn(db, holder) {
   return db
     .prepare(
-      `SELECT h.item, coalesce(e.name, replace(h.item, '-', ' ')) AS name, i.type, h.qty, h.note, h.worn
+      `SELECT h.item, coalesce(e.name, replace(h.item, '-', ' ')) AS name, i.type, i.slot, h.qty, h.note, h.worn
          FROM holding h
          LEFT JOIN entity e ON e.id = h.item
          LEFT JOIN item i ON i.id = h.item
         WHERE h.holder = ? ORDER BY h.id`
     )
     .all(holder)
-    .map((r) => ({ id: r.item, name: r.name, type: r.type || "", qty: r.qty || 1, note: r.note || "", worn: !!r.worn }));
+    .map((r) => ({ id: r.item, name: r.name, type: r.type || "", slot: r.slot || null, qty: r.qty || 1, note: r.note || "", worn: !!r.worn }));
 }
 
 export async function look(question) {

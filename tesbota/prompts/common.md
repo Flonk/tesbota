@@ -8,7 +8,8 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     passage(book_id, ord, text)                        a book's text, one paragraph a row
     place(id, parent)                                  every place sits inside one
     way(src, dst, bearing, distance)                   what leads where
-    item(id, type, damage, protection, heals, uses, worth, owed_by)
+    item(id, type, damage, protection, heals, uses, worth, owed_by, slot)
+                                                       slot: helmet | chest | legs | feet | mainhand | offhand | ring, or none
     holding(holder, item, qty, note, worn)             what a place, a person or the explorer keeps
 
     writing(ref, entity, kind, section, body)          every passage, with its address

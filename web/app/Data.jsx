@@ -28,11 +28,12 @@ const TRAITS = {
 };
 
 const ITEMS = {
-  cols: "1.1rem minmax(6rem, 1fr) minmax(8rem, 1.6fr)",
+  cols: "1.1rem minmax(6rem, 1fr) minmax(8rem, 1.6fr) minmax(6rem, 1.2fr)",
   fields: [
     { key: "icon", label: "", cell: (r) => <Icon name={r.icon} /> },
     { key: "type", label: "item", strong: true, cell: (r) => r.type },
     { key: "stats", label: "what it carries", dim: true, cell: (r) => r.stats },
+    { key: "slots", label: "slot", dim: true, cell: (r) => (r.slots || []).join(", ") },
   ],
 };
 

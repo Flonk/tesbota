@@ -1,6 +1,6 @@
 "use client";
 
-import { openDossier, Table } from "./ui";
+import { Table } from "./ui";
 
 const SKILL_ABILITY = {
   acrobatics: "dex",
@@ -54,17 +54,7 @@ const SKILLS = {
   ],
 };
 
-const CARRYING = {
-  cols: "minmax(7rem, 2fr) 3rem minmax(4.5rem, 1.2fr) 3.2rem",
-  fields: [
-    { key: "name", label: "carrying", strong: true, cell: (r) => r.name },
-    { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
-    { key: "note", label: "condition", dim: true, cell: (r) => r.note || "—" },
-    { key: "worn", label: "worn", dim: true, cell: (r) => (r.worn ? "worn" : "") },
-  ],
-};
-
-export default function Sheet({ vitals, skills, inventory = [] }) {
+export default function Sheet({ vitals, skills }) {
   const abilities = skills?.abilities || {};
   const proficient = new Set(skills?.proficient || []);
   const bonus = Number(skills?.proficiency || 0);
@@ -92,13 +82,6 @@ export default function Sheet({ vitals, skills, inventory = [] }) {
 
   return (
     <div className="sheet">
-      <Table
-        {...CARRYING}
-        rows={inventory}
-        onOpen={openDossier}
-        empty="it carries nothing"
-      />
-
       <div className="pair">
         <Table {...CONDITION} rows={condition} />
         <Table {...ABILITY} rows={scores} />

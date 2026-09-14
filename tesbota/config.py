@@ -196,23 +196,27 @@ STARTING_SKILLS = {
 
 SKILL_DIE = 20
 
+SLOTS = ("helmet", "chest", "legs", "feet", "mainhand", "offhand", "ring")
+
+RING_SLOTS = 4
+
 ITEM_TYPES = (
-    ("weapon", "damage", "sword"),
-    ("apparel", "protection", "shirt"),
-    ("consumable", "heals, uses", "flask"),
-    ("tool", "what it lets them do, how long it lasts", "hammer"),
-    ("valuable", "worth, to whom, and who owes it", "coin"),
-    ("material", "—", "sack"),
+    ("weapon", "damage", "sword", ("mainhand", "offhand")),
+    ("apparel", "protection", "shirt", ("helmet", "chest", "legs", "feet", "ring")),
+    ("consumable", "heals, uses", "flask", ()),
+    ("tool", "what it lets them do, how long it lasts", "hammer", ()),
+    ("valuable", "worth, to whom, and who owes it", "coin", ()),
+    ("material", "—", "sack", ()),
 )
 
 STARTING_INVENTORY = [
-    {"name": "travelling clothes", "type": "apparel", "qty": 1, "worn": True,
+    {"name": "travelling clothes", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
      "note": "plain and hard-wearing, none of it new", "effect": "no protection to speak of"},
-    {"name": "walking boots", "type": "apparel", "qty": 1, "worn": True,
+    {"name": "walking boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
      "note": "worn down at the heel but sound", "effect": "no protection to speak of"},
     {"name": "piece of bread", "type": "consumable", "qty": 1,
      "note": "a day old, wrapped in cloth", "effect": "+15 health, one use"},
-    {"name": "walking cane", "type": "weapon", "qty": 1,
+    {"name": "walking cane", "type": "weapon", "qty": 1, "slot": "mainhand",
      "note": "hazel, waist-high, worn smooth at the grip", "effect": "1–2 damage"},
 ]
 

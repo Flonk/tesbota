@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "./icons";
+import Kit from "./Kit";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
@@ -294,6 +295,7 @@ const SUBS = {
   ],
   me: [
     { id: "stats", label: "stats", icon: "pulse" },
+    { id: "inventory", label: "inventory", icon: "box" },
     { id: "quests", label: "quests", icon: "flag" },
   ],
   library: [
@@ -772,8 +774,9 @@ export default function Page() {
           )}
           {tab === "map" && <Map where={status.where} at={status.now} />}
           {tab === "me" && sub.me === "stats" && (
-            <Sheet vitals={vitals} skills={skills} inventory={inventory || []} />
+            <Sheet vitals={vitals} skills={skills} />
           )}
+          {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "quests" && (
             <Quests
               quests={quests}

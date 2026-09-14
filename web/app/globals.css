@@ -388,6 +388,49 @@ textarea {
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; align-items: start; }
 .sheet > * + * { margin-top: 1.6rem; }
 
+.kit { align-items: start; }
+.doll {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "helmet ."
+    "chest mainhand"
+    "legs offhand"
+    "feet rings";
+  gap: .45rem;
+  align-items: start;
+  max-width: 34rem;
+}
+.slot-helmet { grid-area: helmet; }
+.slot-chest { grid-area: chest; }
+.slot-legs { grid-area: legs; }
+.slot-feet { grid-area: feet; }
+.slot-mainhand { grid-area: mainhand; }
+.slot-offhand { grid-area: offhand; }
+.rings { grid-area: rings; display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; align-items: start; }
+.slot {
+  display: flex; flex-direction: column; gap: .1rem;
+  min-width: 0; width: 100%;
+  padding: .35rem .45rem;
+  border: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+}
+.slotname { font: var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.slotitem {
+  display: flex; align-items: center; gap: .3rem;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: .82rem; color: var(--bright);
+}
+.slotitem .icon { flex: 0 0 auto; color: var(--gold); }
+.slottext { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slotitem.bare { color: var(--faint); font-style: italic; }
+.slot.worn { cursor: pointer; }
+.slot.worn:hover { border-color: var(--gold); background: var(--panel); }
+.slot.worn:hover .slotname { color: var(--gold); }
+
 .ability { white-space: nowrap; color: var(--dim); }
 .ability b { color: var(--ink); font-weight: 400; }
 .ability i { color: var(--gold); font-style: normal; }
@@ -501,6 +544,7 @@ textarea {
 }
 
 @media (max-width: 640px) {
+  .kit { grid-template-columns: 1fr; gap: 1.4rem; }
   .roomy { display: none; }
   body { font-size: 15px; }
   .slide { padding: .8rem .9rem 1.2rem; }

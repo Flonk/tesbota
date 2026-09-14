@@ -63,7 +63,8 @@ CREATE TABLE IF NOT EXISTS item (
   heals      TEXT,
   uses       TEXT,
   worth      TEXT,
-  owed_by    TEXT
+  owed_by    TEXT,
+  slot       TEXT CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))
 );
 
 CREATE TABLE IF NOT EXISTS holding (
@@ -144,6 +145,12 @@ def setup():
         for column in ("born", "died", "traits"):
             if column not in held:
                 con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
+        carried = {r["name"] for r in con.execute("PRAGMA table_info(item)")}
+        if "slot" not in carried:
+            con.execute(
+                "ALTER TABLE item ADD COLUMN slot TEXT "
+                "CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))"
+            )
         con.commit()
         person_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='person'") or ""
         if "lives TEXT REFERENCES" in person_sql:
