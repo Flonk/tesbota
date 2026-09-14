@@ -474,7 +474,7 @@ tesbota quests      the journal: what it has taken on and what it knows
 It is given `Bash` for this and nothing else — a permission callback denies every
 command but those two, so it can consult itself without being able to read canon.
 Command chaining is denied too, since the match is on the whole normalised line.
-It starts in plain hard-wearing clothes and worn boots.
+It starts in plain hard-wearing clothes and worn boots, carrying nothing else.
 
 Hunger accrues with in-world time (about 4 an hour) rather than being narrated into
 existence; the game master overrides it only when the adventurer actually eats, by
