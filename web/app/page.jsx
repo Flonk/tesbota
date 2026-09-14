@@ -202,7 +202,7 @@ function Head({ s, vitals }) {
           {s.at ? ` · ${s.at}` : ""}
           {s.cue ? ` · ${s.cue}` : ""}
         </div>
-        <Crumb where={s.where} />
+        <Crumb where={s.where} short />
         {s.quest && (
           <div className="tquest">
             <span className="qmark">◆</span>

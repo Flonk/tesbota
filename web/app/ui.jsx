@@ -15,11 +15,17 @@ export function Cap({ children }) {
   return <div className="cap">{children}</div>;
 }
 
-export function Crumb({ where = [], className = "" }) {
+export function Crumb({ where = [], short = false, className = "" }) {
   if (!where.length) return null;
+  const shown = short ? where.slice(-2) : where;
   return (
     <div className={`crumb ${className}`.trim()}>
-      {where.map((p, n) => (
+      {short && where.length > shown.length && (
+        <span className="sep" title={where.map((p) => p.name).join(" › ")}>
+          …›
+        </span>
+      )}
+      {shown.map((p, n) => (
         <span key={p.id || n}>
           {n > 0 && <span className="sep">›</span>}
           {p.name}
