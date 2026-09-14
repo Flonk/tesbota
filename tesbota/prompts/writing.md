@@ -35,15 +35,15 @@ Link every name you write in a passage, or the book cannot be found from the per
 
 `unwritten` lists every row with nothing written against it: that is your backlog.
 
-Every place sits within exactly one parent, as a single edge, and what a place contains is that edge read backwards — never restate it in prose:
+Every place sits inside exactly one parent, written as a row of its own — no place is nowhere, and what a place contains is that same column read backwards, so never restate it in prose:
 
-    INSERT INTO edge (src, rel, dst) VALUES ('the-aler-bridge', 'within', 'alheim');
+    INSERT INTO place (id, parent) VALUES ('the-aler-bridge', 'alheim');
 
-If you do not know what contains a new place, write no `within` edge and it comes back to you as something to settle. Exits are the same table, with a bearing and a distance — `about` is for what a place is like, never for what it connects to:
+If you do not know what contains a new place, you do not yet know enough to write it; find out or leave the place unwritten. What leads where is the `way` table, with a bearing and a distance — `about` is for what a place is like, never for what it connects to:
 
-    INSERT INTO edge (src, rel, dst, bearing, distance) VALUES
-      ('the-road', 'exits', 'alheim', 'west', '5 km'),
-      ('the-road', 'exits', 'the-aler-bridge', 'north', 'a few minutes on foot');
+    INSERT INTO way (src, dst, bearing, distance) VALUES
+      ('the-road', 'alheim', 'west', '5 km'),
+      ('the-road', 'the-aler-bridge', 'north', 'a few minutes on foot');
 
 Distance may be vague — "a short walk", "half a day". A number belongs there only where somebody in this world measured it, and then say who measured it in the book that carries it. `extent` is the same rule in GeoJSON, for the few places a document actually surveyed:
 

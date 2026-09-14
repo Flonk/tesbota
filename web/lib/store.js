@@ -204,10 +204,10 @@ export async function library() {
 
 const ROWS = `
   SELECT e.id, e.kind, e.name, e.introduced,
-         p.dst AS parent,
-         coalesce(pe.name, replace(p.dst, '-', ' ')) AS parentName,
-         (SELECT count(*) FROM edge x WHERE x.rel = 'within' AND x.dst = e.id) AS contains,
-         (SELECT count(*) FROM edge x WHERE x.rel = 'exits' AND x.src = e.id) AS exits,
+         pl.parent AS parent,
+         coalesce(pe.name, replace(pl.parent, '-', ' ')) AS parentName,
+         (SELECT count(*) FROM place x WHERE x.parent = e.id) AS contains,
+         (SELECT count(*) FROM way x WHERE x.src = e.id) AS exits,
          (SELECT count(*) FROM holding h WHERE h.holder = e.id) AS keeps,
          (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
          (SELECT count(*) FROM book b WHERE b.author_id = e.id) AS wrote,
@@ -224,8 +224,8 @@ const ROWS = `
                        AND (pr.work LIKE '%$BOTA%' OR pr.lives LIKE '%$BOTA%'
                             OR pr.born LIKE '%$BOTA%' OR pr.died LIKE '%$BOTA%'))) AS stub
     FROM entity e
-    LEFT JOIN edge p ON p.src = e.id AND p.rel = 'within'
-    LEFT JOIN entity pe ON pe.id = p.dst
+    LEFT JOIN place pl ON pl.id = e.id
+    LEFT JOIN entity pe ON pe.id = pl.parent
 `;
 
 export function names() {
@@ -339,8 +339,8 @@ export function entity(id) {
           `WITH RECURSIVE up(id, depth) AS (
              SELECT ?, 0
              UNION
-             SELECT e.dst, up.depth + 1 FROM edge e JOIN up ON e.src = up.id AND e.rel = 'within'
-              WHERE up.depth < 24
+             SELECT pl.parent, up.depth + 1 FROM place pl JOIN up ON pl.id = up.id
+              WHERE up.depth < 24 AND pl.parent IS NOT NULL
            )
            SELECT up.id, coalesce(entity.name, replace(up.id, '-', ' ')) AS name, entity.kind
              FROM up LEFT JOIN entity ON entity.id = up.id ORDER BY up.depth DESC`
@@ -351,17 +351,17 @@ export function entity(id) {
     if (row.kind === "places") {
       bundle.contains = db
         .prepare(
-          `SELECT e.src AS id, coalesce(t.name, replace(e.src, '-', ' ')) AS name, t.kind
-             FROM edge e LEFT JOIN entity t ON t.id = e.src
-            WHERE e.rel = 'within' AND e.dst = ? ORDER BY e.src`
+          `SELECT pl.id AS id, coalesce(t.name, replace(pl.id, '-', ' ')) AS name, t.kind
+             FROM place pl LEFT JOIN entity t ON t.id = pl.id
+            WHERE pl.parent = ? ORDER BY pl.id`
         )
         .all(ident);
       bundle.exits = db
         .prepare(
-          `SELECT e.dst AS id, coalesce(t.name, replace(e.dst, '-', ' ')) AS name,
-                  e.bearing, e.distance, t.id IS NOT NULL AS known
-             FROM edge e LEFT JOIN entity t ON t.id = e.dst
-            WHERE e.rel = 'exits' AND e.src = ? ORDER BY e.dst`
+          `SELECT w.dst AS id, coalesce(t.name, replace(w.dst, '-', ' ')) AS name,
+                  w.bearing, w.distance, t.id IS NOT NULL AS known
+             FROM way w LEFT JOIN entity t ON t.id = w.dst
+            WHERE w.src = ? ORDER BY w.dst`
         )
         .all(ident)
         .map((x) => ({ ...x, known: !!x.known }));

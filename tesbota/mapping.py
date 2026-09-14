@@ -24,7 +24,7 @@ def places():
         }
         for r in db.rows("SELECT id, name, extent FROM entity WHERE kind = 'places' ORDER BY id")
     }
-    for r in db.rows("SELECT src, dst FROM edge WHERE rel = 'within' ORDER BY src"):
+    for r in db.rows("SELECT id AS src, parent AS dst FROM place WHERE parent IS NOT NULL ORDER BY id"):
         if r["src"] in known and r["dst"] in known and r["src"] != r["dst"]:
             known[r["src"]]["parent"] = r["dst"]
             known[r["dst"]]["children"].append(r["src"])
@@ -33,7 +33,7 @@ def places():
 
 def roads(known):
     out = []
-    for r in db.rows("SELECT src, dst, bearing, distance FROM edge WHERE rel = 'exits' ORDER BY src, dst"):
+    for r in db.rows("SELECT src, dst, bearing, distance FROM way ORDER BY src, dst"):
         if r["src"] not in known or r["dst"] not in known:
             continue
         out.append({

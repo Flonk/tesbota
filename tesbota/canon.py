@@ -43,7 +43,7 @@ def passage(book_id, ord):
 
 
 def contains(place_id):
-    return [r["src"] for r in db.rows("SELECT src FROM edge WHERE rel = 'within' AND dst = ? ORDER BY src", (slug(place_id),))]
+    return [r["id"] for r in db.rows("SELECT id FROM place WHERE parent = ? ORDER BY id", (slug(place_id),))]
 
 
 def ancestry(place_id):
@@ -52,7 +52,7 @@ def ancestry(place_id):
         WITH RECURSIVE up(id, depth) AS (
           SELECT ?, 0
           UNION
-          SELECT e.dst, up.depth + 1 FROM edge e JOIN up ON e.src = up.id AND e.rel = 'within' WHERE up.depth < 24
+          SELECT p.parent, up.depth + 1 FROM place p JOIN up ON p.id = up.id WHERE up.depth < 24 AND p.parent IS NOT NULL
         )
         SELECT up.id, coalesce(entity.name, replace(up.id, '-', ' ')) AS name, up.depth
           FROM up LEFT JOIN entity ON entity.id = up.id
@@ -194,11 +194,10 @@ def graph():
     unwritten = {r["id"] for r in db.rows("SELECT id FROM unwritten")}
     for r in db.rows("SELECT id, name FROM entity WHERE kind = 'places' ORDER BY id"):
         nodes[r["id"]] = {"name": r["name"], "stub": r["id"] in unwritten}
-    for r in db.rows("SELECT src, rel, dst, bearing, distance FROM edge ORDER BY src, rel, dst"):
-        if r["rel"] == "within":
-            links.append((r["dst"], r["src"]))
-        else:
-            edges.append((r["src"], r["dst"], r["bearing"] or "", r["distance"] or ""))
+    for r in db.rows("SELECT id, parent FROM place WHERE parent IS NOT NULL ORDER BY id"):
+        links.append((r["parent"], r["id"]))
+    for r in db.rows("SELECT src, dst, bearing, distance FROM way ORDER BY src, dst"):
+        edges.append((r["src"], r["dst"], r["bearing"] or "", r["distance"] or ""))
     return nodes, edges, links
 
 

@@ -39,15 +39,20 @@ CREATE TABLE IF NOT EXISTS passage (
   PRIMARY KEY (book_id, ord)
 );
 
-CREATE TABLE IF NOT EXISTS edge (
+CREATE TABLE IF NOT EXISTS place (
+  id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  parent TEXT
+);
+CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
+
+CREATE TABLE IF NOT EXISTS way (
   src      TEXT NOT NULL,
-  rel      TEXT NOT NULL CHECK (rel IN ('within','exits')),
   dst      TEXT NOT NULL,
   bearing  TEXT,
   distance TEXT,
-  PRIMARY KEY (src, rel, dst)
+  PRIMARY KEY (src, dst)
 );
-CREATE INDEX IF NOT EXISTS edge_dst ON edge(dst, rel);
+CREATE INDEX IF NOT EXISTS way_dst ON way(dst);
 
 CREATE TABLE IF NOT EXISTS holding (
   id       INTEGER PRIMARY KEY,

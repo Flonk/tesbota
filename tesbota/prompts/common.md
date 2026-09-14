@@ -6,7 +6,8 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     book(id, author, author_id, written, rarity)       author_id when the author has a row
     person(id, lives, work, born, died)
     passage(book_id, ord, text)                        a book's text, one paragraph a row
-    edge(src, rel, dst, bearing, distance)             rel: within | exits
+    place(id, parent)                                  every place sits inside one
+    way(src, dst, bearing, distance)                   what leads where
     holding(holder, name, qty, note, worn)             what a place, a person or the explorer keeps
 
     writing(ref, entity, kind, section, body)          every passage, with its address

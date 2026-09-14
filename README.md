@@ -175,7 +175,8 @@ entity(id, kind, name, introduced, extent)      people | places | books | items
 book(id, author, author_id, written, rarity)    author_id points at the person who wrote it
 passage(book_id, ord, text)                     a book's text, one paragraph to a row
 entity.about                                    a thing describing itself, no author
-edge(src, rel, dst, bearing, distance)          within | exits
+place(id, parent)                               every place sits inside one
+way(src, dst, bearing, distance)                what leads where
 holding(holder, name, qty, note, worn)          what a place, a person or the explorer keeps
 
 writing(ref, entity, kind, section, body)       every passage, with its address
@@ -183,8 +184,8 @@ search(ref, entity, section, body)              fts5 over all of it
 unwritten(id, kind, name)                       named by somebody, written by nobody
 ```
 
-Containment is stored once, as a `within` edge; what a place contains is that
-edge read backwards, so the two can never disagree. Nothing is duplicated and
+Containment is stored once, as a place's `parent`; what a place contains is that
+column read backwards, so the two can never disagree. Nothing is duplicated and
 nothing needs keeping in step.
 
 Everything that can hold something holds it the same way. A `holding` row's `holder`
@@ -356,7 +357,7 @@ actually happened is the narrator's to keep.
 
 What survives in `claim` is narrower still. A thing's own description lives on the
 thing, in `entity.about`, because nobody is asserting it — a village being a village
-needs no author. What a place contains and opens onto is the `edge` graph and only
+needs no author. What a place contains and opens onto is `place.parent` and `way`, and only
 the graph. That leaves `claim` for the one thing neither covers: testimony no
 document holds, where somebody said a thing and there is no book to cite. There are
 currently none, and that is the honest state of a world whose authors have all
@@ -413,7 +414,7 @@ The lore master stubs whatever it names: mentioning a place, person, item or boo
 that has no row inserts that row in the same breath. A deeplink pointing at
 nothing is a loose end; a bare row with nothing written against it is a promise,
 and `unwritten` lists every one. If it does not know what contains a new place it
-writes no `within` edge rather than guessing, which brings the question back
+leaves the place unwritten rather than guessing a parent, which brings the question back
 rather than settling it.
 
 The game master no longer writes claims. It narrates; lore master 1 reads the
@@ -517,7 +518,7 @@ bonuses, and the itemised inventory.
 
 ## Maps
 
-Places carry `exits` edges — a target, a bearing and a rough distance each.
+Places carry `way` rows — a target, a bearing and a rough distance each.
 Distances may be vague, because most of this world has never been measured; a
 number belongs there only where somebody in the world actually measured it, and
 the attested claim says who.
