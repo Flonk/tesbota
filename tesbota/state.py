@@ -82,8 +82,9 @@ def stock(inventory):
     everything anybody holds now lives."""
     for entry in inventory:
         if isinstance(entry, dict):
+            note = ", ".join(p for p in (entry.get("note"), entry.get("effect")) if p)
             canon.give(EXPLORER, entry.get("name"), entry.get("qty") or 1,
-                       note=entry.get("note") or "", worn=bool(entry.get("worn")))
+                       note=note, worn=bool(entry.get("worn")))
         else:
             canon.give(EXPLORER, entry)
 

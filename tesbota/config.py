@@ -201,6 +201,10 @@ STARTING_INVENTORY = [
      "note": "plain and hard-wearing, none of it new", "worn": True},
     {"name": "walking boots", "qty": 1,
      "note": "worn down at the heel but sound", "worn": True},
+    {"name": "piece of bread", "qty": 1,
+     "note": "a day old, wrapped in cloth", "effect": "+15 health when eaten"},
+    {"name": "walking cane", "qty": 1,
+     "note": "hazel, waist-high, worn smooth at the grip", "effect": "1–2 damage"},
 ]
 
 TRIVIAL_MINUTES = 10

@@ -700,6 +700,7 @@ export default function Page() {
                     { id: "names", label: "names", icon: "people" },
                     { id: "personality", label: "personality", icon: "pulse" },
                     { id: "rarity", label: "rarity", icon: "dice" },
+                    { id: "kit", label: "kit", icon: "box" },
                   ]
                 : (catalogue?.prompts || []).map((p) => ({
                     id: p.id,

@@ -22,6 +22,15 @@ const TRAITS = {
   ],
 };
 
+const KIT = {
+  cols: "minmax(7rem, 1.4fr) minmax(6rem, 1.2fr) minmax(7rem, 1.6fr)",
+  fields: [
+    { key: "name", label: "they start with", strong: true, cell: (r) => r.name },
+    { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
+    { key: "note", label: "condition", dim: true, cell: (r) => r.note || "" },
+  ],
+};
+
 const RARITY = {
   cols: "minmax(6rem, 1fr) 5rem 3rem",
   fields: [
@@ -55,6 +64,11 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
         empty="no names to draw from"
       />
     );
+  }
+
+  if (at === "kit") {
+    const rows = (catalogue.kit || []).map((r) => ({ ...r, id: r.name }));
+    return <Table {...KIT} rows={rows} empty="they start with nothing" />;
   }
 
   if (at === "rarity") {
