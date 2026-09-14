@@ -22,6 +22,16 @@ export const APPAREL_ICON = {
 export const face = (item) =>
   (item?.type === "apparel" && APPAREL_ICON[item?.slot]) || ICON[item?.type] || "box";
 
+export const worth = (item) => {
+  const said = [];
+  if (item?.damage) said.push(`${item.damage} damage`);
+  if (item?.protection) said.push(`${item.protection} protection`);
+  if (item?.heals) said.push(`+${item.heals} health`);
+  if (item?.uses) said.push(`${item.uses} use${String(item.uses) === "1" ? "" : "s"}`);
+  if (item?.worth) said.push(String(item.worth));
+  return said.join(", ");
+};
+
 export const rare = (name) => (
   <span className={`rare-${name}`}>{String(name || "").replace(/_/g, " ")}</span>
 );
@@ -44,11 +54,12 @@ const ITEMS = {
 };
 
 const KIT = {
-  cols: "1.1rem minmax(6rem, 1.3fr) minmax(6rem, 1.4fr)",
+  cols: "1.1rem minmax(6rem, 1.3fr) minmax(6rem, 1.4fr) minmax(5rem, .8fr)",
   fields: [
     { key: "icon", label: "", cell: (r) => <Icon name={face(r)} /> },
     { key: "name", label: "they start with", strong: true, cell: (r) => r.name },
     { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
+    { key: "rarity", label: "how often", cell: (r) => (r.rarity ? rare(r.rarity) : "") },
   ],
 };
 

@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS item (
   uses       TEXT,
   worth      TEXT,
   owed_by    TEXT,
+  rarity     TEXT,
   slot       TEXT CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))
 );
 
@@ -148,6 +149,8 @@ def setup():
         if "note" in kept:
             con.execute("ALTER TABLE holding DROP COLUMN note")
         carried = {r["name"] for r in con.execute("PRAGMA table_info(item)")}
+        if "rarity" not in carried:
+            con.execute("ALTER TABLE item ADD COLUMN rarity TEXT")
         if "slot" not in carried:
             con.execute(
                 "ALTER TABLE item ADD COLUMN slot TEXT "

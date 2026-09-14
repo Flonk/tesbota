@@ -391,7 +391,7 @@ export function entity(id) {
       bundle.item =
         db
           .prepare(
-            `SELECT type, slot, damage, protection, heals, uses, worth, owed_by FROM item WHERE id = ?`
+            `SELECT type, slot, rarity, damage, protection, heals, uses, worth, owed_by FROM item WHERE id = ?`
           )
           .get(ident) || null;
     }
@@ -432,14 +432,28 @@ function around(body, needle, width = 90) {
 function holdingsIn(db, holder) {
   return db
     .prepare(
-      `SELECT h.item, coalesce(e.name, replace(h.item, '-', ' ')) AS name, i.type, i.slot, h.qty, h.worn
+      `SELECT h.item, coalesce(e.name, replace(h.item, '-', ' ')) AS name, i.type, i.slot, i.rarity,
+              i.damage, i.protection, i.heals, i.uses, i.worth, h.qty, h.worn
          FROM holding h
          LEFT JOIN entity e ON e.id = h.item
          LEFT JOIN item i ON i.id = h.item
         WHERE h.holder = ? ORDER BY h.id`
     )
     .all(holder)
-    .map((r) => ({ id: r.item, name: r.name, type: r.type || "", slot: r.slot || null, qty: r.qty || 1, worn: !!r.worn }));
+    .map((r) => ({
+      id: r.item,
+      name: r.name,
+      type: r.type || "",
+      slot: r.slot || null,
+      rarity: r.rarity || null,
+      damage: r.damage || null,
+      protection: r.protection || null,
+      heals: r.heals || null,
+      uses: r.uses || null,
+      worth: r.worth || null,
+      qty: r.qty || 1,
+      worn: !!r.worn,
+    }));
 }
 
 export async function look(question) {

@@ -299,7 +299,7 @@ def thing(name, kind="items", turn_id=None):
     return ident
 
 
-STATS = ("type", "damage", "protection", "heals", "uses", "worth", "owed_by", "slot")
+STATS = ("type", "damage", "protection", "heals", "uses", "worth", "owed_by", "rarity", "slot")
 
 
 def describe(name, **stats):

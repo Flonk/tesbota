@@ -10,7 +10,7 @@ You write with `sqlite3 canon.db "INSERT INTO ..."`. A book is an entity row, a 
     VALUES ('petra-voll-on-the-mill', 'Petra Voll', 'petra-voll', '4E198', 'rare');
     INSERT INTO passage (book_id, ord, text) VALUES ('petra-voll-on-the-mill', 1, '...');
 
-`written` is this world's reckoning — `4E196`, or a fuller date where somebody recorded one. `rarity` is `common`, `uncommon`, `rare` or `unique`; most of what you write is rare or unique, because most writing here was never copied.
+`written` is this world's reckoning — `4E196`, or a fuller date where somebody recorded one. `rarity` is `common`, `uncommon`, `rare`, `epic`, `legendary` or `unique`, on books and on things alike; most of what you write is rare or unique, because most writing here was never copied.
 
 Every book carries an author. Where they are a person of this world, give them an entity row and point `author_id` at it. Never write as the explorer, as whoever is walking these places, or as `The Narrator`. Write as `the godhead` only when asked for one outright.
 

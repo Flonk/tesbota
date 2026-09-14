@@ -219,14 +219,18 @@ ITEM_TYPES = (
 )
 
 STARTING_INVENTORY = [
-    {"name": "travelling clothes", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
-     "effect": "no protection to speak of", "protection": "none"},
+    {"name": "felt hat", "type": "apparel", "qty": 1, "worn": True, "slot": "helmet",
+     "effect": "1 protection", "protection": "1", "rarity": "common"},
+    {"name": "linen shirt", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
+     "effect": "2 protection", "protection": "2", "rarity": "common"},
+    {"name": "wool leggings", "type": "apparel", "qty": 1, "worn": True, "slot": "legs",
+     "effect": "1 protection", "protection": "1", "rarity": "common"},
     {"name": "walking boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
-     "effect": "no protection to speak of", "protection": "none"},
+     "effect": "1 protection", "protection": "1", "rarity": "common"},
     {"name": "piece of bread", "type": "consumable", "qty": 1,
-     "effect": "+15 health, one use", "heals": "15", "uses": "1"},
+     "effect": "+15 health, one use", "heals": "15", "uses": "1", "rarity": "common"},
     {"name": "walking cane", "type": "weapon", "qty": 1, "worn": True, "slot": "mainhand",
-     "effect": "1–2 damage", "damage": "1–2"},
+     "effect": "1–2 damage", "damage": "1–2", "rarity": "common"},
 ]
 
 TRIVIAL_MINUTES = 10
