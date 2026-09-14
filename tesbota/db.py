@@ -25,11 +25,12 @@ CREATE TABLE IF NOT EXISTS book (
 );
 
 CREATE TABLE IF NOT EXISTS person (
-  id    TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
-  lives TEXT,
-  work  TEXT,
-  born  TEXT,
-  died  TEXT
+  id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  lives  TEXT,
+  work   TEXT,
+  born   TEXT,
+  died   TEXT,
+  traits TEXT
 );
 
 CREATE TABLE IF NOT EXISTS passage (
@@ -137,7 +138,7 @@ def setup():
         if "about" not in shape:
             con.execute("ALTER TABLE entity ADD COLUMN about TEXT")
         held = {r["name"] for r in con.execute("PRAGMA table_info(person)")}
-        for column in ("born", "died"):
+        for column in ("born", "died", "traits"):
             if column not in held:
                 con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
         con.commit()

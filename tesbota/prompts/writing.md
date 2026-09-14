@@ -24,7 +24,7 @@ Every person gets a `person` row:
     INSERT INTO person (id, lives, work, born, died)
     VALUES ('petra-voll', 'flotburg', 'carter', '4E171', NULL);
 
-`lives` is the smallest place that is true of them. `work` is a trade in a word or two, in the world's terms. `born` and `died` are this world's reckoning. A birth year fixes their age in every scene they appear in, so write one only where the record gives it or where the two of you have just decided it.
+`traits` is what they are like — three of them, rolled rather than chosen, so leave the column alone and it fills itself the first time anybody deals with them. `lives` is the smallest place that is true of them. `work` is a trade in a word or two, in the world's terms. `born` and `died` are this world's reckoning. A birth year fixes their age in every scene they appear in, so write one only where the record gives it or where the two of you have just decided it.
 
 Never leave a field empty: where you do not know, write `$BOTA`. A row saying `$BOTA` tells the truth; a row filled with a guess does not.
 

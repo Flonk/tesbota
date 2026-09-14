@@ -426,7 +426,7 @@ def step_gm(campaign, turn):
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
-        permission=sqlite_gate(also=("tesbota kill",)),
+        permission=sqlite_gate(also=("tesbota kill", "tesbota traits")),
         session=campaign["sessions"]["gm"],
         model=MODELS["gm"],
     )

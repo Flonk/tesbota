@@ -161,6 +161,15 @@ def cmd_talk(args):
     print(result.get("reply") or result.get("error"))
 
 
+def cmd_traits(args):
+    """Three traits for somebody who has none. Rolled once and kept."""
+    if args.who:
+        picked = canon.traits(args.who, roll=True)
+        print(", ".join(picked))
+        return
+    print(", ".join(canon.roll_traits()))
+
+
 def cmd_prompts(args):
     """Carry the prompts out to somewhere they can be edited, and back again."""
     import shutil
@@ -315,6 +324,10 @@ def main(argv=None):
     talk.add_argument("text")
     talk.add_argument("--json", action="store_true")
     talk.set_defaults(func=cmd_talk)
+
+    traits = sub.add_parser("traits")
+    traits.add_argument("who", nargs="?", default=None)
+    traits.set_defaults(func=cmd_traits)
 
     carry = sub.add_parser("prompts")
     carry.add_argument("dir")

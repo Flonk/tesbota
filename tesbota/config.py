@@ -74,6 +74,9 @@ TRAITS = (
 )
 
 
+TRAIT_WEIGHT = {"common": 0.60, "uncommon": 0.28, "rare": 0.10, "very rare": 0.02}
+TRAITS_ROLLED = 3
+
 SURNAME = "Bota"
 
 MYSTERY = "died of a mysterious cause"

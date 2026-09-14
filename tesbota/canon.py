@@ -1,7 +1,17 @@
 import re
 
 from . import db
-from .config import EXPLORER, FORBIDDEN_AUTHORS, GODHEADS, KINDS, NARRATOR, STUB
+from .config import (
+    EXPLORER,
+    FORBIDDEN_AUTHORS,
+    GODHEADS,
+    KINDS,
+    NARRATOR,
+    STUB,
+    TRAITS,
+    TRAITS_ROLLED,
+    TRAIT_WEIGHT,
+)
 
 ATTESTED = "attested"
 
@@ -100,10 +110,40 @@ def given_names():
     return taken - {""}
 
 
+def roll_traits(rng=None, how_many=TRAITS_ROLLED):
+    """Three traits, drawn against their rarity. Nobody is picked twice."""
+    import random as _random
+
+    rng = rng or _random
+    pool = list(TRAITS)
+    picked = []
+    while pool and len(picked) < how_many:
+        weights = [TRAIT_WEIGHT.get(r, 0.1) for _, r in pool]
+        trait, _ = rng.choices(pool, weights=weights, k=1)[0]
+        picked.append(trait)
+        pool = [(t, r) for t, r in pool if t != trait]
+    return picked
+
+
+def traits(entity_id, roll=False, rng=None):
+    """What somebody is like. Rolled once, the first time anybody asks."""
+    ident = slug(entity_id)
+    row = db.row("SELECT traits FROM person WHERE id = ?", (ident,))
+    if row and (row["traits"] or "").strip():
+        return [t.strip() for t in row["traits"].split(",") if t.strip()]
+    if not roll:
+        return []
+    picked = roll_traits(rng)
+    with db.writing() as con:
+        con.execute("INSERT OR IGNORE INTO person (id) VALUES (?)", (ident,))
+        con.execute("UPDATE person SET traits = ? WHERE id = ?", (", ".join(picked), ident))
+    return picked
+
+
 def person(entity_id):
     return db.row(
         """
-        SELECT p.id, p.work, p.lives, p.born, p.died,
+        SELECT p.id, p.work, p.lives, p.born, p.died, p.traits,
                coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
           FROM person p LEFT JOIN entity l ON l.id = p.lives
          WHERE p.id = ?
