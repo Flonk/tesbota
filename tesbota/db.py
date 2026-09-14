@@ -61,7 +61,6 @@ CREATE TABLE IF NOT EXISTS item (
   damage     TEXT,
   protection TEXT,
   heals      TEXT,
-  uses       TEXT,
   worth      TEXT,
   owed_by    TEXT,
   rarity     TEXT,
@@ -151,6 +150,8 @@ def setup():
         carried = {r["name"] for r in con.execute("PRAGMA table_info(item)")}
         if "rarity" not in carried:
             con.execute("ALTER TABLE item ADD COLUMN rarity TEXT")
+        if "uses" in carried:
+            con.execute("ALTER TABLE item DROP COLUMN uses")
         if "slot" not in carried:
             con.execute(
                 "ALTER TABLE item ADD COLUMN slot TEXT "

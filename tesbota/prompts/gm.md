@@ -62,7 +62,7 @@ Your job as a GM is to facilitate fair trades—people can't trade whats not in 
 
 She is now one voucher short, serving as a reminder in both inventories. People can only short what they can underwrite.
 
-When spawning an item ex nihilo, or consuming/destroying an item, you can set from/to to "the-godhead". Use it sparingly.
+When spawning an item ex nihilo, or consuming/destroying an item, you can set from/to to "the-godhead". Use it sparingly. A consumable is single use: using it moves the whole of it to the-godhead.
 
 Everything anybody carries is a thing the world has a row for. Naming one it does not have writes it down on the spot, so name it as it should stand in the library — "hazel cane", not "the cane he was holding".
 

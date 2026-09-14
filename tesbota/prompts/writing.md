@@ -55,6 +55,8 @@ What a place or a person keeps is written in the same breath as they are:
 
 `holder` is an entity id. `the-explorer` is the one holder that is not an entity and never yours to write to.
 
+A consumable is single use, so nothing counts uses.
+
 `item.slot` is where a thing sits on a body: `helmet`, `chest`, `legs`, `feet`, `mainhand`, `offhand` or `ring`, and nothing else. Anything neither worn nor held in a hand simply has none.
 
 You write for the shelf, not for anyone who might walk through the places you describe.

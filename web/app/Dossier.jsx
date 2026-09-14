@@ -156,7 +156,7 @@ function Made({ item }) {
 }
 
 function Stats({ item }) {
-  const rows = ["rarity", "damage", "protection", "heals", "uses", "worth", "owed_by"]
+  const rows = ["rarity", "damage", "protection", "heals", "worth", "owed_by"]
     .filter((k) => item?.[k])
     .map((k) => ({
       id: k,
