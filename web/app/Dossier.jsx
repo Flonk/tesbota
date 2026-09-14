@@ -85,6 +85,14 @@ const WRITING = {
   ],
 };
 
+const STATS = {
+  cols: "minmax(6rem, 1fr) minmax(6rem, 2fr)",
+  fields: [
+    { key: "stat", label: "stats", strong: true, cell: (r) => r.stat },
+    { key: "value", label: "", dim: true, cell: (r) => r.value },
+  ],
+};
+
 const HELD_BY = {
   cols: "minmax(9rem, 2fr) 4rem",
   fields: [
@@ -140,15 +148,19 @@ function Wrote({ book }) {
 
 function Made({ item }) {
   if (!item) return null;
-  const said = ["damage", "protection", "heals", "uses", "worth", "owed_by"]
-    .map((k) => (item[k] ? `${item[k]} ${k.replace("_", " ")}` : null))
-    .filter(Boolean);
   return (
     <p className="cap dwho">
       {item.type ? (item.slot ? `${item.type}:${item.slot}` : item.type) : <Stub />}
-      {said.length ? `, ${said.join(", ")}` : ""}
     </p>
   );
+}
+
+function Stats({ item }) {
+  const rows = ["damage", "protection", "heals", "uses", "worth", "owed_by"]
+    .filter((k) => item?.[k])
+    .map((k) => ({ id: k, stat: k.replace("_", " "), value: item[k] }));
+  if (!rows.length) return <Empty>nothing is written about what it does</Empty>;
+  return <Table {...STATS} rows={rows} />;
 }
 
 function Who({ person }) {
@@ -232,7 +244,7 @@ function Trail({ chain, self }) {
   );
 }
 
-export default function Dossier({ at, onClose, face = "content", onKind }) {
+export default function Dossier({ at, onClose, who, face = "content", onKind }) {
   const id = at?.id || null;
   const fragment = at?.fragment || null;
   const [thing, setThing] = useState(null);
@@ -283,7 +295,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
               <Leaves thing={thing} fragment={fragment} />
             )}
 
-            {!(thing.kind === "books" && face === "content") && thing.within && (
+            {thing.kind !== "items" && !(thing.kind === "books" && face === "content") && thing.within && (
               <Section label="where it sits">
                 {thing.within.length > 1 ? (
                   <Trail chain={thing.within} self={thing.id} />
@@ -293,9 +305,16 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
               </Section>
             )}
 
-            {!(thing.kind === "books" && face === "content") && thing.about && (
+            {thing.kind === "items" && <Stats item={thing.item} />}
+
+            {!(thing.kind === "books" && face === "content") &&
+              (thing.about || thing.kind === "items") && (
               <Section label="what it is">
-                <Prose className="dclaimtext" text={thing.about} />
+                {thing.about ? (
+                  <Prose className="dclaimtext" text={thing.about} />
+                ) : (
+                  <Empty>nothing says what it is</Empty>
+                )}
               </Section>
             )}
 
@@ -326,7 +345,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
                 />
             )}
 
-            {thing.kind !== "books" &&
+            {(thing.kind === "people" || thing.kind === "places") &&
               !(thing.kind === "people" && settled(thing.person?.died)) && (
               <Table
                 {...KEEPS}
@@ -339,14 +358,17 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
             {thing.heldBy.length > 0 && (
               <Table
                 {...HELD_BY}
-                rows={thing.heldBy.map((h) => ({ ...h, id: h.holder }))}
+                rows={thing.heldBy.map((h) => ({
+                  ...h,
+                  id: h.holder === "the-explorer" ? null : h.holder,
+                  name: h.holder === "the-explorer" ? who || h.name : h.name,
+                }))}
                 onOpen={openDossier}
               />
             )}
 
-            {!(thing.kind === "books" && face === "content") && (
+            {!(thing.kind === "books" && face === "content") && thing.mentions.length > 0 && (
             <Section label="referenced in">
-              {thing.mentions.length === 0 && <Empty>nothing written mentions it</Empty>}
               {thing.mentions.map((m) => (
                 <div className="dmention" key={m.ref}>
                   <p className="cap dclaimhead">

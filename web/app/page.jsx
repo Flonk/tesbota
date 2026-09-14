@@ -805,6 +805,7 @@ export default function Page() {
           </div>
           <Dossier
             at={dossier}
+            who={status.who}
             face={face}
             onKind={setReading}
             onClose={() => {
