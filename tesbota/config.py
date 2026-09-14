@@ -201,8 +201,7 @@ ITEM_TYPES = (
     ("apparel", "protection", "shirt"),
     ("consumable", "heals, uses", "flask"),
     ("tool", "what it lets them do, how long it lasts", "hammer"),
-    ("valuable", "worth, and to whom", "coin"),
-    ("voucher", "owed by, redeemed at", "scroll"),
+    ("valuable", "worth, to whom, and who owes it", "coin"),
     ("material", "—", "sack"),
 )
 
