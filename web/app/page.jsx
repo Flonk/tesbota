@@ -5,7 +5,7 @@ import Icon from "./icons";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
-import Data from "./Data";
+import Data, { rare } from "./Data";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Settings from "./Settings";
@@ -90,7 +90,6 @@ function toll(x) {
 
 const SAID_LABEL = { action: "action", look: "looks", say: "says" };
 const GM_LABEL = { world: "what happens", answer: "the answer", outcome: "what happens" };
-const BAND = { common: "common", rare: "rare", epic: "epic" };
 const VERDICT = {
   TRUE: "good",
   WITHIN_BOUNDS: "good",
@@ -136,8 +135,7 @@ function Outcomes({ rows, chosen, fortune }) {
         const hit = chosen && r.text === chosen.text && r.band === chosen.band;
         return (
           <p key={n} className={`outrow${hit ? " hit" : ""}`}>
-            <span className={`chip rare-${r.band}`}>{BAND[r.band] || r.band}</span>
-            <span className="outp">{(r.p * 100).toFixed(1)}%</span>
+            {rare(r.band)}
             <span className="outtext">{r.text}</span>
           </p>
         );

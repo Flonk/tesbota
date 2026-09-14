@@ -29,6 +29,11 @@ body {
   overflow-wrap: anywhere;
 }
 
+.rare-common, .rare-uncommon, .rare-rare, .rare-epic, .rare-legendary, .rare-unique {
+  font: var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
 .rare-common { color: var(--dim); }
 .rare-uncommon { color: var(--good); }
 .rare-rare { color: var(--place); }
@@ -63,12 +68,6 @@ body {
 .chip-warn { color: var(--warn); border-color: var(--warn); }
 .chip-bad { color: var(--bad); border-color: var(--bad); }
 .chip-place { color: var(--place); border-color: var(--place); }
-.chip.rare-common { color: var(--dim); border-color: var(--dim); }
-.chip.rare-uncommon { color: var(--good); border-color: var(--good); }
-.chip.rare-rare { color: var(--place); border-color: var(--place); }
-.chip.rare-epic { color: var(--gold); border-color: var(--gold); }
-.chip.rare-legendary { color: var(--myth); border-color: var(--myth); }
-.chip.rare-unique { color: var(--bad); border-color: var(--bad); }
 .chip-gold { color: var(--gold); border-color: var(--gold); }
 .chip-dim { color: var(--dim); border-color: var(--line); border-style: dashed; }
 
@@ -189,11 +188,10 @@ textarea {
   color: var(--dim);
   margin: 0 0 .35rem;
   display: grid;
-  grid-template-columns: 6rem 3.2rem 1fr;
+  grid-template-columns: 5.5rem 1fr;
   gap: .5rem;
   align-items: baseline;
 }
-.outp { text-align: right; }
 .outrow.hit { color: var(--ink); }
 .outrow.hit .outtext { color: var(--gold); }
 
