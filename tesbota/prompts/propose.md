@@ -14,8 +14,7 @@ Reply with a single fenced json block and nothing else:
     "summary": "what they are about to commit to, one plain sentence, second person",
     "target": "kebab-id or null",
     "minutes": 0,
-    "fatigue": 0,
-    "risk": 1
+    "fatigue": 0
   },
   "outcomes": [
     {"band": "common",    "p": 0.35, "text": "…"},

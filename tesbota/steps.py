@@ -11,7 +11,6 @@ from .config import (
     BAND_WEIGHT,
     SPARK_FLOOR,
     PRESS_FLOOR,
-    BASE_RISK,
     DIE,
     MAX_ASKS,
     MAX_LOOKS,
@@ -21,7 +20,6 @@ from .config import (
     HUNGER_PER_HOUR,
     MAX_HEALTH,
     MAX_HUNGER,
-    MAX_RISK,
     MODELS,
     SKILL_DIE,
     OPENING,
@@ -329,14 +327,12 @@ def step_propose(campaign, turn):
             "target": None,
             "minutes": TRIVIAL_MINUTES,
             "fatigue": TRIVIAL_FATIGUE,
-            "risk": BASE_RISK,
             "unpriced": True,
         }
 
     proposal.setdefault("summary", turn.get("action") or "")
     proposal["minutes"] = int(proposal.get("minutes") or 0)
     proposal["fatigue"] = int(proposal.get("fatigue") or 0)
-    proposal["risk"] = int(proposal.get("risk") or BASE_RISK)
     turn["proposal"] = proposal
 
     outcomes = weigh_outcomes(out.get("outcomes"))
@@ -444,13 +440,11 @@ def step_gm(campaign, turn):
     draft.setdefault("quest_open", [])
     draft.setdefault("quest_update", [])
     draft.setdefault("quest_close", [])
-    draft.setdefault("risk", BASE_RISK)
 
     agreed = turn.get("proposal") if turn.get("confirmed") else None
     if agreed:
         draft["minutes"] = agreed["minutes"]
         draft["fatigue"] = agreed["fatigue"]
-        draft["risk"] = max(draft.get("risk") or BASE_RISK, agreed.get("risk") or BASE_RISK)
     turn["draft"] = draft
     world = (turn.get("arrival") or turn.get("event")) and not turn.get("action")
     gm_phase(turn, "world" if world else "outcome", draft.get("narration"))
@@ -580,7 +574,10 @@ def step_lore1(campaign, turn):
             payload["check_instruction"] = (
                 f"They tried and fell short: a {check['skill']} check, rolled "
                 f"{check['roll']} plus {check['bonus']:+d} against a difficulty of "
-                f"{check['dc']}. Renarrate the same attempt not working. They may try "
+                f"{check['dc']}"
+                + (f", worst of {len(check['rolls'])} because they are "
+                   + " and ".join(check["against"]) if check.get("against") else "")
+                + ". Renarrate the same attempt not working. They may try "
                 "something else afterwards, but this attempt failed."
             )
         elif check:
@@ -757,11 +754,20 @@ def roll_check(campaign, turn, rng=random):
     if bonus is None:
         return None
     dc = int(check.get("dc") or 10)
-    roll = rng.randint(1, SKILL_DIE)
+    vitals = campaign.get("vitals") or {}
+    against = [
+        word
+        for word, level in (("spent", vitals.get("fatigue")), ("starving", vitals.get("hunger")))
+        if int(level or 0) >= 100
+    ]
+    rolls = [rng.randint(1, SKILL_DIE) for _ in range(1 + len(against))]
+    roll = min(rolls)
     outcome = {
         "skill": skill,
         "dc": dc,
         "roll": roll,
+        "rolls": rolls,
+        "against": against,
         "bonus": bonus,
         "total": roll + bonus,
         "passed": roll + bonus >= dc,
@@ -771,16 +777,13 @@ def roll_check(campaign, turn, rng=random):
 
 
 def roll_fate(turn, rng=random):
-    draft = turn["draft"]
-    risk = max(BASE_RISK, min(MAX_RISK, int(draft.get("risk") or BASE_RISK)))
     roll = rng.randint(1, DIE)
     turn["roll"] = roll
-    turn["risk"] = risk
     turn["rolled"] = True
 
-    if roll <= risk:
+    if roll <= 1:
         fate = "greater_calamity"
-    elif roll <= 2 * risk:
+    elif roll <= 2:
         fate = "lesser_calamity"
     elif roll > DIE - 1:
         fate = "greater_fortune"
@@ -829,7 +832,6 @@ def deliver(campaign, turn):
             current["minutes"] = int(draft.get("minutes") or 0)
             current["fatigue"] = int(draft.get("fatigue") or 0)
             current["roll"] = turn.get("roll")
-            current["risk"] = turn.get("risk")
             current["outcomes"] = turn.get("outcomes") or []
             current["chosen"] = turn.get("chosen")
             current["fortune"] = turn.get("fortune")

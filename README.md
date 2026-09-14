@@ -447,7 +447,6 @@ narration it produced.
 
 ## The die
 
-A d400 is rolled on every action. `risk` scales how much of the bottom belongs to
 calamity; fortune does not scale, because luck is not earned by being careless.
 
 | roll | outcome |
@@ -499,6 +498,11 @@ the bonus and compares. A pass delivers. A failure sends the draft back with the
 numbers and an instruction to renarrate the attempt not working, without undoing the
 attempt itself. The game master never rolls, and it is told to roll for anything with
 a way to go wrong rather than decide it; only what cannot fail goes unrolled.
+
+A body at its limit rolls worse: at 100 fatigue or 100 hunger the check is rolled
+twice and the lower kept, and at both it is rolled three times. Nothing else scales a
+check — the old `risk` dial the game master set on every action is gone, and the d400
+now reads calamity at 1 and 2 the same way it reads fortune at 399 and 400.
 
 Checks and the d400 are resolved in the same pass, so an action needs at most one
 redraft even when both land.

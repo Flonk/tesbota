@@ -82,7 +82,6 @@ export async function snapshot() {
       fatigue: draft.fatigue || 0,
       health: draft.health || 0,
       roll: turn.roll || null,
-      risk: turn.risk || null,
       calamity: !!turn.calamity,
       retries: turn.gm_retries || 0,
       travel: draft.travel || null,

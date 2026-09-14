@@ -64,7 +64,6 @@ OPENING = {
     "minutes": 0,
     "fatigue": 0,
     "health": 0,
-    "risk": 0,
 }
 
 DAYS_PER_WEEK = 7
@@ -159,8 +158,6 @@ SPARK_FLOOR = 4
 PRESS_FLOOR = 3
 
 RARITIES = ("common", "uncommon", "rare", "unique")
-BASE_RISK = 1
-MAX_RISK = 100
 
 FATE_LABELS = {
     "greater_calamity": "greater calamity",

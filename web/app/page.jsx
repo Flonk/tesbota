@@ -85,7 +85,6 @@ function toll(x) {
   if (x.minutes) bits.push(cost(x.minutes));
   if (x.fatigue) bits.push(`${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue`);
   if (x.roll) bits.push(`d400 ${x.roll}`);
-  if (x.risk > 1) bits.push(`risk ${x.risk}`);
   return bits;
 }
 
