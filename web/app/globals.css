@@ -58,6 +58,7 @@ body {
 .chip-dim { color: var(--dim); border-color: var(--line); border-style: dashed; }
 
 .crumb { font: var(--mono); letter-spacing: .06em; color: var(--place); margin: 0 0 .2rem; }
+.crumb .dlink { font: inherit; color: inherit; letter-spacing: inherit; padding: 0; }
 .crumb .sep { opacity: .45; margin: 0 .45em; }
 
 .hint {

@@ -28,7 +28,13 @@ export function Crumb({ where = [], short = false, className = "" }) {
       {shown.map((p, n) => (
         <span key={p.id || n}>
           {n > 0 && <span className="sep">›</span>}
-          {p.name}
+          {p.id ? (
+            <button className="dlink" onClick={() => openDossier(p.id)}>
+              {p.name}
+            </button>
+          ) : (
+            p.name
+          )}
         </span>
       ))}
     </div>
