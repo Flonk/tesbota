@@ -126,13 +126,6 @@ const GLYPHS = {
       <path d="M11.5 10.5 4.5 17.5a2 2 0 1 0 2.8 2.8l7-7" />
     </>
   ),
-  lantern: (
-    <>
-      <path d="M9 3.5h6M9.5 6.5h5l2 3.5v8h-9v-8z" />
-      <path d="M7.5 6.5h9" />
-      <path d="M12 11v4" />
-    </>
-  ),
   coin: (
     <>
       <circle cx="12" cy="12" r="8" />

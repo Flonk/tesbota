@@ -12,8 +12,7 @@ const NAMES = {
 };
 
 export const ICON = {
-  weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer",
-  light: "lantern", valuable: "coin", voucher: "scroll", material: "sack",
+  weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer", valuable: "coin", voucher: "scroll", material: "sack",
   keepsake: "gem",
 };
 
