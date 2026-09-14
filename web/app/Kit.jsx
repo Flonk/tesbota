@@ -9,11 +9,10 @@ const RINGS = 4;
 const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand"];
 
 const CARRYING = {
-  cols: "minmax(7rem, 2fr) 3rem minmax(4.5rem, 1.2fr)",
+  cols: "minmax(7rem, 2fr) 3rem",
   fields: [
     { key: "name", label: "carrying", strong: true, cell: (r) => r.name },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
-    { key: "note", label: "condition", dim: true, cell: (r) => r.note || "—" },
   ],
 };
 

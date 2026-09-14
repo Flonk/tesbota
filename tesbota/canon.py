@@ -329,11 +329,10 @@ def holdings(holder):
             "name": r["name"] or r["item"].replace("-", " "),
             "type": r["type"],
             "qty": r["qty"],
-            "note": r["note"] or "",
             "worn": bool(r["worn"]),
         }
         for r in db.rows(
-            """SELECT h.item, h.qty, h.note, h.worn, e.name, i.type
+            """SELECT h.item, h.qty, h.worn, e.name, i.type
                  FROM holding h
                  LEFT JOIN entity e ON e.id = h.item
                  LEFT JOIN item i ON i.id = h.item
@@ -359,7 +358,7 @@ def holders():
     return out
 
 
-def give(holder, name, qty=1, note="", worn=False, turn_id=None):
+def give(holder, name, qty=1, worn=False, turn_id=None):
     item = thing(name, turn_id=turn_id)
     if not holder or not item:
         return 0
@@ -376,8 +375,8 @@ def give(holder, name, qty=1, note="", worn=False, turn_id=None):
                 con.execute("UPDATE holding SET qty = ? WHERE id = ?", (left, row["id"]))
         else:
             con.execute(
-                "INSERT INTO holding (holder, item, qty, note, worn, turn_id) VALUES (?,?,?,?,?,?)",
-                (holder, item, qty, str(note or ""), int(bool(worn)), turn_id),
+                "INSERT INTO holding (holder, item, qty, worn, turn_id) VALUES (?,?,?,?,?)",
+                (holder, item, qty, int(bool(worn)), turn_id),
             )
     return qty
 
@@ -409,7 +408,7 @@ def strip(holder):
         return con.execute("DELETE FROM holding WHERE holder = ?", (holder,)).rowcount
 
 
-def owe(holder, name, qty=1, note=""):
+def owe(holder, name, qty=1):
     """Take from a holder past what they have, leaving them short by the rest. A
     negative row is a debt somebody has written and is good for."""
     item = thing(name)
@@ -427,13 +426,13 @@ def owe(holder, name, qty=1, note=""):
             con.execute("UPDATE holding SET qty = ? WHERE id = ?", (left, row["id"]))
         else:
             con.execute(
-                "INSERT INTO holding (holder, item, qty, note) VALUES (?,?,?,?)",
-                (holder, item, left, str(note or "")),
+                "INSERT INTO holding (holder, item, qty) VALUES (?,?,?)",
+                (holder, item, left),
             )
         return left
 
 
-def transfer(src, dst, name, qty=1, note="", turn_id=None):
+def transfer(src, dst, name, qty=1, turn_id=None):
     """Move a thing between two holders. Either side may be nothing — bread is eaten,
     wood is cut. A holder may hand over to somebody what they do not have, going short
     by it, which is how a promise is written down; nothing can be owed to the world."""
@@ -442,16 +441,15 @@ def transfer(src, dst, name, qty=1, note="", turn_id=None):
     if src:
         row = held(src, name)
         if row:
-            note = row["note"] or note
             worn = bool(row["worn"])
         if dst:
-            owe(src, name, qty, note=note)
+            owe(src, name, qty)
         else:
             qty = take(src, name, qty)
             if not qty:
                 return 0
     if dst:
-        give(dst, name, qty, note=note, worn=worn, turn_id=turn_id)
+        give(dst, name, qty, worn=worn, turn_id=turn_id)
     return qty
 
 

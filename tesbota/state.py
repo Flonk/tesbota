@@ -91,9 +91,8 @@ def stock(inventory):
     catalogue(inventory)
     for entry in inventory:
         if isinstance(entry, dict):
-            note = ", ".join(p for p in (entry.get("note"), entry.get("effect")) if p)
             canon.give(EXPLORER, entry.get("name"), entry.get("qty") or 1,
-                       note=note, worn=bool(entry.get("worn")))
+                       worn=bool(entry.get("worn")))
         else:
             canon.give(EXPLORER, entry)
 

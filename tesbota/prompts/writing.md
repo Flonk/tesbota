@@ -50,8 +50,8 @@ Distance may be vague — "a short walk", "half a day". A number belongs there o
 
 What a place or a person keeps is written in the same breath as they are:
 
-    INSERT INTO holding (holder, name, qty, note) VALUES
-      ('alheim-mill', 'sacks of flour', 12, 'stacked against the north wall');
+    INSERT INTO holding (holder, item, qty) VALUES
+      ('alheim-mill', 'sacks-of-flour', 12);
 
 `holder` is an entity id. `the-explorer` is the one holder that is not an entity and never yours to write to.
 

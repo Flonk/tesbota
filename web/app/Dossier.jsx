@@ -55,11 +55,10 @@ const EXITS = {
 };
 
 const KEEPS = {
-  cols: "minmax(9rem, 1.6fr) 4rem minmax(6rem, 2fr)",
+  cols: "minmax(9rem, 1.6fr) 4rem",
   fields: [
     { key: "name", label: "inventory", strong: true, cell: (r) => r.name },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
-    { key: "note", label: "condition", dim: true, cell: (r) => r.note || <Stub /> },
   ],
 };
 

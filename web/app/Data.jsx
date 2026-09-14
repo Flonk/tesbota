@@ -44,12 +44,11 @@ const ITEMS = {
 };
 
 const KIT = {
-  cols: "1.1rem minmax(6rem, 1.3fr) minmax(6rem, 1.2fr) minmax(6rem, 1.4fr)",
+  cols: "1.1rem minmax(6rem, 1.3fr) minmax(6rem, 1.4fr)",
   fields: [
     { key: "icon", label: "", cell: (r) => <Icon name={face(r)} /> },
     { key: "name", label: "they start with", strong: true, cell: (r) => r.name },
     { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
-    { key: "note", label: "condition", dim: true, cell: (r) => r.note || "" },
   ],
 };
 

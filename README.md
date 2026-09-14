@@ -179,7 +179,7 @@ place(id, parent)                               every place sits inside one
 way(src, dst, bearing, distance)                what leads where
 item(id, type, damage, protection, heals, uses, worth, owed_by, slot)
                                                 slot: where it is worn or held, or none
-holding(holder, item, qty, note, worn)          what a place, a person or the explorer keeps
+holding(holder, item, qty, worn)                what a place, a person or the explorer keeps
 
 writing(ref, entity, kind, section, body)       every passage, with its address
 search(ref, entity, section, body)              fts5 over all of it
@@ -510,7 +510,7 @@ redraft even when both land.
 
 Everything anybody carries is an entity of kind `items` with an `item` row saying
 what it is — `type`, and the columns that type asks for. A holding is a holder, an
-item id, a count, a note and whether it is worn, so the thing in a pack and the
+item id, a count and whether it is worn, so the thing in a pack and the
 thing in the library are the same thing, and naming one the world lacks writes it
 down on the spot.
 
@@ -593,7 +593,7 @@ hands over, spends or uses what is not on one, and a coin is never invented into
 anybody's hand.
 
 Everything that changes hands is one `transactions` ledger, applied by the driver:
-`{from, to, name, qty, note}`. `the-godhead` on either side is the world itself —
+`{from, to, name, qty}`. `the-godhead` on either side is the world itself —
 bread eaten goes to it, a coin found in the mud comes from it.
 
 A holder may move something they do not have, which leaves them short by it. That is

@@ -72,7 +72,6 @@ CREATE TABLE IF NOT EXISTS holding (
   holder   TEXT NOT NULL,
   item     TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
   qty      INTEGER NOT NULL DEFAULT 1,
-  note     TEXT,
   worn     INTEGER NOT NULL DEFAULT 0,
   turn_id  TEXT
 );
@@ -145,6 +144,9 @@ def setup():
         for column in ("born", "died", "traits"):
             if column not in held:
                 con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
+        kept = {r["name"] for r in con.execute("PRAGMA table_info(holding)")}
+        if "note" in kept:
+            con.execute("ALTER TABLE holding DROP COLUMN note")
         carried = {r["name"] for r in con.execute("PRAGMA table_info(item)")}
         if "slot" not in carried:
             con.execute(

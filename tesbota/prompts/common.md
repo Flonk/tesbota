@@ -10,7 +10,7 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     way(src, dst, bearing, distance)                   what leads where
     item(id, type, damage, protection, heals, uses, worth, owed_by, slot)
                                                        slot: helmet | chest | legs | feet | mainhand | offhand | ring, or none
-    holding(holder, item, qty, note, worn)             what a place, a person or the explorer keeps
+    holding(holder, item, qty, worn)                   what a place, a person or the explorer keeps
 
     writing(ref, entity, kind, section, body)          every passage, with its address
     search(ref, entity, section, body)                 fts5: WHERE search MATCH 'mill NEAR/5 boy'

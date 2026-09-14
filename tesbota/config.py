@@ -220,17 +220,13 @@ ITEM_TYPES = (
 
 STARTING_INVENTORY = [
     {"name": "travelling clothes", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
-     "note": "plain and hard-wearing, none of it new", "effect": "no protection to speak of",
-     "protection": "none"},
+     "effect": "no protection to speak of", "protection": "none"},
     {"name": "walking boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
-     "note": "worn down at the heel but sound", "effect": "no protection to speak of",
-     "protection": "none"},
+     "effect": "no protection to speak of", "protection": "none"},
     {"name": "piece of bread", "type": "consumable", "qty": 1,
-     "note": "a day old, wrapped in cloth", "effect": "+15 health, one use",
-     "heals": "15", "uses": "1"},
+     "effect": "+15 health, one use", "heals": "15", "uses": "1"},
     {"name": "walking cane", "type": "weapon", "qty": 1, "worn": True, "slot": "mainhand",
-     "note": "hazel, waist-high, worn smooth at the grip", "effect": "1–2 damage",
-     "damage": "1–2"},
+     "effect": "1–2 damage", "damage": "1–2"},
 ]
 
 TRIVIAL_MINUTES = 10
