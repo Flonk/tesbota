@@ -102,6 +102,56 @@ function face_of(thing) {
   return KIND[thing.kind] || null;
 }
 
+function Head({ thing }) {
+  if (!thing) return null;
+  if (thing.kind === "people") return <Who person={thing.person} />;
+  if (thing.kind === "books") return <Wrote book={thing.book} />;
+  if (thing.kind === "items") return <Made item={thing.item} />;
+  if (thing.kind === "places" && thing.within?.length > 1) {
+    const parent = thing.within[thing.within.length - 2];
+    return (
+      <p className="cap dwho">
+        in{" "}
+        <button className="dlink" onClick={() => openDossier(parent.id)}>
+          {parent.name}
+        </button>
+      </p>
+    );
+  }
+  return null;
+}
+
+function Wrote({ book }) {
+  if (!book) return null;
+  return (
+    <p className="cap dwho">
+      {book.author_id ? (
+        <button className="dlink" onClick={() => openDossier(book.author_id)}>
+          {book.author}
+        </button>
+      ) : (
+        book.author || <Stub />
+      )}
+      {", "}
+      {settled(book.written) ? book.written : <Stub />}
+      {book.rarity ? <>{", "}{rare(book.rarity)}</> : null}
+    </p>
+  );
+}
+
+function Made({ item }) {
+  if (!item) return null;
+  const said = ["damage", "protection", "heals", "uses", "worth", "owed_by"]
+    .map((k) => (item[k] ? `${item[k]} ${k.replace("_", " ")}` : null))
+    .filter(Boolean);
+  return (
+    <p className="cap dwho">
+      {item.type || <Stub />}
+      {said.length ? `, ${said.join(", ")}` : ""}
+    </p>
+  );
+}
+
 function Who({ person }) {
   return (
     <p className="cap dwho">
@@ -219,7 +269,7 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
       under={
         thing ? (
           <>
-            {thing.kind === "people" && <Who person={thing.person} />}
+            <Head thing={thing} />
             <Address address={thing.address} />
           </>
         ) : null
@@ -248,18 +298,6 @@ export default function Dossier({ at, onClose, face = "content", onKind }) {
               <Section label="what it is">
                 <Prose className="dclaimtext" text={thing.about} />
               </Section>
-            )}
-
-            {thing.kind === "books" && face === "meta" && (
-              thing.book ? (
-                <Table
-                  {...WRITING}
-                  rows={[{ ...thing.book, id: thing.book.author_id || undefined }]}
-                  onOpen={thing.book.author_id ? openDossier : undefined}
-                />
-              ) : (
-                <Empty>it is named as a book but nobody has shelved it</Empty>
-              )
             )}
 
             {thing.kind === "people" && (

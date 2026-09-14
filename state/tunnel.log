@@ -145,3 +145,5 @@
 2026-09-14T09:09:34Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.192.67
 2026-09-14T09:09:34Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveID(65074) CurveP256] connIndex=0 event=0 ip=198.41.192.67
 2026-09-14T09:09:35Z INF Registered tunnel connection connIndex=0 connection=03c8bd94-304a-4bba-ae23-2283fe5ad8eb event=0 ip=198.41.192.67 location=fra03 protocol=quic
+2026-09-14T09:48:10Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-14T09:48:10Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
