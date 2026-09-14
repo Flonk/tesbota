@@ -153,3 +153,5 @@
 2026-09-14T22:16:42Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
 2026-09-14T22:52:55Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
 2026-09-14T22:52:55Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-14T23:01:52Z ERR  error="stream 3897 canceled by remote with error code 0" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-14T23:01:52Z ERR Request failed error="stream 3897 canceled by remote with error code 0" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http

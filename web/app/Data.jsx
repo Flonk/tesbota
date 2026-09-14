@@ -27,6 +27,7 @@ export const worth = (item) => {
   if (item?.damage) said.push(`${item.damage} damage`);
   if (item?.protection) said.push(`${item.protection} protection`);
   if (item?.heals) said.push(`+${item.heals} health`);
+  if (item?.sates) said.push(`−${item.sates} hunger`);
   if (item?.worth) said.push(String(item.worth));
   return said.join(", ");
 };

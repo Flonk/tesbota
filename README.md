@@ -177,7 +177,8 @@ passage(book_id, ord, text)                     a book's text, one paragraph to 
 entity.about                                    a thing describing itself, no author
 place(id, parent)                               every place sits inside one
 way(src, dst, bearing, distance)                what leads where
-item(id, type, damage, protection, heals, worth, owed_by, rarity, slot)
+item(id, type, damage, protection, heals, sates, worth, owed_by, rarity, slot)
+                                                heals health, sates hunger
                                                 slot: where it is worn or held, or none
 holding(holder, item, qty, worn)                what a place, a person or the explorer keeps
 

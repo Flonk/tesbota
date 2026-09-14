@@ -212,7 +212,7 @@ APPAREL_ICON = {
 ITEM_TYPES = (
     ("weapon", "damage", "sword", ("mainhand", "offhand")),
     ("apparel", "protection", "shirt", ("helmet", "chest", "legs", "feet", "offhand", "ring")),
-    ("consumable", "heals", "flask", ()),
+    ("consumable", "heals, sates", "flask", ()),
     ("tool", "what it lets them do", "hammer", ()),
     ("valuable", "worth, to whom, and who owes it", "coin", ()),
     ("material", "—", "sack", ()),
@@ -227,8 +227,8 @@ STARTING_INVENTORY = [
      "effect": "1 protection", "protection": "1", "rarity": "common"},
     {"name": "walking boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
      "effect": "1 protection", "protection": "1", "rarity": "common"},
-    {"name": "piece of bread", "type": "consumable", "qty": 1,
-     "effect": "+15 health", "heals": "15", "rarity": "common"},
+    {"name": "Bread from Alheim Mill", "type": "consumable", "qty": 1,
+     "effect": "+15 health, −20 hunger", "heals": "15", "sates": "20", "rarity": "common"},
     {"name": "walking cane", "type": "weapon", "qty": 1, "worn": True, "slot": "mainhand",
      "effect": "1–2 damage", "damage": "1–2", "rarity": "common"},
 ]
