@@ -150,9 +150,13 @@ function Outcomes({ rows, chosen, fortune }) {
 
 function Check({ c }) {
   const bonus = `${c.bonus >= 0 ? "+" : ""}${c.bonus}`;
+  const dice =
+    c.rolls && c.rolls.length > 1
+      ? `${c.rolls.map((n) => (n === c.roll ? `[${n}]` : n)).join(" ")} — ${c.against.join(" and ")}`
+      : c.roll;
   return (
     <Note tone={c.passed ? "good" : "bad"}>
-      {c.skill} · d20 {c.roll} {bonus} = {c.total} vs dc {c.dc} ·{" "}
+      {c.skill} · d20 {dice} {bonus} = {c.total} vs dc {c.dc} ·{" "}
       {c.passed ? "made it" : "fell short"}
     </Note>
   );

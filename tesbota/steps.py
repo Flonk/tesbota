@@ -171,7 +171,11 @@ def classify(text, turn):
 
 def step_explorer(campaign, turn):
     text, session = ask(
-        prompts.explorer_turn(campaign.get("last_narration"), nudge=turn.get("nudge")),
+        prompts.explorer_turn(
+            campaign.get("last_narration"),
+            nudge=turn.get("nudge"),
+            check=turn.get("check"),
+        ),
         system=prompts.EXPLORER_SYSTEM,
         tools=["Bash"],
         session=campaign["sessions"]["explorer"],

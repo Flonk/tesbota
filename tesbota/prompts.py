@@ -87,8 +87,20 @@ def render_holdings(holders):
     return "\n".join(lines) or "  (nothing)"
 
 
-def explorer_turn(narration, nudge=None):
+def explorer_turn(narration, nudge=None, check=None):
     text = narration or "You become aware. That is all, for now."
+    if check:
+        dice = " ".join(str(n) for n in check.get("rolls") or [check.get("roll")])
+        line = (
+            f"\n\nYou tried it: {check['skill']}, d20 {dice} {check['bonus']:+d} "
+            f"against {check['dc']} — you {'made it' if check['passed'] else 'fell short'}."
+        )
+        if check.get("against"):
+            line += (
+                f" You are {' and '.join(check['against'])}, so you threw "
+                f"{len(check['rolls'])} dice and kept the worst."
+            )
+        text += line
     if nudge:
         text += (
             "\n\nYou have not said what you are doing this turn. Looking and speaking "
