@@ -446,26 +446,23 @@ textarea {
 .bdate { color: var(--place); }
 
 .map {
-  height: 100%; min-height: 14rem;
-  display: flex; align-items: stretch; gap: .8rem;
-  position: relative; background: #000;
-  margin: -.9rem -1.2rem -1.4rem; padding: .4rem;
+  flex: 1 1 auto; min-width: 0; min-height: 14rem;
+  display: flex; flex-direction: column; align-items: stretch;
+  position: relative; background: #000; overflow: hidden;
 }
-.mapsvg { flex: 1 1 auto; min-width: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.maptrail {
+  flex: 0 0 auto; display: flex; align-items: center; gap: .5rem;
+  padding: .45rem .8rem; border-bottom: 1px solid var(--line);
+  background: var(--panel); overflow-x: auto; white-space: nowrap;
+}
+.mapsvg { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; display: block; touch-action: none; cursor: grab; }
 .mapsvg:active { cursor: grabbing; }
-.mapside {
-  flex: 0 0 9rem; min-width: 0; overflow-y: auto;
-  border-left: 1px solid var(--line); padding: .3rem .5rem;
+.mapkeys {
+  position: absolute; right: .6rem; bottom: .6rem; z-index: 2;
+  display: flex; gap: .25rem;
 }
-.mapside .cap { margin-bottom: .2rem; }
-.mfloat { margin: 0 0 .1rem; font: var(--mono); letter-spacing: .06em; color: var(--dim); cursor: pointer; }
-.mfloat:hover { color: var(--ink); }
-.mfloat.named { text-decoration: underline dashed var(--line); text-underline-offset: 3px; }
-.mfloat.walked { color: var(--ink); }
-.mapclock { font: var(--mono); color: var(--dim); margin-bottom: .5rem; }
-.mapkeys { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: .6rem; }
 .mkey {
-  background: none; border: 1px solid var(--line); border-radius: 2px;
+  background: rgba(0, 0, 0, .55); border: 1px solid var(--line); border-radius: 2px;
   color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
   padding: .1rem .35rem; cursor: pointer;
 }
@@ -495,10 +492,6 @@ textarea {
 .mplace.named .mname { fill: var(--dim); }
 .mplace.recorded .mname { fill: #8f8676; }
 
-@media (max-width: 720px) {
-  .map { flex-direction: column; }
-  .mapside { flex: 0 0 auto; border-left: 0; border-top: 1px solid var(--line); }
-}
 
 .lore .cap { color: var(--warn); }
 .lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }
@@ -560,7 +553,6 @@ textarea {
   .bartrack { width: 38px; }
   .barlabel { width: 1.6rem; }
   .tabpanel { padding: .8rem .9rem 1.2rem; }
-  .map { padding: .6rem .9rem; }
   .stat { display: none; }
   .tabbar { gap: .3rem; padding: 0 .5rem; }
   .tabs.sub { padding: 0 .5rem; }
@@ -803,3 +795,5 @@ textarea.prompt:focus { outline: none; }
 }
 
 .dtraits { display: flex; flex-wrap: wrap; gap: .4rem; }
+
+.dmap { display: inline-flex; align-items: center; gap: .35rem; margin-top: .5rem; }

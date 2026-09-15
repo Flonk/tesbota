@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Cap, Empty, Note, openDossier } from "./ui";
+import { Crumb, Empty, Note, openDossier } from "./ui";
 
 const LEAF_W = 160;
 const LEAF_H = 64;
@@ -188,12 +188,19 @@ function drawn(layout) {
   };
 }
 
-export default function Map({ where = [], at }) {
+export default function Map({ where = [], focus = null }) {
   const [layout, setLayout] = useState(null);
   const [view, setView] = useState(null);
   const svg = useRef(null);
   const grab = useRef(null);
+  const held = useRef(null);
+  const asked = useRef(null);
+  const spread = useRef(false);
   const touches = useRef({ at: {}, span: 0 });
+
+  useEffect(() => {
+    held.current = view;
+  }, [view]);
 
   useEffect(() => {
     let live = true;
@@ -209,8 +216,29 @@ export default function Map({ where = [], at }) {
   const { nodes, spot, fit } = useMemo(() => drawn(layout), [layout]);
 
   useEffect(() => {
-    if (fit) setView((held) => held || { ...fit });
+    if (fit) setView((now) => now || { ...fit });
   }, [fit]);
+
+  const fill = useCallback((want) => {
+    const box = svg.current?.getBoundingClientRect();
+    if (!want) return want;
+    if (!box?.width || !box?.height) return { ...want };
+    const across = box.width / box.height;
+    const w = Math.max(want.w, want.h * across);
+    const h = w / across;
+    return { x: want.x + (want.w - w) / 2, y: want.y + (want.h - h) / 2, w, h };
+  }, []);
+
+  useEffect(() => {
+    if (!fit || spread.current) return;
+    if (focus?.id) {
+      spread.current = true;
+      return;
+    }
+    if (!svg.current?.getBoundingClientRect().width) return;
+    spread.current = true;
+    setView(fill(fit));
+  }, [fit, view, focus, fill]);
 
   const framed = useCallback(() => {
     const box = svg.current?.getBoundingClientRect();
@@ -250,12 +278,21 @@ export default function Map({ where = [], at }) {
     return () => el.removeEventListener("wheel", wheel);
   }, [zoomAt]);
 
+  function seat(x, y, moved) {
+    const now = held.current;
+    grab.current = now ? { from: { ...now }, x, y, moved } : null;
+  }
+
   function down(e) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     touches.current.at[e.pointerId] = { x: e.clientX, y: e.clientY };
-    if (Object.keys(touches.current.at).length === 1 && view) {
-      grab.current = { from: { ...view }, x: e.clientX, y: e.clientY, moved: false };
+    const down = Object.keys(touches.current.at).length;
+    if (down === 1) seat(e.clientX, e.clientY, false);
+    if (down >= 2) {
+      grab.current = null;
+      touches.current.span = 0;
+      touches.current.pinched = true;
     }
   }
 
@@ -286,38 +323,61 @@ export default function Map({ where = [], at }) {
 
   function up(e) {
     delete touches.current.at[e.pointerId];
-    if (Object.keys(touches.current.at).length < 2) touches.current.span = 0;
+    const left = Object.values(touches.current.at);
+    touches.current.span = 0;
+    if (left.length === 1) {
+      seat(left[0].x, left[0].y, true);
+    } else if (!left.length) {
+      touches.current.pinched = false;
+    }
   }
 
   function tap(id) {
-    if (grab.current?.moved) return;
+    if (grab.current?.moved || touches.current.pinched) return;
     openDossier(id);
   }
 
-  function centre(id) {
-    const n = spot[id];
-    setView((held) => (n && held ? { ...held, x: n.x - held.w / 2, y: n.y - held.h / 2 } : held));
-  }
+  const centre = useCallback(
+    (id, close = false) => {
+      const n = spot[id];
+      if (!n) return;
+      const box = svg.current?.getBoundingClientRect();
+      setView((now) => {
+        if (!now) return now;
+        if (!close) return { ...now, x: n.x - now.w / 2, y: n.y - now.h / 2 };
+        const w = Math.min(now.w, n.size.w * 3);
+        const h = box?.width ? (w * box.height) / box.width : now.h * (w / now.w);
+        return { x: n.x - w / 2, y: n.y - h / 2, w, h };
+      });
+    },
+    [spot]
+  );
+
+  useEffect(() => {
+    if (!focus?.id || !view || !spot[focus.id]) return;
+    const key = `${focus.id}:${focus.asked}`;
+    if (asked.current === key) return;
+    asked.current = key;
+    centre(focus.id, true);
+  }, [focus, spot, view, centre]);
 
   if (!layout) return <Empty>solving the map…</Empty>;
   if (layout.error) return <Note tone="warn">{layout.error}</Note>;
 
   const here = where[where.length - 1]?.id || null;
-  const floating = layout.floating.map((id) => layout.places[id]);
 
   if (!nodes.length || !view) {
     return (
       <div className="map">
-        <svg className="mapsvg" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet" />
-        <div className="mapside">
-          <Cap>nowhere has been placed yet</Cap>
-        </div>
+        <Crumb className="maptrail" where={where} />
+        <Empty>nowhere has been placed yet</Empty>
       </div>
     );
   }
 
   return (
     <div className="map">
+      <Crumb className="maptrail" where={where} />
       <svg
         className="mapsvg"
         ref={svg}
@@ -401,27 +461,13 @@ export default function Map({ where = [], at }) {
           })}
       </svg>
 
-      <div className="mapside">
-        {at && <div className="mapclock">{at}</div>}
-        <div className="mapkeys">
-          <button className="mkey" onClick={() => setView({ ...fit })}>
-            fit
-          </button>
-          <button className="mkey" onClick={() => centre(here)} disabled={!here || !spot[here]}>
-            find them
-          </button>
-        </div>
-        <p className="cap">nowhere in particular</p>
-        {floating.length === 0 && <p className="mfloat">every place is placed</p>}
-        {floating.map((p) => (
-          <p
-            className={`mfloat ${p.knowledge}`}
-            key={p.name}
-            onClick={() => openDossier(Object.keys(layout.places).find((k) => layout.places[k] === p))}
-          >
-            {p.name}
-          </p>
-        ))}
+      <div className="mapkeys">
+        <button className="mkey" onClick={() => setView(fill(fit))}>
+          fit
+        </button>
+        <button className="mkey" onClick={() => centre(here, true)} disabled={!here || !spot[here]}>
+          find them
+        </button>
       </div>
     </div>
   );

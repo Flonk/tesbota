@@ -327,6 +327,7 @@ export default function Page() {
   const pen = useRef(null);
   const [settings, setSettings] = useState(false);
   const [reading, setReading] = useState(null);
+  const [mapAt, setMapAt] = useState(null);
   const [face, setFace] = useState("content");
   const keyboard = useKeyboardAvoid();
   const [at, setAt] = useState(0);
@@ -383,6 +384,30 @@ export default function Page() {
     };
     window.addEventListener("bota:open", open);
     return () => window.removeEventListener("bota:open", open);
+  }, []);
+
+  useEffect(() => {
+    const show = (id) => {
+      if (!id) return;
+      setDossier(null);
+      setQuest(null);
+      setReading(null);
+      setTab("map");
+      setMapAt({ id, asked: Date.now() });
+    };
+    const onMap = (e) => {
+      show(e.detail?.id);
+      const url = new URL(window.location.href);
+      url.searchParams.set("map", e.detail?.id || "");
+      window.history.replaceState(null, "", url);
+    };
+    window.addEventListener("bota:map", onMap);
+    const asked = new URLSearchParams(window.location.search).get("map");
+    if (asked) {
+      show(asked);
+      wasBlocked.current = true;
+    }
+    return () => window.removeEventListener("bota:map", onMap);
   }, []);
 
   useEffect(() => {
@@ -745,7 +770,9 @@ export default function Page() {
         <div className="tabbody">
           <div
             className={`tabpanel${
-              tab === "chat" || (tab === "library" && sub.library !== "data") ? " flush" : ""
+              tab === "chat" || tab === "map" || (tab === "library" && sub.library !== "data")
+                ? " flush"
+                : ""
             }${tab === "library" && sub.library === "data" && sheaf === "prompts" ? " edit" : ""}`}
           >
           {tab === "chat" && sub.chat === "talk" && (
@@ -772,7 +799,7 @@ export default function Page() {
               onNote={(text) => post("/api/note", { text }, "note")}
             />
           )}
-          {tab === "map" && <Map where={status.where} at={status.now} />}
+          {tab === "map" && <Map where={status.where} focus={mapAt} />}
           {tab === "me" && sub.me === "stats" && (
             <Sheet vitals={vitals} skills={skills} />
           )}
