@@ -109,7 +109,12 @@ CREATE TRIGGER IF NOT EXISTS passage_au AFTER UPDATE ON passage BEGIN
   VALUES ('bota://books/' || new.book_id || '#p' || new.ord, new.book_id, 'passage', new.text);
 END;
 
-CREATE TRIGGER IF NOT EXISTS entity_about_ai AFTER UPDATE OF about ON entity BEGIN
+CREATE TRIGGER IF NOT EXISTS entity_about_ai AFTER INSERT ON entity BEGIN
+  INSERT INTO search(ref, entity, section, body)
+  SELECT 'bota://' || new.kind || '/' || new.id || '#about', new.id, 'about', new.about
+   WHERE new.about IS NOT NULL AND trim(new.about) <> '';
+END;
+CREATE TRIGGER IF NOT EXISTS entity_about_au AFTER UPDATE OF about ON entity BEGIN
   DELETE FROM search WHERE ref = 'bota://' || new.kind || '/' || new.id || '#about';
   INSERT INTO search(ref, entity, section, body)
   SELECT 'bota://' || new.kind || '/' || new.id || '#about', new.id, 'about', new.about
@@ -161,7 +166,10 @@ def setup():
     con = connect()
     try:
         con.execute("PRAGMA journal_mode = WAL")
-        con.executescript("DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;")
+        con.executescript(
+            "DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;"
+            " DROP TRIGGER IF EXISTS entity_about_ai;"
+        )
         con.executescript(SCHEMA)
         shape = {r["name"] for r in con.execute("PRAGMA table_info(entity)")}
         if "extent" not in shape:
@@ -195,6 +203,14 @@ def setup():
                 "ALTER TABLE item ADD COLUMN slot TEXT "
                 "CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))"
             )
+        con.execute(
+            """INSERT INTO search(ref, entity, section, body)
+               SELECT 'bota://' || kind || '/' || id || '#about', id, 'about', about
+                 FROM entity
+                WHERE trim(coalesce(about, '')) <> ''
+                  AND 'bota://' || kind || '/' || id || '#about' NOT IN
+                      (SELECT ref FROM search)"""
+        )
         con.commit()
         item_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='item'") or ""
         if "REFERENCES entity" not in item_sql:

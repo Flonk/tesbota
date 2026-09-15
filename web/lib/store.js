@@ -375,7 +375,7 @@ export function entity(id) {
       bundle.person =
         db
           .prepare(
-            `SELECT p.work, p.lives, p.born, p.died,
+            `SELECT p.work, p.lives, p.born, p.died, p.traits,
                     coalesce(l.name, replace(p.lives, '-', ' ')) AS livesName
                FROM person p LEFT JOIN entity l ON l.id = p.lives WHERE p.id = ?`
           )

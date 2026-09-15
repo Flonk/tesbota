@@ -753,7 +753,7 @@ textarea.prompt:focus { outline: none; }
 .leaf .rtext { margin: 0; font-size: .95rem; line-height: 1.55; }
 .leaf.lit .rtext { border-left: 1px solid var(--gold); padding-left: .7rem; }
 
-.dsec { margin-top: 1.1rem; }
+.dsec { margin: 1.1rem 0; }
 .dsection { font: var(--mono); letter-spacing: .06em; color: var(--place); }
 .dclaim { margin: 0 0 .5rem; font-size: .9rem; line-height: 1.45; }
 .dclaimhead { display: flex; gap: .6rem; margin: 0 0 .1rem; text-transform: none; letter-spacing: .06em; }
@@ -801,3 +801,5 @@ textarea.prompt:focus { outline: none; }
   .seek .glass { padding-left: calc(.5rem + 1px); }
   .libbody { padding: .8rem .9rem 1.2rem; }
 }
+
+.dtraits { display: flex; flex-wrap: wrap; gap: .4rem; }

@@ -203,6 +203,26 @@ function Lifespan({ person }) {
   );
 }
 
+function Traits({ person }) {
+  const said = String(person?.traits || "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  return (
+    <Section label="personality">
+      {said.length ? (
+        <div className="dtraits">
+          {said.map((t) => (
+            <Tag key={t}>{t}</Tag>
+          ))}
+        </div>
+      ) : (
+        <Empty>nobody has said what they are like</Empty>
+      )}
+    </Section>
+  );
+}
+
 function Section({ label, children }) {
   return (
     <div className="dsec">
@@ -300,6 +320,18 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
               <Leaves thing={thing} fragment={fragment} />
             )}
 
+            {!(thing.kind === "books" && face === "content") && (
+              <Section label="description">
+                {thing.about ? (
+                  <Prose className="dclaimtext" text={thing.about} />
+                ) : (
+                  <Empty>nothing describes it yet</Empty>
+                )}
+              </Section>
+            )}
+
+            {thing.kind === "people" && <Traits person={thing.person} />}
+
             {thing.kind !== "items" && !(thing.kind === "books" && face === "content") && thing.within && (
               <Section label="where it sits">
                 {thing.within.length > 1 ? (
@@ -311,17 +343,6 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
             )}
 
             {thing.kind === "items" && <Stats item={thing.item} />}
-
-            {!(thing.kind === "books" && face === "content") &&
-              (thing.about || thing.kind === "items") && (
-              <Section label="what it is">
-                {thing.about ? (
-                  <Prose className="dclaimtext" text={thing.about} />
-                ) : (
-                  <Empty>nothing says what it is</Empty>
-                )}
-              </Section>
-            )}
 
             {thing.kind === "people" && (
                 <Table
