@@ -20,6 +20,25 @@ def slug(text):
     return "-".join(str(text or "").replace("'", "").replace("\u2019", "").split()).strip("-").lower()
 
 
+SMALL = {"a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into",
+         "nor", "of", "on", "onto", "or", "over", "the", "to", "up", "upon", "with"}
+
+
+def titled(name):
+    """A thing is named the way a title is set: every word but the small joining
+    ones in the middle, and a word that already capitalises itself is left alone."""
+    words = str(name or "").split()
+    out = []
+    for at, word in enumerate(words):
+        if word[1:] != word[1:].lower():
+            out.append(word)
+        elif at and at < len(words) - 1 and word.lower().strip(",.:;") in SMALL:
+            out.append(word.lower())
+        else:
+            out.append(word[:1].upper() + word[1:])
+    return " ".join(out)
+
+
 def find_entity(entity_id):
     return db.row("SELECT * FROM entity WHERE id = ?", (slug(entity_id),))
 
@@ -28,10 +47,13 @@ def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
     entity_id = slug(entity_id)
     if kind not in KINDS:
         kind = "places"
+    name = name or entity_id.replace("-", " ")
+    if kind in ("items", "books"):
+        name = titled(name)
     with db.writing() as con:
         con.execute(
             "INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)",
-            (entity_id, kind, name or entity_id.replace("-", " ").title(), turn_id),
+            (entity_id, kind, name, turn_id),
         )
         if kind == "people":
             con.execute("INSERT OR IGNORE INTO person (id) VALUES (?)", (entity_id,))
@@ -296,11 +318,10 @@ def thing(name, kind="items", turn_id=None):
     if not ident:
         return None
     if not find_entity(ident):
-        title = str(name).strip()
         with db.writing() as con:
             con.execute(
                 "INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)",
-                (ident, kind, title[:1].upper() + title[1:], turn_id),
+                (ident, kind, titled(name), turn_id),
             )
             con.execute("INSERT OR IGNORE INTO item (id) VALUES (?)", (ident,))
     return ident

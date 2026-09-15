@@ -219,17 +219,17 @@ ITEM_TYPES = (
 )
 
 STARTING_INVENTORY = [
-    {"name": "Explorer's cap", "type": "apparel", "qty": 1, "worn": True, "slot": "helmet",
+    {"name": "Explorer's Cap", "type": "apparel", "qty": 1, "worn": True, "slot": "helmet",
      "rarity": "uncommon"},
-    {"name": "linen shirt", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
+    {"name": "Linen Shirt", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
      "effects": {"protection": "2"}, "rarity": "common"},
-    {"name": "wool leggings", "type": "apparel", "qty": 1, "worn": True, "slot": "legs",
+    {"name": "Wool Leggings", "type": "apparel", "qty": 1, "worn": True, "slot": "legs",
      "effects": {"protection": "1"}, "rarity": "common"},
-    {"name": "walking boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
+    {"name": "Walking Boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
      "effects": {"protection": "1"}, "rarity": "common"},
     {"name": "Bread from Alheim Mill", "type": "consumable", "qty": 1,
      "effects": {"health": "+15", "hunger": "−20"}, "rarity": "common"},
-    {"name": "walking cane", "type": "weapon", "qty": 1, "worn": True, "slot": "mainhand",
+    {"name": "Walking Cane", "type": "weapon", "qty": 1, "worn": True, "slot": "mainhand",
      "effects": {"damage": "1–2"}, "rarity": "common"},
 ]
 
