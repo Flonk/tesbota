@@ -1,4 +1,4 @@
-from . import canon, worldclock
+from . import canon, view, worldclock
 from .config import (
     ABILITIES,
     EXPLORER,
@@ -118,10 +118,10 @@ def as_item(entry):
         return {
             "name": entry.get("name", "something"),
             "qty": int(entry.get("qty") or 1),
-            "note": entry.get("note") or "",
+            "about": entry.get("about") or "",
             "worn": bool(entry.get("worn")),
         }
-    return {"name": str(entry), "qty": 1, "note": "", "worn": False}
+    return {"name": str(entry), "qty": 1, "about": "", "worn": False}
 
 
 def items():
@@ -138,8 +138,10 @@ def render_inventory():
 
     def line(e):
         count = f" x{e['qty']}" if e["qty"] > 1 else ""
-        note = f"   ({e['note']})" if e["note"] else ""
-        return f"  {e['name']}{count}{note}"
+        said = [f"  {e['name']}{count}"]
+        if e["about"]:
+            said.append(view.wrap(canon.plain(e["about"]), width=70, indent="      "))
+        return "\n".join(said)
 
     out = []
     if worn:
@@ -172,6 +174,5 @@ def render_holdings(entity=None):
         out.append(f"{holder['name']}  ({holder['id']})")
         for item in stock[holder["id"]]:
             count = f"x{item['qty']}" if item["qty"] > 1 else ""
-            note = f"({item['note']})" if item["note"] else ""
-            out.append(f"  {item['name']:<{width}}  {count:>4}  {note}".rstrip())
+            out.append(f"  {item['name']:<{width}}  {count:>4}".rstrip())
     return "\n".join(out)

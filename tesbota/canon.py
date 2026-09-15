@@ -154,8 +154,15 @@ def person(entity_id):
 
 ARTICLE = re.compile(r"^(?:the|a|an)\s+", re.I)
 ANCHORED = re.compile(r"\[[^\]]*\]\(bota://[^)]*\)")
+SPELLED = re.compile(r"\[([^\]]*)\]\(bota://[^)]*\)")
 QUOTED = re.compile("\"[^\"]*\"|\u201c[^\u201d]*\u201d")
 SHORTEST_NAME = 3
+
+
+def plain(text):
+    """What a link says, without where it points. The adventurer reads a terminal,
+    not the library."""
+    return SPELLED.sub(r"\1", text or "")
 
 
 def candidates():
@@ -328,11 +335,12 @@ def holdings(holder):
             "item": r["item"],
             "name": r["name"] or r["item"].replace("-", " "),
             "type": r["type"],
+            "about": r["about"] or "",
             "qty": r["qty"],
             "worn": bool(r["worn"]),
         }
         for r in db.rows(
-            """SELECT h.item, h.qty, h.worn, e.name, i.type
+            """SELECT h.item, h.qty, h.worn, e.name, e.about, i.type
                  FROM holding h
                  LEFT JOIN entity e ON e.id = h.item
                  LEFT JOIN item i ON i.id = h.item
