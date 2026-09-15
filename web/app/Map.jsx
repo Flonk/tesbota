@@ -403,8 +403,8 @@ export default function Map({ where = [], focus = null }) {
             {!adrift.known
               ? `nothing on the map is called ${adrift.name}`
               : adrift.near
-                ? `${adrift.name} has not been placed — this is ${adrift.nearName}, which holds it`
-                : `${adrift.name} has not been placed, and nothing says where it sits`}
+                ? `${adrift.name} has not been placed. Showing ${adrift.nearName}, which holds it`
+                : `${adrift.name} has not been placed, and nothing on the map holds it`}
           </span>
           {adrift.known && (
             <button className="dlink" onClick={() => openDossier(adrift.id)}>

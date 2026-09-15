@@ -91,11 +91,15 @@ def confidences(known, edges):
             out[ident] = "fixed"
         elif ident in anchored:
             out[ident] = "constrained"
-    for ident, place in known.items():
-        if ident in out:
-            continue
-        if any(kid in out for kid in place["children"]):
-            out[ident] = "constrained"
+    spreading = True
+    while spreading:
+        spreading = False
+        for ident, place in known.items():
+            if ident in out:
+                continue
+            if any(kid in out for kid in place["children"]):
+                out[ident] = "constrained"
+                spreading = True
     for ident in known:
         out.setdefault(ident, "floating")
     return out
