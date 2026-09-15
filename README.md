@@ -175,7 +175,9 @@ entity(id, kind, name, introduced, extent)      people | places | books | items
 book(id, author, author_id, written, rarity)    author_id points at the person who wrote it
 passage(book_id, ord, text)                     a book's text, one paragraph to a row
 entity.about                                    a thing describing itself, no author
-place(id, parent)                               every place sits inside one
+place(id, parent, type)                         every place sits inside one, and is one sort
+                                                of thing: location, region, celestial-body,
+                                                celestial-system or realm
 way(src, dst, bearing, distance)                what leads where
 item(id, type, worth, owed_by, rarity, slot)    slot: where it is worn or held, or none
 effect(item, stat, amount)                      what a thing does, a row per stat

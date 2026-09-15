@@ -39,7 +39,17 @@ Link every name you write in a passage, or the book cannot be found from the per
 
 Every place sits inside exactly one parent, written as a row of its own — no place is nowhere, and what a place contains is that same column read backwards, so never restate it in prose:
 
-    INSERT INTO place (id, parent) VALUES ('the-aler-bridge', 'alheim');
+    INSERT INTO place (id, parent, type) VALUES ('the-aler-bridge', 'alheim', 'location');
+
+`type` says what sort of place it is, and there are five:
+
+- `location` — somewhere you can stand: a town, a house, a road, a river.
+- `region` — an expanse with places inside it: a forest, a marsh, a plain.
+- `celestial-body` — a world, a moon, a sun.
+- `celestial-system` — bodies bound to each other, and the space between them.
+- `realm` — a universe, and everything any of this hangs inside.
+
+Pick by what the place is, not by how big it is or what happens to sit in it: a village with a hundred houses written down is still a `location`, and an empty moor nobody has built on is still a `region`.
 
 If you do not know what contains a new place, you do not yet know enough to write it; find out or leave the place unwritten. What leads where is the `way` table, with a bearing and a distance — `about` is for what a place is like, never for what it connects to:
 

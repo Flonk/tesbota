@@ -209,7 +209,7 @@ export async function library() {
 
 const ROWS = `
   SELECT e.id, e.kind, e.name, e.introduced,
-         pl.parent AS parent,
+         pl.parent AS parent, pl.type AS type,
          coalesce(pe.name, replace(pl.parent, '-', ' ')) AS parentName,
          (SELECT count(*) FROM place x WHERE x.parent = e.id) AS contains,
          (SELECT count(*) FROM way x WHERE x.src = e.id) AS exits,
@@ -360,6 +360,7 @@ export function entity(id) {
             WHERE pl.parent = ? ORDER BY pl.id`
         )
         .all(ident);
+      bundle.place = db.prepare(`SELECT type, parent FROM place WHERE id = ?`).get(ident) || null;
       bundle.lives = db
         .prepare(
           `SELECT p.id, coalesce(e.name, replace(p.id, '-', ' ')) AS name, p.work

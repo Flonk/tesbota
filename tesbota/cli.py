@@ -11,6 +11,7 @@ from .config import (
     APPAREL_ICON,
     FIRST_NAMES,
     ITEM_TYPES,
+    PLACE_TYPES,
     NARRATOR,
     RARITY,
     STARTING_INVENTORY,
@@ -157,6 +158,7 @@ def cmd_data(args):
         "kit": [dict(entry, id=canon.slug(entry["name"]), slot=entry.get("slot"),
                      effect=canon.does(entry.get("effects")))
                 for entry in STARTING_INVENTORY],
+        "places": [{"type": t, "what": what, "icon": icon} for t, what, icon in PLACE_TYPES],
         "items": [{"type": t, "stats": stats, "icon": icon,
                    "slots": [{"slot": s, "icon": APPAREL_ICON.get(s, icon)} for s in slots]}
                   for t, stats, icon, slots in ITEM_TYPES],

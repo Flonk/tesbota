@@ -727,6 +727,7 @@ export default function Page() {
                     { id: "names", label: "names", icon: "people" },
                     { id: "personality", label: "personality", icon: "pulse" },
                     { id: "rarity", label: "rarity", icon: "dice" },
+                    { id: "places", label: "places", icon: "pin" },
                     { id: "items", label: "items", icon: "box" },
                     { id: "kit", label: "kit", icon: "shirt" },
                   ]

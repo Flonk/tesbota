@@ -123,14 +123,21 @@ function Head({ thing }) {
   if (thing.kind === "people") return <Who person={thing.person} />;
   if (thing.kind === "books") return <Wrote book={thing.book} />;
   if (thing.kind === "items") return <Made item={thing.item} />;
-  if (thing.kind === "places" && thing.within?.length > 1) {
-    const parent = thing.within[thing.within.length - 2];
+  if (thing.kind === "places") {
+    const parent = thing.within?.length > 1 ? thing.within[thing.within.length - 2] : null;
+    const sort = thing.place?.type;
+    if (!parent && !sort) return null;
     return (
       <p className="cap dwho">
-        in{" "}
-        <button className="dlink" onClick={() => openDossier(parent.id)}>
-          {parent.name}
-        </button>
+        {sort ? sort.replace(/-/g, " ") : <Stub />}
+        {parent && (
+          <>
+            {" in "}
+            <button className="dlink" onClick={() => openDossier(parent.id)}>
+              {parent.name}
+            </button>
+          </>
+        )}
       </p>
     );
   }

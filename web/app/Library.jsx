@@ -69,9 +69,11 @@ function branch(row, toggle) {
 
 function placeShape(toggle) {
   return {
-    cols: "minmax(10rem, 3fr) 5rem 4rem",
+    cols: "minmax(8rem, 3fr) minmax(4.6rem, .9fr) 3.6rem 3rem",
     fields: [
       { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle) },
+      { key: "type", label: "sort", dim: true,
+        cell: (r) => (r.type ? r.type.replace(/-/g, " ") : <Stub />) },
       { key: "exits", label: "ways out", num: true, cell: (r) => COUNT(r.exits) },
       { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
     ],

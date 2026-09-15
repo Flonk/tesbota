@@ -209,6 +209,14 @@ APPAREL_ICON = {
     "ring": "ring",
 }
 
+PLACE_TYPES = (
+    ("location", "somewhere you can stand: a town, a house, a road, a river", "pin"),
+    ("region", "an expanse with places inside it: a forest, a marsh, a plain", "map"),
+    ("celestial-body", "a world, a moon, a sun", "world"),
+    ("celestial-system", "bodies bound to each other, and the space between them", "orbit"),
+    ("realm", "a universe, and everything any of this hangs inside", "realm"),
+)
+
 ITEM_TYPES = (
     ("weapon", "damage", "sword", ("mainhand", "offhand")),
     ("apparel", "protection", "shirt", ("helmet", "chest", "legs", "feet", "offhand", "ring")),

@@ -42,7 +42,8 @@ CREATE TABLE IF NOT EXISTS passage (
 
 CREATE TABLE IF NOT EXISTS place (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
-  parent TEXT
+  parent TEXT,
+  type   TEXT CHECK (type IN ('location','region','celestial-body','celestial-system','realm'))
 );
 CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
 
@@ -180,6 +181,12 @@ def setup():
         for column in ("born", "died", "traits"):
             if column not in held:
                 con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
+        sited = {r["name"] for r in con.execute("PRAGMA table_info(place)")}
+        if "type" not in sited:
+            con.execute(
+                "ALTER TABLE place ADD COLUMN type TEXT "
+                "CHECK (type IN ('location','region','celestial-body','celestial-system','realm'))"
+            )
         kept = {r["name"] for r in con.execute("PRAGMA table_info(holding)")}
         if "note" in kept:
             con.execute("ALTER TABLE holding DROP COLUMN note")

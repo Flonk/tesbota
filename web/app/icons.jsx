@@ -142,6 +142,26 @@ const GLYPHS = {
       <path d="M12 3.5 5 5.8v6.1c0 4 2.8 6.8 7 8.6 4.2-1.8 7-4.6 7-8.6V5.8z" />
     </>
   ),
+  world: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.3 3.6 8.5S14.4 18.2 12 20.5c-2.4-2.3-3.6-5.3-3.6-8.5S9.6 5.9 12 3.5z" />
+    </>
+  ),
+  orbit: (
+    <>
+      <circle cx="12" cy="12" r="3.2" />
+      <ellipse cx="12" cy="12" rx="10" ry="4.6" transform="rotate(-28 12 12)" />
+      <circle cx="4.4" cy="8.6" r="1.3" fill="currentColor" stroke="none" />
+    </>
+  ),
+  realm: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="4.6" />
+      <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+    </>
+  ),
   flask: (
     <>
       <path d="M10 3.5h4M10.8 3.5v5.2L5.6 17a2.6 2.6 0 0 0 2.2 4h8.4a2.6 2.6 0 0 0 2.2-4l-5.2-8.3V3.5" />

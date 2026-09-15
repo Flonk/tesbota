@@ -40,6 +40,15 @@ const TRAITS = {
   ],
 };
 
+const PLACES = {
+  cols: "1.1rem minmax(7rem, 1fr) minmax(10rem, 2.2fr)",
+  fields: [
+    { key: "icon", label: "", cell: (r) => <Icon name={r.icon} /> },
+    { key: "type", label: "place", strong: true, cell: (r) => r.type.replace(/-/g, " ") },
+    { key: "what", label: "what it is", dim: true, cell: (r) => r.what },
+  ],
+};
+
 const ITEMS = {
   cols: "1.1rem minmax(8rem, 1.2fr) minmax(8rem, 1.6fr)",
   fields: [
@@ -92,6 +101,11 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
         empty="no names to draw from"
       />
     );
+  }
+
+  if (at === "places") {
+    const rows = (catalogue.places || []).map((r) => ({ ...r, id: r.type }));
+    return <Table {...PLACES} rows={rows} empty="no sorts of place yet" />;
   }
 
   if (at === "items") {
