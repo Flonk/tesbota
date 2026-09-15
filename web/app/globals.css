@@ -797,3 +797,16 @@ textarea.prompt:focus { outline: none; }
 .dtraits { display: flex; flex-wrap: wrap; gap: .4rem; }
 
 .dmap { display: inline-flex; align-items: center; gap: .35rem; margin-top: .5rem; }
+
+.mapnote {
+  flex: 0 0 auto; display: flex; align-items: center; gap: .6rem;
+  padding: .4rem .8rem; border-bottom: 1px solid var(--line);
+  background: var(--panel); color: var(--warn);
+  font: var(--mono); letter-spacing: .04em;
+}
+.mapnote span { flex: 1 1 auto; min-width: 0; }
+.mhush {
+  flex: 0 0 auto; background: none; border: 0; color: var(--dim);
+  font-size: 1rem; line-height: 1; cursor: pointer; padding: 0 .2rem;
+}
+.mapnote .dlink { flex: 0 0 auto; white-space: nowrap; }

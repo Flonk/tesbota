@@ -196,6 +196,7 @@ export default function Map({ where = [], focus = null }) {
   const held = useRef(null);
   const asked = useRef(null);
   const spread = useRef(false);
+  const [hushed, setHushed] = useState(null);
   const touches = useRef({ at: {}, span: 0 });
 
   useEffect(() => {
@@ -353,13 +354,31 @@ export default function Map({ where = [], focus = null }) {
     [spot]
   );
 
+  const adrift = useMemo(() => {
+    if (!focus?.id || !layout?.places || spot[focus.id]) return null;
+    const place = layout.places[focus.id];
+    if (!place) return { id: focus.id, name: focus.id.replace(/-/g, " "), known: false };
+    let up = place.parent;
+    while (up && layout.places[up] && !spot[up]) up = layout.places[up].parent;
+    const near = up && spot[up] ? up : null;
+    return {
+      id: focus.id,
+      name: place.name,
+      known: true,
+      near,
+      nearName: near ? layout.places[near].name : null,
+    };
+  }, [focus, layout, spot]);
+
   useEffect(() => {
-    if (!focus?.id || !view || !spot[focus.id]) return;
+    if (!focus?.id || !view) return;
     const key = `${focus.id}:${focus.asked}`;
     if (asked.current === key) return;
     asked.current = key;
-    centre(focus.id, true);
-  }, [focus, spot, view, centre]);
+    const land = spot[focus.id] ? focus.id : adrift?.near;
+    if (land) centre(land, true);
+    else if (fit) setView(fill(fit));
+  }, [focus, spot, view, centre, adrift, fit, fill]);
 
   if (!layout) return <Empty>solving the map…</Empty>;
   if (layout.error) return <Note tone="warn">{layout.error}</Note>;
@@ -378,6 +397,29 @@ export default function Map({ where = [], focus = null }) {
   return (
     <div className="map">
       <Crumb className="maptrail" where={where} />
+      {adrift && hushed !== `${adrift.id}:${focus.asked}` && (
+        <div className="mapnote">
+          <span>
+            {!adrift.known
+              ? `nothing on the map is called ${adrift.name}`
+              : adrift.near
+                ? `${adrift.name} has not been placed — this is ${adrift.nearName}, which holds it`
+                : `${adrift.name} has not been placed, and nothing says where it sits`}
+          </span>
+          {adrift.known && (
+            <button className="dlink" onClick={() => openDossier(adrift.id)}>
+              open its page
+            </button>
+          )}
+          <button
+            className="mhush"
+            aria-label="dismiss"
+            onClick={() => setHushed(`${adrift.id}:${focus.asked}`)}
+          >
+            ×
+          </button>
+        </div>
+      )}
       <svg
         className="mapsvg"
         ref={svg}
