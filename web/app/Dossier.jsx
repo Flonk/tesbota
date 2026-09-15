@@ -156,13 +156,13 @@ function Made({ item }) {
 }
 
 function Stats({ item }) {
-  const rows = ["rarity", "damage", "protection", "heals", "sates", "worth", "owed_by"]
-    .filter((k) => item?.[k])
-    .map((k) => ({
-      id: k,
-      stat: k.replace("_", " "),
-      value: k === "rarity" ? rare(item[k]) : item[k],
-    }));
+  const rows = [
+    ...["rarity"].filter((k) => item?.[k]).map((k) => ({ id: k, stat: k, value: rare(item[k]) })),
+    ...(item?.effects || []).map((e) => ({ id: e.stat, stat: e.stat, value: e.amount })),
+    ...["worth", "owed_by"]
+      .filter((k) => item?.[k])
+      .map((k) => ({ id: k, stat: k.replace("_", " "), value: item[k] })),
+  ];
   if (!rows.length) return <Empty>nothing is written about what it does</Empty>;
   return <Table {...STATS} rows={rows} />;
 }

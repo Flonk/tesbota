@@ -154,7 +154,8 @@ def cmd_data(args):
         },
         "personality": [{"trait": t, "rarity": r} for t, r in TRAITS],
         "rarity": [{"rarity": name, "weight": weight} for name, weight in RARITY],
-        "kit": [dict(entry, id=canon.slug(entry["name"]), slot=entry.get("slot"))
+        "kit": [dict(entry, id=canon.slug(entry["name"]), slot=entry.get("slot"),
+                     effect=canon.does(entry.get("effects")))
                 for entry in STARTING_INVENTORY],
         "items": [{"type": t, "stats": stats, "icon": icon,
                    "slots": [{"slot": s, "icon": APPAREL_ICON.get(s, icon)} for s in slots]}

@@ -22,15 +22,8 @@ export const APPAREL_ICON = {
 export const face = (item) =>
   (item?.type === "apparel" && APPAREL_ICON[item?.slot]) || ICON[item?.type] || "box";
 
-export const worth = (item) => {
-  const said = [];
-  if (item?.damage) said.push(`${item.damage} damage`);
-  if (item?.protection) said.push(`${item.protection} protection`);
-  if (item?.heals) said.push(`+${item.heals} health`);
-  if (item?.sates) said.push(`−${item.sates} hunger`);
-  if (item?.worth) said.push(String(item.worth));
-  return said.join(", ");
-};
+export const does = (item) =>
+  (item?.effects || []).map((e) => `${e.amount} ${e.stat}`).join(", ");
 
 export const tone = (rarity) =>
   rarity && rarity !== "common" ? `tint-${rarity}` : "";

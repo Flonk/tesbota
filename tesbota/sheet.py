@@ -119,9 +119,10 @@ def as_item(entry):
             "name": entry.get("name", "something"),
             "qty": int(entry.get("qty") or 1),
             "about": entry.get("about") or "",
+            "does": canon.does(entry.get("effects")),
             "worn": bool(entry.get("worn")),
         }
-    return {"name": str(entry), "qty": 1, "about": "", "worn": False}
+    return {"name": str(entry), "qty": 1, "about": "", "does": "", "worn": False}
 
 
 def items():
@@ -138,7 +139,8 @@ def render_inventory():
 
     def line(e):
         count = f" x{e['qty']}" if e["qty"] > 1 else ""
-        said = [f"  {e['name']}{count}"]
+        does = f" — {e['does']}" if e["does"] else ""
+        said = [f"  {e['name']}{count}{does}"]
         if e["about"]:
             said.append(view.wrap(canon.plain(e["about"]), width=70, indent="      "))
         return "\n".join(said)

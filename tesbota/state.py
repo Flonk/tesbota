@@ -82,7 +82,8 @@ def catalogue(inventory):
     thing is does not depend on somebody carrying one."""
     for entry in inventory:
         if isinstance(entry, dict) and entry.get("name"):
-            canon.describe(entry["name"], **{k: entry.get(k) for k in canon.STATS})
+            canon.describe(entry["name"], effects=entry.get("effects"),
+                           **{k: entry.get(k) for k in canon.STATS})
 
 
 def stock(inventory):

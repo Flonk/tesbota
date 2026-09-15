@@ -58,15 +58,19 @@ CREATE INDEX IF NOT EXISTS way_dst ON way(dst);
 CREATE TABLE IF NOT EXISTS item (
   id         TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   type       TEXT,
-  damage     TEXT,
-  protection TEXT,
-  heals      TEXT,
-  sates      TEXT,
   worth      TEXT,
   owed_by    TEXT,
   rarity     TEXT,
   slot       TEXT CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))
 );
+
+CREATE TABLE IF NOT EXISTS effect (
+  id     INTEGER PRIMARY KEY,
+  item   TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
+  stat   TEXT NOT NULL,
+  amount TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS effect_once ON effect(item, stat);
 
 CREATE TABLE IF NOT EXISTS holding (
   id       INTEGER PRIMARY KEY,
@@ -129,6 +133,14 @@ def connect(readonly=False):
     return con
 
 
+MOVED = (
+    ("damage", "damage", ""),
+    ("protection", "protection", ""),
+    ("heals", "health", "+"),
+    ("sates", "hunger", "−"),
+)
+
+
 def setup():
     CANON_DB.parent.mkdir(parents=True, exist_ok=True)
     con = connect()
@@ -153,8 +165,16 @@ def setup():
             con.execute("ALTER TABLE item ADD COLUMN rarity TEXT")
         if "uses" in carried:
             con.execute("ALTER TABLE item DROP COLUMN uses")
-        if "sates" not in carried:
-            con.execute("ALTER TABLE item ADD COLUMN sates TEXT")
+        for column, stat, sign in MOVED:
+            if column not in carried:
+                continue
+            con.execute(
+                "INSERT OR IGNORE INTO effect (item, stat, amount) "
+                f"SELECT id, ?, ? || {column} FROM item "
+                f"WHERE {column} IS NOT NULL AND trim({column}) <> ''",
+                (stat, sign),
+            )
+            con.execute(f"ALTER TABLE item DROP COLUMN {column}")
         if "slot" not in carried:
             con.execute(
                 "ALTER TABLE item ADD COLUMN slot TEXT "

@@ -391,11 +391,13 @@ export function entity(id) {
 
     if (row.kind === "items") {
       bundle.item =
-        db
-          .prepare(
-            `SELECT type, slot, rarity, damage, protection, heals, sates, worth, owed_by FROM item WHERE id = ?`
-          )
-          .get(ident) || null;
+        db.prepare(`SELECT type, slot, rarity, worth, owed_by FROM item WHERE id = ?`).get(ident) ||
+        null;
+      if (bundle.item) {
+        bundle.item.effects = db
+          .prepare(`SELECT stat, amount FROM effect WHERE item = ? ORDER BY id`)
+          .all(ident);
+      }
     }
 
     if (row.kind === "books") {
@@ -432,30 +434,37 @@ function around(body, needle, width = 90) {
 }
 
 function holdingsIn(db, holder) {
-  return db
+  const kept = db
     .prepare(
       `SELECT h.item, coalesce(e.name, replace(h.item, '-', ' ')) AS name, i.type, i.slot, i.rarity,
-              i.damage, i.protection, i.heals, i.sates, i.worth, h.qty, h.worn
+              i.worth, h.qty, h.worn
          FROM holding h
          LEFT JOIN entity e ON e.id = h.item
          LEFT JOIN item i ON i.id = h.item
         WHERE h.holder = ? ORDER BY h.id`
     )
-    .all(holder)
-    .map((r) => ({
-      id: r.item,
-      name: r.name,
-      type: r.type || "",
-      slot: r.slot || null,
-      rarity: r.rarity || null,
-      damage: r.damage || null,
-      protection: r.protection || null,
-      heals: r.heals || null,
-      sates: r.sates || null,
-      worth: r.worth || null,
-      qty: r.qty || 1,
-      worn: !!r.worn,
-    }));
+    .all(holder);
+  const powers = {};
+  for (const r of db
+    .prepare(
+      `SELECT f.item, f.stat, f.amount
+         FROM effect f JOIN holding h ON h.item = f.item
+        WHERE h.holder = ? ORDER BY f.id`
+    )
+    .all(holder)) {
+    (powers[r.item] ||= []).push({ stat: r.stat, amount: r.amount });
+  }
+  return kept.map((r) => ({
+    id: r.item,
+    name: r.name,
+    type: r.type || "",
+    slot: r.slot || null,
+    rarity: r.rarity || null,
+    worth: r.worth || null,
+    effects: powers[r.item] || [],
+    qty: r.qty || 1,
+    worn: !!r.worn,
+  }));
 }
 
 export async function look(question) {

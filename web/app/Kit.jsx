@@ -1,6 +1,6 @@
 "use client";
 
-import { face, rare, tone, worth } from "./Data";
+import { does, face, rare, tone } from "./Data";
 import Icon from "./icons";
 import { openDossier, Table } from "./ui";
 
@@ -9,9 +9,10 @@ const RINGS = 4;
 const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand"];
 
 const CARRYING = {
-  cols: "minmax(7rem, 1.6fr) minmax(5rem, 1fr) 3rem",
+  cols: "minmax(5rem, 1.2fr) minmax(7rem, 1.6fr) minmax(4rem, .8fr) 2.4rem",
   fields: [
     { key: "name", label: "carrying", strong: true, cell: (r) => r.name },
+    { key: "does", label: "what it does", dim: true, cell: (r) => does(r) },
     { key: "rarity", label: "how often", cell: (r) => (r.rarity ? rare(r.rarity) : "") },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
   ],
@@ -28,7 +29,7 @@ function Slot({ slot, item }) {
       </div>
     );
   }
-  const said = worth(item);
+  const said = does(item);
   const tint = tone(item.rarity);
   return (
     <button className={`${cls} worn`} onClick={() => openDossier(item.id)} title={item.name}>

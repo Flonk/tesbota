@@ -306,10 +306,10 @@ def thing(name, kind="items", turn_id=None):
     return ident
 
 
-STATS = ("type", "damage", "protection", "heals", "sates", "worth", "owed_by", "rarity", "slot")
+STATS = ("type", "worth", "owed_by", "rarity", "slot")
 
 
-def describe(name, **stats):
+def describe(name, effects=None, **stats):
     """What a thing is, written on the thing itself. A kind of thing the world has
     not met yet gets a row here before anybody is handed one."""
     item = thing(name)
@@ -320,7 +320,44 @@ def describe(name, **stats):
         sets = ", ".join(f"{k} = ?" for k in known)
         with db.writing() as con:
             con.execute(f"UPDATE item SET {sets} WHERE id = ?", (*known.values(), item))
+    for stat, amount in (effects or {}).items():
+        affect(item, stat, amount)
     return item
+
+
+def affect(item, stat, amount):
+    """What a thing does is a row for each stat it moves, so a ring worth +1 dex
+    costs the world no column."""
+    with db.writing() as con:
+        con.execute(
+            "INSERT INTO effect (item, stat, amount) VALUES (?, ?, ?) "
+            "ON CONFLICT (item, stat) DO UPDATE SET amount = excluded.amount",
+            (slug(item), stat, str(amount)),
+        )
+
+
+def effects(items):
+    """What each of these things does, by id."""
+    items = [slug(i) for i in items]
+    if not items:
+        return {}
+    marks = ",".join("?" * len(items))
+    out = {}
+    for r in db.rows(
+        f"SELECT item, stat, amount FROM effect WHERE item IN ({marks}) ORDER BY id",
+        tuple(items),
+    ):
+        out.setdefault(r["item"], []).append({"stat": r["stat"], "amount": r["amount"]})
+    return out
+
+
+def does(effects):
+    """What a thing does, said in a line. Each amount carries its own sign, so a
+    stat nobody has thought of yet reads the same as damage does."""
+    pairs = effects.items() if isinstance(effects, dict) else (
+        (e["stat"], e["amount"]) for e in effects or []
+    )
+    return ", ".join(f"{amount} {stat}" for stat, amount in pairs)
 
 
 def held(holder, name):
@@ -330,23 +367,26 @@ def held(holder, name):
 
 
 def holdings(holder):
+    rows = db.rows(
+        """SELECT h.item, h.qty, h.worn, e.name, e.about, i.type
+             FROM holding h
+             LEFT JOIN entity e ON e.id = h.item
+             LEFT JOIN item i ON i.id = h.item
+            WHERE h.holder = ? ORDER BY h.id""",
+        (holder,),
+    )
+    powers = effects([r["item"] for r in rows])
     return [
         {
             "item": r["item"],
             "name": r["name"] or r["item"].replace("-", " "),
             "type": r["type"],
             "about": r["about"] or "",
+            "effects": powers.get(r["item"], []),
             "qty": r["qty"],
             "worn": bool(r["worn"]),
         }
-        for r in db.rows(
-            """SELECT h.item, h.qty, h.worn, e.name, e.about, i.type
-                 FROM holding h
-                 LEFT JOIN entity e ON e.id = h.item
-                 LEFT JOIN item i ON i.id = h.item
-                WHERE h.holder = ? ORDER BY h.id""",
-            (holder,),
-        )
+        for r in rows
     ]
 
 
