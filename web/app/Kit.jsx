@@ -35,7 +35,7 @@ function Slot({ slot, item }) {
     <button className={`${cls} worn`} onClick={() => openDossier(item.id)} title={item.name}>
       <span className="slotname">{slot}</span>
       <span className="slotitem">
-        <span className={tint}>
+        <span>
           <Icon name={face(item)} />
         </span>
         <span className={`slottext ${tint}`}>{item.name}</span>

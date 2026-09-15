@@ -431,7 +431,6 @@ textarea {
   font-size: .82rem; color: var(--bright);
 }
 .slotitem .icon { flex: 0 0 auto; color: var(--gold); }
-.slotitem [class^="tint-"] .icon { color: inherit; }
 .slotitem > span:first-child { display: inline-flex; flex: 0 0 auto; }
 .slotstat { font: var(--mono); font-size: .68rem; letter-spacing: .06em; color: var(--dim); min-height: .95rem; }
 .slottext { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
