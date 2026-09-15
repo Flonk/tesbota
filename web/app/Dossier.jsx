@@ -45,6 +45,14 @@ const CONTAINS = {
   ],
 };
 
+const LIVES = {
+  cols: "minmax(9rem, 2fr) minmax(6rem, 1.2fr)",
+  fields: [
+    { key: "name", label: "lives here", strong: true, cell: (r) => r.name },
+    { key: "work", label: "trade", dim: true, cell: (r) => r.work || <Stub /> },
+  ],
+};
+
 const EXITS = {
   cols: "minmax(9rem, 2fr) 7rem minmax(6rem, 1.4fr)",
   fields: [
@@ -360,6 +368,10 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                   onOpen={openDossier}
                   empty="nothing is recorded inside it"
                 />
+            )}
+
+            {thing.kind === "places" && (thing.lives || []).length > 0 && (
+                <Table {...LIVES} rows={thing.lives} onOpen={openDossier} />
             )}
 
             {thing.kind === "places" && (

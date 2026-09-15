@@ -360,6 +360,13 @@ export function entity(id) {
             WHERE pl.parent = ? ORDER BY pl.id`
         )
         .all(ident);
+      bundle.lives = db
+        .prepare(
+          `SELECT p.id, coalesce(e.name, replace(p.id, '-', ' ')) AS name, p.work
+             FROM person p LEFT JOIN entity e ON e.id = p.id
+            WHERE p.lives = ? ORDER BY p.id`
+        )
+        .all(ident);
       bundle.exits = db
         .prepare(
           `SELECT w.dst AS id, coalesce(t.name, replace(w.dst, '-', ' ')) AS name,

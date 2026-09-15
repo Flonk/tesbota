@@ -16,7 +16,7 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     writing(ref, entity, kind, section, body)          every passage, with its address
     search(ref, entity, section, body)                 fts5: WHERE search MATCH 'mill NEAR/5 boy'
 
-Fact lives in books. `entity.about` is a thing describing itself and claims nothing.
+Fact lives in books. `entity.about` is a thing describing itself in a line or two and claims nothing — a glance, never a summary of what the other tables already hold.
 
 Two authors are not fallible. `the godhead` states the laws of this world. `The Narrator` keeps one book — bota://books/$CHRONICLE_ID, $CHRONICLE_NAME — a passage set down after every turn of what has actually happened. Nothing may contradict either. Every other author may be wrong, and they disagree constantly.
 
