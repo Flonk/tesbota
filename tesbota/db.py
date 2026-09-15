@@ -133,6 +133,21 @@ def connect(readonly=False):
     return con
 
 
+ANCHOR_ITEM = """
+CREATE TABLE item_anchored (
+  id         TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  type       TEXT,
+  worth      TEXT,
+  owed_by    TEXT,
+  rarity     TEXT,
+  slot       TEXT CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))
+);
+INSERT INTO item_anchored (id, type, worth, owed_by, rarity, slot)
+  SELECT id, type, worth, owed_by, rarity, slot FROM item;
+DROP TABLE item;
+ALTER TABLE item_anchored RENAME TO item;
+"""
+
 MOVED = (
     ("damage", "damage", ""),
     ("protection", "protection", ""),
@@ -181,10 +196,12 @@ def setup():
                 "CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))"
             )
         con.commit()
-        person_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='person'") or ""
-        if "lives TEXT REFERENCES" in person_sql:
+        item_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='item'") or ""
+        if "REFERENCES entity" not in item_sql:
+            con.execute("DELETE FROM item WHERE id NOT IN (SELECT id FROM entity)")
+            con.commit()
             con.execute("PRAGMA foreign_keys = OFF")
-            con.executescript(FREE_LIVES)
+            con.executescript(ANCHOR_ITEM)
             con.commit()
             con.execute("PRAGMA foreign_keys = ON")
     finally:
