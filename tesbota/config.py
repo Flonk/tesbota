@@ -219,8 +219,8 @@ ITEM_TYPES = (
 )
 
 STARTING_INVENTORY = [
-    {"name": "felt hat", "type": "apparel", "qty": 1, "worn": True, "slot": "helmet",
-     "effects": {"protection": "1"}, "rarity": "common"},
+    {"name": "Explorer's cap", "type": "apparel", "qty": 1, "worn": True, "slot": "helmet",
+     "rarity": "uncommon"},
     {"name": "linen shirt", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
      "effects": {"protection": "2"}, "rarity": "common"},
     {"name": "wool leggings", "type": "apparel", "qty": 1, "worn": True, "slot": "legs",
