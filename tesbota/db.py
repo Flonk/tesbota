@@ -59,6 +59,7 @@ CREATE INDEX IF NOT EXISTS way_dst ON way(dst);
 CREATE TABLE IF NOT EXISTS item (
   id         TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   type       TEXT,
+  weight     REAL,
   worth      TEXT,
   owed_by    TEXT,
   rarity     TEXT,
@@ -155,13 +156,14 @@ ANCHOR_ITEM = """
 CREATE TABLE item_anchored (
   id         TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   type       TEXT,
+  weight     REAL,
   worth      TEXT,
   owed_by    TEXT,
   rarity     TEXT,
   slot       TEXT CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))
 );
-INSERT INTO item_anchored (id, type, worth, owed_by, rarity, slot)
-  SELECT id, type, worth, owed_by, rarity, slot FROM item;
+INSERT INTO item_anchored (id, type, weight, worth, owed_by, rarity, slot)
+  SELECT id, type, weight, worth, owed_by, rarity, slot FROM item;
 DROP TABLE item;
 ALTER TABLE item_anchored RENAME TO item;
 """
@@ -211,6 +213,8 @@ def setup():
         carried = {r["name"] for r in con.execute("PRAGMA table_info(item)")}
         if "rarity" not in carried:
             con.execute("ALTER TABLE item ADD COLUMN rarity TEXT")
+        if "weight" not in carried:
+            con.execute("ALTER TABLE item ADD COLUMN weight REAL")
         if "uses" in carried:
             con.execute("ALTER TABLE item DROP COLUMN uses")
         for column, stat, sign in MOVED:

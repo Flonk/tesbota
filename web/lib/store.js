@@ -129,11 +129,20 @@ export async function snapshot() {
   const skills = campaign.skills || {};
   const quests = campaign.quests || [];
   const inventory = holdings(EXPLORER);
+  const capacity = Math.round((skills.abilities?.str ?? 10) * CARRY_PER_STR * 10) / 10;
+  const load = {
+    carried:
+      Math.round(
+        inventory.reduce((t, i) => t + (i.qty > 0 ? (i.weight || 0) * i.qty : 0), 0) * 100
+      ) / 100,
+    capacity,
+  };
+  load.over = load.carried > capacity;
 
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
-  return { status, slides, gap, chat, talk: sitting.log || [], vitals, skills, inventory, quests, names: names(), job: await job(), note: campaign.note || null };
+  return { status, slides, gap, chat, talk: sitting.log || [], vitals, skills, inventory, load, quests, names: names(), job: await job(), note: campaign.note || null };
 }
 
 function alive(pid) {
@@ -148,6 +157,7 @@ function alive(pid) {
 
 const CANON = path.join(ROOT, "canon.db");
 const EXPLORER = "the-explorer";
+const CARRY_PER_STR = 0.5;
 
 function canon() {
   return new DatabaseSync(`file:${CANON}?mode=ro`, { open: true });
@@ -399,8 +409,9 @@ export function entity(id) {
 
     if (row.kind === "items") {
       bundle.item =
-        db.prepare(`SELECT type, slot, rarity, worth, owed_by FROM item WHERE id = ?`).get(ident) ||
-        null;
+        db
+          .prepare(`SELECT type, slot, rarity, weight, worth, owed_by FROM item WHERE id = ?`)
+          .get(ident) || null;
       if (bundle.item) {
         bundle.item.effects = db
           .prepare(`SELECT stat, amount FROM effect WHERE item = ? ORDER BY id`)
@@ -445,7 +456,7 @@ function holdingsIn(db, holder) {
   const kept = db
     .prepare(
       `SELECT h.item, coalesce(e.name, replace(h.item, '-', ' ')) AS name, i.type, i.slot, i.rarity,
-              i.worth, h.qty, h.worn
+              i.worth, i.weight, h.qty, h.worn
          FROM holding h
          LEFT JOIN entity e ON e.id = h.item
          LEFT JOIN item i ON i.id = h.item
@@ -469,6 +480,7 @@ function holdingsIn(db, holder) {
     slot: r.slot || null,
     rarity: r.rarity || null,
     worth: r.worth || null,
+    weight: r.weight ?? null,
     effects: powers[r.item] || [],
     qty: r.qty || 1,
     worn: !!r.worn,

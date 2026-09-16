@@ -67,7 +67,7 @@ def render_quests(quests):
     return "\n".join(lines) or "  (nothing)"
 
 
-def render_inventory(items):
+def render_inventory(items, load=None):
     lines = []
     for item in items or []:
         if isinstance(item, dict):
@@ -75,7 +75,13 @@ def render_inventory(items):
             lines.append(f"  - {item.get('name')}{tally(item.get('qty'))}{where}")
         else:
             lines.append(f"  - {item}")
-    return "\n".join(lines) or "  (nothing)"
+    out = "\n".join(lines) or "  (nothing)"
+    if load:
+        said = f"  they are carrying {load['carried']:g} of {load['capacity']:g} stone"
+        if load.get("over"):
+            said += ", which is more than they can manage"
+        out += "\n" + said
+    return out
 
 
 def render_holdings(holders):
@@ -117,12 +123,12 @@ REDRAFT = (
 )
 
 
-def gm_answer(question, previous=None, mode="look", inventory=None, others=None, correction=None):
+def gm_answer(question, previous=None, mode="look", inventory=None, others=None, correction=None, load=None):
     parts = []
     if previous:
         parts.append(f"What they were last told:\n\n{previous}")
     if inventory:
-        parts.append("What they are carrying:\n" + render_inventory(inventory))
+        parts.append("What they are carrying:\n" + render_inventory(inventory, load))
     if others:
         parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
 
@@ -168,7 +174,7 @@ Narrate it as what happens. Do not hedge it, do not offer it as a possibility, a
 STRANGE = """This one is strange, and that is deliberate. Put it in front of them plainly and without explanation. Nobody in the scene remarks on it, nothing accounts for it, and you do not hint at what it means — you do not know. Write it as a claim like any other and let it be ruled on."""
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, left=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, left=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None, load=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -207,7 +213,7 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, lef
             )
         parts.append(said)
     if inventory is not None:
-        parts.append("What they are carrying:\n" + render_inventory(inventory))
+        parts.append("What they are carrying:\n" + render_inventory(inventory, load))
     if others:
         parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
     if quests:
@@ -232,7 +238,7 @@ def lore1_query(question):
     return f"{question}"
 
 
-def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inventory=None, others=None, now=None):
+def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inventory=None, others=None, now=None, load=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -250,7 +256,7 @@ def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inve
             f"fatigue {vitals.get('fatigue')}/100."
         )
     if inventory is not None:
-        parts.append("What they are carrying:\n" + render_inventory(inventory))
+        parts.append("What they are carrying:\n" + render_inventory(inventory, load))
     if others:
         parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
     parts.append(f"What they intend to do:\n\n{action}")

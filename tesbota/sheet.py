@@ -1,6 +1,7 @@
 from . import canon, view, worldclock
 from .config import (
     ABILITIES,
+    CARRY_PER_STR,
     EXPLORER,
     MAX_FATIGUE,
     MAX_HEALTH,
@@ -61,6 +62,36 @@ def modifier(score):
     return (int(score) - 10) // 2
 
 
+def stone(weight):
+    """The plains reckon weight in stone, and a number nobody would say aloud
+    reads worse than a rounded one."""
+    return f"{round(float(weight or 0), 1):g}"
+
+
+def capacity(campaign=None):
+    """What their back can take, in stone. Strength and nothing else decides it."""
+    campaign = campaign or load_campaign()
+    abilities = (campaign.get("skills") or {}).get("abilities") or {}
+    return round(int(abilities.get("str", 10)) * CARRY_PER_STR, 1)
+
+
+def carried(entries=None):
+    """What they have on them. A promise weighs nothing, being a thing they owe
+    rather than a thing they hold."""
+    total = 0.0
+    for e in entries if entries is not None else canon.holdings(EXPLORER):
+        qty = int(e.get("qty") or 1)
+        if qty > 0:
+            total += float(e.get("weight") or 0) * qty
+    return round(total, 2)
+
+
+def load(campaign=None):
+    weight = carried()
+    most = capacity(campaign)
+    return {"carried": weight, "capacity": most, "over": weight > most}
+
+
 def skill_bonus(campaign, skill):
     skills = campaign.get("skills") or {}
     abilities = skills.get("abilities") or {}
@@ -86,6 +117,8 @@ def render_stats(campaign=None):
         f"health    {health:3} / {MAX_HEALTH}   {descend(health, HEALTH_WORDS)}",
         f"fatigue   {fatigue:3} / {MAX_FATIGUE}   {ascend(fatigue, FATIGUE_WORDS)}",
         f"hunger    {hunger:3} / {MAX_HUNGER}   {ascend(hunger, HUNGER_WORDS)}",
+        f"load      {stone(carried()):>3} / {stone(capacity(campaign))} stone"
+        + ("   over what you can carry" if carried() > capacity(campaign) else ""),
         "",
         "skills",
     ]
@@ -119,6 +152,7 @@ def as_item(entry):
             "name": entry.get("name", "something"),
             "qty": int(entry.get("qty") or 1),
             "about": entry.get("about") or "",
+            "weight": entry.get("weight"),
             "does": canon.does(entry.get("effects")),
             "worn": bool(entry.get("worn")),
         }
@@ -135,25 +169,31 @@ def render_inventory():
         return "you are carrying nothing"
 
     worn = [e for e in entries if e["worn"]]
-    carried = [e for e in entries if not e["worn"]]
+    stowed = [e for e in entries if not e["worn"]]
 
     def line(e):
         count = f" x{e['qty']}" if e["qty"] > 1 else ""
         does = f" — {e['does']}" if e["does"] else ""
-        said = [f"  {e['name']}{count}{does}"]
+        heft = f" [{stone(e['weight'])} st]" if e["weight"] else ""
+        said = [f"  {e['name']}{count}{does}{heft}"]
         if e["about"]:
             said.append(view.wrap(canon.plain(e["about"]), width=70, indent="      "))
         return "\n".join(said)
 
-    out = []
+    most = capacity()
+    out = [
+        f"carrying {stone(carried(entries))} of {stone(most)} stone"
+        + (" — more than you can carry" if carried(entries) > most else ""),
+        "",
+    ]
     if worn:
         out.append("worn:")
         out += [line(e) for e in worn]
-    if carried:
+    if stowed:
         if out:
             out.append("")
         out.append("carried:")
-        out += [line(e) for e in carried]
+        out += [line(e) for e in stowed]
     return "\n".join(out)
 
 

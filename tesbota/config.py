@@ -159,6 +159,7 @@ WORLD_START = {"era": 4, "year": 202, "day": 1, "minute": 13 * 60 + 4}
 
 SPEED_FACTOR = 6000
 
+CARRY_PER_STR = 0.5
 MAX_HEALTH = 100
 MAX_FATIGUE = 100
 MAX_HUNGER = 100
@@ -229,17 +230,17 @@ ITEM_TYPES = (
 
 STARTING_INVENTORY = [
     {"name": "Explorer's Cap", "type": "apparel", "qty": 1, "worn": True, "slot": "helmet",
-     "rarity": "uncommon"},
+     "weight": 0.1, "rarity": "uncommon"},
     {"name": "Linen Shirt", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
-     "effects": {"protection": "2"}, "rarity": "common"},
+     "effects": {"protection": "2"}, "weight": 0.2, "rarity": "common"},
     {"name": "Wool Leggings", "type": "apparel", "qty": 1, "worn": True, "slot": "legs",
-     "effects": {"protection": "1"}, "rarity": "common"},
+     "effects": {"protection": "1"}, "weight": 0.3, "rarity": "common"},
     {"name": "Walking Boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
-     "effects": {"protection": "1"}, "rarity": "common"},
+     "effects": {"protection": "1"}, "weight": 0.5, "rarity": "common"},
     {"name": "Bread from Alheim Mill", "type": "consumable", "qty": 1,
-     "effects": {"health": "+15", "hunger": "−20"}, "rarity": "common"},
+     "effects": {"health": "+15", "hunger": "−20"}, "weight": 0.1, "rarity": "common"},
     {"name": "Walking Cane", "type": "weapon", "qty": 1, "worn": True, "slot": "mainhand",
-     "effects": {"damage": "1–2"}, "rarity": "common"},
+     "effects": {"damage": "1–2"}, "weight": 0.4, "rarity": "common"},
 ]
 
 TRIVIAL_MINUTES = 10

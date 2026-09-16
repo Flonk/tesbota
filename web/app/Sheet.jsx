@@ -54,7 +54,7 @@ const SKILLS = {
   ],
 };
 
-export default function Sheet({ vitals, skills }) {
+export default function Sheet({ vitals, skills, load }) {
   const abilities = skills?.abilities || {};
   const proficient = new Set(skills?.proficient || []);
   const bonus = Number(skills?.proficiency || 0);
@@ -64,6 +64,10 @@ export default function Sheet({ vitals, skills }) {
     { name: "fatigue", value: vitals?.fatigue ?? 0 },
     { name: "hunger", value: vitals?.hunger ?? 0 },
   ];
+
+  const carrying = load
+    ? [{ name: "load", value: `${+load.carried}/${+load.capacity} st`, over: load.over }]
+    : [];
 
   const scores = ABILITIES.map((a) => ({
     name: a,
@@ -83,7 +87,11 @@ export default function Sheet({ vitals, skills }) {
   return (
     <div className="sheet">
       <div className="pair">
-        <Table {...CONDITION} rows={condition} />
+        <Table
+          {...CONDITION}
+          rows={[...condition, ...carrying]}
+          rowClass={(r) => (r.over ? "heavy" : "")}
+        />
         <Table {...ABILITY} rows={scores} />
       </div>
 

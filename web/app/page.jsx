@@ -805,7 +805,7 @@ export default function Page() {
           {tab === "me" && sub.me === "equipped" && <Doll inventory={inventory || []} />}
           {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "stats" && (
-            <Sheet vitals={vitals} skills={skills} />
+            <Sheet vitals={vitals} skills={skills} load={data.load} />
           )}
           {tab === "me" && sub.me === "quests" && (
             <Quests

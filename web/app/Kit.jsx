@@ -8,7 +8,7 @@ const RINGS = 4;
 const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand"];
 
 const CARRYING = {
-  cols: "minmax(7rem, 1.4fr) minmax(7rem, 1.5fr) 2.4rem",
+  cols: "minmax(6rem, 1.4fr) minmax(6rem, 1.4fr) 3.4rem 2.4rem",
   fields: [
     { key: "name", label: "carrying", strong: true,
       cell: (r) => (
@@ -17,6 +17,8 @@ const CARRYING = {
         </Mark>
       ) },
     { key: "does", label: "what it does", dim: true, cell: (r) => does(r) },
+    { key: "weight", label: "stone", num: true, dim: true,
+      cell: (r) => (r.weight ? +(r.weight * (r.qty > 0 ? r.qty : 1)).toFixed(2) : "") },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
   ],
 };

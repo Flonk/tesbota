@@ -175,7 +175,7 @@ function Stats({ item }) {
   const rows = [
     ...["rarity"].filter((k) => item?.[k]).map((k) => ({ id: k, stat: k, value: rare(item[k]) })),
     ...(item?.effects || []).map((e) => ({ id: e.stat, stat: e.stat, value: e.amount })),
-    ...["worth", "owed_by"]
+    ...["weight", "worth", "owed_by"]
       .filter((k) => item?.[k])
       .map((k) => ({ id: k, stat: k.replace("_", " "), value: item[k] })),
   ];

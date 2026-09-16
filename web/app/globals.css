@@ -819,3 +819,4 @@ textarea.prompt:focus { outline: none; }
 .tab > .mark { gap: .4rem; }
 .glass { flex: 0 0 auto; color: var(--dim); }
 .markface.worn { color: var(--gold); }
+.erow.heavy .ecell.num { color: var(--bad); }

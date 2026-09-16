@@ -327,7 +327,7 @@ def thing(name, kind="items", turn_id=None):
     return ident
 
 
-STATS = ("type", "worth", "owed_by", "rarity", "slot")
+STATS = ("type", "weight", "worth", "owed_by", "rarity", "slot")
 
 
 def describe(name, effects=None, **stats):
@@ -389,7 +389,7 @@ def held(holder, name):
 
 def holdings(holder):
     rows = db.rows(
-        """SELECT h.item, h.qty, h.worn, e.name, e.about, i.type
+        """SELECT h.item, h.qty, h.worn, e.name, e.about, i.type, i.weight
              FROM holding h
              LEFT JOIN entity e ON e.id = h.item
              LEFT JOIN item i ON i.id = h.item
@@ -403,6 +403,7 @@ def holdings(holder):
             "name": r["name"] or r["item"].replace("-", " "),
             "type": r["type"],
             "about": r["about"] or "",
+            "weight": r["weight"],
             "effects": powers.get(r["item"], []),
             "qty": r["qty"],
             "worn": bool(r["worn"]),

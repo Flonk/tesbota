@@ -179,7 +179,9 @@ place(id, parent, type)                         every place sits inside one, and
                                                 of thing: location, region, river,
                                                 celestial-body, celestial-system or realm
 way(src, dst, bearing, distance)                what leads where
-item(id, type, worth, owed_by, rarity, slot)    slot: where it is worn or held, or none
+item(id, type, weight, worth, owed_by, rarity, slot)
+                                                weight in stone, for one of them;
+                                                slot: where it is worn or held, or none
 effect(item, stat, amount)                      what a thing does, a row per stat
 holding(holder, item, qty, worn)                what a place, a person or the explorer keeps
 
