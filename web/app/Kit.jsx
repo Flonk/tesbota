@@ -1,6 +1,6 @@
 "use client";
 
-import { does, face, tone } from "./Data";
+import { does, face, lit, tone } from "./Data";
 import { Mark, openDossier, Table } from "./ui";
 
 const RINGS = 4;
@@ -12,7 +12,7 @@ const CARRYING = {
   fields: [
     { key: "name", label: "carrying", strong: true,
       cell: (r) => (
-        <Mark name={face(r)}>
+        <Mark name={face(r)} tone={lit(r)}>
           <span className={tone(r.rarity)}>{r.name}</span>
         </Mark>
       ) },

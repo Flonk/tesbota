@@ -32,6 +32,8 @@ export const does = (item) =>
 export const tone = (rarity) =>
   rarity && rarity !== "common" ? `tint-${rarity}` : "";
 
+export const lit = (item) => (item?.worn ? "worn" : `tint-${item?.rarity || "common"}`);
+
 export const rare = (name) => (
   <span className={`rare-${name}`}>{String(name || "").replace(/_/g, " ")}</span>
 );
@@ -67,7 +69,7 @@ const KIT = {
   fields: [
     { key: "name", label: "they start with", strong: true,
       cell: (r) => (
-        <Mark name={face(r)}>
+        <Mark name={face(r)} tone={lit(r)}>
           <span className={tone(r.rarity)}>{r.name}</span>
         </Mark>
       ) },
