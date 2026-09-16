@@ -218,7 +218,7 @@ textarea {
   letter-spacing: .18em;
   text-transform: uppercase;
 }
-.brand .mark { font-weight: 700; letter-spacing: .26em; flex: 0 0 auto; }
+.brand .word { font-weight: 700; letter-spacing: .26em; flex: 0 0 auto; }
 .brand .who {
   flex: 0 1 auto;
   min-width: 0;
@@ -812,3 +812,13 @@ textarea.prompt:focus { outline: none; }
 .mapnote .dlink { flex: 0 0 auto; white-space: nowrap; }
 
 .twig .sort { flex: 0 0 auto; display: inline-flex; align-self: center; color: var(--dim); }
+
+.icon { flex: 0 0 auto; vertical-align: -.125em; }
+.mark {
+  display: inline-flex; align-items: center; gap: var(--gap, .4rem);
+  min-width: 0; vertical-align: middle;
+}
+.mark > .markface { flex: 0 0 auto; display: inline-flex; align-items: center; }
+.mark > .markface > .icon { display: block; vertical-align: baseline; }
+.tab > .mark { gap: .4rem; }
+.glass { flex: 0 0 auto; color: var(--dim); }

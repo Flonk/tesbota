@@ -1,9 +1,8 @@
 "use client";
 
 import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
-import Icon from "./icons";
 import { useEffect, useState } from "react";
-import { Empty, openDossier, openMap, Overlay, Prose, Stub, Table, Tag } from "./ui";
+import { Empty, Mark, openDossier, openMap, Overlay, Prose, Stub, Table, Tag } from "./ui";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -358,7 +357,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                 )}
                 {thing.kind === "places" && (
                   <button className="dlink dmap" onClick={() => openMap(thing.id)}>
-                    <Icon name="map" /> show it on the map
+                    <Mark name="map" gap=".35rem">show it on the map</Mark>
                   </button>
                 )}
               </Section>

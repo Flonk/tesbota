@@ -11,6 +11,23 @@ export function Tag({ tone = "dim", children }) {
   return <span className={`chip chip-${tone}`}>{children}</span>;
 }
 
+export function Mark({ name, size, title, tone, gap, className = "", children }) {
+  return (
+    <span
+      className={`mark ${className}`.trim()}
+      title={title}
+      style={gap ? { "--gap": gap } : undefined}
+    >
+      {name && (
+        <span className={`markface ${tone || ""}`.trim()}>
+          <Icon name={name} size={size} />
+        </span>
+      )}
+      {children}
+    </span>
+  );
+}
+
 export function Cap({ children }) {
   return <div className="cap">{children}</div>;
 }
@@ -166,8 +183,7 @@ export function Tabs({ items, value, onChange, className = "" }) {
           disabled={t.off || undefined}
           onClick={() => onChange(t.id)}
         >
-          {t.icon && <Icon name={t.icon} />}
-          {t.label}
+          <Mark name={t.icon}>{t.label}</Mark>
           {t.pip && <span className="pip" />}
           {t.count > 0 && <span className="count">{t.count}</span>}
         </button>

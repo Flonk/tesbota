@@ -1,8 +1,7 @@
 "use client";
 
 import { does, face, rare, tone } from "./Data";
-import Icon from "./icons";
-import { openDossier, Table } from "./ui";
+import { Mark, openDossier, Table } from "./ui";
 
 const RINGS = 4;
 
@@ -34,12 +33,9 @@ function Slot({ slot, item }) {
   return (
     <button className={`${cls} worn`} onClick={() => openDossier(item.id)} title={item.name}>
       <span className="slotname">{slot}</span>
-      <span className="slotitem">
-        <span>
-          <Icon name={face(item)} />
-        </span>
+      <Mark className="slotitem" name={face(item)} gap=".3rem">
         <span className={`slottext ${tint}`}>{item.name}</span>
-      </span>
+      </Mark>
       <span className="slotstat">{said}</span>
     </button>
   );

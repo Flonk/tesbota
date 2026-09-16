@@ -50,7 +50,7 @@ const given = (who) => String(who || "").split(" ")[0];
 function Brand({ status, busy, onSettings }) {
   return (
     <header className="brand">
-      <span className="mark">BOTA</span>
+      <span className="word">BOTA</span>
       {status.who && <span className="who">— {status.who}</span>}
       <span className="mood">{mood(status, busy)}</span>
       <button className="cog" onClick={onSettings} title="settings" aria-label="settings">

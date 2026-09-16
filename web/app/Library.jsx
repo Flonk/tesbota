@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PLACE_ICON, rare, tone } from "./Data";
-import Icon from "./icons";
-import { Btn, Empty, Note, Prose, Stub, Table, Toggle } from "./ui";
+import { Btn, Empty, Mark, Note, Prose, Stub, Table, Toggle } from "./ui";
 
 const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
@@ -61,10 +60,9 @@ function branch(row, toggle) {
       ) : (
         <span className="knot leaf">·</span>
       )}
-      <span className="sort" title={(row.type || "unsorted").replace(/-/g, " ")}>
-        <Icon name={PLACE_ICON[row.type] || "pin"} />
-      </span>
-      {row.name}
+      <Mark name={PLACE_ICON[row.type] || "pin"} title={(row.type || "unsorted").replace(/-/g, " ")}>
+        {row.name}
+      </Mark>
       {row.kids > 0 && !row.open && <span className="folded">{row.kids}</span>}
     </span>
   );
@@ -383,9 +381,7 @@ export default function Library({
   return (
     <div className="lib">
       <form className="seek" onSubmit={search}>
-        <span className="glass">
-          <Icon name="search" />
-        </span>
+        <Mark className="glass" name="search" />
         <input
           ref={box}
           className="seekbox"
