@@ -2,7 +2,10 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
 
     sqlite3 -readonly canon.db "SELECT ..."
 
-    entity(id, kind, name, introduced, extent, about)  kind: people | places | books | items
+    entity(id, kind, name, introduced, extent, about, made, changed)
+                                                       kind: people | places | books | items
+                                                       made/changed: when the record was written,
+                                                       kept for you — never write to them
     book(id, author, author_id, written, rarity)       author_id when the author has a row
     person(id, lives, work, born, died)
     passage(book_id, ord, text)                        a book's text, one paragraph a row

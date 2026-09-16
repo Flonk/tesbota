@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS entity (
   name       TEXT NOT NULL,
   introduced TEXT,
   extent     TEXT,
-  about      TEXT
+  about      TEXT,
+  made       TEXT,
+  changed    TEXT
 );
 
 CREATE TABLE IF NOT EXISTS book (
@@ -111,6 +113,16 @@ CREATE TRIGGER IF NOT EXISTS passage_au AFTER UPDATE ON passage BEGIN
   VALUES ('bota://books/' || new.book_id || '#p' || new.ord, new.book_id, 'passage', new.text);
 END;
 
+CREATE TRIGGER IF NOT EXISTS entity_made AFTER INSERT ON entity BEGIN
+  UPDATE entity SET made = coalesce(new.made, datetime('now')),
+                    changed = coalesce(new.changed, datetime('now'))
+   WHERE id = new.id;
+END;
+CREATE TRIGGER IF NOT EXISTS entity_changed AFTER UPDATE ON entity
+WHEN new.changed IS old.changed BEGIN
+  UPDATE entity SET changed = datetime('now') WHERE id = new.id;
+END;
+
 CREATE TRIGGER IF NOT EXISTS entity_about_ai AFTER INSERT ON entity BEGIN
   INSERT INTO search(ref, entity, section, body)
   SELECT 'bota://' || new.kind || '/' || new.id || '#about', new.id, 'about', new.about
@@ -191,6 +203,14 @@ def setup():
             con.execute("ALTER TABLE entity ADD COLUMN extent TEXT")
         if "about" not in shape:
             con.execute("ALTER TABLE entity ADD COLUMN about TEXT")
+        for when in ("made", "changed"):
+            if when not in shape:
+                con.execute(f"ALTER TABLE entity ADD COLUMN {when} TEXT")
+        con.execute(
+            "UPDATE entity SET made = coalesce(made, datetime('now')), "
+            "changed = coalesce(changed, datetime('now')) "
+            "WHERE made IS NULL OR changed IS NULL"
+        )
         held = {r["name"] for r in con.execute("PRAGMA table_info(person)")}
         for column in ("born", "died", "traits"):
             if column not in held:
