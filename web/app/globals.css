@@ -394,7 +394,6 @@ textarea {
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; align-items: start; }
 .sheet > * + * { margin-top: 1.6rem; }
 
-
 .doll {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -492,7 +491,6 @@ textarea {
 .mplace.named .mname { fill: var(--dim); }
 .mplace.recorded .mname { fill: #8f8676; }
 
-
 .lore .cap { color: var(--warn); }
 .lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }
 
@@ -545,7 +543,6 @@ textarea {
 }
 
 @media (max-width: 640px) {
-
   .roomy { display: none; }
   body { font-size: 15px; }
   .slide { padding: .8rem .9rem 1.2rem; }
