@@ -1,6 +1,6 @@
 "use client";
 
-import { face as itemFace, rare, tone } from "./Data";
+import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
 import Icon from "./icons";
 import { useEffect, useState } from "react";
 import { Empty, openDossier, openMap, Overlay, Prose, Stub, Table, Tag } from "./ui";
@@ -115,6 +115,7 @@ const KIND = { people: "person", places: "pin", books: "book", items: "box" };
 function face_of(thing) {
   if (!thing) return null;
   if (thing.kind === "items") return itemFace(thing.item);
+  if (thing.kind === "places") return PLACE_ICON[thing.place?.type] || KIND.places;
   return KIND[thing.kind] || null;
 }
 

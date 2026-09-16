@@ -15,6 +15,11 @@ export const ICON = {
   weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer", valuable: "coin", material: "sack",
 };
 
+export const PLACE_ICON = {
+  location: "pin", region: "map", river: "river",
+  "celestial-body": "world", "celestial-system": "orbit", realm: "realm",
+};
+
 export const APPAREL_ICON = {
   helmet: "helm", chest: "shirt", legs: "trousers", feet: "boot", offhand: "shield", ring: "ring",
 };

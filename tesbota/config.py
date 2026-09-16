@@ -210,8 +210,9 @@ APPAREL_ICON = {
 }
 
 PLACE_TYPES = (
-    ("location", "somewhere you can stand: a town, a house, a road, a river", "pin"),
+    ("location", "somewhere you can stand: a town, a house, a road, a bridge", "pin"),
     ("region", "an expanse with places inside it: a forest, a marsh, a plain", "map"),
+    ("river", "running water, and the length of it", "river"),
     ("celestial-body", "a world, a moon, a sun", "world"),
     ("celestial-system", "bodies bound to each other, and the space between them", "orbit"),
     ("realm", "a universe, and everything any of this hangs inside", "realm"),

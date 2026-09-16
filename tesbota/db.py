@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS place (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','celestial-body','celestial-system','realm'))
+  type   TEXT CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm'))
 );
 CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
 
@@ -139,6 +139,18 @@ def connect(readonly=False):
     return con
 
 
+RESORT_PLACE = """
+CREATE TABLE place_sorted (
+  id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  parent TEXT,
+  type   TEXT CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm'))
+);
+INSERT INTO place_sorted (id, parent, type) SELECT id, parent, type FROM place;
+DROP TABLE place;
+ALTER TABLE place_sorted RENAME TO place;
+CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
+"""
+
 ANCHOR_ITEM = """
 CREATE TABLE item_anchored (
   id         TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
@@ -181,11 +193,17 @@ def setup():
         for column in ("born", "died", "traits"):
             if column not in held:
                 con.execute(f"ALTER TABLE person ADD COLUMN {column} TEXT")
+        place_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='place'") or ""
+        if "'river'" not in place_sql and "type" in place_sql:
+            con.execute("PRAGMA foreign_keys = OFF")
+            con.executescript(RESORT_PLACE)
+            con.commit()
+            con.execute("PRAGMA foreign_keys = ON")
         sited = {r["name"] for r in con.execute("PRAGMA table_info(place)")}
         if "type" not in sited:
             con.execute(
                 "ALTER TABLE place ADD COLUMN type TEXT "
-                "CHECK (type IN ('location','region','celestial-body','celestial-system','realm'))"
+                "CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm'))"
             )
         kept = {r["name"] for r in con.execute("PRAGMA table_info(holding)")}
         if "note" in kept:

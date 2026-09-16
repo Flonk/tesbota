@@ -7,8 +7,8 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     person(id, lives, work, born, died)
     passage(book_id, ord, text)                        a book's text, one paragraph a row
     place(id, parent, type)                            every place sits inside one
-                                                       type: location | region | celestial-body |
-                                                       celestial-system | realm
+                                                       type: location | region | river |
+                                                       celestial-body | celestial-system | realm
     way(src, dst, bearing, distance)                   what leads where
     item(id, type, worth, owed_by, rarity, slot)       slot: helmet | chest | legs | feet |
                                                        mainhand | offhand | ring, or none

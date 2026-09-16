@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { rare, tone } from "./Data";
+import { PLACE_ICON, rare, tone } from "./Data";
 import Icon from "./icons";
 import { Btn, Empty, Note, Prose, Stub, Table, Toggle } from "./ui";
 
@@ -69,11 +69,15 @@ function branch(row, toggle) {
 
 function placeShape(toggle) {
   return {
-    cols: "minmax(8rem, 3fr) minmax(4.6rem, .9fr) 3.6rem 3rem",
+    cols: "1.1rem minmax(9rem, 3fr) 3.6rem 3rem",
     fields: [
+      { key: "type", label: "",
+        cell: (r) => (
+          <span title={(r.type || "unsorted").replace(/-/g, " ")}>
+            <Icon name={PLACE_ICON[r.type] || "pin"} />
+          </span>
+        ) },
       { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle) },
-      { key: "type", label: "sort", dim: true,
-        cell: (r) => (r.type ? r.type.replace(/-/g, " ") : <Stub />) },
       { key: "exits", label: "ways out", num: true, cell: (r) => COUNT(r.exits) },
       { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
     ],
