@@ -8,9 +8,14 @@ const RINGS = 4;
 const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand"];
 
 const CARRYING = {
-  cols: "minmax(5rem, 1.2fr) minmax(7rem, 1.6fr) minmax(4rem, .8fr) 2.4rem",
+  cols: "minmax(6rem, 1.3fr) minmax(6rem, 1.5fr) minmax(4rem, .8fr) 2.4rem",
   fields: [
-    { key: "name", label: "carrying", strong: true, cell: (r) => r.name },
+    { key: "name", label: "carrying", strong: true,
+      cell: (r) => (
+        <Mark name={face(r)}>
+          <span className={tone(r.rarity)}>{r.name}</span>
+        </Mark>
+      ) },
     { key: "does", label: "what it does", dim: true, cell: (r) => does(r) },
     { key: "rarity", label: "how often", cell: (r) => (r.rarity ? rare(r.rarity) : "") },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
@@ -41,24 +46,24 @@ function Slot({ slot, item }) {
   );
 }
 
-export default function Kit({ inventory = [] }) {
+export function Doll({ inventory = [] }) {
   const worn = inventory.filter((r) => r.worn && r.slot);
   const rings = worn.filter((r) => r.slot === "ring");
 
   return (
-    <div className="pair kit">
-      <div className="doll">
-        {SLOTS.map((slot) => (
-          <Slot key={slot} slot={slot} item={worn.find((r) => r.slot === slot) || null} />
+    <div className="doll">
+      {SLOTS.map((slot) => (
+        <Slot key={slot} slot={slot} item={worn.find((r) => r.slot === slot) || null} />
+      ))}
+      <div className="rings">
+        {Array.from({ length: RINGS }, (_, n) => (
+          <Slot key={n} slot="ring" item={rings[n] || null} />
         ))}
-        <div className="rings">
-          {Array.from({ length: RINGS }, (_, n) => (
-            <Slot key={n} slot="ring" item={rings[n] || null} />
-          ))}
-        </div>
       </div>
-
-      <Table {...CARRYING} rows={inventory} onOpen={openDossier} empty="it carries nothing" />
     </div>
   );
+}
+
+export default function Kit({ inventory = [] }) {
+  return <Table {...CARRYING} rows={inventory} onOpen={openDossier} empty="it carries nothing" />;
 }

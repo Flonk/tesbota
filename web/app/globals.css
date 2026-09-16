@@ -394,7 +394,7 @@ textarea {
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; align-items: start; }
 .sheet > * + * { margin-top: 1.6rem; }
 
-.kit { align-items: start; }
+
 .doll {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -545,7 +545,7 @@ textarea {
 }
 
 @media (max-width: 640px) {
-  .kit { grid-template-columns: 1fr; gap: 1.4rem; }
+
   .roomy { display: none; }
   body { font-size: 15px; }
   .slide { padding: .8rem .9rem 1.2rem; }

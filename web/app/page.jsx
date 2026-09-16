@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "./icons";
-import Kit from "./Kit";
+import Kit, { Doll } from "./Kit";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
@@ -294,8 +294,9 @@ const SUBS = {
     { id: "lore", label: "the silence", icon: "silence" },
   ],
   me: [
-    { id: "stats", label: "stats", icon: "pulse" },
+    { id: "equipped", label: "equipped", icon: "shirt" },
     { id: "inventory", label: "inventory", icon: "box" },
+    { id: "stats", label: "stats", icon: "pulse" },
     { id: "quests", label: "quests", icon: "flag" },
   ],
   library: [
@@ -317,7 +318,7 @@ export default function Page() {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("chat");
   const [dossier, setDossier] = useState(null);
-  const [sub, setSub] = useState({ chat: "talk", me: "stats", library: "places" });
+  const [sub, setSub] = useState({ chat: "talk", me: "equipped", library: "places" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const [catalogue, setCatalogue] = useState(null);
@@ -801,10 +802,11 @@ export default function Page() {
             />
           )}
           {tab === "map" && <Map where={status.where} focus={mapAt} />}
+          {tab === "me" && sub.me === "equipped" && <Doll inventory={inventory || []} />}
+          {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "stats" && (
             <Sheet vitals={vitals} skills={skills} />
           )}
-          {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "quests" && (
             <Quests
               quests={quests}
