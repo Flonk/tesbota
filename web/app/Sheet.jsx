@@ -29,7 +29,7 @@ const mod = (score) => Math.floor((Number(score ?? 10) - 10) / 2);
 const sign = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
 const CONDITION = {
-  cols: "minmax(4rem, 1fr) 3rem",
+  cols: "minmax(4rem, 1fr) 4.6rem",
   fields: [
     { key: "name", label: "condition", strong: true, cell: (r) => r.name },
     { key: "value", label: "level", num: true, cell: (r) => r.value },
@@ -66,7 +66,10 @@ export default function Sheet({ vitals, skills, load }) {
   ];
 
   const carrying = load
-    ? [{ name: "load", value: `${+load.carried}/${+load.capacity} st`, over: load.over }]
+    ? [
+        { name: "load", value: `${+load.carried}/${+load.capacity} st`, over: load.over },
+        ...(load.over ? [{ name: "the road", value: `${+load.drag}x`, over: true }] : []),
+      ]
     : [];
 
   const scores = ABILITIES.map((a) => ({

@@ -138,6 +138,9 @@ export async function snapshot() {
     capacity,
   };
   load.over = load.carried > capacity;
+  load.drag = load.over && capacity
+    ? Math.round((1 + OVER_DRAG * (load.carried - capacity) / capacity) * 100) / 100
+    : 1;
 
   const gap =
     current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
@@ -158,6 +161,7 @@ function alive(pid) {
 const CANON = path.join(ROOT, "canon.db");
 const EXPLORER = "the-explorer";
 const CARRY_PER_STR = 0.5;
+const OVER_DRAG = 10;
 
 function canon() {
   return new DatabaseSync(`file:${CANON}?mode=ro`, { open: true });

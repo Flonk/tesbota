@@ -79,7 +79,10 @@ def render_inventory(items, load=None):
     if load:
         said = f"  they are carrying {load['carried']:g} of {load['capacity']:g} stone"
         if load.get("over"):
-            said += ", which is more than they can manage"
+            said += (
+                f", which is past what they can manage — every stretch of road takes "
+                f"{load.get('drag', 1):g} times as long, and they feel every step of it"
+            )
         out += "\n" + said
     return out
 

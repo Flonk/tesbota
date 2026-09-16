@@ -160,6 +160,7 @@ WORLD_START = {"era": 4, "year": 202, "day": 1, "minute": 13 * 60 + 4}
 SPEED_FACTOR = 6000
 
 CARRY_PER_STR = 0.5
+OVER_DRAG = 10.0
 MAX_HEALTH = 100
 MAX_FATIGUE = 100
 MAX_HUNGER = 100

@@ -1,7 +1,7 @@
 import json
 import random
 
-from . import canon, chronicle, travel
+from . import canon, chronicle, sheet, travel
 from .config import EXPLORER, PENDING, STARTING_INVENTORY
 from .state import (
     clear_death,
@@ -101,7 +101,9 @@ def advance(campaign, turn):
 def walk(campaign, leagues, destination, rng=None):
     """Set them walking. The road either runs out at the destination or stops early,
     and what is left of it comes back as another leg once the interruption is done."""
-    minutes, left, cut = travel.leg(campaign["clock"], leagues, rng or random)
+    minutes, left, cut = travel.leg(
+        campaign["clock"], leagues, rng or random, travel.drag(sheet.load(campaign))
+    )
     return new_turn(
         campaign,
         state="awaiting_clock",

@@ -1,6 +1,7 @@
 import re
 from datetime import timedelta
 
+from .config import OVER_DRAG
 from .state import stamp
 
 POINTS = (
@@ -73,14 +74,23 @@ def real_delay(clock, in_world_minutes):
     return timedelta(seconds=(float(in_world_minutes) * 60.0) / factor)
 
 
-def leg(clock, leagues, rng):
+def drag(load):
+    """An overloaded back is paid for on the road: every tenth of their capacity
+    they are carrying over it doubles what the walking costs."""
+    if not load or not load.get("capacity"):
+        return 1.0
+    over = (float(load["carried"]) - float(load["capacity"])) / float(load["capacity"])
+    return round(1.0 + OVER_DRAG * over, 3) if over > 0 else 1.0
+
+
+def leg(clock, leagues, rng, slowed=1.0):
     """How far this stretch of road gets before something interrupts it. One coin a
     league; the first that lands says where the walking stops."""
     hours_per_league = clock["hours_per_league"]
     min_leg = int(clock["min_leg_minutes"])
     chance = clock["encounter_chance_per_league"]
 
-    total = max(min_leg, round(float(leagues) * hours_per_league * 60))
+    total = max(min_leg, round(float(leagues) * hours_per_league * 60 * max(1.0, slowed)))
     if total <= min_leg * 2:
         return total, 0.0, False
 

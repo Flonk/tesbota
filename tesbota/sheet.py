@@ -3,6 +3,7 @@ from .config import (
     ABILITIES,
     CARRY_PER_STR,
     EXPLORER,
+    OVER_DRAG,
     MAX_FATIGUE,
     MAX_HEALTH,
     MAX_HUNGER,
@@ -89,7 +90,13 @@ def carried(entries=None):
 def load(campaign=None):
     weight = carried()
     most = capacity(campaign)
-    return {"carried": weight, "capacity": most, "over": weight > most}
+    over = weight > most
+    return {
+        "carried": weight,
+        "capacity": most,
+        "over": over,
+        "drag": round(1.0 + OVER_DRAG * (weight - most) / most, 2) if over and most else 1.0,
+    }
 
 
 def skill_bonus(campaign, skill):
@@ -118,7 +125,8 @@ def render_stats(campaign=None):
         f"fatigue   {fatigue:3} / {MAX_FATIGUE}   {ascend(fatigue, FATIGUE_WORDS)}",
         f"hunger    {hunger:3} / {MAX_HUNGER}   {ascend(hunger, HUNGER_WORDS)}",
         f"load      {stone(carried()):>3} / {stone(capacity(campaign))} stone"
-        + ("   over what you can carry" if carried() > capacity(campaign) else ""),
+        + (f"   overloaded — the road takes {load(campaign)['drag']:g}x as long"
+           if carried() > capacity(campaign) else ""),
         "",
         "skills",
     ]
@@ -181,9 +189,11 @@ def render_inventory():
         return "\n".join(said)
 
     most = capacity()
+    heavy = load()
     out = [
         f"carrying {stone(carried(entries))} of {stone(most)} stone"
-        + (" — more than you can carry" if carried(entries) > most else ""),
+        + (f" — more than you can carry, and walking takes {heavy['drag']:g}x as long"
+           if heavy["over"] else ""),
         "",
     ]
     if worn:

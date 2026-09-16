@@ -78,7 +78,7 @@ What a thing does is rows in `effect`, one for each stat it moves, and the amoun
       ('the-alers-knife', 'damage', '2–5'),
       ('the-alers-knife', 'dex', '+1');
 
-`item.weight` is what one of the thing weighs, in stone — the plains reckon weight in stone and so does this. A loaf is a tenth of one, a pair of boots half. The adventurer can carry half a stone for each point of strength, so a thing heavy enough to matter should say so.
+`item.weight` is what one of the thing weighs, in stone — the plains reckon weight in stone and so does this. A loaf is a tenth of one, a pair of boots half. The adventurer can carry half a stone for each point of strength, and past that the road punishes them — every tenth of their capacity they are over doubles what a stretch of walking costs. A thing heavy enough to matter should say so.
 
 There is no fixed list of stats. `damage`, `protection`, `health` and `hunger` are the ones already in use; name any other the way a reader would say it, and never add a column for one. A consumable is single use, so nothing counts uses.
 
