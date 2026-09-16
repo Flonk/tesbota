@@ -1,6 +1,6 @@
 "use client";
 
-import { does, face, rare, tone } from "./Data";
+import { does, face, tone } from "./Data";
 import { Mark, openDossier, Table } from "./ui";
 
 const RINGS = 4;
@@ -8,7 +8,7 @@ const RINGS = 4;
 const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand"];
 
 const CARRYING = {
-  cols: "minmax(6rem, 1.3fr) minmax(6rem, 1.5fr) minmax(4rem, .8fr) 2.4rem",
+  cols: "minmax(7rem, 1.4fr) minmax(7rem, 1.5fr) 2.4rem",
   fields: [
     { key: "name", label: "carrying", strong: true,
       cell: (r) => (
@@ -17,7 +17,6 @@ const CARRYING = {
         </Mark>
       ) },
     { key: "does", label: "what it does", dim: true, cell: (r) => does(r) },
-    { key: "rarity", label: "how often", cell: (r) => (r.rarity ? rare(r.rarity) : "") },
     { key: "qty", label: "count", num: true, cell: (r) => (r.qty === 1 ? "" : r.qty) },
   ],
 };

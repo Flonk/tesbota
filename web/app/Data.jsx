@@ -63,12 +63,15 @@ const ITEMS = {
 };
 
 const KIT = {
-  cols: "minmax(7rem, 1.3fr) minmax(6rem, 1.4fr) minmax(5rem, .8fr)",
+  cols: "minmax(7rem, 1.3fr) minmax(6rem, 1.4fr)",
   fields: [
     { key: "name", label: "they start with", strong: true,
-      cell: (r) => <Mark name={face(r)}>{r.name}</Mark> },
+      cell: (r) => (
+        <Mark name={face(r)}>
+          <span className={tone(r.rarity)}>{r.name}</span>
+        </Mark>
+      ) },
     { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
-    { key: "rarity", label: "how often", cell: (r) => (r.rarity ? rare(r.rarity) : "") },
   ],
 };
 
