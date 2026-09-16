@@ -810,3 +810,5 @@ textarea.prompt:focus { outline: none; }
   font-size: 1rem; line-height: 1; cursor: pointer; padding: 0 .2rem;
 }
 .mapnote .dlink { flex: 0 0 auto; white-space: nowrap; }
+
+.twig .sort { flex: 0 0 auto; display: inline-flex; align-self: center; color: var(--dim); }

@@ -61,6 +61,9 @@ function branch(row, toggle) {
       ) : (
         <span className="knot leaf">·</span>
       )}
+      <span className="sort" title={(row.type || "unsorted").replace(/-/g, " ")}>
+        <Icon name={PLACE_ICON[row.type] || "pin"} />
+      </span>
       {row.name}
       {row.kids > 0 && !row.open && <span className="folded">{row.kids}</span>}
     </span>
@@ -69,14 +72,8 @@ function branch(row, toggle) {
 
 function placeShape(toggle) {
   return {
-    cols: "1.1rem minmax(9rem, 3fr) 3.6rem 3rem",
+    cols: "minmax(9rem, 3fr) 3.6rem 3rem",
     fields: [
-      { key: "type", label: "",
-        cell: (r) => (
-          <span title={(r.type || "unsorted").replace(/-/g, " ")}>
-            <Icon name={PLACE_ICON[r.type] || "pin"} />
-          </span>
-        ) },
       { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle) },
       { key: "exits", label: "ways out", num: true, cell: (r) => COUNT(r.exits) },
       { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
