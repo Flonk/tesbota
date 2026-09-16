@@ -1,7 +1,6 @@
 "use client";
 
-import Icon from "./icons";
-import { Empty, openDossier, Table } from "./ui";
+import { Empty, Mark, openDossier, Table } from "./ui";
 
 const NAMES = {
   cols: "minmax(6rem, 1fr) minmax(5rem, 1.4fr)",
@@ -46,28 +45,28 @@ const TRAITS = {
 };
 
 const PLACES = {
-  cols: "1.1rem minmax(7rem, 1fr) minmax(10rem, 2.2fr)",
+  cols: "minmax(8rem, 1fr) minmax(10rem, 2.2fr)",
   fields: [
-    { key: "icon", label: "", cell: (r) => <Icon name={r.icon} /> },
-    { key: "type", label: "place", strong: true, cell: (r) => r.type.replace(/-/g, " ") },
+    { key: "type", label: "place", strong: true,
+      cell: (r) => <Mark name={r.icon}>{r.type.replace(/-/g, " ")}</Mark> },
     { key: "what", label: "what it is", dim: true, cell: (r) => r.what },
   ],
 };
 
 const ITEMS = {
-  cols: "1.1rem minmax(8rem, 1.2fr) minmax(8rem, 1.6fr)",
+  cols: "minmax(9rem, 1.2fr) minmax(8rem, 1.6fr)",
   fields: [
-    { key: "icon", label: "", cell: (r) => <Icon name={r.icon} /> },
-    { key: "type", label: "item", strong: true, cell: (r) => r.label },
+    { key: "type", label: "item", strong: true,
+      cell: (r) => <Mark name={r.icon}>{r.label}</Mark> },
     { key: "stats", label: "what it carries", dim: true, cell: (r) => r.stats },
   ],
 };
 
 const KIT = {
-  cols: "1.1rem minmax(6rem, 1.3fr) minmax(6rem, 1.4fr) minmax(5rem, .8fr)",
+  cols: "minmax(7rem, 1.3fr) minmax(6rem, 1.4fr) minmax(5rem, .8fr)",
   fields: [
-    { key: "icon", label: "", cell: (r) => <Icon name={face(r)} /> },
-    { key: "name", label: "they start with", strong: true, cell: (r) => r.name },
+    { key: "name", label: "they start with", strong: true,
+      cell: (r) => <Mark name={face(r)}>{r.name}</Mark> },
     { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
     { key: "rarity", label: "how often", cell: (r) => (r.rarity ? rare(r.rarity) : "") },
   ],
