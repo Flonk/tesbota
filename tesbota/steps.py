@@ -475,7 +475,7 @@ def step_gm(campaign, turn):
     world = (turn.get("arrival") or turn.get("event")) and not turn.get("action")
     gm_phase(turn, "world" if world else "outcome", draft.get("narration"))
     turn["correction"] = None
-    if draft.get("fight") or campaign.get("fight"):
+    if (draft.get("fight") or campaign.get("fight")) and not (turn.get("fight") or {}).get("blows"):
         open_fight(campaign, turn, draft)
         turn["state"] = "swing"
         return campaign, turn
@@ -795,9 +795,11 @@ def settle(fight):
 def step_blows(campaign, turn):
     """One game master call to put words on a settled exchange."""
     fight = turn["fight"]
-    roll_fate(turn)
+    if not turn.get("rolled"):
+        roll_fate(turn)
     text, session = ask(
-        prompts.gm_blows(fight, fate=turn.get("chosen")),
+        prompts.gm_blows(fight, fate=turn.get("chosen"),
+                         correction=turn.get("correction")),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
         permission=sqlite_gate(also=("tesbota kill", "tesbota traits")),
@@ -835,6 +837,7 @@ def step_blows(campaign, turn):
     turn["check"] = None
 
     gm_phase(turn, "fight", draft["narration"], fight=fight)
+    turn["correction"] = None
     turn["state"] = "lore1"
     return campaign, turn
 
@@ -1037,6 +1040,11 @@ FATE_INSTRUCTIONS = {
 
 
 def redraft_state(turn):
+    """Where a rejected draft goes back to. A fight that has already been rolled is
+    settled — the dice are not the lore master's to overturn, only the words are —
+    so it goes back for different words on the same blows, never a fresh fight."""
+    if (turn.get("fight") or {}).get("blows"):
+        return "blows"
     if not turn.get("looking"):
         return "gm"
     return "answer"

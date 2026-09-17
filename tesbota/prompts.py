@@ -235,7 +235,7 @@ def blow_line(blow):
     return f"{who} — {said} on {mark}, missed"
 
 
-def gm_blows(fight, fate=None):
+def gm_blows(fight, fate=None, correction=None):
     rounds, sheet, seen = [], [], None
     for b in fight["blows"]:
         if b.get("round") != seen:
@@ -248,6 +248,12 @@ def gm_blows(fight, fate=None):
         parts.append(FIGHT_FATE)
     if fight["ended"] == "killed":
         parts.append(FIGHT_DEATH)
+    if correction:
+        parts.append(
+            "Your lines were sent back. The blows above are settled and are not "
+            "yours to change — write them again, the same in number and in order, "
+            "and put right what was wrong with them:\n\n" + correction
+        )
     return "\n\n".join(parts)
 
 
