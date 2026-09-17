@@ -553,7 +553,20 @@ def open_fight(campaign, turn, draft):
     }
     fight["name"] = fight["them"][0]["name"] if fight["them"] else "it"
     turn["fight"] = fight
+    # The page draws whatever is on the turn, so the fight goes on the turn the
+    # moment it is declared. Waiting for the last blow means nobody sees any of it.
+    show_fight(turn, fight)
     return fight
+
+
+def show_fight(turn, fight):
+    """Keep the drawn phase pointing at the fight as it stands. Saving and loading
+    the turn parts the two copies, so this re-marries them every blow."""
+    for entry in turn.get("phases") or []:
+        if entry.get("kind") == "fight":
+            entry["fight"] = fight
+            return entry
+    return gm_phase(turn, "fight", fight.get("said") or "", fight=fight)
 
 
 def standing_in(campaign, skill):
@@ -719,6 +732,7 @@ def step_fight(campaign, turn, rng=random):
             wound(fight, mark, hurt, blow)
 
     fight["blows"].append(blow)
+    show_fight(turn, fight)
     turn.pop("swing", None)
     fight["turn"] += 1
     if fight["turn"] >= len(order(fight)):
@@ -832,7 +846,9 @@ def step_blows(campaign, turn):
     draft["check"] = None
     turn["check"] = None
 
-    gm_phase(turn, "fight", draft["narration"], fight=fight)
+    told = show_fight(turn, fight)
+    told["text"] = draft["narration"]
+    told["status"] = "pending"
     turn["correction"] = None
     turn["state"] = "lore1"
     return campaign, turn

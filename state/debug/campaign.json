@@ -9,8 +9,8 @@
     "inventory": "41e0b0194a105650",
     "others": "fa854afbb6d3fc5b"
   },
-  "current_turn": "t0002",
-  "turn_counter": 2,
+  "current_turn": "t0003",
+  "turn_counter": 3,
   "clock": {
     "hours_per_league": 1.5,
     "min_leg_minutes": 20,

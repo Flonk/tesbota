@@ -1,0 +1,7115 @@
+{
+  "turn_id": "t0003",
+  "state": "lore1",
+  "created": "2026-09-17T10:43:44+00:00",
+  "action": "She's dead. It's done.",
+  "draft": {
+    "narration": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.\n\nYou catch one of the rats with the cane and it staggers back, wounded.\n\nThe dog gets its teeth into the other and worries it hard.\n\nA rat snaps at the dog and misses.\n\nThe other rat catches the dog's leg and it yelps.\n\nThe Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.\n\nThe new rat lunges at the dog and doesn't connect.\n\nYou strike the wounded rat again and it reels.\n\nThe dog snaps at the other rat and connects, shaking it hard.\n\nA rat goes for the dog and misses.\n\nAnother rat lunges for the dog and misses too.\n\nThe Nest Warden still hasn't moved.\n\nThe third rat snaps at the dog and comes up short.\n\nYou bring the cane down on the rat again, and it's barely standing.\n\nThe dog goes for the other rat and misses.\n\nA rat gets its teeth into the dog's side.\n\nAnother rat bites down on the dog too, and it staggers.\n\nThe Nest Warden remains frozen.\n\nThe third rat snaps at the dog and misses.\n\nYou swing at the rat and it's already darting clear.\n\nThe dog catches it and it goes limp, finished.\n\nA rat tears into the dog and it goes down and doesn't rise again.\n\nThe Nest Warden lunges past where the dog was and catches you instead, hard.\n\nA rat turns on you now and misses.\n\nYou swing at a rat and it slips past the cane.\n\nA rat lunges at you and misses.\n\nThe Nest Warden drives into you, and it staggers you back.\n\nAnother rat gets its teeth into your leg.\n\nYou catch a rat square and it drops back, badly hurt.\n\nA rat bites at you and connects, quick and low.\n\nThe Nest Warden swings for you and misses.\n\nAnother rat sinks its teeth in again.\n\nYou strike the rat again, and it's nearly done.\n\nA rat goes for you and misses.\n\nThe Nest Warden swings and doesn't find you.\n\nA rat lunges and misses too.\n\nYou catch the rat hard, and it reels.\n\nA rat snaps at you and misses.\n\nThe Nest Warden swings again and misses.\n\nAnother rat gets in and bites you.\n\nYou strike the rat once more.\n\nA rat lunges for you and misses.\n\nThe Nest Warden swings and misses again.\n\nAnother rat bites down on you.\n\nYour boot skids in the churned mud and the swing you meant for the rat goes wide.\n\nA rat goes for you and misses.\n\nThe Nest Warden catches you hard, driving you back.\n\nA rat lunges and misses.\n\nYou swing again and miss.\n\nA rat gets its teeth into you.\n\nThe Nest Warden swings and doesn't connect.\n\nAnother rat lunges and misses.\n\nYou swing again and miss.\n\nA rat bites down on you.\n\nThe Nest Warden catches you solidly, and pain roars up your side.\n\nAnother rat lunges for you and misses.\n\nYou wrench free of all of it and run, the fog swallowing you whole.",
+    "travel": null,
+    "minutes": 13,
+    "fatigue": 39,
+    "health": -35,
+    "check": null,
+    "fight": {
+      "skill": "athletics",
+      "flee_dc": 10,
+      "their_dc": 11,
+      "us": [
+        {
+          "who": "the-dog",
+          "name": "the dog",
+          "health": 6,
+          "damage": "1–3",
+          "dc": 12,
+          "bonus": 2
+        }
+      ],
+      "them": [
+        {
+          "who": "marsh-rat-1",
+          "name": "a Marsh Rat",
+          "health": 6,
+          "damage": "1–2",
+          "dc": 10,
+          "bonus": 1
+        },
+        {
+          "who": "marsh-rat-2",
+          "name": "a Marsh Rat",
+          "health": 6,
+          "damage": "1–2",
+          "dc": 10,
+          "bonus": 1
+        },
+        {
+          "who": "nest-warden",
+          "name": "the Nest Warden",
+          "health": 16,
+          "damage": "2–4",
+          "dc": 12,
+          "bonus": 2,
+          "ability": {
+            "name": "spawns a marsh rat",
+            "sleep": 2,
+            "spawn": {
+              "name": "Marsh Rat",
+              "health": 6,
+              "damage": "1–2",
+              "dc": 10,
+              "bonus": 1
+            }
+          }
+        }
+      ]
+    },
+    "location": "the-road",
+    "transactions": [],
+    "quest_open": [],
+    "quest_update": [],
+    "quest_close": [],
+    "claims": [],
+    "hunger": null
+  },
+  "verdicts": [],
+  "correction": null,
+  "gm_retries": 0,
+  "gap": null,
+  "wake_at": null,
+  "minutes": 0,
+  "phases": [
+    {
+      "n": 1,
+      "who": "explorer",
+      "kind": "action",
+      "text": "She's dead. It's done.",
+      "status": "said",
+      "claims": []
+    },
+    {
+      "n": 2,
+      "who": "gm",
+      "kind": "fight",
+      "text": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.\n\nYou catch one of the rats with the cane and it staggers back, wounded.\n\nThe dog gets its teeth into the other and worries it hard.\n\nA rat snaps at the dog and misses.\n\nThe other rat catches the dog's leg and it yelps.\n\nThe Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.\n\nThe new rat lunges at the dog and doesn't connect.\n\nYou strike the wounded rat again and it reels.\n\nThe dog snaps at the other rat and connects, shaking it hard.\n\nA rat goes for the dog and misses.\n\nAnother rat lunges for the dog and misses too.\n\nThe Nest Warden still hasn't moved.\n\nThe third rat snaps at the dog and comes up short.\n\nYou bring the cane down on the rat again, and it's barely standing.\n\nThe dog goes for the other rat and misses.\n\nA rat gets its teeth into the dog's side.\n\nAnother rat bites down on the dog too, and it staggers.\n\nThe Nest Warden remains frozen.\n\nThe third rat snaps at the dog and misses.\n\nYou swing at the rat and it's already darting clear.\n\nThe dog catches it and it goes limp, finished.\n\nA rat tears into the dog and it goes down and doesn't rise again.\n\nThe Nest Warden lunges past where the dog was and catches you instead, hard.\n\nA rat turns on you now and misses.\n\nYou swing at a rat and it slips past the cane.\n\nA rat lunges at you and misses.\n\nThe Nest Warden drives into you, and it staggers you back.\n\nAnother rat gets its teeth into your leg.\n\nYou catch a rat square and it drops back, badly hurt.\n\nA rat bites at you and connects, quick and low.\n\nThe Nest Warden swings for you and misses.\n\nAnother rat sinks its teeth in again.\n\nYou strike the rat again, and it's nearly done.\n\nA rat goes for you and misses.\n\nThe Nest Warden swings and doesn't find you.\n\nA rat lunges and misses too.\n\nYou catch the rat hard, and it reels.\n\nA rat snaps at you and misses.\n\nThe Nest Warden swings again and misses.\n\nAnother rat gets in and bites you.\n\nYou strike the rat once more.\n\nA rat lunges for you and misses.\n\nThe Nest Warden swings and misses again.\n\nAnother rat bites down on you.\n\nYour boot skids in the churned mud and the swing you meant for the rat goes wide.\n\nA rat goes for you and misses.\n\nThe Nest Warden catches you hard, driving you back.\n\nA rat lunges and misses.\n\nYou swing again and miss.\n\nA rat gets its teeth into you.\n\nThe Nest Warden swings and doesn't connect.\n\nAnother rat lunges and misses.\n\nYou swing again and miss.\n\nA rat bites down on you.\n\nThe Nest Warden catches you solidly, and pain roars up your side.\n\nAnother rat lunges for you and misses.\n\nYou wrench free of all of it and run, the fog swallowing you whole.",
+      "status": "pending",
+      "claims": [],
+      "redrafts": 1,
+      "fight": {
+        "skill": "athletics",
+        "flee_dc": 10,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "kind": "explorer",
+            "health": 65,
+            "most": 100,
+            "damage": "1–2",
+            "weapon": "Walking Cane",
+            "dc": 11,
+            "bonus": 0,
+            "skill": "athletics",
+            "ability": null,
+            "asleep": 0,
+            "dead": false,
+            "fatigue": 51,
+            "hunger": 1,
+            "worn": [
+              {
+                "id": "explorers-cap",
+                "name": "Explorer's Cap",
+                "slot": "helmet",
+                "type": "apparel",
+                "rarity": "uncommon",
+                "does": ""
+              },
+              {
+                "id": "linen-shirt",
+                "name": "Linen Shirt",
+                "slot": "chest",
+                "type": "apparel",
+                "rarity": "common",
+                "does": "2 protection"
+              },
+              {
+                "id": "wool-leggings",
+                "name": "Wool Leggings",
+                "slot": "legs",
+                "type": "apparel",
+                "rarity": "common",
+                "does": "1 protection"
+              },
+              {
+                "id": "walking-boots",
+                "name": "Walking Boots",
+                "slot": "feet",
+                "type": "apparel",
+                "rarity": "common",
+                "does": "1 protection"
+              },
+              {
+                "id": "walking-cane",
+                "name": "Walking Cane",
+                "slot": "mainhand",
+                "type": "weapon",
+                "rarity": "common",
+                "does": "1–2 damage"
+              }
+            ]
+          },
+          {
+            "id": "the-dog",
+            "name": "the dog",
+            "kind": "ally",
+            "health": 0,
+            "most": 6,
+            "damage": "1–3",
+            "dc": 12,
+            "bonus": 2,
+            "skill": null,
+            "ability": null,
+            "asleep": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "name": "a Marsh Rat",
+            "kind": "foe",
+            "health": 0,
+            "most": 6,
+            "damage": "1–2",
+            "dc": 10,
+            "bonus": 1,
+            "skill": null,
+            "ability": null,
+            "asleep": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "kind": "foe",
+            "health": 6,
+            "most": 6,
+            "damage": "1–2",
+            "dc": 10,
+            "bonus": 1,
+            "skill": null,
+            "ability": null,
+            "asleep": 0,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "name": "the Nest Warden",
+            "kind": "foe",
+            "health": 16,
+            "most": 16,
+            "damage": "2–4",
+            "dc": 12,
+            "bonus": 2,
+            "skill": null,
+            "ability": {
+              "name": "spawns a marsh rat",
+              "sleep": 2,
+              "spawn": {
+                "name": "Marsh Rat",
+                "health": 6,
+                "damage": "1–2",
+                "dc": 10,
+                "bonus": 1
+              },
+              "used": true
+            },
+            "asleep": 0,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "name": "Marsh Rat",
+            "kind": "foe",
+            "health": 6,
+            "most": 6,
+            "damage": "1–2",
+            "dc": 10,
+            "bonus": 1,
+            "skill": null,
+            "ability": null,
+            "asleep": 0,
+            "dead": false
+          }
+        ],
+        "turn": 1,
+        "round": 13,
+        "ended": "fled",
+        "blows": [
+          {
+            "n": 1,
+            "round": 1,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 2,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 11,
+              "rolls": [
+                11
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 11,
+              "passed": true
+            },
+            "text": "You catch one of the rats with the cane and it staggers back, wounded.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "left": 4,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 6,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 2,
+            "round": 1,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 3,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 10,
+              "roll": 8,
+              "rolls": [
+                8
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 10,
+              "passed": true
+            },
+            "text": "The dog gets its teeth into the other and worries it hard.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "left": 3,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 6,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 3,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 3,
+            "round": 1,
+            "who": "marsh-rat-1",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 10,
+              "rolls": [
+                10
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 11,
+              "passed": false
+            },
+            "text": "A rat snaps at the dog and misses.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 6,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 3,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 4,
+            "round": 1,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 2,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 19,
+              "rolls": [
+                19
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 20,
+              "passed": true
+            },
+            "text": "The other rat catches the dog's leg and it yelps.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "left": 4,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 3,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 5,
+            "round": 1,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "spawns a marsh rat",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": null,
+            "text": "The Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.",
+            "spawned": "Marsh Rat",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 3,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 6,
+            "round": 1,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 6,
+              "rolls": [
+                6
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 7,
+              "passed": false
+            },
+            "text": "The new rat lunges at the dog and doesn't connect.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 3,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 7,
+            "round": 2,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 1,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 17,
+              "rolls": [
+                17
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 17,
+              "passed": true
+            },
+            "text": "You strike the wounded rat again and it reels.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "left": 2,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 3,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 8,
+            "round": 2,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 1,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 10,
+              "roll": 13,
+              "rolls": [
+                13
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 15,
+              "passed": true
+            },
+            "text": "The dog snaps at the other rat and connects, shaking it hard.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "left": 2,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 9,
+            "round": 2,
+            "who": "marsh-rat-1",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 7,
+              "rolls": [
+                7
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 8,
+              "passed": false
+            },
+            "text": "A rat goes for the dog and misses.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 10,
+            "round": 2,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 3,
+              "rolls": [
+                3
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 4,
+              "passed": false
+            },
+            "text": "Another rat lunges for the dog and misses too.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 11,
+            "round": 2,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ASLEEP",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": null,
+            "text": "The Nest Warden still hasn't moved.",
+            "spent": true,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 12,
+            "round": 2,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 8,
+              "rolls": [
+                8
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 9,
+              "passed": false
+            },
+            "text": "The third rat snaps at the dog and comes up short.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 13,
+            "round": 3,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 1,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 16,
+              "rolls": [
+                16
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 16,
+              "passed": true
+            },
+            "text": "You bring the cane down on the rat again, and it's barely standing.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "left": 1,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 14,
+            "round": 3,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 10,
+              "roll": 1,
+              "rolls": [
+                1
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 3,
+              "passed": false
+            },
+            "text": "The dog goes for the other rat and misses.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 4,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 15,
+            "round": 3,
+            "who": "marsh-rat-1",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 2,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 13,
+              "rolls": [
+                13
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 14,
+              "passed": true
+            },
+            "text": "A rat gets its teeth into the dog's side.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "left": 2,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 2,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 16,
+            "round": 3,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 1,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 14,
+              "rolls": [
+                14
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 15,
+              "passed": true
+            },
+            "text": "Another rat bites down on the dog too, and it staggers.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "left": 1,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 1,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 17,
+            "round": 3,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ASLEEP",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": null,
+            "text": "The Nest Warden remains frozen.",
+            "spent": true,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 1,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 18,
+            "round": 3,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 4,
+              "rolls": [
+                4
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 5,
+              "passed": false
+            },
+            "text": "The third rat snaps at the dog and misses.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 1,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 19,
+            "round": 4,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 5,
+              "rolls": [
+                5
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 5,
+              "passed": false
+            },
+            "text": "You swing at the rat and it's already darting clear.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 1,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 2,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 20,
+            "round": 4,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 2,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 10,
+              "roll": 18,
+              "rolls": [
+                18
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 20,
+              "passed": true
+            },
+            "text": "The dog catches it and it goes limp, finished.",
+            "at": "marsh-rat-1",
+            "atname": "a Marsh Rat",
+            "left": 0,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 1,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 21,
+            "round": 4,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 2,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 17,
+              "rolls": [
+                17
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 18,
+              "passed": true
+            },
+            "text": "A rat tears into the dog and it goes down and doesn't rise again.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "left": 0,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 90,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 22,
+            "round": 4,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 3,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 11,
+              "rolls": [
+                11
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 13,
+              "passed": true
+            },
+            "text": "The Nest Warden lunges past where the dog was and catches you instead, hard.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 87,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 87,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 23,
+            "round": 4,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 7,
+              "rolls": [
+                7
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 8,
+              "passed": false
+            },
+            "text": "A rat turns on you now and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 87,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 24,
+            "round": 5,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 4,
+              "rolls": [
+                4
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 4,
+              "passed": false
+            },
+            "text": "You swing at a rat and it slips past the cane.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 87,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 25,
+            "round": 5,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 9,
+              "rolls": [
+                9
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 10,
+              "passed": false
+            },
+            "text": "A rat lunges at you and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 87,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 26,
+            "round": 5,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 4,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 14,
+              "rolls": [
+                14
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 16,
+              "passed": true
+            },
+            "text": "The Nest Warden drives into you, and it staggers you back.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 83,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 83,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 27,
+            "round": 5,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 2,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 12,
+              "rolls": [
+                12
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 13,
+              "passed": true
+            },
+            "text": "Another rat gets its teeth into your leg.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 81,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 81,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 28,
+            "round": 6,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 2,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 18,
+              "rolls": [
+                18
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 18,
+              "passed": true
+            },
+            "text": "You catch a rat square and it drops back, badly hurt.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "left": 4,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 81,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 29,
+            "round": 6,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 1,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 11,
+              "rolls": [
+                11
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 12,
+              "passed": true
+            },
+            "text": "A rat bites at you and connects, quick and low.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 80,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 80,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 30,
+            "round": 6,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 1,
+              "rolls": [
+                1
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 3,
+              "passed": false
+            },
+            "text": "The Nest Warden swings for you and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 80,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 31,
+            "round": 6,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 2,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 18,
+              "rolls": [
+                18
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 19,
+              "passed": true
+            },
+            "text": "Another rat sinks its teeth in again.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 78,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 32,
+            "round": 7,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 1,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 13,
+              "rolls": [
+                13
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 13,
+              "passed": true
+            },
+            "text": "You strike the rat again, and it's nearly done.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "left": 5,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 33,
+            "round": 7,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 1,
+              "rolls": [
+                1
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 2,
+              "passed": false
+            },
+            "text": "A rat goes for you and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 34,
+            "round": 7,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 3,
+              "rolls": [
+                3
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 5,
+              "passed": false
+            },
+            "text": "The Nest Warden swings and doesn't find you.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 35,
+            "round": 7,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 3,
+              "rolls": [
+                3
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 4,
+              "passed": false
+            },
+            "text": "A rat lunges and misses too.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 36,
+            "round": 8,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 2,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 15,
+              "rolls": [
+                15
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 15,
+              "passed": true
+            },
+            "text": "You catch the rat hard, and it reels.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "left": 4,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 37,
+            "round": 8,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 6,
+              "rolls": [
+                6
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 7,
+              "passed": false
+            },
+            "text": "A rat snaps at you and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 38,
+            "round": 8,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 6,
+              "rolls": [
+                6
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 8,
+              "passed": false
+            },
+            "text": "The Nest Warden swings again and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 78,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 39,
+            "round": 8,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 1,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 11,
+              "rolls": [
+                11
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 12,
+              "passed": true
+            },
+            "text": "Another rat gets in and bites you.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 77,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 77,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 40,
+            "round": 9,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 2,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 19,
+              "rolls": [
+                19
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 19,
+              "passed": true
+            },
+            "text": "You strike the rat once more.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "left": 4,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 77,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 41,
+            "round": 9,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 3,
+              "rolls": [
+                3
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 4,
+              "passed": false
+            },
+            "text": "A rat lunges for you and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 77,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 42,
+            "round": 9,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 4,
+              "rolls": [
+                4
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 6,
+              "passed": false
+            },
+            "text": "The Nest Warden swings and misses again.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 77,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 43,
+            "round": 9,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 1,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 19,
+              "rolls": [
+                19
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 20,
+              "passed": true
+            },
+            "text": "Another rat bites down on you.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 76,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 76,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 44,
+            "round": 10,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 5,
+              "rolls": [
+                5
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 5,
+              "passed": false
+            },
+            "text": "Your boot skids in the churned mud and the swing you meant for the rat goes wide.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 76,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 45,
+            "round": 10,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 9,
+              "rolls": [
+                9
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 10,
+              "passed": false
+            },
+            "text": "A rat goes for you and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 76,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 46,
+            "round": 10,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 4,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 18,
+              "rolls": [
+                18
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 20,
+              "passed": true
+            },
+            "text": "The Nest Warden catches you hard, driving you back.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 72,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 72,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 47,
+            "round": 10,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 7,
+              "rolls": [
+                7
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 8,
+              "passed": false
+            },
+            "text": "A rat lunges and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 72,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 48,
+            "round": 11,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 5,
+              "rolls": [
+                5
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 5,
+              "passed": false
+            },
+            "text": "You swing again and miss.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 72,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 49,
+            "round": 11,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 2,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 15,
+              "rolls": [
+                15
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 16,
+              "passed": true
+            },
+            "text": "A rat gets its teeth into you.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 70,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 70,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 50,
+            "round": 11,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 8,
+              "rolls": [
+                8
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 10,
+              "passed": false
+            },
+            "text": "The Nest Warden swings and doesn't connect.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 70,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 51,
+            "round": 11,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 3,
+              "rolls": [
+                3
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 4,
+              "passed": false
+            },
+            "text": "Another rat lunges and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 70,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 52,
+            "round": 12,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 6,
+              "rolls": [
+                6
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 6,
+              "passed": false
+            },
+            "text": "You swing again and miss.",
+            "at": "marsh-rat-2",
+            "atname": "a Marsh Rat",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 70,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 53,
+            "round": 12,
+            "who": "marsh-rat-2",
+            "name": "a Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 2,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 12,
+              "rolls": [
+                12
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 13,
+              "passed": true
+            },
+            "text": "A rat bites down on you.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 68,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 68,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 54,
+            "round": 12,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 0,
+            "taken": 3,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 15,
+              "rolls": [
+                15
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 17,
+              "passed": true
+            },
+            "text": "The Nest Warden catches you solidly, and pain roars up your side.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 65,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 65,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 55,
+            "round": 12,
+            "who": "marsh-rat",
+            "name": "Marsh Rat",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 7,
+              "rolls": [
+                7
+              ],
+              "against": [],
+              "bonus": 1,
+              "total": 8,
+              "passed": false
+            },
+            "text": "Another rat lunges for you and misses.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 65,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 56,
+            "round": 13,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "FLEE",
+            "hit": true,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 16,
+              "rolls": [
+                16
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 16,
+              "passed": true
+            },
+            "text": "You wrench free of all of it and run, the fog swallowing you whole.",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 65,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 0,
+                "dead": true
+              }
+            ],
+            "them": [
+              {
+                "id": "marsh-rat-1",
+                "health": 0,
+                "dead": true
+              },
+              {
+                "id": "marsh-rat-2",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "nest-warden",
+                "health": 16,
+                "dead": false
+              },
+              {
+                "id": "marsh-rat",
+                "health": 6,
+                "dead": false
+              }
+            ]
+          }
+        ],
+        "said": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.",
+        "name": "a Marsh Rat"
+      }
+    }
+  ],
+  "note": "The dog is still with her, bloodied from the Rat Mother — give it 6 health of 12. The nest is not empty: two more come boiling out of the bank, and behind them something older drags itself into the light. Declare the fight now, do not narrate it. them: two Marsh Rats (6 health, 1-2 damage, dc 10, bonus 1) and the Nest Warden (16 health, 2-4 damage, dc 12, bonus 2) with an ability that spawns one more Marsh Rat and then leaves it not stirring for 2 rounds. us: the dog (6 health of 12, 1-3 damage, dc 12, bonus 2). athletics, their_dc 11, flee_dc 10.",
+  "answers": [],
+  "proposal": {
+    "summary": "You lower the cane and let your breath out, sure the Rat Mother is finished.",
+    "target": "rat-mother",
+    "minutes": 1,
+    "fatigue": 1
+  },
+  "outcomes": [
+    {
+      "band": "common",
+      "text": "Before you can step back, the bank tears open again — two more Marsh Rats boil out, and behind them the Nest Warden drags itself into the light; the dog, bloodied, is already turning to meet them.",
+      "p": 0.35
+    },
+    {
+      "band": "common",
+      "text": "The nest isn't done — two Marsh Rats spill out where the Rat Mother fell, and something larger hauls itself out behind them as the dog snarls back around.",
+      "p": 0.35
+    },
+    {
+      "band": "uncommon",
+      "text": "The Nest Warden heaves as it emerges and a third rat comes spilling out with it, then goes rigid and still — one more body in the fight than you counted.",
+      "p": 0.18
+    },
+    {
+      "band": "rare",
+      "text": "The Rat Mother's body slumps back across the nest mouth, and the two rats and the Warden have to climb over her to reach you, buying a half-step before they're on you.",
+      "p": 0.08
+    },
+    {
+      "band": "epic",
+      "text": "The Nest Warden's hide, catching the light, carries markings too regular to be natural — cut lines, not scars, in a pattern no bestiary you've read describes.",
+      "p": 0.03
+    },
+    {
+      "band": "legendary",
+      "text": "What the Nest Warden drags in behind it isn't rat-boned at all — the shape under the fur is too long, too old, jointed like it was laid there on purpose for something to find.",
+      "p": 0.01
+    }
+  ],
+  "fortune": 0.4683012585337648,
+  "chosen": {
+    "band": "common",
+    "text": "The nest isn't done — two Marsh Rats spill out where the Rat Mother fell, and something larger hauls itself out behind them as the dog snarls back around.",
+    "p": 0.35
+  },
+  "forced_strange": false,
+  "confirmed": true,
+  "pressed": true,
+  "fight": {
+    "skill": "athletics",
+    "flee_dc": 10,
+    "us": [
+      {
+        "id": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "kind": "explorer",
+        "health": 65,
+        "most": 100,
+        "damage": "1–2",
+        "weapon": "Walking Cane",
+        "dc": 11,
+        "bonus": 0,
+        "skill": "athletics",
+        "ability": null,
+        "asleep": 0,
+        "dead": false,
+        "fatigue": 51,
+        "hunger": 1,
+        "worn": [
+          {
+            "id": "explorers-cap",
+            "name": "Explorer's Cap",
+            "slot": "helmet",
+            "type": "apparel",
+            "rarity": "uncommon",
+            "does": ""
+          },
+          {
+            "id": "linen-shirt",
+            "name": "Linen Shirt",
+            "slot": "chest",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "2 protection"
+          },
+          {
+            "id": "wool-leggings",
+            "name": "Wool Leggings",
+            "slot": "legs",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "1 protection"
+          },
+          {
+            "id": "walking-boots",
+            "name": "Walking Boots",
+            "slot": "feet",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "1 protection"
+          },
+          {
+            "id": "walking-cane",
+            "name": "Walking Cane",
+            "slot": "mainhand",
+            "type": "weapon",
+            "rarity": "common",
+            "does": "1–2 damage"
+          }
+        ]
+      },
+      {
+        "id": "the-dog",
+        "name": "the dog",
+        "kind": "ally",
+        "health": 0,
+        "most": 6,
+        "damage": "1–3",
+        "dc": 12,
+        "bonus": 2,
+        "skill": null,
+        "ability": null,
+        "asleep": 0,
+        "dead": true
+      }
+    ],
+    "them": [
+      {
+        "id": "marsh-rat-1",
+        "name": "a Marsh Rat",
+        "kind": "foe",
+        "health": 0,
+        "most": 6,
+        "damage": "1–2",
+        "dc": 10,
+        "bonus": 1,
+        "skill": null,
+        "ability": null,
+        "asleep": 0,
+        "dead": true
+      },
+      {
+        "id": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "kind": "foe",
+        "health": 6,
+        "most": 6,
+        "damage": "1–2",
+        "dc": 10,
+        "bonus": 1,
+        "skill": null,
+        "ability": null,
+        "asleep": 0,
+        "dead": false
+      },
+      {
+        "id": "nest-warden",
+        "name": "the Nest Warden",
+        "kind": "foe",
+        "health": 16,
+        "most": 16,
+        "damage": "2–4",
+        "dc": 12,
+        "bonus": 2,
+        "skill": null,
+        "ability": {
+          "name": "spawns a marsh rat",
+          "sleep": 2,
+          "spawn": {
+            "name": "Marsh Rat",
+            "health": 6,
+            "damage": "1–2",
+            "dc": 10,
+            "bonus": 1
+          },
+          "used": true
+        },
+        "asleep": 0,
+        "dead": false
+      },
+      {
+        "id": "marsh-rat",
+        "name": "Marsh Rat",
+        "kind": "foe",
+        "health": 6,
+        "most": 6,
+        "damage": "1–2",
+        "dc": 10,
+        "bonus": 1,
+        "skill": null,
+        "ability": null,
+        "asleep": 0,
+        "dead": false
+      }
+    ],
+    "turn": 1,
+    "round": 13,
+    "ended": "fled",
+    "blows": [
+      {
+        "n": 1,
+        "round": 1,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 11,
+          "rolls": [
+            11
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 11,
+          "passed": true
+        },
+        "text": "You catch one of the rats with the cane and it staggers back, wounded.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "left": 4,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 6,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 2,
+        "round": 1,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 3,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 10,
+          "passed": true
+        },
+        "text": "The dog gets its teeth into the other and worries it hard.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "left": 3,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 6,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 3,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 3,
+        "round": 1,
+        "who": "marsh-rat-1",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 10,
+          "rolls": [
+            10
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 11,
+          "passed": false
+        },
+        "text": "A rat snaps at the dog and misses.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 6,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 3,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 4,
+        "round": 1,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 2,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 19,
+          "rolls": [
+            19
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 20,
+          "passed": true
+        },
+        "text": "The other rat catches the dog's leg and it yelps.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 4,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 3,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 5,
+        "round": 1,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "spawns a marsh rat",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": null,
+        "text": "The Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.",
+        "spawned": "Marsh Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 3,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 6,
+        "round": 1,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 6,
+          "rolls": [
+            6
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 7,
+          "passed": false
+        },
+        "text": "The new rat lunges at the dog and doesn't connect.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 3,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 7,
+        "round": 2,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 17,
+          "rolls": [
+            17
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 17,
+          "passed": true
+        },
+        "text": "You strike the wounded rat again and it reels.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "left": 2,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 3,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 8,
+        "round": 2,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 13,
+          "rolls": [
+            13
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 15,
+          "passed": true
+        },
+        "text": "The dog snaps at the other rat and connects, shaking it hard.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "left": 2,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 9,
+        "round": 2,
+        "who": "marsh-rat-1",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 7,
+          "rolls": [
+            7
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 8,
+          "passed": false
+        },
+        "text": "A rat goes for the dog and misses.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 10,
+        "round": 2,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 4,
+          "passed": false
+        },
+        "text": "Another rat lunges for the dog and misses too.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 11,
+        "round": 2,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ASLEEP",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": null,
+        "text": "The Nest Warden still hasn't moved.",
+        "spent": true,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 12,
+        "round": 2,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 9,
+          "passed": false
+        },
+        "text": "The third rat snaps at the dog and comes up short.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 13,
+        "round": 3,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 16,
+          "rolls": [
+            16
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 16,
+          "passed": true
+        },
+        "text": "You bring the cane down on the rat again, and it's barely standing.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "left": 1,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 14,
+        "round": 3,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 3,
+          "passed": false
+        },
+        "text": "The dog goes for the other rat and misses.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 4,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 15,
+        "round": 3,
+        "who": "marsh-rat-1",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 2,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 13,
+          "rolls": [
+            13
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 14,
+          "passed": true
+        },
+        "text": "A rat gets its teeth into the dog's side.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 2,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 2,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 16,
+        "round": 3,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 1,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 14,
+          "rolls": [
+            14
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 15,
+          "passed": true
+        },
+        "text": "Another rat bites down on the dog too, and it staggers.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 1,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 1,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 17,
+        "round": 3,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ASLEEP",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": null,
+        "text": "The Nest Warden remains frozen.",
+        "spent": true,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 1,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 18,
+        "round": 3,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 4,
+          "rolls": [
+            4
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 5,
+          "passed": false
+        },
+        "text": "The third rat snaps at the dog and misses.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 1,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 19,
+        "round": 4,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 5,
+          "rolls": [
+            5
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 5,
+          "passed": false
+        },
+        "text": "You swing at the rat and it's already darting clear.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 1,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 2,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 20,
+        "round": 4,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 18,
+          "rolls": [
+            18
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 20,
+          "passed": true
+        },
+        "text": "The dog catches it and it goes limp, finished.",
+        "at": "marsh-rat-1",
+        "atname": "a Marsh Rat",
+        "left": 0,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 1,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 21,
+        "round": 4,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 2,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 17,
+          "rolls": [
+            17
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 18,
+          "passed": true
+        },
+        "text": "A rat tears into the dog and it goes down and doesn't rise again.",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 0,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 90,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 22,
+        "round": 4,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 3,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 11,
+          "rolls": [
+            11
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 13,
+          "passed": true
+        },
+        "text": "The Nest Warden lunges past where the dog was and catches you instead, hard.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 87,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 87,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 23,
+        "round": 4,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 7,
+          "rolls": [
+            7
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 8,
+          "passed": false
+        },
+        "text": "A rat turns on you now and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 87,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 24,
+        "round": 5,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 4,
+          "rolls": [
+            4
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 4,
+          "passed": false
+        },
+        "text": "You swing at a rat and it slips past the cane.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 87,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 25,
+        "round": 5,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 9,
+          "rolls": [
+            9
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 10,
+          "passed": false
+        },
+        "text": "A rat lunges at you and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 87,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 26,
+        "round": 5,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 4,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 14,
+          "rolls": [
+            14
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 16,
+          "passed": true
+        },
+        "text": "The Nest Warden drives into you, and it staggers you back.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 83,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 83,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 27,
+        "round": 5,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 2,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 12,
+          "rolls": [
+            12
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 13,
+          "passed": true
+        },
+        "text": "Another rat gets its teeth into your leg.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 81,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 81,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 28,
+        "round": 6,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 18,
+          "rolls": [
+            18
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 18,
+          "passed": true
+        },
+        "text": "You catch a rat square and it drops back, badly hurt.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "left": 4,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 81,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 29,
+        "round": 6,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 1,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 11,
+          "rolls": [
+            11
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 12,
+          "passed": true
+        },
+        "text": "A rat bites at you and connects, quick and low.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 80,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 80,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 30,
+        "round": 6,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 3,
+          "passed": false
+        },
+        "text": "The Nest Warden swings for you and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 80,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 31,
+        "round": 6,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 2,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 18,
+          "rolls": [
+            18
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 19,
+          "passed": true
+        },
+        "text": "Another rat sinks its teeth in again.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 78,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 32,
+        "round": 7,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 13,
+          "rolls": [
+            13
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 13,
+          "passed": true
+        },
+        "text": "You strike the rat again, and it's nearly done.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "left": 5,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 33,
+        "round": 7,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 2,
+          "passed": false
+        },
+        "text": "A rat goes for you and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 34,
+        "round": 7,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 5,
+          "passed": false
+        },
+        "text": "The Nest Warden swings and doesn't find you.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 35,
+        "round": 7,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 4,
+          "passed": false
+        },
+        "text": "A rat lunges and misses too.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 36,
+        "round": 8,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 15,
+          "rolls": [
+            15
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 15,
+          "passed": true
+        },
+        "text": "You catch the rat hard, and it reels.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "left": 4,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 37,
+        "round": 8,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 6,
+          "rolls": [
+            6
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 7,
+          "passed": false
+        },
+        "text": "A rat snaps at you and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 38,
+        "round": 8,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 6,
+          "rolls": [
+            6
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 8,
+          "passed": false
+        },
+        "text": "The Nest Warden swings again and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 78,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 39,
+        "round": 8,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 1,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 11,
+          "rolls": [
+            11
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 12,
+          "passed": true
+        },
+        "text": "Another rat gets in and bites you.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 77,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 77,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 40,
+        "round": 9,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 19,
+          "rolls": [
+            19
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 19,
+          "passed": true
+        },
+        "text": "You strike the rat once more.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "left": 4,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 77,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 41,
+        "round": 9,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 4,
+          "passed": false
+        },
+        "text": "A rat lunges for you and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 77,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 42,
+        "round": 9,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 4,
+          "rolls": [
+            4
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 6,
+          "passed": false
+        },
+        "text": "The Nest Warden swings and misses again.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 77,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 43,
+        "round": 9,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 1,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 19,
+          "rolls": [
+            19
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 20,
+          "passed": true
+        },
+        "text": "Another rat bites down on you.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 76,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 76,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 44,
+        "round": 10,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 5,
+          "rolls": [
+            5
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 5,
+          "passed": false
+        },
+        "text": "Your boot skids in the churned mud and the swing you meant for the rat goes wide.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 76,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 45,
+        "round": 10,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 9,
+          "rolls": [
+            9
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 10,
+          "passed": false
+        },
+        "text": "A rat goes for you and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 76,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 46,
+        "round": 10,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 4,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 18,
+          "rolls": [
+            18
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 20,
+          "passed": true
+        },
+        "text": "The Nest Warden catches you hard, driving you back.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 72,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 72,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 47,
+        "round": 10,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 7,
+          "rolls": [
+            7
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 8,
+          "passed": false
+        },
+        "text": "A rat lunges and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 72,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 48,
+        "round": 11,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 5,
+          "rolls": [
+            5
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 5,
+          "passed": false
+        },
+        "text": "You swing again and miss.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 72,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 49,
+        "round": 11,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 2,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 15,
+          "rolls": [
+            15
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 16,
+          "passed": true
+        },
+        "text": "A rat gets its teeth into you.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 70,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 70,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 50,
+        "round": 11,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 10,
+          "passed": false
+        },
+        "text": "The Nest Warden swings and doesn't connect.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 70,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 51,
+        "round": 11,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 4,
+          "passed": false
+        },
+        "text": "Another rat lunges and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 70,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 52,
+        "round": 12,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 6,
+          "rolls": [
+            6
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 6,
+          "passed": false
+        },
+        "text": "You swing again and miss.",
+        "at": "marsh-rat-2",
+        "atname": "a Marsh Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 70,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 53,
+        "round": 12,
+        "who": "marsh-rat-2",
+        "name": "a Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 2,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 12,
+          "rolls": [
+            12
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 13,
+          "passed": true
+        },
+        "text": "A rat bites down on you.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 68,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 68,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 54,
+        "round": 12,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 3,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 15,
+          "rolls": [
+            15
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 17,
+          "passed": true
+        },
+        "text": "The Nest Warden catches you solidly, and pain roars up your side.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 65,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 65,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 55,
+        "round": 12,
+        "who": "marsh-rat",
+        "name": "Marsh Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 7,
+          "rolls": [
+            7
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 8,
+          "passed": false
+        },
+        "text": "Another rat lunges for you and misses.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 65,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 56,
+        "round": 13,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "FLEE",
+        "hit": true,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 16,
+          "rolls": [
+            16
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 16,
+          "passed": true
+        },
+        "text": "You wrench free of all of it and run, the fog swallowing you whole.",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 65,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "marsh-rat-1",
+            "health": 0,
+            "dead": true
+          },
+          {
+            "id": "marsh-rat-2",
+            "health": 6,
+            "dead": false
+          },
+          {
+            "id": "nest-warden",
+            "health": 16,
+            "dead": false
+          },
+          {
+            "id": "marsh-rat",
+            "health": 6,
+            "dead": false
+          }
+        ]
+      }
+    ],
+    "said": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.",
+    "name": "a Marsh Rat"
+  },
+  "check": null,
+  "roll": 350,
+  "rolled": true,
+  "fate": null
+}
