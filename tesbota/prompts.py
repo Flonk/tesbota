@@ -185,6 +185,8 @@ It ended: {ended}
 
 What they chose is theirs, not yours — narrate the choice they made, not the one you would have made for them. Write one line for each numbered blow, in that order, second person, present tense. A line is a clause or a short sentence; this is a fight, not a chapter. Say what the numbers say. A landed blow lands and a missed one costs them. Do not soften a hit, do not add a blow, do not take one away, and do not say how it ends before the last line.
 
+Never write the tallies out. The numbers are already on the page beside your line, and a sentence that ends "5 left in it" says twice what it is worth. Write what it looked like.
+
 Reply in the same json shape you always use, with `blows` in place of `narration`:
 
     {{"blows": ["…", "…"], "claims": [], "location": "kebab-id",
