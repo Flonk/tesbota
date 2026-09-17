@@ -215,9 +215,12 @@ function Pills({ worn }) {
 }
 
 function Tile({ who, now, down, acting, side }) {
-  const mine = side === "us" && who.worn;
-  const rows = mine
-    ? [["attack", `${who.damage} dmg`]]
+  const ours = side === "us";
+  const rows = ours
+    ? [
+        ["attack", `${who.damage} dmg`],
+        ...(who.ability ? [[who.ability.name, "once"]] : []),
+      ]
     : [
         ["hits for", who.damage],
         ["to hit it", `dc ${who.dc}`],
@@ -231,13 +234,13 @@ function Tile({ who, now, down, acting, side }) {
       </p>
       <Health now={down ? 0 : now} most={who.most} side={side} />
       <div className="cornerbody">
-        {mine && (
+        {ours && who.worn?.length > 0 && (
           <>
             <p className="cap tilecap">equipped</p>
             <Pills worn={who.worn} />
           </>
         )}
-        {mine && <p className="cap tilecap">abilities</p>}
+        {ours && <p className="cap tilecap">abilities</p>}
         {rows.map(([what, said]) => (
           <p className="statline" key={what}>
             <span className="statslot">{what}</span>
