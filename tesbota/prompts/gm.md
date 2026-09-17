@@ -76,7 +76,18 @@ A body in `them` may carry one `ability`, and the only one the machine knows is 
       "spawn": {"name": "Rat", "health": 5, "damage": "1–2", "dc": 10, "bonus": 1}
     }
 
-It uses it on its first turn, the new body joins the fight at the back of the order, and then it is `sleep` rounds before it does anything at all. Give an ability only to something that has earned one.
+It uses it on its first turn, the new body joins the fight at the back of the order, and then it is `sleep` rounds before it does anything at all.
+
+The other kind is a blow it saves up, and anybody may have one — a body fighting alongside them as readily as a body against them:
+
+    "ability": {
+      "name": "mega bite",
+      "damage": "10",
+      "advantage": true,
+      "cooldown": 3
+    }
+
+It is thrown the first turn it can be, lands for `damage` instead of the ordinary band, and then waits `cooldown` rounds. `advantage` throws two dice and keeps the better. Give an ability only to something that has earned one.
 
 Somebody running is not a fight. If they are leaving, set an ordinary `check` and let them leave. A fight is an exchange both sides have committed to.
 
