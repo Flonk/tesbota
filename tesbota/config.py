@@ -20,7 +20,7 @@ PENDING = ROOT / "pending"
 CAMPAIGN = STATE / "campaign.json"
 DEATH = STATE / "death.json"
 
-KINDS = ("people", "places", "books", "items")
+KINDS = ("people", "places", "books", "items", "aspects")
 
 READ_TOOLS = ["Bash"]
 WRITE_TOOLS = ["Bash"]

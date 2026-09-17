@@ -554,6 +554,8 @@ def open_fight(campaign, turn, draft):
         "blows": [],
         "said": (draft.get("narration") or "").strip(),
     }
+    for foe in fight["them"]:
+        borne(foe, campaign)
     fight["name"] = fight["them"][0]["name"] if fight["them"] else "it"
     turn["fight"] = fight
     # The page draws whatever is on the turn, so the fight goes on the turn the
@@ -570,6 +572,29 @@ def show_fight(turn, fight):
             entry["fight"] = fight
             return entry
     return gm_phase(turn, "fight", fight.get("said") or "", fight=fight)
+
+
+def borne(who, campaign):
+    """What a body is marked with, and what those markings are worth here. A citizen
+    of Alheim is only a citizen of Alheim while they are standing in it."""
+    here = [str(x) for x in (campaign.get("location_path") or [])]
+    here = {x.get("id") if isinstance(x, dict) else x for x in (campaign.get("location_path") or [])}
+    here.add(campaign.get("location"))
+    marks = canon.aspects_of(who["id"])
+    who["aspects"] = [
+        {"name": m["name"], "value": m["value"], "of": m["of"]} for m in marks
+    ]
+    if who.get("ability"):
+        return who
+    for mark in marks:
+        if not mark.get("ability"):
+            continue
+        if mark["applies"] == "within" and canon.slug(mark["value"] or "") not in here:
+            continue
+        who["ability"] = mark["ability"]
+        who["ability"]["from"] = mark["name"]
+        break
+    return who
 
 
 def standing_in(campaign, skill):
@@ -669,14 +694,18 @@ def strike(fight, who, mark, skill, dc, rng, campaign=None, turn=None, edge=Fals
 
 
 def spawn(fight, who, rng):
-    """An ability that puts another body on the field."""
-    born = fighter(who["ability"]["spawn"], "foe")
-    same = sum(1 for x in fight["them"] if x["name"] == born["name"])
-    if same:
-        born["id"] = f"{born['id']}-{same + 1}"
-        born["name"] = f"{born['name']} {same + 1}"
-    fight["them"].append(born)
-    return born
+    """An ability that puts bodies on the field — one, or a street's worth."""
+    said = who["ability"]["spawn"]
+    come = []
+    for _ in range(max(1, int(said.get("count") or 1))):
+        born = fighter(said, "foe")
+        same = sum(1 for x in fight["them"] if x["name"].split(" #")[0] == born["name"])
+        if same:
+            born["id"] = f"{born['id']}-{same + 1}"
+            born["name"] = f"{born['name']} #{same + 1}"
+        fight["them"].append(born)
+        come.append(born)
+    return come
 
 
 def step_swing(campaign, turn):
@@ -739,7 +768,8 @@ def step_fight(campaign, turn, rng=random):
         born = spawn(fight, who, rng)
         who["asleep"] = int(who["ability"].get("sleep") or 0)
         who["ability"]["used"] = True
-        blow.update(chose=str(who["ability"].get("name") or "spawns"), spawned=born["name"])
+        blow.update(chose=str(who["ability"].get("name") or "spawns"),
+                    spawned=", ".join(x["name"] for x in born))
     else:
         who["cool"] = max(0, int(who.get("cool") or 0) - 1)
         power = who["ability"] if ready(who) and who.get("ability") else None

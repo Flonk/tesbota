@@ -9,7 +9,7 @@ LINK = re.compile(r"bota://(people|places|books|items)/([a-z0-9][a-z0-9-]*)(?:#(
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS entity (
   id         TEXT PRIMARY KEY,
-  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items')),
+  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects')),
   name       TEXT NOT NULL,
   introduced TEXT,
   extent     TEXT,
@@ -75,6 +75,21 @@ CREATE TABLE IF NOT EXISTS effect (
   amount TEXT NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS effect_once ON effect(item, stat);
+
+CREATE TABLE IF NOT EXISTS aspect (
+  id      TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  applies TEXT CHECK (applies IN ('always','within')),
+  ability TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tagged (
+  id     INTEGER PRIMARY KEY,
+  entity TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
+  aspect TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
+  value  TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS tagged_once ON tagged(entity, aspect, coalesce(value, ''));
+CREATE INDEX IF NOT EXISTS tagged_aspect ON tagged(aspect);
 
 CREATE TABLE IF NOT EXISTS holding (
   id       INTEGER PRIMARY KEY,
@@ -162,6 +177,25 @@ INSERT INTO place_sorted (id, parent, type) SELECT id, parent, type FROM place;
 DROP TABLE place;
 ALTER TABLE place_sorted RENAME TO place;
 CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
+"""
+
+WIDEN_KINDS = """
+DROP VIEW IF EXISTS writing;
+DROP VIEW IF EXISTS unwritten;
+CREATE TABLE entity_kinds (
+  id         TEXT PRIMARY KEY,
+  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects')),
+  name       TEXT NOT NULL,
+  introduced TEXT,
+  extent     TEXT,
+  about      TEXT,
+  made       TEXT,
+  changed    TEXT
+);
+INSERT INTO entity_kinds (id, kind, name, introduced, extent, about, made, changed)
+  SELECT id, kind, name, introduced, extent, about, made, changed FROM entity;
+DROP TABLE entity;
+ALTER TABLE entity_kinds RENAME TO entity;
 """
 
 ANCHOR_ITEM = """
@@ -261,6 +295,15 @@ def setup():
                       (SELECT ref FROM search)"""
         )
         con.commit()
+        kinds = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='entity'") or ""
+        if "'aspects'" not in kinds:
+            # Rebuilding entity takes its view and its triggers with it, so the
+            # schema is laid down again afterwards to put them back.
+            con.execute("PRAGMA foreign_keys = OFF")
+            con.executescript(WIDEN_KINDS)
+            con.executescript(SCHEMA)
+            con.commit()
+            con.execute("PRAGMA foreign_keys = ON")
         item_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='item'") or ""
         if "REFERENCES entity" not in item_sql:
             con.execute("DELETE FROM item WHERE id NOT IN (SELECT id FROM entity)")

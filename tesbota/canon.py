@@ -1,3 +1,4 @@
+import json
 import re
 
 from . import db
@@ -414,6 +415,79 @@ def holdings(holder):
         }
         for r in rows
     ]
+
+
+def aspect(name, applies=None, ability=None, about=None):
+    """An aspect is a thing in its own right — `citizen`, `sworn`, `cursed` — that
+    other things can be marked with. What it grants is written on the aspect, not on
+    everybody wearing it."""
+    ident = ensure_entity("aspects", slug(name), name=str(name))
+    with db.writing() as con:
+        con.execute("INSERT OR IGNORE INTO aspect (id) VALUES (?)", (ident,))
+        if applies is not None:
+            con.execute("UPDATE aspect SET applies = ? WHERE id = ?", (applies, ident))
+        if ability is not None:
+            con.execute(
+                "UPDATE aspect SET ability = ? WHERE id = ?",
+                (json.dumps(ability, ensure_ascii=False) if ability else None, ident),
+            )
+        if about is not None:
+            con.execute("UPDATE entity SET about = ? WHERE id = ?", (about, ident))
+    return ident
+
+
+def tag(entity_id, aspect_id, value=None):
+    """Mark a thing with an aspect. `value` is what the aspect is of — the place a
+    citizen belongs to, the house somebody is sworn into."""
+    with db.writing() as con:
+        con.execute(
+            "INSERT OR IGNORE INTO tagged (entity, aspect, value) VALUES (?,?,?)",
+            (slug(entity_id), slug(aspect_id), str(value) if value else None),
+        )
+    return True
+
+
+def untag(entity_id, aspect_id, value=None):
+    with db.writing() as con:
+        con.execute(
+            "DELETE FROM tagged WHERE entity = ? AND aspect = ? "
+            "AND coalesce(value, '') = coalesce(?, '')",
+            (slug(entity_id), slug(aspect_id), str(value) if value else None),
+        )
+    return True
+
+
+def aspects_of(entity_id):
+    """Everything a thing is marked with, and what each marking grants."""
+    return [
+        {
+            "aspect": r["aspect"],
+            "name": r["name"] or r["aspect"].replace("-", " "),
+            "value": r["value"],
+            "of": r["of_name"],
+            "applies": r["applies"],
+            "ability": json.loads(r["ability"]) if r["ability"] else None,
+        }
+        for r in db.rows(
+            """SELECT t.aspect, t.value, e.name, a.applies, a.ability,
+                      (SELECT ve.name FROM entity ve WHERE ve.id = t.value) AS of_name
+                 FROM tagged t
+                 LEFT JOIN entity e ON e.id = t.aspect
+                 LEFT JOIN aspect a ON a.id = t.aspect
+                WHERE t.entity = ? ORDER BY t.id""",
+            (slug(entity_id),),
+        )
+    ]
+
+
+def bearing_aspect(aspect_id, value=None):
+    """Everything marked with an aspect — every citizen of Alheim."""
+    sql = "SELECT entity, value FROM tagged WHERE aspect = ?"
+    args = [slug(aspect_id)]
+    if value:
+        sql += " AND value = ?"
+        args.append(str(value))
+    return [dict(r) for r in db.rows(sql + " ORDER BY entity", tuple(args))]
 
 
 def holders():
