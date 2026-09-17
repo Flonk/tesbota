@@ -10,7 +10,8 @@ narrates that — run six times inside one turn instead of once.
 
 The state machine gains one state. `STEPS` becomes:
 
-    explorer → propose → gm → fight → blows → lore1 → deliver
+    explorer → propose → gm → fight ⇄ swing → blows → lore1 → deliver
+                                    └── once per blow ──┘
 
 `step_gm` is unchanged except for its last line: if the draft it got back carries a
 `fight` key, the next state is `fight` instead of `lore1`. Everything else — the
@@ -18,11 +19,15 @@ proposal, the six outcomes, `chosen`, `PRESS`, the inventory and holdings blocks
 exactly as it does now. A fight is a thing an ordinary turn turns into, not a mode the
 world enters.
 
-`step_fight` calls no agent. It rolls the whole exchange and writes the roll sheet onto
-the turn. `step_blows` is one game master call, on the existing `sessions["gm"]` with
-the existing `GM_SYSTEM`, that turns the roll sheet into prose. There is no new agent
-and no new prompt file — `prompts.gm_blows()` builds the user message the way
-`prompts.gm_turn()` does.
+`step_swing` is one explorer call on the existing `sessions["explorer"]` — it asks what
+they do and parses one word back. `step_fight` calls no agent: it rolls what they chose,
+appends it to the roll sheet on the turn, and goes back to `swing` unless the fight has
+ended. The two states alternate until an ending is reached, at most `MAX_BLOWS` times.
+
+`step_blows` is then one game master call, on the existing `sessions["gm"]` with the
+existing `GM_SYSTEM`, that turns the finished roll sheet into prose. There is no new
+agent and no new prompt file — `prompts.gm_blows()`, `prompts.fight_open()` and
+`prompts.fight_blow()` build user messages the way `prompts.gm_turn()` does.
 
 The fight lives on the **turn**, in `turn["phases"]`, beside `check` and `outcomes`. It
 is not lore1's business, it is not lore2's business, and it never touches the explorer's
@@ -88,29 +93,83 @@ integers, `rng.randint(low, high)`; anything that does not parse is `UNARMED`.
 
 ## Who decides what the explorer does
 
-**The explorer decides once, before the fight, and does not speak again until it is
-over.** The action that started the turn is the intent for every subturn. There is no
-per-subturn decision.
+**The explorer decides every subturn.** It is their fight; they get to spend it.
 
-This is the whole reason the design is affordable, so it is worth saying why plainly. A
-decision per subturn is not one agent call, it is four: the explorer call, the propose
-call that prices it, and the two lore calls that check what came back. Six subturns is
-twenty-four calls, which is more than the rest of the turn costs put together, for a
-sequence of decisions that would all read *hit him again*.
+What makes that affordable is that a fight subturn is not a turn. The explorer is asked,
+it answers with one word, and the driver rolls. There is no propose call — the fight
+already cost what it costs, and nothing in a subturn needs pricing. There is no lore
+call — nothing has been asserted yet, because nobody has written any prose. The whole
+exchange is adjudicated once, at the end, as one piece of narration.
 
-The explorer gets two things instead of a voice:
+So a subturn is **one agent call**, not four.
 
-1. **Their own body decides for them.** At or below `FLEE_FLOOR = 25` health the driver
-   stops rolling attacks and rolls one check against `flee_dc`. Pass and the fight ends
-   `fled`. Fail and they take one more blow and the fight ends `broken`. They do not
-   fight to the death because they were not asked; they break because a body breaks.
-2. **`MAX_BLOWS = 6`.** A fight that has not settled in six exchanges ends `broken` and
-   the explorer's next turn is a real decision, with the enemy's remaining health
-   carried.
+### What they are asked
 
-If the explorer's declared action was to run rather than to swing, the game master does
-not declare a fight at all — it sets an ordinary `check` and the existing machinery
-handles it. A fight is a committed exchange. That distinction goes in `gm.md`.
+The explorer keeps a session, so the options are laid out once and never again. On the
+first subturn `prompts.fight_open(fight, choices)` sends:
+
+```
+Something is on you and you are in it now. Every time you are asked, answer with one
+of these and nothing else:
+
+  ATTACK          swing with the walking cane, 1–2 damage
+  ITEM <name>     use one thing you carry, and it is gone
+                    Bread from Alheim Mill — +15 health, −20 hunger
+  SKILL <name>    go at it another way, with one of the eighteen
+  FLEE            get out
+
+It has 24 in it. You have 100. You will be told what happened and asked again.
+```
+
+Every subturn after that is one line, because the session already holds the rest —
+`prompts.fight_blow(said)`:
+
+```
+You swung and missed, and it put 4 into you. 96 left of you, 24 left of it.
+```
+
+That is the whole message. The reply is parsed the way `first_utterance` already parses
+an action: first line, uppercased, matched against the four verbs. Anything that does
+not parse is `ATTACK`, because a body in a fight does not stand still, and a fight is
+not a place to bounce a turn back for being unclear.
+
+### What each choice does
+
+| choice | rolled | landed | missed |
+|---|---|---|---|
+| `ATTACK` | `fight.skill` vs `fight.dc` | your weapon's band off it | its band off you |
+| `SKILL <name>` | `<name>` vs `fight.dc` | your weapon's band off it | its band off you |
+| `ITEM <name>` | nothing | the item's effects apply, and it is spent | — |
+| `FLEE` | `fight.skill` vs `fight.flee_dc` | the fight ends `fled` | its band off you, and it goes on |
+
+`SKILL <name>` is an attack made another way — a knife with `sleight of hand`, a stare
+with `intimidation`, a shove with `athletics`. It is the same exchange at the same DC,
+and the point of it is that a character's own numbers decide which verb is worth using:
+`sheet.skill_bonus` is what changes, not the mechanic. A name that is not one of the
+eighteen is `ATTACK`. This is what "use an ability" means in a world that has six scores
+and eighteen skills and no powers.
+
+`ITEM <name>` costs the subturn: nothing is rolled, the thing lands a blow unopposed,
+and the item is spent through the ordinary ledger — a transaction to `the-godhead`, the
+same as any consumable. A consumable is single use, so this is where the bread goes.
+Naming a thing they do not hold is `ATTACK`.
+
+**Tiredness and hunger need no new code.** `roll_check` already throws an extra `SKILL_DIE`
+per limit the body is at and keeps the lowest, so a spent or starving explorer fights at
+disadvantage on every one of these, six times running. That is the one place the cliff at
+`>= 100` really bites, because `too_tired` is off inside a fight and fatigue can cross it
+mid-exchange.
+
+### The floor is still a floor
+
+`FLEE_FLOOR = 25` stays, but it no longer decides for them — it **forces the question**.
+At or below it the subturn message says so plainly:
+
+```
+You are hurt badly. 22 left of you.
+```
+
+They may still answer `ATTACK`. `MAX_BLOWS = 6` still ends an unsettled fight `broken`.
 
 ## How it ends
 
@@ -120,8 +179,8 @@ Checked after each subturn, in this order:
 |---|---|
 | `killed` | `vitals["health"] - damage <= 0` |
 | `beaten` | `fight["health"] <= 0` |
-| `fled` | health at or below `FLEE_FLOOR`, and the `flee_dc` check passed |
-| `broken` | `n >= MAX_BLOWS`, or the flight check failed |
+| `fled` | they answered `FLEE` and the `flee_dc` check passed |
+| `broken` | `n >= MAX_BLOWS` |
 
 `killed` is checked first: a dying explorer does not get the last word.
 
@@ -164,6 +223,10 @@ walking away from a fight at 0 health.
   }
 }
 ```
+
+Each blow also carries `"chose": "ATTACK"` (or `"SKILL sleight of hand"`, `"ITEM Bread
+from Alheim Mill"`, `"FLEE"`) so the UI can show what they picked beside what it cost
+them — a fight the explorer steered should read as steered.
 
 `blows[].check` is `roll_check`'s dict verbatim, so `<Check/>` renders it with no
 change. `blows[].text` is the game master's line, matched back to the roll by index.
@@ -261,21 +324,30 @@ hard the thing is to get away from, and it is always lower than `dc`.
 Somebody running is not a fight. If they are leaving, set an ordinary `check` and let
 them leave. A fight is an exchange both sides have committed to.
 
-You do not roll it and you never write it. It will be rolled and handed back to you,
-blow by blow, and you will be asked for the words then.
+You do not roll it and you never write it. The explorer will be asked, blow by blow,
+what they do — swing, use a thing they carry, go at it another way, or get out — and the
+dice will answer them. It will all be handed back to you at the end, in order, and you
+will be asked for the words then.
 ```
 
 And the message `prompts.gm_blows(fight, blows, ended, fate)` sends, filled from the
 roll sheet:
 
 ```
-The fight has been rolled. This is what happened, in order, and it is settled:
+The fight has been rolled. They chose each of these, and this is what came of it, in
+order, and it is settled:
 
-  1  you swung and landed — 2 off Jost Halm, 22 left of him
-  2  you swung and missed — he put 4 into you, 96 left of you
-  3  you swung and landed — 3 off Jost Halm, 19 left of him
+  1  ATTACK — landed, 2 off Jost Halm, 22 left of him
+  2  ATTACK — missed, he put 4 into you, 96 left of you
+  3  ITEM Bread from Alheim Mill — eaten, +15 health; he put 3 into you, 108 left of you
+  4  SKILL intimidation — landed, 2 off Jost Halm, 20 left of him
+  5  FLEE — failed, he put 5 into you, 103 left of you
+  6  ATTACK — landed, 3 off Jost Halm, 17 left of him
 
-It ended: he went down.
+It ended: it is not over.
+
+What they chose is theirs, not yours. Narrate the choice they made, not the one you
+would have made for them.
 
 Write one line for each numbered blow, in that order, second person, present tense. A
 line is a clause or a short sentence — this is a fight, not a chapter. Say what the
@@ -352,48 +424,57 @@ cleared on every non-broken ending and in `bury`.
 
 Counted in agent calls, which is the only currency here.
 
-| | ordinary turn | fight turn |
-|---|---|---|
-| explorer | 1 | 1 |
-| propose | 1 | 1 |
-| gm | 1 | 1 |
-| blows | — | **1** |
-| lore1 + lore2 | 2 | 2 |
-| redraft when the d400 bites | +3 (gm + 2 lore) | 0 |
-| **typical** | **5** | **6** |
+| | ordinary turn | fight, 3 blows | fight, 6 blows |
+|---|---|---|---|
+| explorer | 1 | 1 | 1 |
+| propose | 1 | 1 | 1 |
+| gm | 1 | 1 | 1 |
+| swing — one a blow | — | **3** | **6** |
+| blows | — | **1** | **1** |
+| lore1 + lore2 | 2 | 2 | 2 |
+| redraft when the d400 bites | +3 (gm + 2 lore) | 0 | 0 |
+| **typical** | **5** | **8** | **11** |
 
-**A fight costs one call more than an ordinary turn.** In the ~1% of turns where fate
-lands it costs one call *less*, because the calamity is folded into the same blows call
-instead of forcing a redraft.
+**A fight costs one call per blow, plus one.** A short fight is not much dearer than an
+ordinary turn; a six-blow fight is about two turns' worth. That is what per-subturn
+agency costs, and it is bought at the lowest price it can be had for: the swing calls
+skip propose (nothing to price) and skip lore (nothing asserted yet), so a subturn is
+one call rather than the four a real turn takes.
 
-The added tokens are small on top of that: the blows call rides the existing gm session,
-so the context is already paid for. What is new is the roll sheet going up — about forty
-tokens a blow, under 250 for a six-blow fight — and six short lines coming back.
+The tokens are small on top of that. Both the swing calls and the blows call ride
+sessions that already exist, so the context is paid for. Each swing sends one sentence
+and gets one word back; the roll sheet going up at the end is about forty tokens a blow.
 
-The alternative, a decision per subturn, is 6 × (explorer + propose + gm + 2 lore) = 30
-calls for one fight, against 5 for an entire ordinary turn. It is not a trade-off, it is
-a different project.
+The thing this design refuses is a *turn* per subturn — 6 × (explorer + propose + gm + 2
+lore) = 30 calls for one fight. Agency per blow is affordable. A full turn per blow is a
+different project.
 
 ## What I would cut, in order
 
-1. **The blows call.** Drop `step_blows` and the driver writes the lines itself from a
-   small table of phrasings keyed on hit, miss, crit and fumble. A fight is then 5 calls
-   — identical to an ordinary turn — and reads like a combat log instead of prose. This
-   is the cut that actually saves something, and it is reversible: the roll sheet, the
-   phase record and the markup are all unchanged, only `blows[].text` gets worse.
-2. **`MAX_BLOWS` from 6 to 3.** Fewer lines out, fights settle or break sooner. Costs no
-   calls to keep and saves none to cut; worth it only if the game master's lines come
-   back long.
-3. **The flight check.** `FLEE_FLOOR`, `flee_dc` and `fled` all go; the explorer wins,
-   dies or breaks. Saves no calls, only code, so it goes third.
-4. **Never the lore pass.** An unadjudicated fight invents a man, a billhook and a wound
+1. **`MAX_BLOWS` from 6 to 3.** Now that every blow is an agent call, this is the knob
+   that actually costs money: it halves the worst case from 11 calls to 8. It is one
+   number in `config.py` and changes no code.
+2. **The blows call.** Drop `step_blows` and the driver writes the lines itself from a
+   small table of phrasings keyed on hit, miss, crit and fumble. Saves exactly one call
+   and the fight reads like a combat log instead of prose — a much worse trade than it
+   was before the explorer got a voice, because the prose is now the only part of the
+   fight the explorer did not author. Reversible: the roll sheet, the phase record and
+   the markup are all unchanged, only `blows[].text` gets worse.
+3. **`SKILL` and `ITEM`.** Leave `ATTACK` and `FLEE` and the option list is two lines.
+   Saves no calls, only the parsing and the item ledger — and it takes away the two
+   choices that make the fight anything other than a coin flip, so it goes third.
+4. **Never the swing calls.** Cutting those is cutting the thing that was asked for: an
+   explorer who picks. A fight it does not steer is the old design, and that design is
+   in this file's history if it is ever wanted back.
+5. **Never the lore pass.** An unadjudicated fight invents a man, a billhook and a wound
    with nothing ruling on any of it, which is the one thing this machine exists to stop.
-   If the budget will not carry six calls, cut the fight, not the check on it.
+   If the budget will not carry the calls, cut the fight, not the check on it.
 
 ## Files an implementation touches
 
-`tesbota/steps.py` (`step_fight`, `step_blows`, `STEPS`, `too_tired`, `deliver`),
-`tesbota/prompts.py` (`gm_blows`, `gm_turn`'s unfinished-fight block),
+`tesbota/steps.py` (`step_fight`, `step_swing`, `step_blows`, `STEPS`, `too_tired`,
+`deliver`), `tesbota/prompts.py` (`gm_blows`, `fight_open`, `fight_blow`, `gm_turn`'s
+unfinished-fight block),
 `tesbota/prompts/gm.md`, `tesbota/config.py`, `tesbota/state.py` (`campaign["fight"]`),
 `tesbota/driver.py` (`bury` clears it), `web/app/page.jsx` (`Blows`, `Pair`, `toll`),
 `web/app/globals.css`. Not `web/lib/store.js`.
