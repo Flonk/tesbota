@@ -390,7 +390,8 @@ def held(holder, name):
 
 def holdings(holder):
     rows = db.rows(
-        """SELECT h.item, h.qty, h.worn, e.name, e.about, i.type, i.weight
+        """SELECT h.item, h.qty, h.worn, e.name, e.about, i.type, i.weight,
+                  i.slot, i.rarity
              FROM holding h
              LEFT JOIN entity e ON e.id = h.item
              LEFT JOIN item i ON i.id = h.item
@@ -403,6 +404,8 @@ def holdings(holder):
             "item": r["item"],
             "name": r["name"] or r["item"].replace("-", " "),
             "type": r["type"],
+            "slot": r["slot"],
+            "rarity": r["rarity"],
             "about": r["about"] or "",
             "weight": r["weight"],
             "effects": powers.get(r["item"], []),

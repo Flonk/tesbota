@@ -6,7 +6,7 @@ import Kit, { Doll } from "./Kit";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
-import Data, { rare } from "./Data";
+import Data, { face, rare, tone } from "./Data";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Settings from "./Settings";
@@ -14,7 +14,7 @@ import Steer from "./Steer";
 import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
-import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tabs, Tag } from "./ui";
+import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Mark, Note, openDossier, Prose, Tabs, Tag } from "./ui";
 
 const PHASE = {
   explorer: "deciding",
@@ -180,30 +180,156 @@ const END = {
   broken: "it is not over",
 };
 
+function Health({ now, most, side }) {
+  const part = most > 0 ? Math.max(0, Math.min(1, now / most)) : 0;
+  return (
+    <span className={`hbar ${side}`}>
+      <span className="hfill" style={{ width: `${part * 100}%` }} />
+    </span>
+  );
+}
+
+function Corner({ name, now, most, side, children }) {
+  return (
+    <div className={`corner ${side}`}>
+      <p className="cornername">
+        <span>{name}</span>
+        <span className="cornerhp">
+          {now}/{most}
+        </span>
+      </p>
+      <Health now={now} most={most} side={side} />
+      <div className="cornerbody">{children}</div>
+    </div>
+  );
+}
+
+function Wears({ her }) {
+  return (
+    <>
+      {[...(her.worn || []), ...(her.kit || []).map((k) => ({ ...k, reach: true }))].map((w) => (
+        <p className={`statline${w.reach ? " reach" : ""}`} key={w.name}>
+          <span className="statslot">{w.reach ? "reach" : w.slot || w.type}</span>
+          <span className="statwhat">
+            <Mark name={face(w)} tone={tone(w.rarity) || "tint-common"}>
+              <span className={`statname ${tone(w.rarity)}`} title={w.name}>{w.name}</span>
+            </Mark>
+            {w.does && <span className="statdoes">{w.does}</span>}
+          </span>
+        </p>
+      ))}
+      <p className="statline">
+        <span className="statslot">rolls</span>
+        <span className="statwhat">
+          <span className="statname">{her.skill}</span>
+          <span className="statdoes">
+            {her.bonus >= 0 ? "+" : ""}
+            {her.bonus}
+            {her.fatigue >= 100 ? " · spent" : ""}
+            {her.hunger >= 100 ? " · starving" : ""}
+          </span>
+        </span>
+      </p>
+    </>
+  );
+}
+
+function Arena({ f, at }) {
+  const blow = at > 0 ? f.blows[at - 1] : null;
+  const her = f.her || {};
+  const mine = blow ? blow.explorer_health : her.health ?? 0;
+  const theirs = blow ? blow.enemy_health : f.began;
+  return (
+    <div className="arena">
+      <Corner name={her.name || "you"} now={mine} most={her.most || 100} side="you">
+        <Wears her={her} />
+      </Corner>
+      <Corner name={f.name} now={theirs} most={f.began} side="them">
+        {[["hits for", f.damage], ["to land", `dc ${f.dc}`], ["to escape", `dc ${f.flee_dc}`]].map(
+          ([what, said]) => (
+            <p className="statline" key={what}>
+              <span className="statslot">{what}</span>
+              <span className="statwhat">
+                <span className="statname">{said}</span>
+              </span>
+            </p>
+          )
+        )}
+      </Corner>
+    </div>
+  );
+}
+
 function Blows({ f }) {
+  const blows = f.blows || [];
+  const [at, setAt] = useState(blows.length);
+  const running = useRef(null);
+
+  // A fight still being rolled arrives a blow at a time, and the bars follow it.
+  // A fight already over opens settled, and is replayed only if asked.
+  useEffect(() => {
+    if (!running.current) setAt(blows.length);
+  }, [blows.length]);
+
+  const stop = () => {
+    clearInterval(running.current);
+    running.current = null;
+  };
+
+  const replay = () => {
+    stop();
+    setAt(0);
+    running.current = setInterval(() => {
+      setAt((n) => {
+        if (n >= blows.length) {
+          stop();
+          return n;
+        }
+        return n + 1;
+      });
+    }, 850);
+  };
+
+  useEffect(() => stop, []);
+
   return (
     <div className="fight">
-      <p className="cap fightwho">
-        {f.name} · {f.began} hp · {f.weapon} {f.weapon_damage} vs {f.damage}
-      </p>
-      {f.blows.map((b) => (
-        <div className={`blow ${b.hit ? "landed" : "taken"}`} key={b.n}>
-          <span className="blowno">{b.n}</span>
-          <span className="blowchose">{b.chose}</span>
-          {b.text && <Prose className="body told" text={b.text} />}
-          {b.check && <Check c={b.check} />}
-          <span className="blowtoll">
-            {b.dealt
-              ? `−${b.dealt} · ${b.enemy_health} left of it`
-              : b.taken
-                ? `−${b.taken} · ${b.explorer_health} left of you`
-                : `${b.explorer_health} left of you`}
-          </span>
-        </div>
-      ))}
-      <Note tone={f.ended === "beaten" || f.ended === "fled" ? "good" : "bad"}>
-        {END[f.ended] || "it is not over"}
-      </Note>
+      {f.said && <Prose className="body told" text={f.said} />}
+      <Arena f={f} at={at} />
+      {f.ended && blows.length > 1 && (
+        <button className="mkey replay" onClick={replay}>
+          play it back
+        </button>
+      )}
+      <div className="blows">
+        {f.blows.map((b, i) => (
+          <button
+            className={`blow ${b.hit ? "landed" : "taken"}${i < at ? " done" : " ahead"}`}
+            key={b.n}
+            onClick={() => {
+              stop();
+              setAt(i + 1);
+            }}
+          >
+            <span className="blowno">{b.n}</span>
+            <span className="blowchose">{b.chose}</span>
+            {b.text && <Prose className="body told" text={b.text} />}
+            {b.check && <Check c={b.check} />}
+            <span className="blowtoll">
+              {b.dealt
+                ? `−${b.dealt} · ${b.enemy_health} left of it`
+                : b.taken
+                  ? `−${b.taken} · ${b.explorer_health} left of you`
+                  : `${b.explorer_health} left of you`}
+            </span>
+          </button>
+        ))}
+      </div>
+      {f.ended && at >= blows.length && (
+        <Note tone={f.ended === "beaten" || f.ended === "fled" ? "good" : "bad"}>
+          {END[f.ended] || "it is not over"}
+        </Note>
+      )}
     </div>
   );
 }

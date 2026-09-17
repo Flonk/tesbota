@@ -842,3 +842,42 @@ textarea.prompt:focus { outline: none; }
 .blowno, .blowtoll { font: var(--mono); font-size: .72rem; color: var(--dim); letter-spacing: .06em; }
 .blowchose { font: var(--mono); font-size: .72rem; color: var(--gold); letter-spacing: .1em; }
 .blow .body { margin: 0; }
+
+.arena { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; align-items: start; }
+.corner { min-width: 0; border: 1px solid var(--line); border-radius: 2px; padding: .5rem .6rem; }
+.cornername {
+  display: flex; justify-content: space-between; gap: .5rem; margin: 0 0 .35rem;
+  font: var(--mono); letter-spacing: .08em; text-transform: uppercase; font-size: .74rem;
+}
+.corner.you .cornername { color: var(--gold); }
+.corner.them .cornername { color: var(--bad); }
+.cornerhp { color: var(--dim); }
+.hbar { display: block; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.hfill { display: block; height: 100%; transition: width .45s ease; }
+.hbar.you .hfill { background: var(--good); }
+.hbar.them .hfill { background: var(--bad); }
+.cornerbody { margin-top: .5rem; display: flex; flex-direction: column; gap: .18rem; }
+.statline {
+  display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); gap: .45rem; margin: 0;
+  align-items: baseline; min-width: 0;
+}
+.statslot {
+  font: var(--mono); font-size: .62rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--dim); white-space: nowrap;
+}
+.statwhat { min-width: 0; display: flex; flex-direction: column; gap: .05rem; }
+.statname { font-size: .8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.statdoes { font: var(--mono); font-size: .64rem; color: var(--dim); }
+.statline.reach .statslot { color: var(--place); }
+.corner { display: flex; flex-direction: column; }
+.blows { display: flex; flex-direction: column; gap: .6rem; }
+.blow {
+  width: 100%; text-align: left; background: none; cursor: pointer;
+  display: flex; flex-direction: column; gap: .25rem;
+  border: 0; border-left: 1px solid var(--line); padding: .1rem 0 .1rem .8rem;
+}
+.blow.ahead { opacity: .32; }
+.blow.landed { border-left-color: var(--good); }
+.blow.taken { border-left-color: var(--bad); }
+
+.replay { align-self: flex-start; }

@@ -34,7 +34,7 @@ from .config import (
     TRIVIAL_MINUTES,
 )
 from .sdk import ask, extract_json
-from .state import pending_death, record_death
+from .state import explorer_name, pending_death, record_death
 
 
 def phase(turn, who, kind, text, **extra):
@@ -505,8 +505,37 @@ def open_fight(campaign, turn, draft):
         "began": int(said.get("health") or held.get("health") or 10),
         "blows": [],
     }
+    fight["said"] = (draft.get("narration") or "").strip()
+    fight["her"] = standing_in(campaign, fight)
     turn["fight"] = fight
     return fight
+
+
+def standing_in(campaign, fight):
+    """Who they were when the fight opened — what they wore, what they could reach
+    for, what they were good at. A fight is read long after it happened, and it
+    should read as it stood, not as they stand now."""
+    vitals = campaign.get("vitals") or {}
+    kept = canon.holdings(EXPLORER)
+    return {
+        "name": explorer_name(campaign),
+        "health": vitals.get("health", MAX_HEALTH),
+        "most": MAX_HEALTH,
+        "fatigue": vitals.get("fatigue", 0),
+        "hunger": vitals.get("hunger", 0),
+        "worn": [
+            {"name": h["name"], "slot": h.get("slot"), "type": h.get("type"),
+             "rarity": h.get("rarity"), "does": canon.does(h.get("effects"))}
+            for h in kept if h.get("worn")
+        ],
+        "kit": [
+            {"name": h["name"], "qty": h.get("qty"), "type": h.get("type"),
+             "rarity": h.get("rarity"), "does": canon.does(h.get("effects"))}
+            for h in kept if not h.get("worn")
+        ],
+        "skill": fight["skill"],
+        "bonus": sheet.skill_bonus(campaign, fight["skill"]) or 0,
+    }
 
 
 def step_swing(campaign, turn):
