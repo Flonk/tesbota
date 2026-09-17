@@ -183,13 +183,15 @@ BLOWS = """The fight has been rolled. They chose each of these, and this is what
 
 It ended: {ended}
 
-Write what the fight was like — two or three sentences for the whole of it, second person, present tense. Not a line a blow: the numbers are already on the page and nobody wants them read back. Give the shape of it — where it turned, what it cost, how it finished — and let the tally speak for itself.
+Write one line for each numbered blow, in that order, second person, present tense. One line is shown at a time, above the fight, and it changes as the fight moves — so each has to stand on its own, and none may lean on the one before it. A clause or a short sentence. This is a fight, not a chapter.
 
-What they chose is theirs, not yours. If they reached for something or tried to run, that is part of the shape and belongs in it.
+What they chose is theirs, not yours — narrate the choice they made, not the one you would have made for them. A landed blow lands and a missed one costs them. Do not soften a hit, do not add a blow, do not take one away, and do not say how it ends before the last line.
 
-Reply in the same json shape you always use:
+Never write the tallies out. The numbers are on the page beside your line, and a sentence ending "5 left in it" says twice what it is worth. Write what it looked like.
 
-    {{"narration": "…", "claims": [], "location": "kebab-id",
+Reply in the same json shape you always use, with `blows` in place of `narration`:
+
+    {{"blows": ["…", "…"], "claims": [], "location": "kebab-id",
      "transactions": [], "quest_open": [], "quest_update": [], "quest_close": []}}
 
 `minutes`, `fatigue`, `health`, `check` and `fight` are not yours this time — the fight already cost what it cost. `transactions` still are: what comes off a body, what breaks, what is dropped."""

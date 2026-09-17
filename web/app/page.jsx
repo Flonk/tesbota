@@ -267,7 +267,7 @@ function Arena({ f, at, ended }) {
   );
 }
 
-function Blows({ f, text }) {
+function Blows({ f }) {
   const blows = f.blows || [];
   const [at, setAt] = useState(blows.length);
   const running = useRef(null);
@@ -301,7 +301,9 @@ function Blows({ f, text }) {
 
   return (
     <div className="fight">
-      {(text || f.said) && <Prose className="body told" text={text || f.said} />}
+      <p className="fightline">
+        <Prose as="span" text={(at > 0 ? blows[at - 1]?.text : "") || f.said || ""} />
+      </p>
       <Arena f={f} at={at} ended={f.ended} />
       {f.ended && blows.length > 1 && (
         <button className="mkey replay" onClick={replay}>
@@ -324,7 +326,7 @@ function Pair({ said, told }) {
         <Outcomes rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
       )}
       {told?.fight ? (
-        <Blows f={told.fight} text={told.text} />
+        <Blows f={told.fight} />
       ) : told?.text ? (
         <Prose className="body told" text={told.text} />
       ) : (
@@ -340,7 +342,7 @@ function Alone({ x }) {
   return (
     <Block kind={x.kind} label={label.length ? label.join(" · ") : GM_LABEL[x.kind]}>
       {x.fight ? (
-        <Blows f={x.fight} text={x.text} />
+        <Blows f={x.fight} />
       ) : x.text ? (
         <Prose className="body told" text={x.text} />
       ) : (

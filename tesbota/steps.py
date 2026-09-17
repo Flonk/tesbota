@@ -643,11 +643,15 @@ def step_blows(campaign, turn):
     )
     campaign["sessions"]["gm"] = session
     out = extract_json(text)
-    account = str(out.get("narration") or "").strip()
+    lines = [str(x).strip() for x in (out.get("blows") or []) if str(x).strip()]
+    for blow, said in zip(fight["blows"], lines):
+        blow["text"] = said
 
+    # The book keeps the whole of it; the page above the fight shows one line at
+    # a time, and takes them from the blows themselves.
     draft = turn["draft"]
     draft["narration"] = "\n\n".join(
-        x for x in (fight.get("said"), account) if x
+        x for x in [fight.get("said"), *lines] if x
     ).strip()
     draft["claims"] = out.get("claims") or []
     draft["location"] = out.get("location") or draft.get("location")

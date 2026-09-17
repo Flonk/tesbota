@@ -872,3 +872,8 @@ textarea.prompt:focus { outline: none; }
 .ended.beaten, .ended.fled { color: var(--good); }
 .ended.killed { color: var(--bad); }
 .ended.broken { color: var(--warn); }
+
+.fightline {
+  margin: 0; min-height: 3.2em; display: flex; align-items: center;
+  font-size: .95rem; line-height: 1.5;
+}
