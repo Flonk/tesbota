@@ -45,6 +45,14 @@ const CONTAINS = {
   ],
 };
 
+const MARKS = {
+  cols: "minmax(8rem, 2fr) minmax(5rem, 1fr)",
+  fields: [
+    { key: "name", label: "marked", strong: true, cell: (r) => r.name },
+    { key: "kind", label: "kind", dim: true, cell: (r) => r.kind || <Stub /> },
+  ],
+};
+
 const LIVES = {
   cols: "minmax(9rem, 2fr) minmax(6rem, 1.2fr)",
   fields: [
@@ -109,7 +117,7 @@ const HELD_BY = {
   ],
 };
 
-const KIND = { people: "person", places: "pin", books: "book", items: "box" };
+const KIND = { people: "person", places: "pin", books: "book", items: "box", aspects: "aspect" };
 
 function face_of(thing) {
   if (!thing) return null;
@@ -344,6 +352,33 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                   <Empty>nothing describes it yet</Empty>
                 )}
               </Section>
+            )}
+
+            {(thing.aspects || []).length > 0 && (
+              <Section label="aspects">
+                <div className="dtraits">
+                  {thing.aspects.map((a) => (
+                    <button
+                      className="toggle pill"
+                      key={`${a.aspect}-${a.value || ""}`}
+                      title={a.applies === "within" ? `only within ${a.ofName || a.value}` : a.name}
+                      onClick={() => openDossier(a.aspect)}
+                    >
+                      {a.name}
+                      {a.value ? `: ${a.ofName || a.value}` : ""}
+                    </button>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {thing.kind === "aspects" && (
+              <Table
+                {...MARKS}
+                rows={(thing.marks || []).map((m) => ({ ...m, id: m.entity }))}
+                onOpen={openDossier}
+                empty="nothing carries this"
+              />
             )}
 
             {thing.kind === "people" && <Traits person={thing.person} />}

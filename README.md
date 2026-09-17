@@ -184,6 +184,8 @@ item(id, type, weight, worth, owed_by, rarity, slot)
                                                 weight in stone, for one of them;
                                                 slot: where it is worn or held, or none
 effect(item, stat, amount)                      what a thing does, a row per stat
+aspect(id, applies, ability)                    a mark anything can carry
+tagged(entity, aspect, value)                   who carries it, and what of
 holding(holder, item, qty, worn)                what a place, a person or the explorer keeps
 
 writing(ref, entity, kind, section, body)       every passage, with its address

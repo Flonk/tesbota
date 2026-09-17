@@ -211,6 +211,7 @@ function Tile({ who, now, down, acting, side }) {
     ...(power ? [[power.name, says]] : []),
   ];
   const rest = ours ? [] : [["to hit", `dc ${who.dc}`]];
+  const marks = who.aspects || [];
   return (
     <div className={`tile ${side}${acting ? " acting" : ""}${down ? " down" : ""}`}>
       <div className="tilepart">
@@ -232,8 +233,18 @@ function Tile({ who, now, down, acting, side }) {
         ))}
       </div>
 
-      {rest.length > 0 && (
+      {(rest.length > 0 || marks.length > 0) && (
         <div className="tilepart">
+          {marks.length > 0 && (
+            <div className="dtraits">
+              {marks.map((m) => (
+                <span className="toggle pill flat" key={`${m.name}-${m.value || ""}`}>
+                  {m.name}
+                  {m.value ? `: ${m.of || m.value}` : ""}
+                </span>
+              ))}
+            </div>
+          )}
           {rest.map(([what, said]) => (
             <p className="statline" key={what}>
               <span className="statslot">{what}</span>
@@ -461,10 +472,10 @@ function Turn({ s, last, blocked, vitals }) {
   );
 }
 
-const KINDS = ["places", "people", "books", "items"];
+const KINDS = ["places", "people", "books", "items", "aspects"];
 const REMEMBER = "tesbota.sub";
 
-const ICONS = { places: "pin", people: "people", books: "book", items: "box" };
+const ICONS = { places: "pin", people: "people", books: "book", items: "box", aspects: "aspect" };
 
 const LAYER_ICON = {
   common: "lines",

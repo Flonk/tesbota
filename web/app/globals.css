@@ -903,3 +903,6 @@ textarea.prompt:focus { outline: none; }
 .tilepart { padding: .45rem .6rem; display: flex; flex-direction: column; gap: .18rem; }
 .tilepart + .tilepart { border-top: 1px solid var(--line); }
 .tile.down .tilepart + .tilepart { display: none; }
+
+.pill.flat { cursor: default; }
+.pill.flat:hover { border-color: var(--line); }

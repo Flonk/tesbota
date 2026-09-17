@@ -241,6 +241,7 @@ const ROWS = `
          (SELECT count(*) FROM way x WHERE x.src = e.id) AS exits,
          (SELECT count(*) FROM holding h WHERE h.holder = e.id) AS keeps,
          (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
+         (SELECT count(*) FROM tagged tg WHERE tg.aspect = e.id) AS marks,
          (SELECT count(*) FROM book b WHERE b.author_id = e.id) AS wrote,
          (SELECT pr.work FROM person pr WHERE pr.id = e.id) AS work,
          (SELECT pr.born FROM person pr WHERE pr.id = e.id) AS born,
@@ -302,7 +303,7 @@ export function entities(kind) {
     });
     if (kind) return rows.all(kind).map(shape);
     const out = {};
-    for (const k of ["places", "people", "items"]) out[k] = rows.all(k).map(shape);
+    for (const k of ["places", "people", "items", "aspects"]) out[k] = rows.all(k).map(shape);
     return out;
   } finally {
     db.close();
@@ -450,6 +451,29 @@ export function entity(id) {
         : null;
       bundle.passages = db
         .prepare(`SELECT ord, text FROM passage WHERE book_id = ? ORDER BY ord`)
+        .all(ident);
+    }
+
+    bundle.aspects = db
+      .prepare(
+        `SELECT t.aspect, t.value,
+                coalesce(e.name, replace(t.aspect, '-', ' ')) AS name,
+                (SELECT ve.name FROM entity ve WHERE ve.id = t.value) AS ofName,
+                a.applies
+           FROM tagged t
+           LEFT JOIN entity e ON e.id = t.aspect
+           LEFT JOIN aspect a ON a.id = t.aspect
+          WHERE t.entity = ? ORDER BY t.id`
+      )
+      .all(ident);
+
+    if (row.kind === "aspects") {
+      bundle.marks = db
+        .prepare(
+          `SELECT t.entity, t.value, coalesce(e.name, replace(t.entity, '-', ' ')) AS name, e.kind
+             FROM tagged t LEFT JOIN entity e ON e.id = t.entity
+            WHERE t.aspect = ? ORDER BY t.entity`
+        )
         .all(ident);
     }
 

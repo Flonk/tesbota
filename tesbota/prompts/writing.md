@@ -82,6 +82,20 @@ What a thing does is rows in `effect`, one for each stat it moves, and the amoun
 
 There is no fixed list of stats. `damage`, `protection`, `health` and `hunger` are the ones already in use; name any other the way a reader would say it, and never add a column for one. A consumable is single use, so nothing counts uses.
 
+## Aspects
+
+An aspect is a mark anything can carry, and it is an entity like any other — `citizen`, `sworn`, `cursed`. What it is goes in its own `about`; what it is worth goes on the aspect, not on everybody wearing it.
+
+    INSERT INTO entity (id, kind, name) VALUES ('citizen', 'aspects', 'citizen');
+    INSERT INTO aspect (id, applies, ability) VALUES ('citizen', 'within', NULL);
+    INSERT INTO tagged (entity, aspect, value) VALUES
+      ('greta-marsch', 'citizen', 'alheim'),
+      ('jost-marsch', 'citizen', 'alheim');
+
+`value` is what the aspect is *of* — the place a citizen belongs to, the house somebody is sworn into — and it is usually an entity id. `applies` says when the aspect's `ability` counts: `always`, or `within`, which means only while standing inside the place named in `value`. `ability` is a fight ability in json, written the way the game master writes one, and it is what makes an aspect bite: raise a hand to a citizen of Alheim inside Alheim and the aspect calls the guard.
+
+Mark a thing when the marking is a fact about it, not a mood. A miller is a `person.work`; a citizen is an aspect, because the place has a claim on them.
+
 `item.slot` is where a thing sits on a body: `helmet`, `chest`, `legs`, `feet`, `mainhand`, `offhand` or `ring`, and nothing else. Anything neither worn nor held in a hand simply has none.
 
 You write for the shelf, not for anyone who might walk through the places you describe.

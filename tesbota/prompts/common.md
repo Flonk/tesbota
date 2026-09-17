@@ -3,7 +3,8 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     sqlite3 -readonly canon.db "SELECT ..."
 
     entity(id, kind, name, introduced, extent, about, made, changed)
-                                                       kind: people | places | books | items
+                                                       kind: people | places | books |
+                                                       items | aspects
                                                        made/changed: when the record was written,
                                                        kept for you — never write to them
     book(id, author, author_id, written, rarity)       author_id when the author has a row
@@ -18,6 +19,8 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
                                                        slot: helmet | chest | legs | feet |
                                                        mainhand | offhand | ring, or none
     effect(item, stat, amount)                         what a thing does, a row per stat
+    aspect(id, applies, ability)                       a mark things can carry
+    tagged(entity, aspect, value)                      who carries it, and what of
     holding(holder, item, qty, worn)                   what a place, a person or the explorer keeps
 
     writing(ref, entity, kind, section, body)          every passage, with its address
