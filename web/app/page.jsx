@@ -221,8 +221,8 @@ function Tile({ who, now, down, acting, side }) {
     ? [
         power.damage ? `${power.damage} dmg` : null,
         power.spawn ? `calls a ${power.spawn.name}` : null,
-        power.advantage ? "two dice" : null,
-        power.cooldown ? `every ${power.cooldown}` : power.spawn ? "once" : null,
+        power.advantage ? "advantage" : null,
+        power.cooldown ? `cooldown ${power.cooldown}` : power.spawn ? "once" : null,
         power.sleep ? `then still ${power.sleep}` : null,
       ]
         .filter(Boolean)
