@@ -1,0 +1,752 @@
+{
+  "turn_id": "t0005",
+  "state": "done",
+  "created": "2026-09-17T12:03:14+00:00",
+  "action": "I keep running, and don't look back again.",
+  "draft": null,
+  "verdicts": [],
+  "correction": null,
+  "gm_retries": 0,
+  "gap": null,
+  "wake_at": null,
+  "minutes": 2,
+  "phases": [
+    {
+      "n": 1,
+      "who": "explorer",
+      "kind": "action",
+      "text": "I keep running, and don't look back again.",
+      "status": "said",
+      "claims": []
+    },
+    {
+      "n": 2,
+      "who": "gm",
+      "kind": "fight",
+      "text": "You don't look back, but the Nest Warden doesn't need you to — it closes the gap on the open road, and its jaws snap shut on empty air where you should have been standing, as if something with shoulder and weight had shouldered you half a step aside.\n\nYou swing the cane at the Nest Warden and it's already twisting clear, the blow finding nothing.\n\nIt closes the last of the distance in one lunge and its jaws close over your side, the impact taking your footing out from under you and slamming you into the road.\n\nYou wrench yourself back up before it can strike again and you don't stop running.",
+      "status": "checked",
+      "claims": [
+        {
+          "id": "c1",
+          "text": "a Nest Warden exists",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c1",
+            "result": "TRUE",
+            "why": "named and acting directly in the scene",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c2",
+          "text": "a road runs through the Greater Plains",
+          "entity": "the-greater-plains",
+          "kind": "places",
+          "verdict": {
+            "claim": "c2",
+            "result": "TRUE",
+            "why": "The Greater Plains' own record describes a surveyed road strung across it, and the Road sits inside it as its location",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://places/the-greater-plains",
+              "bota://places/the-road"
+            ]
+          }
+        },
+        {
+          "id": "c3",
+          "text": "a cane exists",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c3",
+            "result": "TRUE",
+            "why": "the Walking Cane is a recorded item",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://items/walking-cane"
+            ]
+          }
+        },
+        {
+          "id": "c4",
+          "text": "a Nest Warden can catch and bite a person fleeing from it",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c4",
+            "result": "WITHIN_BOUNDS",
+            "why": "follows from it closing the distance on a running person and its jaws taking hold",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c5",
+          "text": "a person swung a cane at the Nest Warden",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c5",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c6",
+          "text": "the Nest Warden twisted clear of the cane",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c6",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c7",
+          "text": "the Nest Warden's jaws snapped shut on empty air",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c7",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c8",
+          "text": "the Nest Warden closed the distance in a lunge",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c8",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c9",
+          "text": "the Nest Warden's jaws closed over a person's side",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c9",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c10",
+          "text": "the impact took a person's footing out from under them",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c10",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c11",
+          "text": "a person was slammed into the road",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c11",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c12",
+          "text": "a person got back up",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c12",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c13",
+          "text": "a person ran",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c13",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        }
+      ],
+      "redrafts": 1,
+      "fight": {
+        "skill": "athletics",
+        "flee_dc": 10,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "kind": "explorer",
+            "health": 45,
+            "most": 100,
+            "damage": "1–2",
+            "weapon": "Walking Cane",
+            "dc": 11,
+            "bonus": 0,
+            "skill": "athletics",
+            "ability": null,
+            "asleep": 0,
+            "dead": false,
+            "fatigue": 98,
+            "hunger": 2,
+            "worn": [
+              {
+                "id": "explorers-cap",
+                "name": "Explorer's Cap",
+                "slot": "helmet",
+                "type": "apparel",
+                "rarity": "uncommon",
+                "does": ""
+              },
+              {
+                "id": "linen-shirt",
+                "name": "Linen Shirt",
+                "slot": "chest",
+                "type": "apparel",
+                "rarity": "common",
+                "does": "2 protection"
+              },
+              {
+                "id": "wool-leggings",
+                "name": "Wool Leggings",
+                "slot": "legs",
+                "type": "apparel",
+                "rarity": "common",
+                "does": "1 protection"
+              },
+              {
+                "id": "walking-boots",
+                "name": "Walking Boots",
+                "slot": "feet",
+                "type": "apparel",
+                "rarity": "common",
+                "does": "1 protection"
+              },
+              {
+                "id": "walking-cane",
+                "name": "Walking Cane",
+                "slot": "mainhand",
+                "type": "weapon",
+                "rarity": "common",
+                "does": "1–2 damage"
+              }
+            ]
+          }
+        ],
+        "them": [
+          {
+            "id": "nest-warden",
+            "name": "the Nest Warden",
+            "kind": "foe",
+            "health": 18,
+            "most": 18,
+            "damage": "2–4",
+            "dc": 12,
+            "bonus": 2,
+            "skill": null,
+            "ability": {
+              "name": "lunging bite",
+              "damage": "10",
+              "advantage": true,
+              "cooldown": 3
+            },
+            "asleep": 0,
+            "cool": 3,
+            "dead": false
+          }
+        ],
+        "turn": 1,
+        "round": 2,
+        "ended": "fled",
+        "blows": [
+          {
+            "n": 1,
+            "round": 1,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 12,
+              "roll": 3,
+              "rolls": [
+                3
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 3,
+              "passed": false
+            },
+            "text": "You swing the cane at the Nest Warden and it's already twisting clear, the blow finding nothing.",
+            "at": "nest-warden",
+            "atname": "the Nest Warden",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 55,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "nest-warden",
+                "health": 18,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 2,
+            "round": 1,
+            "who": "nest-warden",
+            "name": "the Nest Warden",
+            "side": "them",
+            "chose": "lunging bite",
+            "hit": true,
+            "dealt": 0,
+            "taken": 10,
+            "check": {
+              "skill": "a swing",
+              "dc": 11,
+              "roll": 14,
+              "rolls": [
+                14,
+                13
+              ],
+              "for": [
+                "the better of two"
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 16,
+              "passed": true
+            },
+            "text": "It closes the last of the distance in one lunge and its jaws close over your side, the impact taking your footing out from under you and slamming you into the road.",
+            "at": "the-explorer-debug",
+            "atname": "Swantje Bota",
+            "left": 45,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 45,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "nest-warden",
+                "health": 18,
+                "dead": false
+              }
+            ]
+          },
+          {
+            "n": 3,
+            "round": 2,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "FLEE",
+            "hit": true,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 10,
+              "roll": 11,
+              "rolls": [
+                11
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 11,
+              "passed": true
+            },
+            "text": "You wrench yourself back up before it can strike again and you don't stop running.",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 45,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "nest-warden",
+                "health": 18,
+                "dead": false
+              }
+            ]
+          }
+        ],
+        "said": "You don't look back, but the Nest Warden doesn't need you to — it closes the gap on the open road, and its jaws snap shut on empty air where you should have been standing, as if something with shoulder and weight had shouldered you half a step aside.",
+        "name": "the Nest Warden"
+      }
+    }
+  ],
+  "note": "The Nest Warden has run her down on the open road — there is no getting away this time and nothing to fight it with but the cane. Declare the fight now, do not narrate it. them: the Nest Warden (18 health, 2-4 damage, dc 12, bonus 2) with ability name 'lunging bite', damage 10, advantage true, cooldown 3. athletics, their_dc 11, flee_dc 10.",
+  "answers": [],
+  "proposal": {
+    "summary": "You keep sprinting without looking back, trying to outrun the Nest Warden with nothing but the cane in hand.",
+    "target": null,
+    "minutes": 1,
+    "fatigue": 2
+  },
+  "outcomes": [
+    {
+      "band": "common",
+      "text": "The Warden's lunging bite catches you across the back before you can turn, and the running is over — the fight is on you.",
+      "p": 0.35
+    },
+    {
+      "band": "common",
+      "text": "You twist at the last instant and take the bite on your raised cane-arm instead, but there's no more road left to run — you're in it now.",
+      "p": 0.35
+    },
+    {
+      "band": "uncommon",
+      "text": "Your legs give out from under you mid-stride as the Warden closes, and you come up onto one knee with the cane already swinging.",
+      "p": 0.18
+    },
+    {
+      "band": "rare",
+      "text": "The line of paw-prints beside you pulls suddenly taut, like something on the other end of a leash, and the Warden's lunge hitches half a step before it's on you.",
+      "p": 0.08
+    },
+    {
+      "band": "epic",
+      "text": "For an instant the prints beside you deepen into something with weight and shoulder, and the Warden's bite closes on the space where you should have been standing.",
+      "p": 0.03
+    },
+    {
+      "band": "legendary",
+      "text": "You feel, unmistakably, a wet nose shove your leg sideways a half-step before the teeth would have found it, and something that isn't there anymore hauls you clear as the Warden lunges through empty air.",
+      "p": 0.01
+    }
+  ],
+  "fortune": 0.09858018860482365,
+  "chosen": {
+    "band": "epic",
+    "text": "For an instant the prints beside you deepen into something with weight and shoulder, and the Warden's bite closes on the space where you should have been standing.",
+    "p": 0.03
+  },
+  "forced_strange": true,
+  "confirmed": true,
+  "pressed": false,
+  "fight": {
+    "skill": "athletics",
+    "flee_dc": 10,
+    "us": [
+      {
+        "id": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "kind": "explorer",
+        "health": 45,
+        "most": 100,
+        "damage": "1–2",
+        "weapon": "Walking Cane",
+        "dc": 11,
+        "bonus": 0,
+        "skill": "athletics",
+        "ability": null,
+        "asleep": 0,
+        "dead": false,
+        "fatigue": 98,
+        "hunger": 2,
+        "worn": [
+          {
+            "id": "explorers-cap",
+            "name": "Explorer's Cap",
+            "slot": "helmet",
+            "type": "apparel",
+            "rarity": "uncommon",
+            "does": ""
+          },
+          {
+            "id": "linen-shirt",
+            "name": "Linen Shirt",
+            "slot": "chest",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "2 protection"
+          },
+          {
+            "id": "wool-leggings",
+            "name": "Wool Leggings",
+            "slot": "legs",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "1 protection"
+          },
+          {
+            "id": "walking-boots",
+            "name": "Walking Boots",
+            "slot": "feet",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "1 protection"
+          },
+          {
+            "id": "walking-cane",
+            "name": "Walking Cane",
+            "slot": "mainhand",
+            "type": "weapon",
+            "rarity": "common",
+            "does": "1–2 damage"
+          }
+        ]
+      }
+    ],
+    "them": [
+      {
+        "id": "nest-warden",
+        "name": "the Nest Warden",
+        "kind": "foe",
+        "health": 18,
+        "most": 18,
+        "damage": "2–4",
+        "dc": 12,
+        "bonus": 2,
+        "skill": null,
+        "ability": {
+          "name": "lunging bite",
+          "damage": "10",
+          "advantage": true,
+          "cooldown": 3
+        },
+        "asleep": 0,
+        "cool": 3,
+        "dead": false
+      }
+    ],
+    "turn": 1,
+    "round": 2,
+    "ended": "fled",
+    "blows": [
+      {
+        "n": 1,
+        "round": 1,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 3,
+          "passed": false
+        },
+        "text": "You swing the cane at the Nest Warden and it's already twisting clear, the blow finding nothing.",
+        "at": "nest-warden",
+        "atname": "the Nest Warden",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 55,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "nest-warden",
+            "health": 18,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 2,
+        "round": 1,
+        "who": "nest-warden",
+        "name": "the Nest Warden",
+        "side": "them",
+        "chose": "lunging bite",
+        "hit": true,
+        "dealt": 0,
+        "taken": 10,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 14,
+          "rolls": [
+            14,
+            13
+          ],
+          "for": [
+            "the better of two"
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 16,
+          "passed": true
+        },
+        "text": "It closes the last of the distance in one lunge and its jaws close over your side, the impact taking your footing out from under you and slamming you into the road.",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 45,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 45,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "nest-warden",
+            "health": 18,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 3,
+        "round": 2,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "FLEE",
+        "hit": true,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 11,
+          "rolls": [
+            11
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 11,
+          "passed": true
+        },
+        "text": "You wrench yourself back up before it can strike again and you don't stop running.",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 45,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "nest-warden",
+            "health": 18,
+            "dead": false
+          }
+        ]
+      }
+    ],
+    "said": "You don't look back, but the Nest Warden doesn't need you to — it closes the gap on the open road, and its jaws snap shut on empty air where you should have been standing, as if something with shoulder and weight had shouldered you half a step aside.",
+    "name": "the Nest Warden"
+  },
+  "check": null,
+  "roll": 353,
+  "rolled": true,
+  "fate": null,
+  "facts": [
+    "a Nest Warden exists",
+    "a road runs through the Greater Plains of Terra",
+    "something shouldered a person half a step aside on the road",
+    "the Nest Warden's jaws snapped shut on empty air",
+    "a cane exists",
+    "a person swung a cane at the Nest Warden",
+    "the Nest Warden twisted clear of the cane",
+    "the Nest Warden closed the distance in a lunge",
+    "the Nest Warden's jaws closed over a person's side",
+    "the impact took a person's footing out from under them",
+    "a person was slammed into the road",
+    "a person got back up",
+    "a person ran"
+  ],
+  "at": "Firstday, 1st of Frostfall, 4E202, 13:41",
+  "location_path": [
+    {
+      "id": "terra",
+      "name": "Terra"
+    },
+    {
+      "id": "the-greater-plains",
+      "name": "The Greater Plains"
+    },
+    {
+      "id": "the-road",
+      "name": "The Road"
+    }
+  ],
+  "vitals": {
+    "health": 0,
+    "fatigue": 100,
+    "hunger": 2
+  },
+  "quest": null,
+  "resolved": true,
+  "ready": "I stay up and keep running, cane in hand.",
+  "delivered": true,
+  "chronicle": [
+    {
+      "ord": 6,
+      "text": "You don't look back, but the Nest Warden doesn't need you to — it closes the gap on the open road, and its jaws snap shut on empty air where you should have been standing, as if something with shoulder and weight had shouldered you half a step aside. You swing the cane at the Nest Warden and it's already twisting clear, the blow finding nothing. It closes the last of the distance in one lunge and its jaws close over your side, the impact taking your footing out from under you and slamming you into [the road](bota://places/the-road). You wrench yourself back up before it can strike again and you don't stop running."
+    }
+  ]
+}

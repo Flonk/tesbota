@@ -229,9 +229,9 @@ function Tile({ who, now, down, acting, side }) {
         .join(" · ")
     : null;
   const rows = [
-    ["attack", `${who.damage} dmg`],
-    ...(power ? [[power.name, says]] : []),
-    ...(ours ? [] : [["to hit", `dc ${who.dc}`]]),
+    ["attack", `${who.damage} dmg`, false],
+    ...(power ? [[power.name, says, true]] : []),
+    ...(ours ? [] : [["to hit", `dc ${who.dc}`, false]]),
   ];
   return (
     <div className={`tile ${side}${acting ? " acting" : ""}${down ? " down" : ""}`}>
@@ -248,11 +248,11 @@ function Tile({ who, now, down, acting, side }) {
           </>
         )}
         <p className="cap tilecap">abilities</p>
-        {rows.map(([what, said]) => (
-          <p className="statline" key={what}>
+        {rows.map(([what, said, stacked]) => (
+          <p className={`statline${stacked ? " stacked" : ""}`} key={what}>
             <span className="statslot">{what}</span>
             <span className="statwhat">
-              <span className="statname">{said}</span>
+              <span className={stacked ? "statdoes" : "statname"}>{said}</span>
             </span>
           </p>
         ))}

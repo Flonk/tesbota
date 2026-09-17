@@ -836,10 +836,12 @@ textarea.prompt:focus { outline: none; }
 
 .arena { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; align-items: start; }
 .cornername {
-  display: flex; justify-content: space-between; gap: .5rem; margin: 0 0 .35rem;
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: .5rem; margin: 0 0 .35rem;
   font: var(--mono); letter-spacing: .08em; text-transform: uppercase; font-size: .74rem;
 }
-.cornerhp { color: var(--dim); }
+.cornername > :first-child { min-width: 0; overflow-wrap: anywhere; }
+.cornerhp { color: var(--dim); flex: 0 0 auto; white-space: nowrap; }
 .hbar { display: block; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
 .hfill { display: block; height: 100%; transition: width .45s ease; }
 .hbar.them .hfill { background: var(--bad); }
@@ -896,3 +898,6 @@ textarea.prompt:focus { outline: none; }
 .pill .mark { min-width: 0; }
 .pill .mark > :last-child { overflow: hidden; text-overflow: ellipsis; }
 .pill:hover { border-color: var(--gold); }
+
+.statline.stacked { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: .15rem; }
+.statline.stacked .statslot { color: var(--gold); white-space: normal; }
