@@ -229,7 +229,7 @@ function Tile({ who, now, down, acting, side }) {
         .join(" · ")
     : null;
   const rows = [
-    ["attack", `${who.damage} dmg`, false],
+    ["attack", `${who.damage} dmg`, true],
     ...(power ? [[power.name, says, true]] : []),
     ...(ours ? [] : [["to hit", `dc ${who.dc}`, false]]),
   ];
