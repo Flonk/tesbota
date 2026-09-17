@@ -234,13 +234,20 @@ function Wears({ her }) {
   );
 }
 
-function Arena({ f, at }) {
+function Arena({ f, at, ended }) {
   const blow = at > 0 ? f.blows[at - 1] : null;
   const her = f.her || {};
   const mine = blow ? blow.explorer_health : her.health ?? 0;
   const theirs = blow ? blow.enemy_health : f.began;
+  const over = ended && at >= (f.blows || []).length;
   return (
     <div className="arena">
+      {over && (
+        <p className={`ended ${ended}`}>
+          {END[ended] || "it is not over"}
+          {ended === "broken" ? ` — ${f.name} keeps ${f.health}` : ""}
+        </p>
+      )}
       <Corner name={her.name || "you"} now={mine} most={her.most || 100} side="you">
         <Wears her={her} />
       </Corner>
@@ -260,7 +267,7 @@ function Arena({ f, at }) {
   );
 }
 
-function Blows({ f }) {
+function Blows({ f, text }) {
   const blows = f.blows || [];
   const [at, setAt] = useState(blows.length);
   const running = useRef(null);
@@ -294,8 +301,8 @@ function Blows({ f }) {
 
   return (
     <div className="fight">
-      {f.said && <Prose className="body told" text={f.said} />}
-      <Arena f={f} at={at} />
+      {(text || f.said) && <Prose className="body told" text={text || f.said} />}
+      <Arena f={f} at={at} ended={f.ended} />
       {f.ended && blows.length > 1 && (
         <button className="mkey replay" onClick={replay}>
           play it back
@@ -313,7 +320,6 @@ function Blows({ f }) {
           >
             <span className="blowno">{b.n}</span>
             <span className="blowchose">{b.chose}</span>
-            {b.text && <Prose className="body told" text={b.text} />}
             {b.check && <Check c={b.check} />}
             <span className="blowtoll">
               {b.dealt
@@ -325,11 +331,7 @@ function Blows({ f }) {
           </button>
         ))}
       </div>
-      {f.ended && at >= blows.length && (
-        <Note tone={f.ended === "beaten" || f.ended === "fled" ? "good" : "bad"}>
-          {END[f.ended] || "it is not over"}
-        </Note>
-      )}
+
     </div>
   );
 }
@@ -345,7 +347,7 @@ function Pair({ said, told }) {
         <Outcomes rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
       )}
       {told?.fight ? (
-        <Blows f={told.fight} />
+        <Blows f={told.fight} text={told.text} />
       ) : told?.text ? (
         <Prose className="body told" text={told.text} />
       ) : (
@@ -361,7 +363,7 @@ function Alone({ x }) {
   return (
     <Block kind={x.kind} label={label.length ? label.join(" · ") : GM_LABEL[x.kind]}>
       {x.fight ? (
-        <Blows f={x.fight} />
+        <Blows f={x.fight} text={x.text} />
       ) : x.text ? (
         <Prose className="body told" text={x.text} />
       ) : (

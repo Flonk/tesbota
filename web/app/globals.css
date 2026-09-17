@@ -881,3 +881,13 @@ textarea.prompt:focus { outline: none; }
 .blow.taken { border-left-color: var(--bad); }
 
 .replay { align-self: flex-start; }
+
+.ended {
+  grid-column: 1 / -1; margin: 0; text-align: center;
+  font: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+  padding: .3rem 0; border-bottom: 1px solid var(--line);
+}
+.ended.beaten, .ended.fled { color: var(--good); }
+.ended.killed { color: var(--bad); }
+.ended.broken { color: var(--warn); }
+.blow { gap: .35rem; }
