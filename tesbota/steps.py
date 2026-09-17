@@ -565,14 +565,10 @@ def standing_in(campaign, skill):
         "fatigue": vitals.get("fatigue", 0),
         "hunger": vitals.get("hunger", 0),
         "worn": [
-            {"name": h["name"], "slot": h.get("slot"), "type": h.get("type"),
-             "rarity": h.get("rarity"), "does": canon.does(h.get("effects"))}
+            {"id": h["item"], "name": h["name"], "slot": h.get("slot"),
+             "type": h.get("type"), "rarity": h.get("rarity"),
+             "does": canon.does(h.get("effects"))}
             for h in kept if h.get("worn")
-        ],
-        "kit": [
-            {"name": h["name"], "qty": h.get("qty"), "type": h.get("type"),
-             "rarity": h.get("rarity"), "does": canon.does(h.get("effects"))}
-            for h in kept if not h.get("worn")
         ],
     }
 

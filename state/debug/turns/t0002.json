@@ -1,315 +1,15 @@
 {
   "turn_id": "t0002",
-  "state": "blows",
+  "state": "done",
   "created": "2026-09-17T10:10:54+00:00",
   "action": "ATTACK",
-  "draft": {
-    "narration": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her.",
-    "travel": null,
-    "minutes": 1,
-    "fatigue": 3,
-    "health": 0,
-    "check": {
-      "skill": "athletics",
-      "dc": 12
-    },
-    "fight": {
-      "skill": "athletics",
-      "flee_dc": 10,
-      "their_dc": 11,
-      "us": [
-        {
-          "who": "the-dog",
-          "name": "the dog",
-          "health": 12,
-          "damage": "1–3",
-          "dc": 12,
-          "bonus": 2
-        }
-      ],
-      "them": [
-        {
-          "who": "rat-mother",
-          "name": "the Rat Mother",
-          "health": 20,
-          "damage": "2–4",
-          "dc": 12,
-          "bonus": 2,
-          "ability": {
-            "name": "spawns a rat",
-            "sleep": 2,
-            "spawn": {
-              "name": "Rat",
-              "health": 5,
-              "damage": "1–2",
-              "dc": 10,
-              "bonus": 1
-            }
-          }
-        }
-      ]
-    },
-    "location": "the-road",
-    "transactions": [],
-    "quest_open": [],
-    "quest_update": [],
-    "quest_close": [],
-    "claims": [],
-    "hunger": null
-  },
-  "verdicts": [
-    {
-      "claim": "c1",
-      "result": "TRUE",
-      "why": "the-road's parent is the-greater-plains, whose parent is terra",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://places/the-road#about",
-        "bota://places/the-greater-plains#about"
-      ]
-    },
-    {
-      "claim": "c2",
-      "result": "TRUE",
-      "why": "directly narrated at this location",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c3",
-      "result": "TRUE",
-      "why": "the creature that bursts from the nest is named the Rat Mother throughout",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c4",
-      "result": "FALSE",
-      "why": "the fight ends with the person breaking free and running; the Rat Mother is last seen landing a blow, not falling",
-      "question": "",
-      "alternative": "the Rat Mother was left behind, wounded but still on her feet, when the person fled the fight",
-      "sources": []
-    },
-    {
-      "claim": "c5",
-      "result": "TRUE",
-      "why": "stated directly, and consistent with the road's single established crossing",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://places/the-road#about"
-      ]
-    },
-    {
-      "claim": "c6",
-      "result": "TRUE",
-      "why": "directly narrated",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c7",
-      "result": "TRUE",
-      "why": "the cane stops it moving and the dog's jaws close on it, already still",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c8",
-      "result": "TRUE",
-      "why": "bitten first by the rat, then repeatedly by the Rat Mother",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c9",
-      "result": "TRUE",
-      "why": "matches the walking-cane item already in canon",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://items/walking-cane#about"
-      ]
-    },
-    {
-      "claim": "c10",
-      "result": "TRUE",
-      "why": "the item is typed as a weapon with a damage effect, and the narration shows it killing",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://items/walking-cane#about"
-      ]
-    },
-    {
-      "claim": "c11",
-      "result": "TRUE",
-      "why": "\"teeth raking your side\"",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c12",
-      "result": "TRUE",
-      "why": "\"catches you across the ribs\"",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c13",
-      "result": "TRUE",
-      "why": "\"teeth in your shoulder\"",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c14",
-      "result": "TRUE",
-      "why": "many landed blows are narrated in sequence",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c15",
-      "result": "TRUE",
-      "why": "\"churned, bloody mud\"",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c16",
-      "result": "TRUE",
-      "why": "\"churned, bloody mud\"",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c17",
-      "result": "TRUE",
-      "why": "consistent with fog already established along this road",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://books/the-life-of-swantje-bota#p1"
-      ]
-    },
-    {
-      "claim": "c18",
-      "result": "TRUE",
-      "why": "\"You wrench free of the fight and run\"",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c19",
-      "result": "WITHIN_BOUNDS",
-      "why": "the dog is last shown fallen and unable to fight; the person then flees alone, leaving the Rat Mother — the fallen dog staying put follows from that",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c20",
-      "result": "TRUE",
-      "why": "\"leaving her behind in the fog\"",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c21",
-      "result": "TRUE",
-      "why": "already established",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://books/the-life-of-swantje-bota#p1"
-      ]
-    },
-    {
-      "claim": "c22",
-      "result": "TRUE",
-      "why": "directly narrated",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c23",
-      "result": "TRUE",
-      "why": "directly narrated",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c24",
-      "result": "TRUE",
-      "why": "matches canon item",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://items/walking-cane#about"
-      ]
-    },
-    {
-      "claim": "c25",
-      "result": "TRUE",
-      "why": "matches canon place",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://places/the-road#about"
-      ]
-    },
-    {
-      "claim": "c26",
-      "result": "TRUE",
-      "why": "matches canon place",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://places/the-greater-plains#about"
-      ]
-    },
-    {
-      "claim": "c27",
-      "result": "TRUE",
-      "why": "the road is \"waymarked once at its single crossing\"",
-      "question": "",
-      "alternative": "",
-      "sources": [
-        "bota://places/the-road#about",
-        "bota://books/the-greater-plains-map-4e200#p3"
-      ]
-    },
-    {
-      "claim": "c28",
-      "result": "WITHIN_BOUNDS",
-      "why": "directly demonstrated this once; the general capability follows from that instance",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    }
-  ],
+  "draft": null,
+  "verdicts": [],
   "correction": null,
-  "gm_retries": 1,
+  "gm_retries": 0,
   "gap": null,
   "wake_at": null,
-  "minutes": 0,
+  "minutes": 11,
   "phases": [
     {
       "n": 1,
@@ -322,11 +22,668 @@
     {
       "n": 2,
       "who": "gm",
-      "kind": "outcome",
-      "text": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her.",
-      "status": "pending",
-      "claims": [],
-      "redrafts": 2,
+      "kind": "fight",
+      "text": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her.\n\nYou swing for the Rat Mother and she's already turned from where you aimed.\n\nThe dog gets under her guard and rips into her flank.\n\nThe Rat Mother heaves and another rat comes spilling out of the nest at her side, then goes rigid with the effort.\n\nThe new rat snaps at the dog and catches only fur.\n\nYou catch the rat with the cane and it staggers sideways.\n\nThe dog's jaws close on it and shake it hard.\n\nThe Rat Mother stands frozen, spent, not moving.\n\nThe rat lunges for the dog's leg and misses.\n\nYou strike again and the rat reels.\n\nThe dog snaps at it and comes up empty.\n\nThe Rat Mother still hasn't moved.\n\nThe rat gets its teeth into the dog's flank and it yelps.\n\nYou bring the cane down on it again, hard.\n\nThe dog seizes it and snaps it still with one shake.\n\nThe Rat Mother surges back into the fight and catches the dog a heavy blow.\n\nYou swing at her and miss clean.\n\nThe dog tears into her side again.\n\nShe turns on the dog and doesn't connect.\n\nYou get the cane in on her for a solid hit.\n\nThe dog goes for her again and bites deep.\n\nShe swings for the dog and misses.\n\nYou swing and she's already moved.\n\nThe dog catches her again, worrying at the wound.\n\nShe lunges for the dog and doesn't find it.\n\nYour swing goes wide.\n\nThe dog snaps at her and misses.\n\nShe swings for the dog and it isn't there.\n\nYour footing goes on the blood-slick ground and the swing meant for her goes wide instead.\n\nThe dog goes for her again and comes away empty-jawed.\n\nShe turns on the dog once more and misses.\n\nYou find your feet and swing again, and she's already clear of it.\n\nThe dog tears into her once more and she staggers under it.\n\nShe catches the dog hard as it presses back in.\n\nYou swing at her and miss again.\n\nThe dog locks its jaws into her throat and doesn't let go until she stops moving.",
+      "status": "checked",
+      "claims": [
+        {
+          "id": "c1",
+          "text": "a rat exists that went still after being struck",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c1",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c2",
+          "text": "a bank exists beside the road",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c2",
+            "result": "WITHIN_BOUNDS",
+            "why": "ordinary field/ditch terrain fits open farming country already on record",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://places/the-greater-plains"
+            ]
+          }
+        },
+        {
+          "id": "c3",
+          "text": "the bank tore open",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c3",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c4",
+          "text": "the Rat Mother came out of the bank",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c4",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c5",
+          "text": "the Rat Mother is vast",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c5",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c6",
+          "text": "Rat Mothers exist as a larger kind of rat that defends a nest of young",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c6",
+            "result": "WITHIN_BOUNDS",
+            "why": "extends the already-established oversized roadside rat rather than introducing a new marvel",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c7",
+          "text": "dogs exist",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c7",
+            "result": "WITHIN_BOUNDS",
+            "why": "ordinary domestic animal, unremarked furniture of a farmed region",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c8",
+          "text": "a dog can fight alongside a person against a dangerous creature",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c8",
+            "result": "WITHIN_BOUNDS",
+            "why": "capability implied by the moment, not disposition",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c9",
+          "text": "the dog got under the Rat Mother's guard",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c9",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c10",
+          "text": "the dog ripped into the Rat Mother's flank",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c10",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c11",
+          "text": "a nest exists at the Rat Mother's side",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c11",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c12",
+          "text": "another rat spilled out of the nest",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c12",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c13",
+          "text": "the new rat snapped at the dog and caught only fur",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c13",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c14",
+          "text": "the new rat was struck by the cane and staggered",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c14",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c15",
+          "text": "the dog's jaws closed on the new rat and shook it",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c15",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c16",
+          "text": "the new rat lunged for the dog's leg and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c16",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c17",
+          "text": "the new rat was struck again by the cane and reeled",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c17",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c18",
+          "text": "the dog snapped at the new rat and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c18",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c19",
+          "text": "the new rat bit the dog's flank",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c19",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c20",
+          "text": "the dog yelped",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c20",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c21",
+          "text": "the new rat was struck again by the cane",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c21",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c22",
+          "text": "the dog seized the new rat and shook it still",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c22",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c23",
+          "text": "the new rat stopped moving",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c23",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c24",
+          "text": "the Rat Mother struck the dog a heavy blow",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c24",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c25",
+          "text": "the dog tore into the Rat Mother's side again",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c25",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c26",
+          "text": "the Rat Mother turned on the dog and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c26",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c27",
+          "text": "the cane struck the Rat Mother solidly",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c27",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c28",
+          "text": "the dog bit deep into the Rat Mother",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c28",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c29",
+          "text": "the Rat Mother swung for the dog and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c29",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c30",
+          "text": "the dog caught the Rat Mother again",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c30",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c31",
+          "text": "the Rat Mother lunged for the dog and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c31",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c32",
+          "text": "the dog snapped at the Rat Mother and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c32",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c33",
+          "text": "the Rat Mother swung for the dog and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c33",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c34",
+          "text": "the ground is slick with blood",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c34",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c35",
+          "text": "the dog went for the Rat Mother again and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c35",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c36",
+          "text": "the Rat Mother turned on the dog again and missed",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c36",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c37",
+          "text": "the dog tore into the Rat Mother once more",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c37",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c38",
+          "text": "the Rat Mother staggered",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c38",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c39",
+          "text": "the Rat Mother struck the dog hard",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c39",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c40",
+          "text": "the dog locked its jaws into the Rat Mother's throat",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c40",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c41",
+          "text": "the Rat Mother stopped moving",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c41",
+            "result": "TRUE",
+            "why": "",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c42",
+          "text": "the Rat Mother is dead",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c42",
+            "result": "TRUE",
+            "why": "plain reading of a throat-lock held until she stops moving in this fight",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c43",
+          "text": "a road exists in the Greater Plains",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c43",
+            "result": "TRUE",
+            "why": "place record has the-road as a location within the-greater-plains",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://places/the-road",
+              "bota://places/the-greater-plains"
+            ]
+          }
+        },
+        {
+          "id": "c44",
+          "text": "the Greater Plains exists on Terra",
+          "entity": "the-greater-plains",
+          "kind": "places",
+          "verdict": {
+            "claim": "c44",
+            "result": "TRUE",
+            "why": "place record has the-greater-plains as a region within terra",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://places/the-greater-plains",
+              "bota://places/terra"
+            ]
+          }
+        },
+        {
+          "id": "c45",
+          "text": "canes exist",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c45",
+            "result": "TRUE",
+            "why": "walking-cane is a recorded item entity",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://items/walking-cane"
+            ]
+          }
+        },
+        {
+          "id": "c46",
+          "text": "rats exist",
+          "entity": "the-life-of-swantje-bota",
+          "kind": "books",
+          "verdict": {
+            "claim": "c46",
+            "result": "TRUE",
+            "why": "already fighting a rat in the same book's opening passage",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p1"
+            ]
+          }
+        }
+      ],
+      "redrafts": 3,
       "fight": {
         "skill": "athletics",
         "flee_dc": 10,
@@ -335,7 +692,7 @@
             "id": "the-explorer-debug",
             "name": "Swantje Bota",
             "kind": "explorer",
-            "health": 63,
+            "health": 95,
             "most": 100,
             "damage": "1–2",
             "weapon": "Walking Cane",
@@ -398,7 +755,7 @@
             "id": "the-dog",
             "name": "the dog",
             "kind": "ally",
-            "health": 0,
+            "health": 6,
             "most": 12,
             "damage": "1–3",
             "dc": 12,
@@ -406,7 +763,7 @@
             "skill": null,
             "ability": null,
             "asleep": 0,
-            "dead": true
+            "dead": false
           }
         ],
         "them": [
@@ -414,7 +771,7 @@
             "id": "rat-mother",
             "name": "the Rat Mother",
             "kind": "foe",
-            "health": 11,
+            "health": 0,
             "most": 20,
             "damage": "2–4",
             "dc": 12,
@@ -433,7 +790,7 @@
               "used": true
             },
             "asleep": 0,
-            "dead": false
+            "dead": true
           },
           {
             "id": "rat",
@@ -450,9 +807,9 @@
             "dead": true
           }
         ],
-        "turn": 1,
-        "round": 31,
-        "ended": "fled",
+        "turn": 2,
+        "round": 11,
+        "ended": "beaten",
         "blows": [
           {
             "n": 1,
@@ -461,25 +818,24 @@
             "name": "Swantje Bota",
             "side": "us",
             "chose": "ATTACK",
-            "hit": true,
-            "dealt": 1,
+            "hit": false,
+            "dealt": 0,
             "taken": 0,
             "check": {
               "skill": "athletics",
               "dc": 12,
-              "roll": 19,
+              "roll": 11,
               "rolls": [
-                19
+                11
               ],
               "against": [],
               "bonus": 0,
-              "total": 19,
-              "passed": true
+              "total": 11,
+              "passed": false
             },
-            "text": "You drive the cane in and catch the huge thing already lunging, and it recoils with a shriek.",
+            "text": "You swing for the Rat Mother and she's already turned from where you aimed.",
             "at": "rat-mother",
             "atname": "the Rat Mother",
-            "left": 19,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -507,24 +863,25 @@
             "name": "the dog",
             "side": "us",
             "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
+            "hit": true,
+            "dealt": 3,
             "taken": 0,
             "check": {
               "skill": "a swing",
               "dc": 12,
-              "roll": 1,
+              "roll": 17,
               "rolls": [
-                1
+                17
               ],
               "against": [],
               "bonus": 2,
-              "total": 3,
-              "passed": false
+              "total": 19,
+              "passed": true
             },
-            "text": "The dog darts in at its flank and comes up short, jaws snapping on air.",
+            "text": "The dog gets under her guard and rips into her flank.",
             "at": "rat-mother",
             "atname": "the Rat Mother",
+            "left": 17,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -540,7 +897,7 @@
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               }
             ]
@@ -556,7 +913,7 @@
             "dealt": 0,
             "taken": 0,
             "check": null,
-            "text": "The Rat Mother convulses and another rat comes boiling up out of the torn earth beside her, and she goes still, spent by the effort.",
+            "text": "The Rat Mother heaves and another rat comes spilling out of the nest at her side, then goes rigid with the effort.",
             "spawned": "Rat",
             "us": [
               {
@@ -573,7 +930,7 @@
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -596,16 +953,16 @@
             "check": {
               "skill": "a swing",
               "dc": 12,
-              "roll": 6,
+              "roll": 2,
               "rolls": [
-                6
+                2
               ],
               "against": [],
               "bonus": 1,
-              "total": 7,
+              "total": 3,
               "passed": false
             },
-            "text": "The new rat darts for the dog and skitters off without finding purchase.",
+            "text": "The new rat snaps at the dog and catches only fur.",
             "at": "the-dog",
             "atname": "the dog",
             "us": [
@@ -623,7 +980,7 @@
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -640,24 +997,25 @@
             "name": "Swantje Bota",
             "side": "us",
             "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
+            "hit": true,
+            "dealt": 1,
             "taken": 0,
             "check": {
               "skill": "athletics",
               "dc": 10,
-              "roll": 8,
+              "roll": 14,
               "rolls": [
-                8
+                14
               ],
               "against": [],
               "bonus": 0,
-              "total": 8,
-              "passed": false
+              "total": 14,
+              "passed": true
             },
-            "text": "You swing at the rat and your cane cuts nothing but fog.",
+            "text": "You catch the rat with the cane and it staggers sideways.",
             "at": "rat",
             "atname": "Rat",
+            "left": 4,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -673,7 +1031,7 @@
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -696,16 +1054,16 @@
             "check": {
               "skill": "a swing",
               "dc": 10,
-              "roll": 18,
+              "roll": 14,
               "rolls": [
-                18
+                14
               ],
               "against": [],
               "bonus": 2,
-              "total": 20,
+              "total": 16,
               "passed": true
             },
-            "text": "The dog snaps down on the rat and flings it sideways with a yelp of its own.",
+            "text": "The dog's jaws close on it and shake it hard.",
             "at": "rat",
             "atname": "Rat",
             "left": 3,
@@ -724,7 +1082,7 @@
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -745,7 +1103,7 @@
             "dealt": 0,
             "taken": 0,
             "check": null,
-            "text": "The Rat Mother stays frozen where she reared up, not stirring.",
+            "text": "The Rat Mother stands frozen, spent, not moving.",
             "spent": true,
             "us": [
               {
@@ -762,7 +1120,7 @@
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -779,25 +1137,24 @@
             "name": "Rat",
             "side": "them",
             "chose": "ATTACK",
-            "hit": true,
+            "hit": false,
             "dealt": 0,
-            "taken": 3,
+            "taken": 0,
             "check": {
               "skill": "a swing",
               "dc": 12,
-              "roll": 20,
+              "roll": 10,
               "rolls": [
-                20
+                10
               ],
               "against": [],
               "bonus": 1,
-              "total": 21,
-              "passed": true
+              "total": 11,
+              "passed": false
             },
-            "text": "The rat gets its teeth into the dog's shoulder and the dog snarls and shakes it off too late.",
+            "text": "The rat lunges for the dog's leg and misses.",
             "at": "the-dog",
             "atname": "the dog",
-            "left": 9,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -806,14 +1163,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 12,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -830,24 +1187,25 @@
             "name": "Swantje Bota",
             "side": "us",
             "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
+            "hit": true,
+            "dealt": 2,
             "taken": 0,
             "check": {
               "skill": "athletics",
               "dc": 10,
-              "roll": 7,
+              "roll": 15,
               "rolls": [
-                7
+                15
               ],
               "against": [],
               "bonus": 0,
-              "total": 7,
-              "passed": false
+              "total": 15,
+              "passed": true
             },
-            "text": "You strike at the rat and miss your footing on the churned grass.",
+            "text": "You strike again and the rat reels.",
             "at": "rat",
             "atname": "Rat",
+            "left": 1,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -856,14 +1214,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 12,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -880,25 +1238,24 @@
             "name": "the dog",
             "side": "us",
             "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
+            "hit": false,
+            "dealt": 0,
             "taken": 0,
             "check": {
               "skill": "a swing",
               "dc": 10,
-              "roll": 8,
+              "roll": 6,
               "rolls": [
-                8
+                6
               ],
               "against": [],
               "bonus": 2,
-              "total": 10,
-              "passed": true
+              "total": 8,
+              "passed": false
             },
-            "text": "The dog bears down on the rat again and it goes half-limp under the bite.",
+            "text": "The dog snaps at it and comes up empty.",
             "at": "rat",
             "atname": "Rat",
-            "left": 1,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -907,19 +1264,19 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 12,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
                 "id": "rat",
-                "health": 1,
+                "health": 3,
                 "dead": false
               }
             ]
@@ -945,19 +1302,19 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 12,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
                 "id": "rat",
-                "health": 1,
+                "health": 3,
                 "dead": false
               }
             ]
@@ -969,24 +1326,25 @@
             "name": "Rat",
             "side": "them",
             "chose": "ATTACK",
-            "hit": false,
+            "hit": true,
             "dealt": 0,
-            "taken": 0,
+            "taken": 2,
             "check": {
               "skill": "a swing",
               "dc": 12,
-              "roll": 10,
+              "roll": 14,
               "rolls": [
-                10
+                14
               ],
               "against": [],
               "bonus": 1,
-              "total": 11,
-              "passed": false
+              "total": 15,
+              "passed": true
             },
-            "text": "The rat lunges for the dog and only grazes fur.",
+            "text": "The rat gets its teeth into the dog's flank and it yelps.",
             "at": "the-dog",
             "atname": "the dog",
+            "left": 10,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -995,19 +1353,19 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 10,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
                 "id": "rat",
-                "health": 1,
+                "health": 3,
                 "dead": false
               }
             ]
@@ -1019,24 +1377,25 @@
             "name": "Swantje Bota",
             "side": "us",
             "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
+            "hit": true,
+            "dealt": 2,
             "taken": 0,
             "check": {
               "skill": "athletics",
               "dc": 10,
-              "roll": 8,
+              "roll": 17,
               "rolls": [
-                8
+                17
               ],
               "against": [],
               "bonus": 0,
-              "total": 8,
-              "passed": false
+              "total": 17,
+              "passed": true
             },
-            "text": "You swing again and the rat is too quick, too low.",
+            "text": "You bring the cane down on it again, hard.",
             "at": "rat",
             "atname": "Rat",
+            "left": 1,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -1045,19 +1404,19 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 10,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
                 "id": "rat",
-                "health": 1,
+                "health": 3,
                 "dead": false
               }
             ]
@@ -1069,24 +1428,25 @@
             "name": "the dog",
             "side": "us",
             "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
+            "hit": true,
+            "dealt": 6,
             "taken": 0,
             "check": {
               "skill": "a swing",
               "dc": 10,
-              "roll": 7,
+              "roll": 20,
               "rolls": [
-                7
+                20
               ],
               "against": [],
               "bonus": 2,
-              "total": 9,
-              "passed": false
+              "total": 22,
+              "passed": true
             },
-            "text": "The dog snaps and comes up empty.",
+            "text": "The dog seizes it and snaps it still with one shake.",
             "at": "rat",
             "atname": "Rat",
+            "left": 0,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -1095,20 +1455,20 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 10,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
                 "id": "rat",
-                "health": 1,
-                "dead": false
+                "health": 0,
+                "dead": true
               }
             ]
           },
@@ -1119,24 +1479,25 @@
             "name": "the Rat Mother",
             "side": "them",
             "chose": "ATTACK",
-            "hit": false,
+            "hit": true,
             "dealt": 0,
-            "taken": 0,
+            "taken": 2,
             "check": {
               "skill": "a swing",
               "dc": 12,
-              "roll": 2,
+              "roll": 17,
               "rolls": [
-                2
+                17
               ],
               "against": [],
               "bonus": 2,
-              "total": 4,
-              "passed": false
+              "total": 19,
+              "passed": true
             },
-            "text": "The Rat Mother finally surges forward at the dog and overreaches.",
+            "text": "The Rat Mother surges back into the fight and catches the dog a heavy blow.",
             "at": "the-dog",
             "atname": "the dog",
+            "left": 8,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -1145,248 +1506,46 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
                 "id": "rat",
-                "health": 1,
-                "dead": false
+                "health": 0,
+                "dead": true
               }
             ]
           },
           {
             "n": 16,
-            "round": 4,
-            "who": "rat",
-            "name": "Rat",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 9,
-              "rolls": [
-                9
-              ],
-              "against": [],
-              "bonus": 1,
-              "total": 10,
-              "passed": false
-            },
-            "text": "The rat darts in at the dog and misses clean.",
-            "at": "the-dog",
-            "atname": "the dog",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 20,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 1,
-                "dead": false
-              }
-            ]
-          },
-          {
-            "n": 17,
             "round": 5,
             "who": "the-explorer-debug",
             "name": "Swantje Bota",
             "side": "us",
             "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
+            "hit": false,
+            "dealt": 0,
             "taken": 0,
             "check": {
               "skill": "athletics",
-              "dc": 10,
-              "roll": 13,
-              "rolls": [
-                13
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 13,
-              "passed": true
-            },
-            "text": "You bring the cane down and the rat stops moving under it.",
-            "at": "rat",
-            "atname": "Rat",
-            "left": 0,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 20,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 1,
-                "dead": false
-              }
-            ]
-          },
-          {
-            "n": 18,
-            "round": 5,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 10,
+              "dc": 12,
               "roll": 10,
               "rolls": [
                 10
               ],
               "against": [],
-              "bonus": 2,
-              "total": 12,
-              "passed": true
-            },
-            "text": "The dog's jaws close over the rat a heartbeat later, already still.",
-            "at": "rat",
-            "atname": "Rat",
-            "left": 0,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 20,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 19,
-            "round": 5,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 8,
-              "rolls": [
-                8
-              ],
-              "against": [],
-              "bonus": 2,
+              "bonus": 0,
               "total": 10,
               "passed": false
             },
-            "text": "The Rat Mother lunges for the dog and the dog is already gone from where she struck.",
-            "at": "the-dog",
-            "atname": "the dog",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 20,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 20,
-            "round": 6,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 1,
-              "rolls": [
-                1
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 1,
-              "passed": false
-            },
-            "text": "Your cane cracks across empty air where the Rat Mother's head was a moment ago.",
+            "text": "You swing at her and miss clean.",
             "at": "rat-mother",
             "atname": "the Rat Mother",
             "us": [
@@ -1397,14 +1556,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 20,
+                "health": 17,
                 "dead": false
               },
               {
@@ -1415,8 +1574,8 @@
             ]
           },
           {
-            "n": 21,
-            "round": 6,
+            "n": 17,
+            "round": 5,
             "who": "the-dog",
             "name": "the dog",
             "side": "us",
@@ -1427,19 +1586,19 @@
             "check": {
               "skill": "a swing",
               "dc": 12,
-              "roll": 16,
+              "roll": 14,
               "rolls": [
-                16
+                14
               ],
               "against": [],
               "bonus": 2,
-              "total": 18,
+              "total": 16,
               "passed": true
             },
-            "text": "The dog gets in low and tears a strip from her flank, and she screams.",
+            "text": "The dog tears into her side again.",
             "at": "rat-mother",
             "atname": "the Rat Mother",
-            "left": 17,
+            "left": 14,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -1448,14 +1607,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 17,
+                "health": 14,
                 "dead": false
               },
               {
@@ -1466,159 +1625,8 @@
             ]
           },
           {
-            "n": 22,
-            "round": 6,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 1,
-              "rolls": [
-                1
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 3,
-              "passed": false
-            },
-            "text": "The Rat Mother wheels on the dog and misses it entirely.",
-            "at": "the-dog",
-            "atname": "the dog",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 17,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 23,
-            "round": 7,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 12,
-              "rolls": [
-                12
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 12,
-              "passed": true
-            },
-            "text": "You get the cane in under her guard for a solid hit.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 15,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 17,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 24,
-            "round": 7,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 4,
-              "rolls": [
-                4
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 6,
-              "passed": false
-            },
-            "text": "The dog lunges and she twists clear of it.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 17,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 25,
-            "round": 7,
+            "n": 18,
+            "round": 5,
             "who": "rat-mother",
             "name": "the Rat Mother",
             "side": "them",
@@ -1638,7 +1646,7 @@
               "total": 7,
               "passed": false
             },
-            "text": "She comes down on the dog and doesn't connect.",
+            "text": "She turns on the dog and doesn't connect.",
             "at": "the-dog",
             "atname": "the dog",
             "us": [
@@ -1649,14 +1657,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 17,
+                "health": 14,
                 "dead": false
               },
               {
@@ -1667,8 +1675,8 @@
             ]
           },
           {
-            "n": 26,
-            "round": 8,
+            "n": 19,
+            "round": 6,
             "who": "the-explorer-debug",
             "name": "Swantje Bota",
             "side": "us",
@@ -1679,70 +1687,19 @@
             "check": {
               "skill": "athletics",
               "dc": 12,
-              "roll": 14,
-              "rolls": [
-                14
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 14,
-              "passed": true
-            },
-            "text": "You catch her a glancing blow that still tells.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 16,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 17,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 27,
-            "round": 8,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
               "roll": 12,
               "rolls": [
                 12
               ],
               "against": [],
-              "bonus": 2,
-              "total": 14,
+              "bonus": 0,
+              "total": 12,
               "passed": true
             },
-            "text": "The dog gets its teeth in again, deep.",
+            "text": "You get the cane in on her for a solid hit.",
             "at": "rat-mother",
             "atname": "the Rat Mother",
-            "left": 15,
+            "left": 13,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -1751,14 +1708,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 15,
+                "health": 14,
                 "dead": false
               },
               {
@@ -1769,8 +1726,59 @@
             ]
           },
           {
-            "n": 28,
-            "round": 8,
+            "n": 20,
+            "round": 6,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 6,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 20,
+              "rolls": [
+                20
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 22,
+              "passed": true
+            },
+            "text": "The dog goes for her again and bites deep.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "left": 8,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 8,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 21,
+            "round": 6,
             "who": "rat-mother",
             "name": "the Rat Mother",
             "side": "them",
@@ -1781,13 +1789,13 @@
             "check": {
               "skill": "a swing",
               "dc": 12,
-              "roll": 1,
+              "roll": 4,
               "rolls": [
-                1
+                4
               ],
               "against": [],
               "bonus": 2,
-              "total": 3,
+              "total": 6,
               "passed": false
             },
             "text": "She swings for the dog and misses.",
@@ -1801,14 +1809,365 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 15,
+                "health": 8,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 22,
+            "round": 7,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 12,
+              "roll": 2,
+              "rolls": [
+                2
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 2,
+              "passed": false
+            },
+            "text": "You swing and she's already moved.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 8,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 23,
+            "round": 7,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 2,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 18,
+              "rolls": [
+                18
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 20,
+              "passed": true
+            },
+            "text": "The dog catches her again, worrying at the wound.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "left": 6,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 24,
+            "round": 7,
+            "who": "rat-mother",
+            "name": "the Rat Mother",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 6,
+              "rolls": [
+                6
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 8,
+              "passed": false
+            },
+            "text": "She lunges for the dog and doesn't find it.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 25,
+            "round": 8,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 12,
+              "roll": 1,
+              "rolls": [
+                1
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 1,
+              "passed": false
+            },
+            "text": "Your swing goes wide.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 26,
+            "round": 8,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 1,
+              "rolls": [
+                1
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 3,
+              "passed": false
+            },
+            "text": "The dog snaps at her and misses.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 27,
+            "round": 8,
+            "who": "rat-mother",
+            "name": "the Rat Mother",
+            "side": "them",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 7,
+              "rolls": [
+                7
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 9,
+              "passed": false
+            },
+            "text": "She swings for the dog and it isn't there.",
+            "at": "the-dog",
+            "atname": "the dog",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 28,
+            "round": 9,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 12,
+              "roll": 7,
+              "rolls": [
+                7
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 7,
+              "passed": false
+            },
+            "text": "Your footing goes on the blood-slick ground and the swing meant for her goes wide instead.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 6,
                 "dead": false
               },
               {
@@ -1821,26 +2180,26 @@
           {
             "n": 29,
             "round": 9,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
+            "who": "the-dog",
+            "name": "the dog",
             "side": "us",
             "chose": "ATTACK",
             "hit": false,
             "dealt": 0,
             "taken": 0,
             "check": {
-              "skill": "athletics",
+              "skill": "a swing",
               "dc": 12,
-              "roll": 8,
+              "roll": 1,
               "rolls": [
-                8
+                1
               ],
               "against": [],
-              "bonus": 0,
-              "total": 8,
+              "bonus": 2,
+              "total": 3,
               "passed": false
             },
-            "text": "You swing for her and she's already moving.",
+            "text": "The dog goes for her again and comes away empty-jawed.",
             "at": "rat-mother",
             "atname": "the Rat Mother",
             "us": [
@@ -1851,14 +2210,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 15,
+                "health": 6,
                 "dead": false
               },
               {
@@ -1871,57 +2230,6 @@
           {
             "n": 30,
             "round": 9,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 1,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 11,
-              "rolls": [
-                11
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 13,
-              "passed": true
-            },
-            "text": "The dog catches her a solid strike.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 14,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 14,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 31,
-            "round": 9,
             "who": "rat-mother",
             "name": "the Rat Mother",
             "side": "them",
@@ -1941,7 +2249,7 @@
               "total": 10,
               "passed": false
             },
-            "text": "She rears back from the dog, unmarked by the attempt.",
+            "text": "She turns on the dog once more and misses.",
             "at": "the-dog",
             "atname": "the dog",
             "us": [
@@ -1952,14 +2260,64 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 14,
+                "health": 6,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 31,
+            "round": 10,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 12,
+              "roll": 3,
+              "rolls": [
+                3
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 3,
+              "passed": false
+            },
+            "text": "You find your feet and swing again, and she's already clear of it.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 8,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 6,
                 "dead": false
               },
               {
@@ -1972,29 +2330,29 @@
           {
             "n": 32,
             "round": 10,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
+            "who": "the-dog",
+            "name": "the dog",
             "side": "us",
             "chose": "ATTACK",
             "hit": true,
-            "dealt": 4,
+            "dealt": 5,
             "taken": 0,
             "check": {
-              "skill": "athletics",
+              "skill": "a swing",
               "dc": 12,
               "roll": 20,
               "rolls": [
                 20
               ],
               "against": [],
-              "bonus": 0,
-              "total": 20,
+              "bonus": 2,
+              "total": 22,
               "passed": true
             },
-            "text": "You put everything into the swing and it lands hard, staggering her.",
+            "text": "The dog tears into her once more and she staggers under it.",
             "at": "rat-mother",
             "atname": "the Rat Mother",
-            "left": 10,
+            "left": 1,
             "us": [
               {
                 "id": "the-explorer-debug",
@@ -2003,14 +2361,14 @@
               },
               {
                 "id": "the-dog",
-                "health": 9,
+                "health": 8,
                 "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 14,
+                "health": 1,
                 "dead": false
               },
               {
@@ -2023,518 +2381,13 @@
           {
             "n": 33,
             "round": 10,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 4,
-              "rolls": [
-                4
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 6,
-              "passed": false
-            },
-            "text": "The dog goes for her and comes away with nothing.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 9,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 14,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 34,
-            "round": 10,
             "who": "rat-mother",
             "name": "the Rat Mother",
             "side": "them",
             "chose": "ATTACK",
             "hit": true,
             "dealt": 0,
-            "taken": 4,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 12,
-              "rolls": [
-                12
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 14,
-              "passed": true
-            },
-            "text": "She turns on the dog and drives into it, and it yelps hard, staggered.",
-            "at": "the-dog",
-            "atname": "the dog",
-            "left": 5,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 5,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 14,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 35,
-            "round": 11,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 10,
-              "rolls": [
-                10
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 10,
-              "passed": false
-            },
-            "text": "You swing and she twists away from it.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 5,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 14,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 36,
-            "round": 11,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 1,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 17,
-              "rolls": [
-                17
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 19,
-              "passed": true
-            },
-            "text": "The dog bites down on her again, solid.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 13,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 5,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 13,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 37,
-            "round": 11,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 3,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 19,
-              "rolls": [
-                19
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 21,
-              "passed": true
-            },
-            "text": "She catches the dog square, and it goes down hard.",
-            "at": "the-dog",
-            "atname": "the dog",
-            "left": 2,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 2,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 13,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 38,
-            "round": 12,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 17,
-              "rolls": [
-                17
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 17,
-              "passed": true
-            },
-            "text": "Your cane lands another blow on her.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 11,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 2,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 13,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 39,
-            "round": 12,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 3,
-              "rolls": [
-                3
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 5,
-              "passed": false
-            },
-            "text": "The dog is gone before she can retaliate, and she doesn't find it.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 2,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 13,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 40,
-            "round": 12,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 5,
-              "rolls": [
-                5
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 7,
-              "passed": false
-            },
-            "text": "You strike again and she takes it without flinching.",
-            "at": "the-dog",
-            "atname": "the dog",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 2,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 13,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 41,
-            "round": 13,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 8,
-              "rolls": [
-                8
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 8,
-              "passed": false
-            },
-            "text": "The dog is not there to hit anymore, and she doesn't stir toward it.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 2,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 13,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 42,
-            "round": 13,
-            "who": "the-dog",
-            "name": "the dog",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 12,
-              "roll": 16,
-              "rolls": [
-                16
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 18,
-              "passed": true
-            },
-            "text": "You catch her again, glancing but real.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 11,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 2,
-                "dead": false
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 43,
-            "round": 13,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 4,
+            "taken": 2,
             "check": {
               "skill": "a swing",
               "dc": 12,
@@ -2547,9 +2400,110 @@
               "total": 20,
               "passed": true
             },
-            "text": "The dog, already fallen, is where she throws her weight anyway, teeth finding nothing.",
+            "text": "She catches the dog hard as it presses back in.",
             "at": "the-dog",
             "atname": "the dog",
+            "left": 6,
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 6,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 1,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 34,
+            "round": 11,
+            "who": "the-explorer-debug",
+            "name": "Swantje Bota",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": false,
+            "dealt": 0,
+            "taken": 0,
+            "check": {
+              "skill": "athletics",
+              "dc": 12,
+              "roll": 7,
+              "rolls": [
+                7
+              ],
+              "against": [],
+              "bonus": 0,
+              "total": 7,
+              "passed": false
+            },
+            "text": "You swing at her and miss again.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
+            "us": [
+              {
+                "id": "the-explorer-debug",
+                "health": 95,
+                "dead": false
+              },
+              {
+                "id": "the-dog",
+                "health": 6,
+                "dead": false
+              }
+            ],
+            "them": [
+              {
+                "id": "rat-mother",
+                "health": 1,
+                "dead": false
+              },
+              {
+                "id": "rat",
+                "health": 0,
+                "dead": true
+              }
+            ]
+          },
+          {
+            "n": 35,
+            "round": 11,
+            "who": "the-dog",
+            "name": "the dog",
+            "side": "us",
+            "chose": "ATTACK",
+            "hit": true,
+            "dealt": 4,
+            "taken": 0,
+            "check": {
+              "skill": "a swing",
+              "dc": 12,
+              "roll": 20,
+              "rolls": [
+                20
+              ],
+              "against": [],
+              "bonus": 2,
+              "total": 22,
+              "passed": true
+            },
+            "text": "The dog locks its jaws into her throat and doesn't let go until she stops moving.",
+            "at": "rat-mother",
+            "atname": "the Rat Mother",
             "left": 0,
             "us": [
               {
@@ -2559,1778 +2513,15 @@
               },
               {
                 "id": "the-dog",
-                "health": 0,
-                "dead": true
+                "health": 6,
+                "dead": false
               }
             ],
             "them": [
               {
                 "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
                 "health": 0,
                 "dead": true
-              }
-            ]
-          },
-          {
-            "n": 44,
-            "round": 14,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 1,
-              "rolls": [
-                1
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 1,
-              "passed": false
-            },
-            "text": "She rounds on you now that the dog is down, and you catch her blow with the cane instead of your arm.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 45,
-            "round": 14,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 4,
-              "rolls": [
-                4
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 6,
-              "passed": false
-            },
-            "text": "You swing and she's not where you aimed.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 46,
-            "round": 15,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 8,
-              "rolls": [
-                8
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 8,
-              "passed": false
-            },
-            "text": "You strike and miss.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 47,
-            "round": 15,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 4,
-              "rolls": [
-                4
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 6,
-              "passed": false
-            },
-            "text": "She lunges for you and comes up short.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 48,
-            "round": 16,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 3,
-              "rolls": [
-                3
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 3,
-              "passed": false
-            },
-            "text": "You swing again and she slips past it.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 49,
-            "round": 16,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 8,
-              "rolls": [
-                8
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 10,
-              "passed": false
-            },
-            "text": "She lunges again and doesn't connect.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 50,
-            "round": 17,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 5,
-              "rolls": [
-                5
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 5,
-              "passed": false
-            },
-            "text": "You aim for her and she isn't there.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 95,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 51,
-            "round": 17,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 4,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 19,
-              "rolls": [
-                19
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 21,
-              "passed": true
-            },
-            "text": "She finally catches you, teeth raking your side.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 91,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 91,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 52,
-            "round": 18,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 1,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 12,
-              "rolls": [
-                12
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 12,
-              "passed": true
-            },
-            "text": "You get the cane in on her despite the wound.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 10,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 91,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 53,
-            "round": 18,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 5,
-              "rolls": [
-                5
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 7,
-              "passed": false
-            },
-            "text": "She comes for you again and misses.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 91,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 54,
-            "round": 19,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 3,
-              "rolls": [
-                3
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 3,
-              "passed": false
-            },
-            "text": "You swing and she twists clear.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 91,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 55,
-            "round": 19,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 7,
-              "rolls": [
-                7
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 9,
-              "passed": false
-            },
-            "text": "She misses you again.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 91,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 56,
-            "round": 20,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 1,
-              "rolls": [
-                1
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 1,
-              "passed": false
-            },
-            "text": "Your swing goes wide once more.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 91,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 57,
-            "round": 20,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 2,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 19,
-              "rolls": [
-                19
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 21,
-              "passed": true
-            },
-            "text": "She catches you across the ribs.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 89,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 89,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 58,
-            "round": 21,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 10,
-              "rolls": [
-                10
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 10,
-              "passed": false
-            },
-            "text": "You swing and she slips it.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 89,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 59,
-            "round": 21,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 4,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 12,
-              "rolls": [
-                12
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 14,
-              "passed": true
-            },
-            "text": "She catches you again, harder this time.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 85,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 85,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 60,
-            "round": 22,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 14,
-              "rolls": [
-                14
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 14,
-              "passed": true
-            },
-            "text": "You get a solid hit in through the pain.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 9,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 85,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 61,
-            "round": 22,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 4,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 17,
-              "rolls": [
-                17
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 19,
-              "passed": true
-            },
-            "text": "She answers with teeth in your shoulder.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 81,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 81,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 62,
-            "round": 23,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 18,
-              "rolls": [
-                18
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 18,
-              "passed": true
-            },
-            "text": "You land another blow on her.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 9,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 81,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 63,
-            "round": 23,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 4,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 12,
-              "rolls": [
-                12
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 14,
-              "passed": true
-            },
-            "text": "She tears into you again.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 77,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 77,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 64,
-            "round": 24,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 8,
-              "rolls": [
-                8
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 8,
-              "passed": false
-            },
-            "text": "You swing and miss entirely.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 77,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 65,
-            "round": 24,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 1,
-              "rolls": [
-                1
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 3,
-              "passed": false
-            },
-            "text": "She misses you in turn.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 77,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 66,
-            "round": 25,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 1,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 13,
-              "rolls": [
-                13
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 13,
-              "passed": true
-            },
-            "text": "You catch her a clean hit.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 10,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 77,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 67,
-            "round": 25,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 5,
-              "rolls": [
-                5
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 7,
-              "passed": false
-            },
-            "text": "She doesn't manage to answer it.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 77,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 68,
-            "round": 26,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 1,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 14,
-              "rolls": [
-                14
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 14,
-              "passed": true
-            },
-            "text": "You strike again, and it tells on her.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 10,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 77,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 69,
-            "round": 26,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 3,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 19,
-              "rolls": [
-                19
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 21,
-              "passed": true
-            },
-            "text": "She gets her teeth into you hard.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 74,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 74,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 70,
-            "round": 27,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 3,
-              "rolls": [
-                3
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 3,
-              "passed": false
-            },
-            "text": "You swing and she's already past the cane.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 74,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 71,
-            "round": 27,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 4,
-              "rolls": [
-                4
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 6,
-              "passed": false
-            },
-            "text": "She, too, misses you clean.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 74,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 72,
-            "round": 28,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 4,
-              "rolls": [
-                4
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 4,
-              "passed": false
-            },
-            "text": "You swing wide again.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 74,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 73,
-            "round": 28,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 4,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 15,
-              "rolls": [
-                15
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 17,
-              "passed": true
-            },
-            "text": "She bites down on you again, deep.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 70,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 70,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 74,
-            "round": 29,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 2,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 13,
-              "rolls": [
-                13
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 13,
-              "passed": true
-            },
-            "text": "You land one more solid strike.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "left": 9,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 70,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 75,
-            "round": 29,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 4,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 9,
-              "rolls": [
-                9
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 11,
-              "passed": true
-            },
-            "text": "She answers in kind, teeth finding you again.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 66,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 66,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 76,
-            "round": 30,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "ATTACK",
-            "hit": false,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 12,
-              "roll": 11,
-              "rolls": [
-                11
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 11,
-              "passed": false
-            },
-            "text": "Your footing gives on the churned, bloody mud, and the swing goes nowhere.",
-            "at": "rat-mother",
-            "atname": "the Rat Mother",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 66,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 77,
-            "round": 30,
-            "who": "rat-mother",
-            "name": "the Rat Mother",
-            "side": "them",
-            "chose": "ATTACK",
-            "hit": true,
-            "dealt": 0,
-            "taken": 3,
-            "check": {
-              "skill": "a swing",
-              "dc": 11,
-              "roll": 11,
-              "rolls": [
-                11
-              ],
-              "against": [],
-              "bonus": 2,
-              "total": 13,
-              "passed": true
-            },
-            "text": "She catches you square while you're still recovering your feet.",
-            "at": "the-explorer-debug",
-            "atname": "Swantje Bota",
-            "left": 63,
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 63,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
-              },
-              {
-                "id": "rat",
-                "health": 0,
-                "dead": true
-              }
-            ]
-          },
-          {
-            "n": 78,
-            "round": 31,
-            "who": "the-explorer-debug",
-            "name": "Swantje Bota",
-            "side": "us",
-            "chose": "FLEE",
-            "hit": true,
-            "dealt": 0,
-            "taken": 0,
-            "check": {
-              "skill": "athletics",
-              "dc": 10,
-              "roll": 14,
-              "rolls": [
-                14
-              ],
-              "against": [],
-              "bonus": 0,
-              "total": 14,
-              "passed": true
-            },
-            "text": "You wrench free of the fight and run, leaving her behind in the fog.",
-            "us": [
-              {
-                "id": "the-explorer-debug",
-                "health": 63,
-                "dead": false
-              },
-              {
-                "id": "the-dog",
-                "health": 0,
-                "dead": true
-              }
-            ],
-            "them": [
-              {
-                "id": "rat-mother",
-                "health": 11,
-                "dead": false
               },
               {
                 "id": "rat",
@@ -4340,7 +2531,7 @@
             ]
           }
         ],
-        "said": "The cane comes down and finishes the rat clean — but the blow is still traveling when the bank beside you tears open, and something far bigger surges out of the nest, jaws wide, with the dog that's been shadowing you since the crossing already snarling in at your side to meet it.",
+        "said": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her.",
         "name": "the Rat Mother"
       }
     }
@@ -4543,7 +2734,7 @@
           "total": 11,
           "passed": false
         },
-        "text": "",
+        "text": "You swing for the Rat Mother and she's already turned from where you aimed.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -4588,7 +2779,7 @@
           "total": 19,
           "passed": true
         },
-        "text": "",
+        "text": "The dog gets under her guard and rips into her flank.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "left": 17,
@@ -4623,7 +2814,7 @@
         "dealt": 0,
         "taken": 0,
         "check": null,
-        "text": "",
+        "text": "The Rat Mother heaves and another rat comes spilling out of the nest at her side, then goes rigid with the effort.",
         "spawned": "Rat",
         "us": [
           {
@@ -4672,7 +2863,7 @@
           "total": 3,
           "passed": false
         },
-        "text": "",
+        "text": "The new rat snaps at the dog and catches only fur.",
         "at": "the-dog",
         "atname": "the dog",
         "us": [
@@ -4722,7 +2913,7 @@
           "total": 14,
           "passed": true
         },
-        "text": "",
+        "text": "You catch the rat with the cane and it staggers sideways.",
         "at": "rat",
         "atname": "Rat",
         "left": 4,
@@ -4773,7 +2964,7 @@
           "total": 16,
           "passed": true
         },
-        "text": "",
+        "text": "The dog's jaws close on it and shake it hard.",
         "at": "rat",
         "atname": "Rat",
         "left": 3,
@@ -4813,7 +3004,7 @@
         "dealt": 0,
         "taken": 0,
         "check": null,
-        "text": "",
+        "text": "The Rat Mother stands frozen, spent, not moving.",
         "spent": true,
         "us": [
           {
@@ -4862,7 +3053,7 @@
           "total": 11,
           "passed": false
         },
-        "text": "",
+        "text": "The rat lunges for the dog's leg and misses.",
         "at": "the-dog",
         "atname": "the dog",
         "us": [
@@ -4912,7 +3103,7 @@
           "total": 15,
           "passed": true
         },
-        "text": "",
+        "text": "You strike again and the rat reels.",
         "at": "rat",
         "atname": "Rat",
         "left": 1,
@@ -4963,7 +3154,7 @@
           "total": 8,
           "passed": false
         },
-        "text": "",
+        "text": "The dog snaps at it and comes up empty.",
         "at": "rat",
         "atname": "Rat",
         "us": [
@@ -5002,7 +3193,7 @@
         "dealt": 0,
         "taken": 0,
         "check": null,
-        "text": "",
+        "text": "The Rat Mother still hasn't moved.",
         "spent": true,
         "us": [
           {
@@ -5051,7 +3242,7 @@
           "total": 15,
           "passed": true
         },
-        "text": "",
+        "text": "The rat gets its teeth into the dog's flank and it yelps.",
         "at": "the-dog",
         "atname": "the dog",
         "left": 10,
@@ -5102,7 +3293,7 @@
           "total": 17,
           "passed": true
         },
-        "text": "",
+        "text": "You bring the cane down on it again, hard.",
         "at": "rat",
         "atname": "Rat",
         "left": 1,
@@ -5153,7 +3344,7 @@
           "total": 22,
           "passed": true
         },
-        "text": "",
+        "text": "The dog seizes it and snaps it still with one shake.",
         "at": "rat",
         "atname": "Rat",
         "left": 0,
@@ -5204,7 +3395,7 @@
           "total": 19,
           "passed": true
         },
-        "text": "",
+        "text": "The Rat Mother surges back into the fight and catches the dog a heavy blow.",
         "at": "the-dog",
         "atname": "the dog",
         "left": 8,
@@ -5255,7 +3446,7 @@
           "total": 10,
           "passed": false
         },
-        "text": "",
+        "text": "You swing at her and miss clean.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -5305,7 +3496,7 @@
           "total": 16,
           "passed": true
         },
-        "text": "",
+        "text": "The dog tears into her side again.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "left": 14,
@@ -5356,7 +3547,7 @@
           "total": 7,
           "passed": false
         },
-        "text": "",
+        "text": "She turns on the dog and doesn't connect.",
         "at": "the-dog",
         "atname": "the dog",
         "us": [
@@ -5406,7 +3597,7 @@
           "total": 12,
           "passed": true
         },
-        "text": "",
+        "text": "You get the cane in on her for a solid hit.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "left": 13,
@@ -5457,7 +3648,7 @@
           "total": 22,
           "passed": true
         },
-        "text": "",
+        "text": "The dog goes for her again and bites deep.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "left": 8,
@@ -5508,7 +3699,7 @@
           "total": 6,
           "passed": false
         },
-        "text": "",
+        "text": "She swings for the dog and misses.",
         "at": "the-dog",
         "atname": "the dog",
         "us": [
@@ -5558,7 +3749,7 @@
           "total": 2,
           "passed": false
         },
-        "text": "",
+        "text": "You swing and she's already moved.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -5608,7 +3799,7 @@
           "total": 20,
           "passed": true
         },
-        "text": "",
+        "text": "The dog catches her again, worrying at the wound.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "left": 6,
@@ -5659,7 +3850,7 @@
           "total": 8,
           "passed": false
         },
-        "text": "",
+        "text": "She lunges for the dog and doesn't find it.",
         "at": "the-dog",
         "atname": "the dog",
         "us": [
@@ -5709,7 +3900,7 @@
           "total": 1,
           "passed": false
         },
-        "text": "",
+        "text": "Your swing goes wide.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -5759,7 +3950,7 @@
           "total": 3,
           "passed": false
         },
-        "text": "",
+        "text": "The dog snaps at her and misses.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -5809,7 +4000,7 @@
           "total": 9,
           "passed": false
         },
-        "text": "",
+        "text": "She swings for the dog and it isn't there.",
         "at": "the-dog",
         "atname": "the dog",
         "us": [
@@ -5859,7 +4050,7 @@
           "total": 7,
           "passed": false
         },
-        "text": "",
+        "text": "Your footing goes on the blood-slick ground and the swing meant for her goes wide instead.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -5909,7 +4100,7 @@
           "total": 3,
           "passed": false
         },
-        "text": "",
+        "text": "The dog goes for her again and comes away empty-jawed.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -5959,7 +4150,7 @@
           "total": 10,
           "passed": false
         },
-        "text": "",
+        "text": "She turns on the dog once more and misses.",
         "at": "the-dog",
         "atname": "the dog",
         "us": [
@@ -6009,7 +4200,7 @@
           "total": 3,
           "passed": false
         },
-        "text": "",
+        "text": "You find your feet and swing again, and she's already clear of it.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -6059,7 +4250,7 @@
           "total": 22,
           "passed": true
         },
-        "text": "",
+        "text": "The dog tears into her once more and she staggers under it.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "left": 1,
@@ -6110,7 +4301,7 @@
           "total": 20,
           "passed": true
         },
-        "text": "",
+        "text": "She catches the dog hard as it presses back in.",
         "at": "the-dog",
         "atname": "the dog",
         "left": 6,
@@ -6161,7 +4352,7 @@
           "total": 7,
           "passed": false
         },
-        "text": "",
+        "text": "You swing at her and miss again.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "us": [
@@ -6211,7 +4402,7 @@
           "total": 22,
           "passed": true
         },
-        "text": "",
+        "text": "The dog locks its jaws into her throat and doesn't let go until she stops moving.",
         "at": "rat-mother",
         "atname": "the Rat Mother",
         "left": 0,
@@ -6244,49 +4435,86 @@
     "said": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her.",
     "name": "the Rat Mother"
   },
-  "check": {
-    "skill": "athletics",
-    "dc": 12,
-    "roll": 7,
-    "rolls": [
-      7
-    ],
-    "against": [],
-    "bonus": 0,
-    "total": 7,
-    "passed": false
-  },
-  "roll": 8,
+  "check": null,
+  "roll": 302,
   "rolled": true,
   "fate": null,
   "facts": [
-    "a road runs through the Greater Plains on Terra",
-    "a bank beside the road holds a nest",
-    "a Rat Mother lived in the nest",
-    "the Rat Mother has been killed",
-    "a dog has been following alongside since a crossing",
-    "a rat came up out of the torn earth beside the Rat Mother",
-    "the rat has been killed",
-    "the dog was bitten and wounded",
-    "a person was carrying a cane",
-    "the cane is a weapon that can strike and injure or kill",
-    "the person was bitten and wounded on the side",
-    "the person was bitten and wounded on the ribs",
-    "the person was bitten and wounded on the shoulder",
-    "the person struck the Rat Mother repeatedly with the cane",
-    "the ground at the site is churned and muddy",
-    "blood has been shed on the ground at the site",
-    "fog exists at the site",
-    "the person fled the fight, running away",
-    "the dog was left behind at the site",
-    "the Rat Mother was left behind at the site",
-    "rats exist",
+    "a rat exists that went still after being struck",
+    "a bank exists beside the road",
+    "the bank tore open",
+    "the Rat Mother came out of the bank",
+    "the Rat Mother is vast",
+    "a dog exists",
+    "the dog fought at the side of the person",
+    "the dog got under the Rat Mother's guard",
+    "the dog ripped into the Rat Mother's flank",
+    "a nest exists at the Rat Mother's side",
+    "another rat spilled out of the nest",
+    "the new rat snapped at the dog and caught only fur",
+    "the new rat was struck by the cane and staggered",
+    "the dog's jaws closed on the new rat and shook it",
+    "the new rat lunged for the dog's leg and missed",
+    "the new rat was struck again by the cane and reeled",
+    "the dog snapped at the new rat and missed",
+    "the new rat bit the dog's flank",
+    "the dog yelped",
+    "the new rat was struck again by the cane",
+    "the dog seized the new rat and shook it still",
+    "the new rat stopped moving",
+    "the Rat Mother struck the dog a heavy blow",
+    "the dog tore into the Rat Mother's side again",
+    "the Rat Mother turned on the dog and missed",
+    "the cane struck the Rat Mother solidly",
+    "the dog bit deep into the Rat Mother",
+    "the Rat Mother swung for the dog and missed",
+    "the dog caught the Rat Mother again, worrying at a wound",
+    "the Rat Mother lunged for the dog and missed",
+    "the dog snapped at the Rat Mother and missed",
+    "the Rat Mother swung for the dog and missed",
+    "the ground is slick with blood",
+    "the dog went for the Rat Mother again and missed",
+    "the Rat Mother turned on the dog again and missed",
+    "the dog tore into the Rat Mother once more",
+    "the Rat Mother staggered",
+    "the Rat Mother struck the dog hard",
+    "the dog locked its jaws into the Rat Mother's throat",
+    "the Rat Mother stopped moving",
+    "the Rat Mother is dead",
+    "a road exists in the Greater Plains",
+    "the Greater Plains exists on Terra",
+    "canes exist",
     "dogs exist",
-    "nests exist",
-    "canes exist as objects",
-    "roads exist",
-    "plains exist",
-    "forests exist near the Greater Plains",
-    "a crossing exists along the road or near it"
+    "rats exist"
+  ],
+  "at": "Firstday, 1st of Frostfall, 4E202, 13:21",
+  "location_path": [
+    {
+      "id": "terra",
+      "name": "Terra"
+    },
+    {
+      "id": "the-greater-plains",
+      "name": "The Greater Plains"
+    },
+    {
+      "id": "the-road",
+      "name": "The Road"
+    }
+  ],
+  "vitals": {
+    "health": 90,
+    "fatigue": 51,
+    "hunger": 1
+  },
+  "quest": null,
+  "resolved": true,
+  "ready": "It's over — the dog finished her.",
+  "delivered": true,
+  "chronicle": [
+    {
+      "ord": 3,
+      "text": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her. You swing for the Rat Mother and she's already turned from where you aimed. The dog gets under her guard and rips into her flank. The Rat Mother heaves and another rat comes spilling out of the nest at her side, then goes rigid with the effort. The new rat snaps at the dog and catches only fur. You catch the rat with the cane and it staggers sideways. The dog's jaws close on it and shake it hard. The Rat Mother stands frozen, spent, not moving. The rat lunges for the dog's leg and misses. You strike again and the rat reels. The dog snaps at it and comes up empty. The Rat Mother still hasn't moved. The rat gets its teeth into the dog's flank and it yelps. You bring the cane down on it again, hard. The dog seizes it and snaps it still with one shake. The Rat Mother surges back into the fight and catches the dog a heavy blow. You swing at her and miss clean. The dog tears into her side again. She turns on the dog and doesn't connect. You get the cane in on her for a solid hit. The dog goes for her again and bites deep. She swings for the dog and misses. You swing and she's already moved. The dog catches her again, worrying at the wound. She lunges for the dog and doesn't find it. Your swing goes wide. The dog snaps at her and misses. She swings for the dog and it isn't there. Your footing goes on the blood-slick ground and the swing meant for her goes wide instead. The dog goes for her again and comes away empty-jawed. She turns on the dog once more and misses. You find your feet and swing again, and she's already clear of it. The dog tears into her once more and she staggers under it. She catches the dog hard as it presses back in. You swing at her and miss again. The dog locks its jaws into her throat and doesn't let go until she stops moving."
+    }
   ]
 }

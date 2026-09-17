@@ -192,34 +192,35 @@ function Health({ now, most, side }) {
   );
 }
 
-function Wears({ who }) {
-  const gear = [...(who.worn || []), ...(who.kit || []).map((k) => ({ ...k, reach: true }))];
+const slugOf = (x) =>
+  x.id || String(x.name || "").toLowerCase().replace(/['\u2019]/g, "").replace(/[^a-z0-9]+/g, "-");
+
+function Pills({ worn }) {
   return (
-    <>
-      {gear.map((w) => (
-        <p className={`statline${w.reach ? " reach" : ""}`} key={w.name}>
-          <span className="statslot">{w.reach ? "reach" : w.slot || w.type}</span>
-          <span className="statwhat">
-            <Mark name={face(w)} tone={tone(w.rarity) || "tint-common"}>
-              <span className={`statname ${tone(w.rarity)}`} title={w.name}>
-                {w.name}
-              </span>
-            </Mark>
-            {w.does && <span className="statdoes">{w.does}</span>}
-          </span>
-        </p>
+    <div className="pills">
+      {(worn || []).map((w) => (
+        <button
+          className={`pill ${tone(w.rarity) || "tint-common"}`}
+          key={w.name}
+          title={[w.slot, w.does].filter(Boolean).join(" · ") || w.name}
+          onClick={() => openDossier(slugOf(w))}
+        >
+          <Mark name={face(w)}>{w.name}</Mark>
+        </button>
       ))}
-    </>
+    </div>
   );
 }
 
 function Tile({ who, now, down, acting, side }) {
-  const rows = [
-    ["hits for", who.damage],
-    ["to hit it", `dc ${who.dc}`],
-    ...(who.skill ? [["rolls", `${who.skill} ${who.bonus >= 0 ? "+" : ""}${who.bonus}`]] : []),
-    ...(who.ability ? [["can", who.ability.name]] : []),
-  ];
+  const mine = side === "us" && who.worn;
+  const rows = mine
+    ? [["attack", `${who.damage} dmg`]]
+    : [
+        ["hits for", who.damage],
+        ["to hit it", `dc ${who.dc}`],
+        ...(who.ability ? [["can", who.ability.name]] : []),
+      ];
   return (
     <div className={`tile ${side}${acting ? " acting" : ""}${down ? " down" : ""}`}>
       <p className="cornername">
@@ -228,7 +229,13 @@ function Tile({ who, now, down, acting, side }) {
       </p>
       <Health now={down ? 0 : now} most={who.most} side={side} />
       <div className="cornerbody">
-        {who.worn ? <Wears who={who} /> : null}
+        {mine && (
+          <>
+            <p className="cap tilecap">equipped</p>
+            <Pills worn={who.worn} />
+          </>
+        )}
+        {mine && <p className="cap tilecap">abilities</p>}
         {rows.map(([what, said]) => (
           <p className="statline" key={what}>
             <span className="statslot">{what}</span>

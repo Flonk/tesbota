@@ -21,14 +21,14 @@
     "era": 4,
     "year": 202,
     "day": 1,
-    "minute": 790,
-    "stamp": "1 Frostfall 4E202, 13:10",
-    "long": "Firstday, 1st of Frostfall, 4E202, 13:10"
+    "minute": 801,
+    "stamp": "1 Frostfall 4E202, 13:21",
+    "long": "Firstday, 1st of Frostfall, 4E202, 13:21"
   },
   "vitals": {
-    "health": 95,
-    "fatigue": 18,
-    "hunger": 0
+    "health": 90,
+    "fatigue": 51,
+    "hunger": 1
   },
   "quests": [],
   "skills": {
@@ -46,7 +46,7 @@
       "survival"
     ]
   },
-  "last_narration": "A few steps into the fog, the wet grass at the roadside erupts — a rat the size of a cat, hackles up, lunging straight for your ankle.\n\nYou jab the cane at it and catch it hard across the flank; it shrieks and reels back, 5 left in it.\n\nYou strike again before it recovers, a solid crack across its spine; 4 left in it.\n\nYou swing wide and it's already inside your reach, needle teeth sinking into your calf — 99 left of you.\n\nYou plant your foot to drive the next blow and it slides out from under you in the wet grass, and the rat is on you before you're set, tearing at your forearm — 96 left of you.\n\nOff balance, you still get the cane down on it, a heavy blow that folds it sideways, 2 left in it.\n\nYou lunge to finish it and miss your footing again, and it darts in and bites, 95 left of you.",
+  "last_narration": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her.\n\nYou swing for the Rat Mother and she's already turned from where you aimed.\n\nThe dog gets under her guard and rips into her flank.\n\nThe Rat Mother heaves and another rat comes spilling out of the nest at her side, then goes rigid with the effort.\n\nThe new rat snaps at the dog and catches only fur.\n\nYou catch the rat with the cane and it staggers sideways.\n\nThe dog's jaws close on it and shake it hard.\n\nThe Rat Mother stands frozen, spent, not moving.\n\nThe rat lunges for the dog's leg and misses.\n\nYou strike again and the rat reels.\n\nThe dog snaps at it and comes up empty.\n\nThe Rat Mother still hasn't moved.\n\nThe rat gets its teeth into the dog's flank and it yelps.\n\nYou bring the cane down on it again, hard.\n\nThe dog seizes it and snaps it still with one shake.\n\nThe Rat Mother surges back into the fight and catches the dog a heavy blow.\n\nYou swing at her and miss clean.\n\nThe dog tears into her side again.\n\nShe turns on the dog and doesn't connect.\n\nYou get the cane in on her for a solid hit.\n\nThe dog goes for her again and bites deep.\n\nShe swings for the dog and misses.\n\nYou swing and she's already moved.\n\nThe dog catches her again, worrying at the wound.\n\nShe lunges for the dog and doesn't find it.\n\nYour swing goes wide.\n\nThe dog snaps at her and misses.\n\nShe swings for the dog and it isn't there.\n\nYour footing goes on the blood-slick ground and the swing meant for her goes wide instead.\n\nThe dog goes for her again and comes away empty-jawed.\n\nShe turns on the dog once more and misses.\n\nYou find your feet and swing again, and she's already clear of it.\n\nThe dog tears into her once more and she staggers under it.\n\nShe catches the dog hard as it presses back in.\n\nYou swing at her and miss again.\n\nThe dog locks its jaws into her throat and doesn't let go until she stops moving.",
   "note": null,
   "location": "the-road",
   "location_path": [
@@ -65,15 +65,7 @@
   ],
   "last_seen": null,
   "created": "2026-09-17T09:14:40+00:00",
-  "quiet": 2,
-  "calm": 2,
-  "fight": {
-    "who": "giant-rat",
-    "name": "Rat",
-    "health": 2,
-    "damage": "1–3",
-    "skill": "athletics",
-    "dc": 11,
-    "flee_dc": 9
-  }
+  "quiet": 3,
+  "calm": 3,
+  "fight": null
 }
