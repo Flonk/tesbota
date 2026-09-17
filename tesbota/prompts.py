@@ -1,3 +1,4 @@
+import hashlib
 from pathlib import Path
 
 from . import chronicle
@@ -48,6 +49,19 @@ def tally(qty):
     if qty < 0:
         return f" (owes {abs(qty)})"
     return f" x{qty}" if qty > 1 else ""
+
+
+def told(parts, sent, key, head, body, still):
+    """The game master keeps one session for the whole campaign, so a block it has
+    already been handed is not worth the tokens of handing over again. What moved is
+    spelled out; what did not gets a line saying so."""
+    mark = hashlib.sha1(body.encode("utf-8")).hexdigest()[:16]
+    if sent is None or sent.get(key) != mark:
+        if sent is not None:
+            sent[key] = mark
+        parts.append(f"{head}\n{body}")
+    else:
+        parts.append(still)
 
 
 def render_quests(quests):
@@ -118,6 +132,10 @@ def explorer_turn(narration, nudge=None, check=None):
     return text
 
 
+CARRY_SAME = "What they are carrying is exactly as you were last told."
+KEEP_SAME = "What everything here keeps is exactly as you were last told."
+QUEST_SAME = "What they have taken on is exactly as you were last told."
+
 REDRAFT = (
     "Your previous draft was rejected. Revise it and reply with the same json shape. "
     "Keep everything that still stands — a redraft is a correction, not a retreat, "
@@ -126,14 +144,16 @@ REDRAFT = (
 )
 
 
-def gm_answer(question, previous=None, mode="look", inventory=None, others=None, correction=None, load=None):
+def gm_answer(question, previous=None, mode="look", inventory=None, others=None, correction=None, load=None, sent=None):
     parts = []
     if previous:
         parts.append(f"What they were last told:\n\n{previous}")
     if inventory:
-        parts.append("What they are carrying:\n" + render_inventory(inventory, load))
+        told(parts, sent, "inventory", "What they are carrying:",
+             render_inventory(inventory, load), CARRY_SAME)
     if others:
-        parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
+        told(parts, sent, "others", "What everything here keeps, and it is the whole of it:",
+             render_holdings(others), KEEP_SAME)
 
     if mode == "say":
         parts.append(
@@ -177,7 +197,7 @@ Narrate it as what happens. Do not hedge it, do not offer it as a possibility, a
 STRANGE = """This one is strange, and that is deliberate. Put it in front of them plainly and without explanation. Nobody in the scene remarks on it, nothing accounts for it, and you do not hint at what it means — you do not know. Write it as a claim like any other and let it be ruled on."""
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, left=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None, load=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, left=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None, load=None, sent=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -216,11 +236,14 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, lef
             )
         parts.append(said)
     if inventory is not None:
-        parts.append("What they are carrying:\n" + render_inventory(inventory, load))
+        told(parts, sent, "inventory", "What they are carrying:",
+             render_inventory(inventory, load), CARRY_SAME)
     if others:
-        parts.append("What everything here keeps, and it is the whole of it:\n" + render_holdings(others))
+        told(parts, sent, "others", "What everything here keeps, and it is the whole of it:",
+             render_holdings(others), KEEP_SAME)
     if quests:
-        parts.append("What they have taken on:\n" + render_quests(quests))
+        told(parts, sent, "quests", "What they have taken on:",
+             render_quests(quests), QUEST_SAME)
     if action:
         parts.append(f"The adventurer's action:\n\n{action}")
     if press:

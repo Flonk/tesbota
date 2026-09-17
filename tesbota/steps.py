@@ -248,6 +248,14 @@ def step_narrate(campaign, turn):
     return campaign, turn
 
 
+def ledger(campaign):
+    """What the game master's session has already been handed. A session that has
+    gone means it has been handed nothing, so the slate goes with it."""
+    if not campaign["sessions"].get("gm"):
+        campaign["sent"] = {}
+    return campaign.setdefault("sent", {})
+
+
 def step_answer(campaign, turn):
     text, session = ask(
         prompts.gm_answer(
@@ -258,6 +266,7 @@ def step_answer(campaign, turn):
             load=sheet.load(campaign),
             others=canon.holdings_at(campaign.get("location")),
             correction=turn.get("correction"),
+            sent=ledger(campaign),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -427,6 +436,7 @@ def step_gm(campaign, turn):
             others=canon.holdings_at(campaign.get("location")),
             quests=campaign.get("quests") or [],
             now=worldclock.long_stamp(campaign.get("time")),
+            sent=ledger(campaign),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,

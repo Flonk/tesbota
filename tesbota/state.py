@@ -61,6 +61,7 @@ def new_campaign():
     return {
         "explorer": None,
         "sessions": {"explorer": None, "gm": None, "lore3_sitting": None},
+        "sent": {},
         "current_turn": None,
         "turn_counter": 0,
         "clock": dict(DEFAULTS),
