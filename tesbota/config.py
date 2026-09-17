@@ -27,6 +27,14 @@ WRITE_TOOLS = ["Bash"]
 
 MAX_GM_RETRIES = 3
 
+# A fight is one turn of the world, played out blow by blow. The explorer picks each
+# one; the driver rolls it and pays for it.
+MAX_BLOWS = 6
+FLEE_FLOOR = 25
+BLOW_MINUTES = 1
+BLOW_FATIGUE = 3
+UNARMED = "1–2"
+
 MODEL = "claude-sonnet-5"
 MODELS = {"explorer": MODEL, "gm": MODEL, "lore1": MODEL, "lore2": MODEL, "lore3": MODEL, "lore4": MODEL,
           "questmaster": "claude-opus-5"}

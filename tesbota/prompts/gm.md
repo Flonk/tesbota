@@ -22,6 +22,7 @@ Reply with a single fenced json block and nothing else:
   "fatigue": 0,
   "health": 0,
   "check": null,
+  "fight": null,
   "location": "kebab-id of where they are now",
   "transactions": [],
   "quest_open": [],
@@ -38,6 +39,28 @@ Each turn the explorer can take an action. `minutes`, `fatigue`, `health` descri
 
 Most actions should require a skill check. `{"skill": "athletics", "dc": 12}`.
 
+
+# Fights
+
+When the explorer commits to violence, or something commits to it against them, do not narrate the fight. Declare it and stop. Set `fight`, and let `narration` be the one sentence before the first blow — who it is and what they are holding.
+
+    "fight": {
+      "who": "jost-halm",
+      "name": "Jost Halm",
+      "health": 24,
+      "damage": "2–5",
+      "skill": "athletics",
+      "dc": 12,
+      "flee_dc": 10
+    }
+
+`health` is how much it can take before it stops: 8 for a starved dog, 20 for a man with a knife, 40 for something a village would warn you about. `damage` is what one of its blows takes off, as a band, written the way the item table writes one.
+
+`skill` is what the explorer is doing to it — `athletics` for a swung stick, `sleight of hand` for a knife, `intimidation` for a fight that is really a stare. It must be one of the eighteen. `dc` is how hard that is to land, on the usual ladder. `flee_dc` is how hard the thing is to get away from, and it is always lower than `dc`.
+
+Somebody running is not a fight. If they are leaving, set an ordinary `check` and let them leave. A fight is an exchange both sides have committed to.
+
+You do not roll it and you never write it. The explorer will be asked, blow by blow, what they do — swing, use a thing they carry, go at it another way, or get out — and the dice will answer them. It will all be handed back to you at the end, in order, and you will be asked for the words then.
 
 # Travel
 

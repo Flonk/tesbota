@@ -1,4 +1,5 @@
 import json
+import re
 
 from . import canon, chronicle, prompts, sheet, worldclock
 import random
@@ -7,7 +8,12 @@ from .gate import sqlite_gate
 from .config import (
     GODHEAD_ID,
     BANDS,
+    BLOW_FATIGUE,
+    BLOW_MINUTES,
     EXPLORER,
+    FLEE_FLOOR,
+    MAX_BLOWS,
+    UNARMED,
     WEIGHT,
     SPARK_FLOOR,
     PRESS_FLOOR,
@@ -28,6 +34,7 @@ from .config import (
     TRIVIAL_MINUTES,
 )
 from .sdk import ask, extract_json
+from .state import pending_death, record_death
 
 
 def phase(turn, who, kind, text, **extra):
@@ -437,6 +444,7 @@ def step_gm(campaign, turn):
             quests=campaign.get("quests") or [],
             now=worldclock.long_stamp(campaign.get("time")),
             sent=ledger(campaign),
+            standing=campaign.get("fight"),
         ),
         system=prompts.GM_SYSTEM,
         tools=READ_TOOLS,
@@ -467,8 +475,188 @@ def step_gm(campaign, turn):
     world = (turn.get("arrival") or turn.get("event")) and not turn.get("action")
     gm_phase(turn, "world" if world else "outcome", draft.get("narration"))
     turn["correction"] = None
+    if draft.get("fight") or campaign.get("fight"):
+        open_fight(campaign, turn, draft)
+        turn["state"] = "swing"
+        return campaign, turn
     turn["state"] = "lore1"
     return campaign, turn
+
+
+def open_fight(campaign, turn, draft):
+    """A fight the game master has just declared, or the one it walked away from
+    and has now walked back into."""
+    said = draft.get("fight") or {}
+    held = campaign.get("fight") or {}
+    weapon, hurt = swung_with(campaign)
+    fight = {
+        "who": canon.slug(said.get("who") or held.get("who") or "it"),
+        "name": str(said.get("name") or held.get("name") or "it"),
+        "health": int(said.get("health") or held.get("health") or 10),
+        "damage": str(said.get("damage") or held.get("damage") or UNARMED),
+        "skill": str(said.get("skill") or held.get("skill") or "athletics").lower(),
+        "dc": int(said.get("dc") or held.get("dc") or 12),
+        "flee_dc": int(said.get("flee_dc") or held.get("flee_dc") or 10),
+        "weapon": weapon,
+        "weapon_damage": hurt,
+        "ended": None,
+        "opened": (campaign.get("vitals") or {}).get("health", MAX_HEALTH),
+        "standing": (campaign.get("vitals") or {}).get("health", MAX_HEALTH),
+        "began": int(said.get("health") or held.get("health") or 10),
+        "blows": [],
+    }
+    turn["fight"] = fight
+    return fight
+
+
+def step_swing(campaign, turn):
+    """Ask them what they do with this blow. One sentence out, one word back."""
+    fight = turn["fight"]
+    vitals = campaign.get("vitals") or {}
+    first = not fight["blows"]
+    message = (
+        prompts.fight_open(fight, usable(campaign), vitals)
+        if first
+        else prompts.fight_blow(
+            said_blow(fight["blows"][-1]), fight, vitals, len(fight["blows"])
+        )
+    )
+    text, session = ask(
+        message,
+        system=prompts.EXPLORER_SYSTEM,
+        tools=["Bash"],
+        session=campaign["sessions"]["explorer"],
+        model=MODELS["explorer"],
+        permission=explorer_permission,
+    )
+    campaign["sessions"]["explorer"] = session
+    turn["swing"] = chosen_blow(first_utterance(text) or text, campaign)
+    turn["state"] = "fight"
+    return campaign, turn
+
+
+def step_fight(campaign, turn, rng=random):
+    """Roll what they chose. No agent, no argument — the dice and the ledger."""
+    fight = turn["fight"]
+    vitals = campaign.setdefault("vitals", {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0})
+    picked = turn.pop("swing", None) or {"verb": "ATTACK", "what": None}
+    verb, what = picked["verb"], picked["what"]
+    n = len(fight["blows"]) + 1
+
+    blow = {"n": n, "verb": verb, "chose": verb, "hit": False, "damage": 0, "taken": 0,
+            "check": None, "text": ""}
+    dealt = taken = 0
+
+    if verb == "ITEM":
+        blow["chose"] = f"ITEM {what['name']}"
+        blow["mended"] = canon.does(what.get("effects"))
+        turn.setdefault("spent", []).append(what["name"])
+        taken = band(fight["damage"], rng)
+    else:
+        if verb == "SKILL":
+            blow["chose"] = f"SKILL {what}"
+        skill = what if verb == "SKILL" else fight["skill"]
+        dc = fight["flee_dc"] if verb == "FLEE" else fight["dc"]
+        turn["draft"]["check"] = {"skill": skill, "dc": dc}
+        check = roll_check(campaign, turn, rng) or {
+            "skill": skill, "dc": dc, "roll": 0, "rolls": [0],
+            "against": [], "bonus": 0, "total": 0, "passed": False,
+        }
+        blow["check"] = check
+        blow["hit"] = bool(check["passed"])
+        if verb == "FLEE":
+            if check["passed"]:
+                fight["ended"] = "fled"
+            else:
+                taken = band(fight["damage"], rng)
+        elif check["passed"]:
+            dealt = band(fight["weapon_damage"], rng)
+            if check["roll"] == SKILL_DIE:
+                dealt += band(fight["weapon_damage"], rng)
+        else:
+            taken = (
+                max(int(m) for m in BAND.search(fight["damage"]).groups() if m)
+                if check["roll"] == 1 and BAND.search(fight["damage"])
+                else band(fight["damage"], rng)
+            )
+
+    fight["health"] = max(0, fight["health"] - dealt)
+    mend = mended(blow, "health") if verb == "ITEM" else 0
+    standing = min(MAX_HEALTH, fight["standing"] + mend) - taken
+    fight["standing"] = max(0, standing)
+
+    blow.update(damage=dealt or taken, dealt=dealt, taken=taken,
+                enemy_health=fight["health"], explorer_health=max(0, standing))
+    fight["blows"].append(blow)
+
+    if standing <= 0:
+        fight["ended"] = "killed"
+    elif fight["health"] <= 0:
+        fight["ended"] = "beaten"
+    elif not fight["ended"] and n >= MAX_BLOWS:
+        fight["ended"] = "broken"
+
+    turn["state"] = "blows" if fight["ended"] else "swing"
+    return campaign, turn
+
+
+def step_blows(campaign, turn):
+    """One game master call to put words on a settled exchange."""
+    fight = turn["fight"]
+    roll_fate(turn)
+    text, session = ask(
+        prompts.gm_blows(fight, fate=turn.get("chosen")),
+        system=prompts.GM_SYSTEM,
+        tools=READ_TOOLS,
+        permission=sqlite_gate(also=("tesbota kill", "tesbota traits")),
+        session=campaign["sessions"]["gm"],
+        model=MODELS["gm"],
+    )
+    campaign["sessions"]["gm"] = session
+    out = extract_json(text)
+    lines = [str(x).strip() for x in (out.get("blows") or []) if str(x).strip()]
+    for blow, said in zip(fight["blows"], lines):
+        blow["text"] = said
+
+    draft = turn["draft"]
+    draft["narration"] = "\n\n".join([draft.get("narration") or ""] + lines).strip()
+    draft["claims"] = out.get("claims") or []
+    draft["location"] = out.get("location") or draft.get("location")
+    draft["transactions"] = list(draft.get("transactions") or []) + list(out.get("transactions") or [])
+    for name in turn.get("spent") or []:
+        draft["transactions"].append({"from": EXPLORER, "to": GODHEAD_ID, "name": name, "qty": 1})
+    for key in ("quest_open", "quest_update", "quest_close"):
+        draft[key] = out.get(key) or draft.get(key) or []
+
+    blows = len(fight["blows"])
+    draft["minutes"] = max(2, blows * BLOW_MINUTES)
+    draft["fatigue"] = blows * BLOW_FATIGUE
+    draft["health"] = sum(mended(b, "health") for b in fight["blows"]) - sum(
+        b["taken"] for b in fight["blows"]
+    )
+    sated = sum(mended(b, "hunger") for b in fight["blows"])
+    draft["hunger"] = sated if sated else None
+    draft["check"] = None
+    turn["check"] = None
+    fight["health_from_to"] = [fight["opened"], fight["blows"][-1]["explorer_health"]]
+    fight["enemy_from_to"] = [fight["began"], fight["health"]]
+
+    gm_phase(turn, "fight", draft["narration"], fight=fight)
+    turn["state"] = "lore1"
+    return campaign, turn
+
+
+MENDED = {"health": re.compile(r"([+\-\u2212]?\d+)\s*health"),
+          "hunger": re.compile(r"([+\-\u2212]?\d+)\s*hunger")}
+
+
+def mended(blow, stat):
+    """What a thing used mid-fight moved. The bands are written the way the world
+    writes them, minus sign and all."""
+    if blow.get("verb") != "ITEM" or not blow.get("mended"):
+        return 0
+    found = MENDED[stat].search(blow["mended"])
+    return int(found.group(1).replace("\u2212", "-")) if found else 0
 
 
 def plain(text):
@@ -662,6 +850,10 @@ def redraft_state(turn):
 
 
 def too_tired(campaign, draft):
+    """Mid-fight this is nonsense — nobody stops swinging to be told they are weary —
+    so a draft carrying a fight is never sent back for it."""
+    if draft.get("fight"):
+        return False
     vitals = campaign.get("vitals") or {"fatigue": 0}
     return vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0) > MAX_FATIGUE
 
@@ -752,6 +944,23 @@ def apply_inventory(draft, turn_id=None):
         )
 
 
+def settle_fight(campaign, turn):
+    """A fight that ran out of blows is carried, so the next turn meets the same
+    thing with the same wounds. Any other ending closes it. Nought health kills,
+    which nothing in this machine did before a fight could take you there."""
+    fight = turn.get("fight")
+    if not fight:
+        return campaign
+    if fight["ended"] == "broken":
+        campaign["fight"] = {k: fight[k] for k in
+                             ("who", "name", "health", "damage", "skill", "dc", "flee_dc")}
+    else:
+        campaign["fight"] = None
+    if fight["ended"] == "killed" and not pending_death():
+        record_death(f"killed by {fight['name']}")
+    return campaign
+
+
 def apply_vitals(campaign, draft):
     vitals = campaign.setdefault("vitals", {"health": MAX_HEALTH, "fatigue": 0, "hunger": 0})
     vitals["fatigue"] = max(0, min(MAX_FATIGUE, vitals.get("fatigue", 0) + int(draft.get("fatigue") or 0)))
@@ -793,6 +1002,71 @@ def roll_check(campaign, turn, rng=random):
     return outcome
 
 
+BAND = re.compile(r"(\d+)\s*[–—-]\s*(\d+)|^\s*(\d+)\s*$")
+
+
+def band(said, rng=random):
+    """A damage band the way the item table writes one — `1–2`, `2-5`, or a bare
+    number. Anything that does not read as one is a bare-handed blow."""
+    found = BAND.search(str(said or ""))
+    if not found:
+        found = BAND.search(UNARMED)
+    if found.group(3):
+        return int(found.group(3))
+    low, high = int(found.group(1)), int(found.group(2))
+    return rng.randint(min(low, high), max(low, high))
+
+
+def swung_with(campaign):
+    """What they are holding. Worn, a weapon, and carrying a damage band — anything
+    else and they are swinging a fist, which is no worse than a stick."""
+    for held in canon.holdings(EXPLORER):
+        if held.get("worn") and held.get("type") == "weapon":
+            hurt = next((e["amount"] for e in held.get("effects") or [] if e["stat"] == "damage"), None)
+            if hurt:
+                return held.get("name"), str(hurt)
+    return "bare hands", UNARMED
+
+
+def usable(campaign):
+    """What they could drink or eat mid-fight. A consumable is single use, so using
+    one here is the whole of it."""
+    return [h for h in canon.holdings(EXPLORER)
+            if h.get("type") == "consumable" and int(h.get("qty") or 0) > 0]
+
+
+def chosen_blow(said, campaign):
+    """One word back from the explorer, read the way an action is read. Anything that
+    does not parse is a swing, because a body in a fight does not stand still."""
+    first = (said or "").strip().splitlines()
+    head = (first[0] if first else "").strip().strip("\"'`*").strip()
+    upper = head.upper()
+    if upper.startswith("FLEE"):
+        return {"verb": "FLEE", "what": None}
+    if upper.startswith("ITEM"):
+        want = canon.slug(head[4:])
+        item = next((h for h in usable(campaign) if canon.slug(h["name"]) == want), None)
+        return {"verb": "ITEM", "what": item} if item else {"verb": "ATTACK", "what": None}
+    if upper.startswith("SKILL"):
+        name = " ".join(head[5:].split()).lower().strip(":- ")
+        if sheet.skill_bonus(campaign, name) is not None:
+            return {"verb": "SKILL", "what": name}
+    return {"verb": "ATTACK", "what": None}
+
+
+def said_blow(blow):
+    """The one line the explorer is handed before being asked again."""
+    if blow["verb"] == "ITEM":
+        return f"You used the {blow['chose'][5:]}. {blow['taken']} put into you."
+    if blow["verb"] == "FLEE" and blow["hit"]:
+        return "You got clear."
+    if blow["verb"] == "FLEE":
+        return f"You could not break away, and it put {blow['taken']} into you."
+    if blow["hit"]:
+        return f"You landed it — {blow['damage']} off it."
+    return f"You missed, and it put {blow['taken']} into you."
+
+
 def roll_fate(turn, rng=random):
     roll = rng.randint(1, DIE)
     turn["roll"] = roll
@@ -823,6 +1097,7 @@ def deliver(campaign, turn):
     campaign = apply_vitals(campaign, draft)
     apply_inventory(draft, turn["turn_id"])
     campaign = apply_quests(campaign, draft, turn["turn_id"])
+    campaign = settle_fight(campaign, turn)
 
     where = (draft.get("location") or "").strip() if isinstance(draft.get("location"), str) else ""
     if where:
@@ -899,6 +1174,9 @@ STEPS = {
     "answer": step_answer,
     "propose": step_propose,
     "gm": step_gm,
+    "swing": step_swing,
+    "fight": step_fight,
+    "blows": step_blows,
     "lore1": step_lore1,
     "narrate": step_narrate,
 }

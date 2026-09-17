@@ -1,8 +1,8 @@
 {
   "turn_id": "t0001",
-  "state": "explorer",
+  "state": "propose",
   "created": "2026-09-17T09:14:46+00:00",
-  "action": null,
+  "action": "I walk down the road, following it into the fog.",
   "draft": null,
   "verdicts": [],
   "correction": null,
@@ -62,6 +62,14 @@
       "fortune": null,
       "transactions": [],
       "check": null
+    },
+    {
+      "n": 2,
+      "who": "explorer",
+      "kind": "action",
+      "text": "I walk down the road, following it into the fog.",
+      "status": "said",
+      "claims": []
     }
   ],
   "location_path": [],

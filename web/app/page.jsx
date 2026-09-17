@@ -99,11 +99,12 @@ function toll(x) {
   if (x.minutes) bits.push(cost(x.minutes));
   if (x.fatigue) bits.push(`${x.fatigue > 0 ? "+" : ""}${x.fatigue} fatigue`);
   if (x.roll) bits.push(`d400 ${x.roll}`);
+  if (x.fight) bits.push(`${x.fight.blows.length} blows`);
   return bits;
 }
 
 const SAID_LABEL = { action: "action", look: "looks", say: "says" };
-const GM_LABEL = { world: "what happens", answer: "the answer", outcome: "what happens" };
+const GM_LABEL = { world: "what happens", answer: "the answer", outcome: "what happens", fight: "the fight" };
 const VERDICT = {
   TRUE: "good",
   WITHIN_BOUNDS: "good",
@@ -172,6 +173,41 @@ function Check({ c }) {
   );
 }
 
+const END = {
+  beaten: "it went down",
+  fled: "you got out",
+  killed: "you did not get out",
+  broken: "it is not over",
+};
+
+function Blows({ f }) {
+  return (
+    <div className="fight">
+      <p className="cap fightwho">
+        {f.name} · {f.began} hp · {f.weapon} {f.weapon_damage} vs {f.damage}
+      </p>
+      {f.blows.map((b) => (
+        <div className={`blow ${b.hit ? "landed" : "taken"}`} key={b.n}>
+          <span className="blowno">{b.n}</span>
+          <span className="blowchose">{b.chose}</span>
+          {b.text && <Prose className="body told" text={b.text} />}
+          {b.check && <Check c={b.check} />}
+          <span className="blowtoll">
+            {b.dealt
+              ? `−${b.dealt} · ${b.enemy_health} left of it`
+              : b.taken
+                ? `−${b.taken} · ${b.explorer_health} left of you`
+                : `${b.explorer_health} left of you`}
+          </span>
+        </div>
+      ))}
+      <Note tone={f.ended === "beaten" || f.ended === "fled" ? "good" : "bad"}>
+        {END[f.ended] || "it is not over"}
+      </Note>
+    </div>
+  );
+}
+
 function Pair({ said, told }) {
   const wide = said.kind === "action" || said.kind === "say";
   const label = [SAID_LABEL[said.kind] || said.kind, ...(told ? toll(told) : [])].join(" · ");
@@ -182,7 +218,9 @@ function Pair({ said, told }) {
       {told?.outcomes?.length > 0 && (
         <Outcomes rows={told.outcomes} chosen={told.chosen} fortune={told.fortune} />
       )}
-      {told?.text ? (
+      {told?.fight ? (
+        <Blows f={told.fight} />
+      ) : told?.text ? (
         <Prose className="body told" text={told.text} />
       ) : (
         <p className="body told waiting">waiting for an answer…</p>
@@ -196,7 +234,13 @@ function Alone({ x }) {
   const label = toll(x);
   return (
     <Block kind={x.kind} label={label.length ? label.join(" · ") : GM_LABEL[x.kind]}>
-      {x.text ? <Prose className="body told" text={x.text} /> : <p className="body waiting">waiting for an answer…</p>}
+      {x.fight ? (
+        <Blows f={x.fight} />
+      ) : x.text ? (
+        <Prose className="body told" text={x.text} />
+      ) : (
+        <p className="body waiting">waiting for an answer…</p>
+      )}
       <Checked x={x} />
     </Block>
   );

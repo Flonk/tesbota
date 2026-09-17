@@ -2,7 +2,8 @@ import hashlib
 from pathlib import Path
 
 from . import chronicle
-from .config import EXPLORER
+from .canon import does
+from .config import EXPLORER, FLEE_FLOOR
 from .state import explorer_name
 
 PROMPTS = Path(__file__).parent / "prompts"
@@ -138,6 +139,98 @@ CARRY_SAME = "What they are carrying is exactly as you were last told."
 KEEP_SAME = "What everything here keeps is exactly as you were last told."
 QUEST_SAME = "What they have taken on is exactly as you were last told."
 
+VERBS = """  ATTACK          swing with the {weapon}, {weapon_damage} damage
+  ITEM <name>     use one thing you carry, and it is gone{kit}
+  SKILL <name>    go at it another way, with one of the eighteen
+  FLEE            get out"""
+
+
+def fight_open(fight, carried, vitals):
+    """Laid out once. The explorer keeps a session, so every blow after this one is
+    a single line."""
+    kit = "".join(
+        f"\n                    {h['name']} — {does(h.get('effects'))}" for h in carried or []
+    )
+    return (
+        f"{fight['name']} is on you and you are in it now. Every time you are asked, "
+        "answer with one of these and nothing else:\n\n"
+        + VERBS.format(weapon=fight["weapon"], weapon_damage=fight["weapon_damage"], kit=kit)
+        + f"\n\nIt has {fight['health']} in it. You have {vitals.get('health')}. "
+        "You will be told what happened and asked again. One word, nothing else."
+    )
+
+
+def fight_blow(said, fight, vitals, n):
+    """One sentence, and the question again. Nothing else — the session holds the
+    rest, and a fight is no place to read a briefing."""
+    left = vitals.get("health", 0)
+    hurt = "\n\nYou are hurt badly." if left <= FLEE_FLOOR else ""
+    return (
+        f"{said} {left} left of you, {fight['health']} left of it.{hurt}\n\nWhat do you do?"
+    )
+
+
+ENDED = {
+    "beaten": "it went down.",
+    "fled": "you got out.",
+    "killed": "you did not get out.",
+    "broken": "it is not over.",
+}
+
+BLOWS = """The fight has been rolled. They chose each of these, and this is what came of it, in order, and it is settled:
+
+{sheet}
+
+It ended: {ended}
+
+What they chose is theirs, not yours — narrate the choice they made, not the one you would have made for them. Write one line for each numbered blow, in that order, second person, present tense. A line is a clause or a short sentence; this is a fight, not a chapter. Say what the numbers say. A landed blow lands and a missed one costs them. Do not soften a hit, do not add a blow, do not take one away, and do not say how it ends before the last line.
+
+Reply in the same json shape you always use, with `blows` in place of `narration`:
+
+    {{"blows": ["…", "…"], "claims": [], "location": "kebab-id",
+     "transactions": [], "quest_open": [], "quest_update": [], "quest_close": []}}
+
+`minutes`, `fatigue`, `health`, `check` and `fight` are not yours this time — the fight already cost what it cost. `transactions` still are: what comes off a body, what breaks, what is dropped."""
+
+FIGHT_FATE = """The dice also went hard against them, in the doing of this. Put it in the fight, in the blow it belongs to — the strap goes, the footing goes, something arrives. Do not soften it and do not undo a blow."""
+
+FIGHT_DEATH = """It ended: you did not get out. They are dead. Before you reply, run:
+
+    tesbota kill "<what killed them, in a phrase>"
+
+The last line you write is the last line of their book. Write it as one."""
+
+
+def blow_line(blow, fight):
+    """One row of the roll sheet: what they picked, and what it cost."""
+    said = blow["chose"]
+    if blow["verb"] == "ITEM":
+        return (f"{said} — used, {blow.get('mended') or 'nothing changed'}; "
+                f"it put {blow['taken']} into you, {blow['explorer_health']} left of you")
+    if blow["verb"] == "FLEE" and blow["hit"]:
+        return f"{said} — you got clear"
+    if blow["verb"] == "FLEE":
+        return (f"{said} — failed, it put {blow['taken']} into you, "
+                f"{blow['explorer_health']} left of you")
+    if blow["hit"]:
+        return (f"{said} — landed, {blow['dealt']} off {fight['name']}, "
+                f"{blow['enemy_health']} left of it")
+    return (f"{said} — missed, it put {blow['taken']} into you, "
+            f"{blow['explorer_health']} left of you")
+
+
+def gm_blows(fight, fate=None):
+    sheet = "\n".join(
+        f"  {b['n']}  {blow_line(b, fight)}" for b in fight["blows"]
+    )
+    parts = [BLOWS.format(sheet=sheet, ended=ENDED.get(fight["ended"], "it is not over."))]
+    if fate:
+        parts.append(FIGHT_FATE)
+    if fight["ended"] == "killed":
+        parts.append(FIGHT_DEATH)
+    return "\n\n".join(parts)
+
+
 REDRAFT = (
     "Your previous draft was rejected. Revise it and reply with the same json shape. "
     "Keep everything that still stands — a redraft is a correction, not a retreat, "
@@ -199,7 +292,7 @@ Narrate it as what happens. Do not hedge it, do not offer it as a possibility, a
 STRANGE = """This one is strange, and that is deliberate. Put it in front of them plainly and without explanation. Nobody in the scene remarks on it, nothing accounts for it, and you do not hint at what it means — you do not know. Write it as a claim like any other and let it be ruled on."""
 
 
-def gm_turn(action, previous=None, vitals=None, correction=None, event=None, left=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None, load=None, sent=None):
+def gm_turn(action, previous=None, vitals=None, correction=None, event=None, left=None, arrival=None, agreed=None, note=None, chosen=None, press=False, inventory=None, others=None, quests=None, now=None, load=None, sent=None, standing=None):
     parts = []
     if now:
         parts.append(f"The time is {now}.")
@@ -246,6 +339,12 @@ def gm_turn(action, previous=None, vitals=None, correction=None, event=None, lef
     if quests:
         told(parts, sent, "quests", "What they have taken on:",
              render_quests(quests), QUEST_SAME)
+    if standing:
+        parts.append(
+            f"The fight with {standing['name']} is not over. It has {standing['health']} "
+            "left in it. Declare it again with that health to carry the pool forward, or "
+            "narrate it ending some other way and leave `fight` out."
+        )
     if action:
         parts.append(f"The adventurer's action:\n\n{action}")
     if press:

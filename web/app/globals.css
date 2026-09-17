@@ -830,3 +830,15 @@ textarea.prompt:focus { outline: none; }
 }
 .walker:hover { color: var(--bg); }
 .walker.on { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 35%, transparent); }
+
+.fight { display: flex; flex-direction: column; gap: .7rem; }
+.fightwho { color: var(--dim); margin: 0; }
+.blow {
+  display: flex; flex-direction: column; gap: .25rem;
+  border-left: 1px solid var(--line); padding-left: .8rem;
+}
+.blow.landed { border-left-color: var(--good); }
+.blow.taken { border-left-color: var(--bad); }
+.blowno, .blowtoll { font: var(--mono); font-size: .72rem; color: var(--dim); letter-spacing: .06em; }
+.blowchose { font: var(--mono); font-size: .72rem; color: var(--gold); letter-spacing: .1em; }
+.blow .body { margin: 0; }

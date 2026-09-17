@@ -1,7 +1,7 @@
 {
   "explorer": "Swantje Bota",
   "sessions": {
-    "explorer": null,
+    "explorer": "dd3fc768-a0af-40fc-b88c-56d16d6bf910",
     "gm": null,
     "lore3_sitting": null
   },
@@ -44,7 +44,7 @@
     ]
   },
   "last_narration": "You are standing on a road in wet grass. Fog stands close on every side, and the road runs away from you in two directions. You should probably keep walking.",
-  "note": null,
+  "note": "A rat the size of a cat comes out of the wet grass at the roadside and goes for her. It is hostile and it will not flee. Declare a fight: it has 7 health, does 1–3, athletics dc 11, flee_dc 9.",
   "location": null,
   "location_path": [],
   "last_seen": null,
