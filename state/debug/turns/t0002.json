@@ -1,0 +1,2900 @@
+{
+  "turn_id": "t0002",
+  "state": "swing",
+  "created": "2026-09-17T10:10:54+00:00",
+  "action": "ATTACK",
+  "draft": {
+    "narration": "The cane comes down and finishes the rat clean — but the blow is still traveling when the bank beside you tears open, and something far bigger surges out of the nest, jaws wide, with the dog that's been shadowing you since the crossing already snarling in at your side to meet it.",
+    "travel": null,
+    "minutes": 1,
+    "fatigue": 3,
+    "health": 0,
+    "check": {
+      "skill": "athletics",
+      "dc": 12
+    },
+    "fight": {
+      "skill": "athletics",
+      "flee_dc": 10,
+      "their_dc": 11,
+      "us": [
+        {
+          "who": "the-dog",
+          "name": "the dog",
+          "health": 12,
+          "damage": "1–3",
+          "dc": 12,
+          "bonus": 2
+        }
+      ],
+      "them": [
+        {
+          "who": "rat-mother",
+          "name": "the Rat Mother",
+          "health": 20,
+          "damage": "2–4",
+          "dc": 12,
+          "bonus": 2,
+          "ability": {
+            "name": "spawns a rat",
+            "sleep": 2,
+            "spawn": {
+              "name": "Rat",
+              "health": 5,
+              "damage": "1–2",
+              "dc": 10,
+              "bonus": 1
+            }
+          }
+        }
+      ]
+    },
+    "location": "the-road",
+    "transactions": [],
+    "quest_open": [],
+    "quest_update": [],
+    "quest_close": [],
+    "claims": [],
+    "hunger": null
+  },
+  "verdicts": [],
+  "correction": null,
+  "gm_retries": 0,
+  "gap": null,
+  "wake_at": null,
+  "minutes": 0,
+  "phases": [
+    {
+      "n": 1,
+      "who": "explorer",
+      "kind": "action",
+      "text": "ATTACK",
+      "status": "said",
+      "claims": []
+    },
+    {
+      "n": 2,
+      "who": "gm",
+      "kind": "outcome",
+      "text": "The cane comes down and finishes the rat clean — but the blow is still traveling when the bank beside you tears open, and something far bigger surges out of the nest, jaws wide, with the dog that's been shadowing you since the crossing already snarling in at your side to meet it.",
+      "status": "pending",
+      "claims": []
+    }
+  ],
+  "note": "A dog has been trotting at her heel since the crossing — it is hers now, or near enough. The nest in the roadside bank opens and the Rat Mother comes out of it, huge and hostile, and she will not flee. Declare the fight: the dog fights alongside her with 12 health, 1–3 damage, dc 12, bonus 2. The Rat Mother has 20 health, 2–4 damage, dc 12, bonus 2, and an ability that spawns a Rat (5 health, 1–2 damage, dc 10, bonus 1) and then leaves her not stirring for 2 rounds. athletics, dc 12 to hit her, their_dc 11, flee_dc 10.",
+  "answers": [],
+  "proposal": {
+    "summary": "You drive the cane down for a finishing blow on the rat.",
+    "target": null,
+    "minutes": 1,
+    "fatigue": 3
+  },
+  "outcomes": [
+    {
+      "band": "common",
+      "text": "the blow lands clean and the rat drops dead — and the bank beside it tears open, something far larger clawing out of a hidden nest, while the dog that's followed you since the crossing plants itself snarling at your side",
+      "p": 0.3684210526315789
+    },
+    {
+      "band": "common",
+      "text": "the cane catches it hard enough to finish it, and before its body's even still the nest in the bank splits open behind it, huge and hostile, the dog already between you and it",
+      "p": 0.3157894736842105
+    },
+    {
+      "band": "uncommon",
+      "text": "the rat dies under the blow but the dog shoulders in ahead of you to meet what's coming out of the nest, throwing off your footing as the huge thing rears up",
+      "p": 0.18947368421052632
+    },
+    {
+      "band": "rare",
+      "text": "your cane is still finishing the rat when the nest erupts mid-swing, so the same motion that kills it carries straight into meeting the enormous thing lunging out behind, the dog snapping in beside you",
+      "p": 0.08421052631578949
+    },
+    {
+      "band": "epic",
+      "text": "the rat dies and in the instant the nest tears open the fog itself goes utterly still over that one patch of bank, as if something were holding its breath, before the huge shape and the dog both come forward into it",
+      "p": 0.031578947368421054
+    },
+    {
+      "band": "legendary",
+      "text": "the rat drops and what climbs out of the nest looks back at you with eyes like two flat coins that catch no light at all, wrong in a way you have no word for, while the dog stands its ground against it anyway",
+      "p": 0.010526315789473686
+    }
+  ],
+  "fortune": 0.8817026386027732,
+  "chosen": {
+    "band": "rare",
+    "text": "your cane is still finishing the rat when the nest erupts mid-swing, so the same motion that kills it carries straight into meeting the enormous thing lunging out behind, the dog snapping in beside you",
+    "p": 0.08421052631578949
+  },
+  "forced_strange": false,
+  "confirmed": true,
+  "pressed": false,
+  "fight": {
+    "skill": "athletics",
+    "flee_dc": 10,
+    "us": [
+      {
+        "id": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "kind": "explorer",
+        "health": 91,
+        "most": 100,
+        "damage": "1–2",
+        "weapon": "Walking Cane",
+        "dc": 11,
+        "bonus": 0,
+        "skill": "athletics",
+        "ability": null,
+        "asleep": 0,
+        "dead": false,
+        "fatigue": 18,
+        "hunger": 0,
+        "worn": [
+          {
+            "name": "Explorer's Cap",
+            "slot": "helmet",
+            "type": "apparel",
+            "rarity": "uncommon",
+            "does": ""
+          },
+          {
+            "name": "Linen Shirt",
+            "slot": "chest",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "2 protection"
+          },
+          {
+            "name": "Wool Leggings",
+            "slot": "legs",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "1 protection"
+          },
+          {
+            "name": "Walking Boots",
+            "slot": "feet",
+            "type": "apparel",
+            "rarity": "common",
+            "does": "1 protection"
+          },
+          {
+            "name": "Walking Cane",
+            "slot": "mainhand",
+            "type": "weapon",
+            "rarity": "common",
+            "does": "1–2 damage"
+          }
+        ],
+        "kit": [
+          {
+            "name": "Bread from Alheim Mill",
+            "qty": 1,
+            "type": "consumable",
+            "rarity": "common",
+            "does": "+15 health, −20 hunger"
+          }
+        ]
+      },
+      {
+        "id": "the-dog",
+        "name": "the dog",
+        "kind": "ally",
+        "health": 0,
+        "most": 12,
+        "damage": "1–3",
+        "dc": 12,
+        "bonus": 2,
+        "skill": null,
+        "ability": null,
+        "asleep": 0,
+        "dead": true
+      }
+    ],
+    "them": [
+      {
+        "id": "rat-mother",
+        "name": "the Rat Mother",
+        "kind": "foe",
+        "health": 11,
+        "most": 20,
+        "damage": "2–4",
+        "dc": 12,
+        "bonus": 2,
+        "skill": null,
+        "ability": {
+          "name": "spawns a rat",
+          "sleep": 2,
+          "spawn": {
+            "name": "Rat",
+            "health": 5,
+            "damage": "1–2",
+            "dc": 10,
+            "bonus": 1
+          },
+          "used": true
+        },
+        "asleep": 0,
+        "dead": false
+      },
+      {
+        "id": "rat",
+        "name": "Rat",
+        "kind": "foe",
+        "health": 0,
+        "most": 5,
+        "damage": "1–2",
+        "dc": 10,
+        "bonus": 1,
+        "skill": null,
+        "ability": null,
+        "asleep": 0,
+        "dead": true
+      }
+    ],
+    "turn": 0,
+    "round": 19,
+    "ended": null,
+    "blows": [
+      {
+        "n": 1,
+        "round": 1,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 19,
+          "rolls": [
+            19
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 19,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 19,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 12,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 2,
+        "round": 1,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 3,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 12,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 3,
+        "round": 1,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "spawns a rat",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": null,
+        "text": "",
+        "spawned": "Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 12,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 5,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 4,
+        "round": 1,
+        "who": "rat",
+        "name": "Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 6,
+          "rolls": [
+            6
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 7,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 12,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 5,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 5,
+        "round": 2,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 8,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 12,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 5,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 6,
+        "round": 2,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 18,
+          "rolls": [
+            18
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 20,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "left": 3,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 12,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 3,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 7,
+        "round": 2,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ASLEEP",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": null,
+        "text": "",
+        "spent": true,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 12,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 3,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 8,
+        "round": 2,
+        "who": "rat",
+        "name": "Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 3,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 20,
+          "rolls": [
+            20
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 21,
+          "passed": true
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 9,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 3,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 9,
+        "round": 3,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 7,
+          "rolls": [
+            7
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 7,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 3,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 10,
+        "round": 3,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 10,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "left": 1,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 11,
+        "round": 3,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ASLEEP",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": null,
+        "text": "",
+        "spent": true,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 12,
+        "round": 3,
+        "who": "rat",
+        "name": "Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 10,
+          "rolls": [
+            10
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 11,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 13,
+        "round": 4,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 8,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 14,
+        "round": 4,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 7,
+          "rolls": [
+            7
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 9,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 15,
+        "round": 4,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 2,
+          "rolls": [
+            2
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 4,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 16,
+        "round": 4,
+        "who": "rat",
+        "name": "Rat",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 9,
+          "rolls": [
+            9
+          ],
+          "against": [],
+          "bonus": 1,
+          "total": 10,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 17,
+        "round": 5,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 10,
+          "roll": 13,
+          "rolls": [
+            13
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 13,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "left": 0,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 1,
+            "dead": false
+          }
+        ]
+      },
+      {
+        "n": 18,
+        "round": 5,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 10,
+          "roll": 10,
+          "rolls": [
+            10
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 12,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat",
+        "atname": "Rat",
+        "left": 0,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 19,
+        "round": 5,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 10,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 20,
+        "round": 6,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 1,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 20,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 21,
+        "round": 6,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 3,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 16,
+          "rolls": [
+            16
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 18,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 17,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 17,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 22,
+        "round": 6,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 3,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 17,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 23,
+        "round": 7,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 12,
+          "rolls": [
+            12
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 12,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 15,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 17,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 24,
+        "round": 7,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 4,
+          "rolls": [
+            4
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 6,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 17,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 25,
+        "round": 7,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 5,
+          "rolls": [
+            5
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 7,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 17,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 26,
+        "round": 8,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 14,
+          "rolls": [
+            14
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 14,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 16,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 17,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 27,
+        "round": 8,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 12,
+          "rolls": [
+            12
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 14,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 15,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 15,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 28,
+        "round": 8,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 3,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 15,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 29,
+        "round": 9,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 8,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 15,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 30,
+        "round": 9,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 11,
+          "rolls": [
+            11
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 13,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 14,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 14,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 31,
+        "round": 9,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 10,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 14,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 32,
+        "round": 10,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 4,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 20,
+          "rolls": [
+            20
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 20,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 10,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 14,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 33,
+        "round": 10,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 4,
+          "rolls": [
+            4
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 6,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 9,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 14,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 34,
+        "round": 10,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 4,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 12,
+          "rolls": [
+            12
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 14,
+          "passed": true
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 5,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 5,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 14,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 35,
+        "round": 11,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 10,
+          "rolls": [
+            10
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 10,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 5,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 14,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 36,
+        "round": 11,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 17,
+          "rolls": [
+            17
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 19,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 13,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 5,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 13,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 37,
+        "round": 11,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 3,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 19,
+          "rolls": [
+            19
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 21,
+          "passed": true
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 2,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 2,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 13,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 38,
+        "round": 12,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 17,
+          "rolls": [
+            17
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 17,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 11,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 2,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 13,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 39,
+        "round": 12,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 5,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 2,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 13,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 40,
+        "round": 12,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 5,
+          "rolls": [
+            5
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 7,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 2,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 13,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 41,
+        "round": 13,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 8,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 2,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 13,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 42,
+        "round": 13,
+        "who": "the-dog",
+        "name": "the dog",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 2,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 16,
+          "rolls": [
+            16
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 18,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 11,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 2,
+            "dead": false
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 43,
+        "round": 13,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 4,
+        "check": {
+          "skill": "a swing",
+          "dc": 12,
+          "roll": 18,
+          "rolls": [
+            18
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 20,
+          "passed": true
+        },
+        "text": "",
+        "at": "the-dog",
+        "atname": "the dog",
+        "left": 0,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 44,
+        "round": 14,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 1,
+          "rolls": [
+            1
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 1,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 45,
+        "round": 14,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 4,
+          "rolls": [
+            4
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 6,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 46,
+        "round": 15,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 8,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 47,
+        "round": 15,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 4,
+          "rolls": [
+            4
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 6,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 48,
+        "round": 16,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 3,
+          "rolls": [
+            3
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 3,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 49,
+        "round": 16,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 8,
+          "rolls": [
+            8
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 10,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 50,
+        "round": 17,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 5,
+          "rolls": [
+            5
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 5,
+          "passed": false
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 95,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 51,
+        "round": 17,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 0,
+        "taken": 4,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 19,
+          "rolls": [
+            19
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 21,
+          "passed": true
+        },
+        "text": "",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "left": 91,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 91,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 52,
+        "round": 18,
+        "who": "the-explorer-debug",
+        "name": "Swantje Bota",
+        "side": "us",
+        "chose": "ATTACK",
+        "hit": true,
+        "dealt": 1,
+        "taken": 0,
+        "check": {
+          "skill": "athletics",
+          "dc": 12,
+          "roll": 12,
+          "rolls": [
+            12
+          ],
+          "against": [],
+          "bonus": 0,
+          "total": 12,
+          "passed": true
+        },
+        "text": "",
+        "at": "rat-mother",
+        "atname": "the Rat Mother",
+        "left": 10,
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 91,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      },
+      {
+        "n": 53,
+        "round": 18,
+        "who": "rat-mother",
+        "name": "the Rat Mother",
+        "side": "them",
+        "chose": "ATTACK",
+        "hit": false,
+        "dealt": 0,
+        "taken": 0,
+        "check": {
+          "skill": "a swing",
+          "dc": 11,
+          "roll": 5,
+          "rolls": [
+            5
+          ],
+          "against": [],
+          "bonus": 2,
+          "total": 7,
+          "passed": false
+        },
+        "text": "",
+        "at": "the-explorer-debug",
+        "atname": "Swantje Bota",
+        "us": [
+          {
+            "id": "the-explorer-debug",
+            "health": 91,
+            "dead": false
+          },
+          {
+            "id": "the-dog",
+            "health": 0,
+            "dead": true
+          }
+        ],
+        "them": [
+          {
+            "id": "rat-mother",
+            "health": 11,
+            "dead": false
+          },
+          {
+            "id": "rat",
+            "health": 0,
+            "dead": true
+          }
+        ]
+      }
+    ],
+    "said": "The cane comes down and finishes the rat clean — but the blow is still traveling when the bank beside you tears open, and something far bigger surges out of the nest, jaws wide, with the dog that's been shadowing you since the crossing already snarling in at your side to meet it.",
+    "name": "the Rat Mother"
+  },
+  "check": {
+    "skill": "athletics",
+    "dc": 12,
+    "roll": 12,
+    "rolls": [
+      12
+    ],
+    "against": [],
+    "bonus": 0,
+    "total": 12,
+    "passed": true
+  }
+}
