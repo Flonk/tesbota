@@ -1,81 +1,15 @@
 {
   "turn_id": "t0003",
-  "state": "lore1",
+  "state": "done",
   "created": "2026-09-17T10:43:44+00:00",
   "action": "She's dead. It's done.",
-  "draft": {
-    "narration": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.\n\nYou catch one of the rats with the cane and it staggers back, wounded.\n\nThe dog gets its teeth into the other and worries it hard.\n\nA rat snaps at the dog and misses.\n\nThe other rat catches the dog's leg and it yelps.\n\nThe Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.\n\nThe new rat lunges at the dog and doesn't connect.\n\nYou strike the wounded rat again and it reels.\n\nThe dog snaps at the other rat and connects, shaking it hard.\n\nA rat goes for the dog and misses.\n\nAnother rat lunges for the dog and misses too.\n\nThe Nest Warden still hasn't moved.\n\nThe third rat snaps at the dog and comes up short.\n\nYou bring the cane down on the rat again, and it's barely standing.\n\nThe dog goes for the other rat and misses.\n\nA rat gets its teeth into the dog's side.\n\nAnother rat bites down on the dog too, and it staggers.\n\nThe Nest Warden remains frozen.\n\nThe third rat snaps at the dog and misses.\n\nYou swing at the rat and it's already darting clear.\n\nThe dog catches it and it goes limp, finished.\n\nA rat tears into the dog and it goes down and doesn't rise again.\n\nThe Nest Warden lunges past where the dog was and catches you instead, hard.\n\nA rat turns on you now and misses.\n\nYou swing at a rat and it slips past the cane.\n\nA rat lunges at you and misses.\n\nThe Nest Warden drives into you, and it staggers you back.\n\nAnother rat gets its teeth into your leg.\n\nYou catch a rat square and it drops back, badly hurt.\n\nA rat bites at you and connects, quick and low.\n\nThe Nest Warden swings for you and misses.\n\nAnother rat sinks its teeth in again.\n\nYou strike the rat again, and it's nearly done.\n\nA rat goes for you and misses.\n\nThe Nest Warden swings and doesn't find you.\n\nA rat lunges and misses too.\n\nYou catch the rat hard, and it reels.\n\nA rat snaps at you and misses.\n\nThe Nest Warden swings again and misses.\n\nAnother rat gets in and bites you.\n\nYou strike the rat once more.\n\nA rat lunges for you and misses.\n\nThe Nest Warden swings and misses again.\n\nAnother rat bites down on you.\n\nYour boot skids in the churned mud and the swing you meant for the rat goes wide.\n\nA rat goes for you and misses.\n\nThe Nest Warden catches you hard, driving you back.\n\nA rat lunges and misses.\n\nYou swing again and miss.\n\nA rat gets its teeth into you.\n\nThe Nest Warden swings and doesn't connect.\n\nAnother rat lunges and misses.\n\nYou swing again and miss.\n\nA rat bites down on you.\n\nThe Nest Warden catches you solidly, and pain roars up your side.\n\nAnother rat lunges for you and misses.\n\nYou wrench free of all of it and run, the fog swallowing you whole.",
-    "travel": null,
-    "minutes": 13,
-    "fatigue": 39,
-    "health": -35,
-    "check": null,
-    "fight": {
-      "skill": "athletics",
-      "flee_dc": 10,
-      "their_dc": 11,
-      "us": [
-        {
-          "who": "the-dog",
-          "name": "the dog",
-          "health": 6,
-          "damage": "1–3",
-          "dc": 12,
-          "bonus": 2
-        }
-      ],
-      "them": [
-        {
-          "who": "marsh-rat-1",
-          "name": "a Marsh Rat",
-          "health": 6,
-          "damage": "1–2",
-          "dc": 10,
-          "bonus": 1
-        },
-        {
-          "who": "marsh-rat-2",
-          "name": "a Marsh Rat",
-          "health": 6,
-          "damage": "1–2",
-          "dc": 10,
-          "bonus": 1
-        },
-        {
-          "who": "nest-warden",
-          "name": "the Nest Warden",
-          "health": 16,
-          "damage": "2–4",
-          "dc": 12,
-          "bonus": 2,
-          "ability": {
-            "name": "spawns a marsh rat",
-            "sleep": 2,
-            "spawn": {
-              "name": "Marsh Rat",
-              "health": 6,
-              "damage": "1–2",
-              "dc": 10,
-              "bonus": 1
-            }
-          }
-        }
-      ]
-    },
-    "location": "the-road",
-    "transactions": [],
-    "quest_open": [],
-    "quest_update": [],
-    "quest_close": [],
-    "claims": [],
-    "hunger": null
-  },
+  "draft": null,
   "verdicts": [],
   "correction": null,
   "gm_retries": 0,
   "gap": null,
   "wake_at": null,
-  "minutes": 0,
+  "minutes": 13,
   "phases": [
     {
       "n": 1,
@@ -89,10 +23,390 @@
       "n": 2,
       "who": "gm",
       "kind": "fight",
-      "text": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.\n\nYou catch one of the rats with the cane and it staggers back, wounded.\n\nThe dog gets its teeth into the other and worries it hard.\n\nA rat snaps at the dog and misses.\n\nThe other rat catches the dog's leg and it yelps.\n\nThe Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.\n\nThe new rat lunges at the dog and doesn't connect.\n\nYou strike the wounded rat again and it reels.\n\nThe dog snaps at the other rat and connects, shaking it hard.\n\nA rat goes for the dog and misses.\n\nAnother rat lunges for the dog and misses too.\n\nThe Nest Warden still hasn't moved.\n\nThe third rat snaps at the dog and comes up short.\n\nYou bring the cane down on the rat again, and it's barely standing.\n\nThe dog goes for the other rat and misses.\n\nA rat gets its teeth into the dog's side.\n\nAnother rat bites down on the dog too, and it staggers.\n\nThe Nest Warden remains frozen.\n\nThe third rat snaps at the dog and misses.\n\nYou swing at the rat and it's already darting clear.\n\nThe dog catches it and it goes limp, finished.\n\nA rat tears into the dog and it goes down and doesn't rise again.\n\nThe Nest Warden lunges past where the dog was and catches you instead, hard.\n\nA rat turns on you now and misses.\n\nYou swing at a rat and it slips past the cane.\n\nA rat lunges at you and misses.\n\nThe Nest Warden drives into you, and it staggers you back.\n\nAnother rat gets its teeth into your leg.\n\nYou catch a rat square and it drops back, badly hurt.\n\nA rat bites at you and connects, quick and low.\n\nThe Nest Warden swings for you and misses.\n\nAnother rat sinks its teeth in again.\n\nYou strike the rat again, and it's nearly done.\n\nA rat goes for you and misses.\n\nThe Nest Warden swings and doesn't find you.\n\nA rat lunges and misses too.\n\nYou catch the rat hard, and it reels.\n\nA rat snaps at you and misses.\n\nThe Nest Warden swings again and misses.\n\nAnother rat gets in and bites you.\n\nYou strike the rat once more.\n\nA rat lunges for you and misses.\n\nThe Nest Warden swings and misses again.\n\nAnother rat bites down on you.\n\nYour boot skids in the churned mud and the swing you meant for the rat goes wide.\n\nA rat goes for you and misses.\n\nThe Nest Warden catches you hard, driving you back.\n\nA rat lunges and misses.\n\nYou swing again and miss.\n\nA rat gets its teeth into you.\n\nThe Nest Warden swings and doesn't connect.\n\nAnother rat lunges and misses.\n\nYou swing again and miss.\n\nA rat bites down on you.\n\nThe Nest Warden catches you solidly, and pain roars up your side.\n\nAnother rat lunges for you and misses.\n\nYou wrench free of all of it and run, the fog swallowing you whole.",
-      "status": "pending",
-      "claims": [],
-      "redrafts": 1,
+      "text": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.\n\nYou catch one of the rats with the cane and it staggers back, wounded.\n\nThe dog gets its teeth into the other and worries it hard.\n\nA rat snaps at the dog and misses.\n\nThe other rat catches the dog's leg and it yelps.\n\nThe Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.\n\nThe new rat lunges at the dog and doesn't connect.\n\nYou strike the wounded rat again and it reels.\n\nThe dog snaps at the other rat and connects, shaking it hard.\n\nA rat goes for the dog and misses.\n\nAnother rat lunges for the dog and misses too.\n\nThe Nest Warden still hasn't moved.\n\nThe third rat snaps at the dog and comes up short.\n\nYou bring the cane down on the rat again, and it's barely standing.\n\nThe dog goes for the other rat and misses.\n\nA rat gets its teeth into the dog's side.\n\nAnother rat bites down on the dog too, and it staggers.\n\nThe Nest Warden remains frozen.\n\nThe third rat snaps at the dog and misses.\n\nYou swing at the rat and it's already darting clear.\n\nThe dog catches it and it goes limp, finished.\n\nA rat tears into the dog and it goes down hard, and doesn't rise again.\n\nThe Nest Warden lunges past where the dog fell and catches you instead, hard.\n\nA rat turns on you now and misses.\n\nYou swing at a rat and it slips past the cane.\n\nA rat lunges at you and misses.\n\nThe Nest Warden drives into you, and it staggers you back.\n\nAnother rat gets its teeth into your leg.\n\nYou catch a rat square and it drops back, badly hurt.\n\nA rat bites at you and connects, quick and low.\n\nThe Nest Warden swings for you and misses.\n\nAnother rat sinks its teeth in again.\n\nYou strike the rat again, and it's nearly done.\n\nA rat goes for you and misses.\n\nThe Nest Warden swings and doesn't find you.\n\nA rat lunges and misses too.\n\nYou catch the rat hard, and it reels.\n\nA rat snaps at you and misses.\n\nThe Nest Warden swings again and misses.\n\nAnother rat gets in and bites you.\n\nYou strike the rat once more.\n\nA rat lunges for you and misses.\n\nThe Nest Warden swings and misses again.\n\nAnother rat bites down on you.\n\nYour foot slides on the blood-slick grass and the swing you meant for the rat goes wide.\n\nA rat goes for you and misses.\n\nThe Nest Warden catches you hard, driving you back.\n\nA rat lunges and misses.\n\nYou swing again and miss.\n\nA rat gets its teeth into you.\n\nThe Nest Warden swings and doesn't connect.\n\nAnother rat lunges and misses.\n\nYou swing again and miss.\n\nA rat bites down on you.\n\nThe Nest Warden catches you solidly, and pain roars up your side.\n\nAnother rat lunges for you and misses.\n\nYou wrench free of all of it and run, the fog swallowing you whole.",
+      "status": "checked",
+      "claims": [
+        {
+          "id": "c1",
+          "text": "rats exist",
+          "entity": "rat",
+          "kind": "people",
+          "verdict": {
+            "claim": "c1",
+            "result": "TRUE",
+            "why": "affirmed by The Life of Swantje Bota, where a rat attacks at the roadside",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p1"
+            ]
+          }
+        },
+        {
+          "id": "c2",
+          "text": "a nest can be built into a bank",
+          "entity": "nest",
+          "kind": "places",
+          "verdict": {
+            "claim": "c2",
+            "result": "TRUE",
+            "why": "the bank tearing open onto a nest is already recorded",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c3",
+          "text": "the Greater Plains exist on Terra",
+          "entity": "the-greater-plains",
+          "kind": "places",
+          "verdict": {
+            "claim": "c3",
+            "result": "TRUE",
+            "why": "fixed in the place record, parent terra",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c4",
+          "text": "a surveyed road runs through the Greater Plains",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "c4",
+            "result": "TRUE",
+            "why": "fixed in the place record and the road's own description",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c5",
+          "text": "fog exists",
+          "entity": "fog",
+          "kind": "places",
+          "verdict": {
+            "claim": "c5",
+            "result": "TRUE",
+            "why": "recurring across multiple Bota lives at this same road",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p1"
+            ]
+          }
+        },
+        {
+          "id": "c6",
+          "text": "grass exists at the roadside",
+          "entity": "grass",
+          "kind": "places",
+          "verdict": {
+            "claim": "c6",
+            "result": "TRUE",
+            "why": "affirmed in The Life of Swantje Bota",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p1"
+            ]
+          }
+        },
+        {
+          "id": "c7",
+          "text": "a cane exists",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c7",
+            "result": "TRUE",
+            "why": "recorded item, a hazel stave heavy enough to fight with",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c8",
+          "text": "a dog exists",
+          "entity": "dog",
+          "kind": "people",
+          "verdict": {
+            "claim": "c8",
+            "result": "TRUE",
+            "why": "already fighting alongside the cane in the prior passage",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c9",
+          "text": "a nest exists in the bank at this stretch of road",
+          "entity": "nest",
+          "kind": "places",
+          "verdict": {
+            "claim": "c9",
+            "result": "TRUE",
+            "why": "the same nest and bank already torn open here",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c10",
+          "text": "a second, old and heavy guardian creature can occupy the nest alongside the Rat Mother's brood",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c10",
+            "result": "WITHIN_BOUNDS",
+            "why": "the Rat Mother already died in the book, so this is a distinct guardian the nest still holds; ordinary continuation of an already-established kind of nest-defender",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c11",
+          "text": "a nest can send out several rats in one disturbance",
+          "entity": "nest",
+          "kind": "places",
+          "verdict": {
+            "claim": "c11",
+            "result": "WITHIN_BOUNDS",
+            "why": "the book already shows one rat spilled on a heave; more than one at once is the same mechanic, not a new kind of thing",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c12",
+          "text": "the cane can wound a rat",
+          "entity": "walking-cane",
+          "kind": "items",
+          "verdict": {
+            "claim": "c12",
+            "result": "TRUE",
+            "why": "already shown repeatedly in the prior passages",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p1"
+            ]
+          }
+        },
+        {
+          "id": "c13",
+          "text": "the dog can kill a rat by biting it",
+          "entity": "dog",
+          "kind": "people",
+          "verdict": {
+            "claim": "c13",
+            "result": "TRUE",
+            "why": "already shown in the prior passage",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c14",
+          "text": "a rat can bite the dog",
+          "entity": "rat",
+          "kind": "people",
+          "verdict": {
+            "claim": "c14",
+            "result": "TRUE",
+            "why": "already shown in the prior passage",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c15",
+          "text": "the dog yelps when bitten",
+          "entity": "dog",
+          "kind": "people",
+          "verdict": {
+            "claim": "c15",
+            "result": "TRUE",
+            "why": "a particular reaction in the moment, needs no document",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c16",
+          "text": "heaving a rat out of the nest leaves the guardian still and drained for a time",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c16",
+            "result": "WITHIN_BOUNDS",
+            "why": "mirrors the Rat Mother standing frozen and spent after the same effort in the prior passage",
+            "question": "",
+            "alternative": "the stillness belongs to the Nest Warden, not to the newly spilled rat, which is shown acting normally right after",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c17",
+          "text": "a rat can kill the dog",
+          "entity": "dog",
+          "kind": "people",
+          "verdict": {
+            "claim": "c17",
+            "result": "TRUE",
+            "why": "a particular outcome of this fight; the book never held the dog to be unkillable",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c18",
+          "text": "the dog fell in this fight and did not rise again",
+          "entity": "dog",
+          "kind": "people",
+          "verdict": {
+            "claim": "c18",
+            "result": "TRUE",
+            "why": "particular event of the moment",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c19",
+          "text": "a nest guardian of this kind can strike and injure a person directly",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c19",
+            "result": "WITHIN_BOUNDS",
+            "why": "ordinary extension of the Rat Mother's already-shown combat capability, now with no dog left between it and the person",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c20",
+          "text": "the grass at the site became slick with blood",
+          "entity": "grass",
+          "kind": "places",
+          "verdict": {
+            "claim": "c20",
+            "result": "TRUE",
+            "why": "particular of the scene",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c21",
+          "text": "blood-slick grass can cause a footing failure mid-swing",
+          "entity": "grass",
+          "kind": "places",
+          "verdict": {
+            "claim": "c21",
+            "result": "TRUE",
+            "why": "already shown identically in the prior passage's fight",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p2"
+            ]
+          }
+        },
+        {
+          "id": "c22",
+          "text": "the Nest Warden struck hard enough to cause real pain",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c22",
+            "result": "TRUE",
+            "why": "particular of the moment, consistent with its established striking capability",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c23",
+          "text": "someone can break free of such a fight and run",
+          "entity": "nest-warden",
+          "kind": "people",
+          "verdict": {
+            "claim": "c23",
+            "result": "TRUE",
+            "why": "particular outcome of the encounter",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        },
+        {
+          "id": "c24",
+          "text": "fog can close over and conceal someone moving through it",
+          "entity": "fog",
+          "kind": "places",
+          "verdict": {
+            "claim": "c24",
+            "result": "WITHIN_BOUNDS",
+            "why": "consistent with fog standing close and thick throughout the Bota lives at this road",
+            "question": "",
+            "alternative": "",
+            "sources": [
+              "bota://books/the-life-of-swantje-bota#p1",
+              "bota://books/the-life-of-lene-bota#p21"
+            ]
+          }
+        },
+        {
+          "id": "c25",
+          "text": "three rats emerged from the nest in this encounter",
+          "entity": "nest",
+          "kind": "places",
+          "verdict": {
+            "claim": "c25",
+            "result": "TRUE",
+            "why": "particular count for this wave, does not conflict with the single rat of the earlier wave",
+            "question": "",
+            "alternative": "",
+            "sources": []
+          }
+        }
+      ],
+      "redrafts": 3,
       "fight": {
         "skill": "athletics",
         "flee_dc": 10,
@@ -1419,7 +1733,7 @@
               "total": 18,
               "passed": true
             },
-            "text": "A rat tears into the dog and it goes down and doesn't rise again.",
+            "text": "A rat tears into the dog and it goes down hard, and doesn't rise again.",
             "at": "the-dog",
             "atname": "the dog",
             "left": 0,
@@ -1480,7 +1794,7 @@
               "total": 13,
               "passed": true
             },
-            "text": "The Nest Warden lunges past where the dog was and catches you instead, hard.",
+            "text": "The Nest Warden lunges past where the dog fell and catches you instead, hard.",
             "at": "the-explorer-debug",
             "atname": "Swantje Bota",
             "left": 87,
@@ -2811,7 +3125,7 @@
               "total": 5,
               "passed": false
             },
-            "text": "Your boot skids in the churned mud and the swing you meant for the rat goes wide.",
+            "text": "Your foot slides on the blood-slick grass and the swing you meant for the rat goes wide.",
             "at": "marsh-rat-2",
             "atname": "a Marsh Rat",
             "us": [
@@ -4952,7 +5266,7 @@
           "total": 18,
           "passed": true
         },
-        "text": "A rat tears into the dog and it goes down and doesn't rise again.",
+        "text": "A rat tears into the dog and it goes down hard, and doesn't rise again.",
         "at": "the-dog",
         "atname": "the dog",
         "left": 0,
@@ -5013,7 +5327,7 @@
           "total": 13,
           "passed": true
         },
-        "text": "The Nest Warden lunges past where the dog was and catches you instead, hard.",
+        "text": "The Nest Warden lunges past where the dog fell and catches you instead, hard.",
         "at": "the-explorer-debug",
         "atname": "Swantje Bota",
         "left": 87,
@@ -6344,7 +6658,7 @@
           "total": 5,
           "passed": false
         },
-        "text": "Your boot skids in the churned mud and the swing you meant for the rat goes wide.",
+        "text": "Your foot slides on the blood-slick grass and the swing you meant for the rat goes wide.",
         "at": "marsh-rat-2",
         "atname": "a Marsh Rat",
         "us": [
@@ -7111,5 +7425,111 @@
   "check": null,
   "roll": 350,
   "rolled": true,
-  "fate": null
+  "fate": null,
+  "facts": [
+    "two rats spilled out of a nest bank",
+    "a nest exists in a bank",
+    "something old and heavy dragged itself out of the nest into the light",
+    "a Nest Warden exists",
+    "the cane struck a rat and wounded it",
+    "a cane exists",
+    "the dog bit another rat and worried it",
+    "a dog exists",
+    "a rat snapped at the dog and missed",
+    "a rat bit the dog's leg",
+    "the dog yelped",
+    "the Nest Warden heaved and a third rat spilled out of the nest",
+    "the third rat went still, drained",
+    "three rats came from the nest",
+    "the new rat lunged at the dog and missed",
+    "the cane struck the wounded rat again",
+    "the dog snapped at a rat and connected, shaking it",
+    "a rat lunged at the dog and missed",
+    "another rat lunged at the dog and missed",
+    "the Nest Warden did not move for a time",
+    "the third rat snapped at the dog and missed",
+    "the cane struck the rat again",
+    "the dog lunged at a rat and missed",
+    "a rat bit the dog's side",
+    "another rat bit the dog and it staggered",
+    "the third rat snapped at the dog and missed",
+    "the cane swung at the rat and missed",
+    "the dog caught a rat and it went limp, finished",
+    "a rat killed the dog",
+    "the dog fell and did not rise again",
+    "the Nest Warden lunged past the fallen dog and struck the person",
+    "a person is present and carries a cane",
+    "a rat turned on the person and missed",
+    "the cane swung at a rat and missed",
+    "a rat lunged at the person and missed",
+    "the Nest Warden drove into the person and staggered them",
+    "a rat bit the person's leg",
+    "the cane struck a rat and it dropped back, badly hurt",
+    "a rat bit the person",
+    "the Nest Warden swung at the person and missed",
+    "a rat bit the person again",
+    "the cane struck the rat again",
+    "a rat lunged at the person and missed",
+    "the Nest Warden swung at the person and missed",
+    "a rat lunged at the person and missed",
+    "the cane struck the rat and it reeled",
+    "a rat snapped at the person and missed",
+    "the Nest Warden swung at the person and missed",
+    "a rat bit the person",
+    "the cane struck the rat again",
+    "a rat lunged at the person and missed",
+    "the Nest Warden swung at the person and missed",
+    "a rat bit the person",
+    "grass at the site is slick with blood",
+    "grass exists",
+    "the person's foot slid and their swing missed",
+    "a rat lunged at the person and missed",
+    "the Nest Warden struck the person and drove them back",
+    "a rat lunged at the person and missed",
+    "the cane swung and missed",
+    "a rat bit the person",
+    "the Nest Warden swung at the person and missed",
+    "a rat lunged at the person and missed",
+    "the cane swung and missed",
+    "a rat bit the person",
+    "the Nest Warden struck the person hard, causing pain along their side",
+    "a rat lunged at the person and missed",
+    "the person broke free and ran",
+    "fog exists",
+    "fog covered the person as they ran",
+    "a road runs through the Greater Plains on Terra",
+    "the Greater Plains exist on Terra",
+    "rats exist",
+    "banks exist near nests"
+  ],
+  "at": "Firstday, 1st of Frostfall, 4E202, 13:34",
+  "location_path": [
+    {
+      "id": "terra",
+      "name": "Terra"
+    },
+    {
+      "id": "the-greater-plains",
+      "name": "The Greater Plains"
+    },
+    {
+      "id": "the-road",
+      "name": "The Road"
+    }
+  ],
+  "vitals": {
+    "health": 55,
+    "fatigue": 90,
+    "hunger": 2
+  },
+  "quest": null,
+  "resolved": true,
+  "ready": "I broke off and ran, the fog closing behind me — the dog didn't make it, but I did.",
+  "delivered": true,
+  "chronicle": [
+    {
+      "ord": 4,
+      "text": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again. You catch one of the rats with the cane and it staggers back, wounded. The dog gets its teeth into the other and worries it hard. A rat snaps at the dog and misses. The other rat catches the dog's leg and it yelps. The Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained. The new rat lunges at the dog and doesn't connect. You strike the wounded rat again and it reels. The dog snaps at the other rat and connects, shaking it hard. A rat goes for the dog and misses. Another rat lunges for the dog and misses too. The Nest Warden still hasn't moved. The third rat snaps at the dog and comes up short. You bring the cane down on the rat again, and it's barely standing. The dog goes for the other rat and misses. A rat gets its teeth into the dog's side. Another rat bites down on the dog too, and it staggers. The Nest Warden remains frozen. The third rat snaps at the dog and misses. You swing at the rat and it's already darting clear. The dog catches it and it goes limp, finished. A rat tears into the dog and it goes down hard, and doesn't rise again. The Nest Warden lunges past where the dog fell and catches you instead, hard. A rat turns on you now and misses. You swing at a rat and it slips past the cane. A rat lunges at you and misses. The Nest Warden drives into you, and it staggers you back. Another rat gets its teeth into your leg. You catch a rat square and it drops back, badly hurt. A rat bites at you and connects, quick and low. The Nest Warden swings for you and misses. Another rat sinks its teeth in again. You strike the rat again, and it's nearly done. A rat goes for you and misses. The Nest Warden swings and doesn't find you. A rat lunges and misses too. You catch the rat hard, and it reels. A rat snaps at you and misses. The Nest Warden swings again and misses. Another rat gets in and bites you. You strike the rat once more. A rat lunges for you and misses. The Nest Warden swings and misses again. Another rat bites down on you. Your foot slides on the blood-slick grass and the swing you meant for the rat goes wide. A rat goes for you and misses. The Nest Warden catches you hard, driving you back. A rat lunges and misses. You swing again and miss. A rat gets its teeth into you. The Nest Warden swings and doesn't connect. Another rat lunges and misses. You swing again and miss. A rat bites down on you. The Nest Warden catches you solidly, and pain roars up your side. Another rat lunges for you and misses. You wrench free of all of it and run, the fog swallowing you whole."
+    }
+  ]
 }

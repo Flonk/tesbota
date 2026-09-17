@@ -505,6 +505,7 @@ def fighter(said, kind, fallback_dc=11):
         "skill": str(said.get("skill") or "").lower() or None,
         "ability": said.get("ability") or None,
         "asleep": 0,
+        "cool": 0,
         "dead": False,
     }
 
@@ -626,8 +627,20 @@ def usable(campaign):
             if h.get("type") == "consumable" and int(h.get("qty") or 0) > 0]
 
 
-def strike(fight, who, mark, skill, dc, rng, campaign=None, turn=None):
-    """One swing. The driver rolls; nobody argues with it."""
+def ready(who):
+    """Whether what it can do is there to be done. A thing used once is done with;
+    anything else waits out its cooldown."""
+    power = who.get("ability")
+    if not power:
+        return False
+    if power.get("spawn"):
+        return not power.get("used")
+    return int(who.get("cool") or 0) <= 0
+
+
+def strike(fight, who, mark, skill, dc, rng, campaign=None, turn=None, edge=False, hurts=None):
+    """One swing. The driver rolls; nobody argues with it. `edge` throws two dice and
+    keeps the better, which is the one thing a body can have going for it."""
     if who["kind"] == "explorer" and campaign is not None:
         turn["draft"]["check"] = {"skill": skill, "dc": dc}
         check = roll_check(campaign, turn, rng)
@@ -638,17 +651,18 @@ def strike(fight, who, mark, skill, dc, rng, campaign=None, turn=None):
             check["total"] = check["roll"] + check["bonus"]
             check["passed"] = check["total"] >= dc
     else:
-        roll = rng.randint(1, SKILL_DIE)
-        check = {"skill": skill or "a swing", "dc": dc, "roll": roll, "rolls": [roll],
+        rolls = [rng.randint(1, SKILL_DIE) for _ in range(2 if edge else 1)]
+        roll = max(rolls) if edge else rolls[0]
+        check = {"skill": skill or "a swing", "dc": dc, "roll": roll, "rolls": rolls,
+                 "for": ["the better of two"] if edge else [],
                  "against": [], "bonus": who["bonus"], "total": roll + who["bonus"],
                  "passed": roll + who["bonus"] >= dc}
+    band_of = hurts or who["damage"]
     hurt = 0
     if check["passed"]:
-        hurt = band(who["damage"], rng)
+        hurt = band(band_of, rng)
         if check["roll"] == SKILL_DIE:
-            hurt += band(who["damage"], rng)
-    elif check["roll"] == 1:
-        hurt = 0
+            hurt += band(band_of, rng)
     return check, hurt
 
 
@@ -719,16 +733,26 @@ def step_fight(campaign, turn, rng=random):
         blow.update(chose="ASLEEP", spent=True)
     elif who["kind"] == "explorer":
         take_turn(campaign, turn, fight, who, blow, rng)
-    elif who["ability"] and who["ability"].get("spawn") and not who["ability"].get("used"):
+    elif ready(who) and who["ability"].get("spawn"):
         born = spawn(fight, who, rng)
         who["asleep"] = int(who["ability"].get("sleep") or 0)
         who["ability"]["used"] = True
         blow.update(chose=str(who["ability"].get("name") or "spawns"), spawned=born["name"])
     else:
+        who["cool"] = max(0, int(who.get("cool") or 0) - 1)
+        power = who["ability"] if ready(who) and who.get("ability") else None
         mark = marks(fight, who)
         if mark:
-            check, hurt = strike(fight, who, mark, who["skill"], mark["dc"], rng)
+            check, hurt = strike(
+                fight, who, mark, who["skill"], mark["dc"], rng,
+                edge=bool(power and power.get("advantage")),
+                hurts=power.get("damage") if power else None,
+            )
             blow.update(check=check, hit=check["passed"], at=mark["id"], atname=mark["name"])
+            if power:
+                blow["chose"] = str(power.get("name") or "its best")
+                who["cool"] = int(power.get("cooldown") or 0)
+                who["asleep"] = int(power.get("sleep") or 0)
             wound(fight, mark, hurt, blow)
 
     fight["blows"].append(blow)

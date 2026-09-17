@@ -21,14 +21,14 @@
     "era": 4,
     "year": 202,
     "day": 1,
-    "minute": 801,
-    "stamp": "1 Frostfall 4E202, 13:21",
-    "long": "Firstday, 1st of Frostfall, 4E202, 13:21"
+    "minute": 814,
+    "stamp": "1 Frostfall 4E202, 13:34",
+    "long": "Firstday, 1st of Frostfall, 4E202, 13:34"
   },
   "vitals": {
-    "health": 90,
-    "fatigue": 51,
-    "hunger": 1
+    "health": 55,
+    "fatigue": 90,
+    "hunger": 2
   },
   "quests": [],
   "skills": {
@@ -46,7 +46,7 @@
       "survival"
     ]
   },
-  "last_narration": "The cane comes down and the rat goes still beneath it — but the same swing is still carrying through when the bank beside you tears open and the Rat Mother comes out of it, vast and shrieking, the dog already snarling in at your side to meet her.\n\nYou swing for the Rat Mother and she's already turned from where you aimed.\n\nThe dog gets under her guard and rips into her flank.\n\nThe Rat Mother heaves and another rat comes spilling out of the nest at her side, then goes rigid with the effort.\n\nThe new rat snaps at the dog and catches only fur.\n\nYou catch the rat with the cane and it staggers sideways.\n\nThe dog's jaws close on it and shake it hard.\n\nThe Rat Mother stands frozen, spent, not moving.\n\nThe rat lunges for the dog's leg and misses.\n\nYou strike again and the rat reels.\n\nThe dog snaps at it and comes up empty.\n\nThe Rat Mother still hasn't moved.\n\nThe rat gets its teeth into the dog's flank and it yelps.\n\nYou bring the cane down on it again, hard.\n\nThe dog seizes it and snaps it still with one shake.\n\nThe Rat Mother surges back into the fight and catches the dog a heavy blow.\n\nYou swing at her and miss clean.\n\nThe dog tears into her side again.\n\nShe turns on the dog and doesn't connect.\n\nYou get the cane in on her for a solid hit.\n\nThe dog goes for her again and bites deep.\n\nShe swings for the dog and misses.\n\nYou swing and she's already moved.\n\nThe dog catches her again, worrying at the wound.\n\nShe lunges for the dog and doesn't find it.\n\nYour swing goes wide.\n\nThe dog snaps at her and misses.\n\nShe swings for the dog and it isn't there.\n\nYour footing goes on the blood-slick ground and the swing meant for her goes wide instead.\n\nThe dog goes for her again and comes away empty-jawed.\n\nShe turns on the dog once more and misses.\n\nYou find your feet and swing again, and she's already clear of it.\n\nThe dog tears into her once more and she staggers under it.\n\nShe catches the dog hard as it presses back in.\n\nYou swing at her and miss again.\n\nThe dog locks its jaws into her throat and doesn't let go until she stops moving.",
+  "last_narration": "You let the breath out and lower the cane — and the nest answers you, two more rats spilling wet out of the bank, and behind them something old and heavy drags itself into the light while the dog spins back around, hackles up again.\n\nYou catch one of the rats with the cane and it staggers back, wounded.\n\nThe dog gets its teeth into the other and worries it hard.\n\nA rat snaps at the dog and misses.\n\nThe other rat catches the dog's leg and it yelps.\n\nThe Nest Warden heaves, and a third rat comes spilling out of the nest behind it, then goes still, drained.\n\nThe new rat lunges at the dog and doesn't connect.\n\nYou strike the wounded rat again and it reels.\n\nThe dog snaps at the other rat and connects, shaking it hard.\n\nA rat goes for the dog and misses.\n\nAnother rat lunges for the dog and misses too.\n\nThe Nest Warden still hasn't moved.\n\nThe third rat snaps at the dog and comes up short.\n\nYou bring the cane down on the rat again, and it's barely standing.\n\nThe dog goes for the other rat and misses.\n\nA rat gets its teeth into the dog's side.\n\nAnother rat bites down on the dog too, and it staggers.\n\nThe Nest Warden remains frozen.\n\nThe third rat snaps at the dog and misses.\n\nYou swing at the rat and it's already darting clear.\n\nThe dog catches it and it goes limp, finished.\n\nA rat tears into the dog and it goes down hard, and doesn't rise again.\n\nThe Nest Warden lunges past where the dog fell and catches you instead, hard.\n\nA rat turns on you now and misses.\n\nYou swing at a rat and it slips past the cane.\n\nA rat lunges at you and misses.\n\nThe Nest Warden drives into you, and it staggers you back.\n\nAnother rat gets its teeth into your leg.\n\nYou catch a rat square and it drops back, badly hurt.\n\nA rat bites at you and connects, quick and low.\n\nThe Nest Warden swings for you and misses.\n\nAnother rat sinks its teeth in again.\n\nYou strike the rat again, and it's nearly done.\n\nA rat goes for you and misses.\n\nThe Nest Warden swings and doesn't find you.\n\nA rat lunges and misses too.\n\nYou catch the rat hard, and it reels.\n\nA rat snaps at you and misses.\n\nThe Nest Warden swings again and misses.\n\nAnother rat gets in and bites you.\n\nYou strike the rat once more.\n\nA rat lunges for you and misses.\n\nThe Nest Warden swings and misses again.\n\nAnother rat bites down on you.\n\nYour foot slides on the blood-slick grass and the swing you meant for the rat goes wide.\n\nA rat goes for you and misses.\n\nThe Nest Warden catches you hard, driving you back.\n\nA rat lunges and misses.\n\nYou swing again and miss.\n\nA rat gets its teeth into you.\n\nThe Nest Warden swings and doesn't connect.\n\nAnother rat lunges and misses.\n\nYou swing again and miss.\n\nA rat bites down on you.\n\nThe Nest Warden catches you solidly, and pain roars up your side.\n\nAnother rat lunges for you and misses.\n\nYou wrench free of all of it and run, the fog swallowing you whole.",
   "note": null,
   "location": "the-road",
   "location_path": [
@@ -65,7 +65,7 @@
   ],
   "last_seen": null,
   "created": "2026-09-17T09:14:40+00:00",
-  "quiet": 3,
-  "calm": 3,
+  "quiet": 4,
+  "calm": 0,
   "fight": null
 }

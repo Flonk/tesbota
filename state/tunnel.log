@@ -267,3 +267,4 @@
 2026-09-17T10:47:48Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
 2026-09-17T10:49:58Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
 2026-09-17T10:49:58Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-17T11:09:49Z WRN Your version 2026.6.1 is outdated. We recommend upgrading it to 2026.9.1

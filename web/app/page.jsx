@@ -216,9 +216,21 @@ function Pills({ worn }) {
 
 function Tile({ who, now, down, acting, side }) {
   const ours = side === "us";
+  const power = who.ability;
+  const says = power
+    ? [
+        power.damage ? `${power.damage} dmg` : null,
+        power.spawn ? `calls a ${power.spawn.name}` : null,
+        power.advantage ? "two dice" : null,
+        power.cooldown ? `every ${power.cooldown}` : power.spawn ? "once" : null,
+        power.sleep ? `then still ${power.sleep}` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : null;
   const rows = [
     ["attack", `${who.damage} dmg`],
-    ...(who.ability ? [[who.ability.name, who.ability.sleep ? `then still ${who.ability.sleep}` : "once"]] : []),
+    ...(power ? [[power.name, says]] : []),
     ...(ours ? [] : [["to hit", `dc ${who.dc}`]]),
   ];
   return (
