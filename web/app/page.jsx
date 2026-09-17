@@ -305,32 +305,9 @@ function Blows({ f, text }) {
       <Arena f={f} at={at} ended={f.ended} />
       {f.ended && blows.length > 1 && (
         <button className="mkey replay" onClick={replay}>
-          play it back
+          {at >= blows.length ? "play it back" : `blow ${at} of ${blows.length}`}
         </button>
       )}
-      <div className="blows">
-        {f.blows.map((b, i) => (
-          <button
-            className={`blow ${b.hit ? "landed" : "taken"}${i < at ? " done" : " ahead"}`}
-            key={b.n}
-            onClick={() => {
-              stop();
-              setAt(i + 1);
-            }}
-          >
-            <span className="blowno">{b.n}</span>
-            <span className="blowchose">{b.chose}</span>
-            {b.check && <Check c={b.check} />}
-            <span className="blowtoll">
-              {b.dealt
-                ? `−${b.dealt} · ${b.enemy_health} left of it`
-                : b.taken
-                  ? `−${b.taken} · ${b.explorer_health} left of you`
-                  : `${b.explorer_health} left of you`}
-            </span>
-          </button>
-        ))}
-      </div>
 
     </div>
   );

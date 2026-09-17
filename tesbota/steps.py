@@ -643,12 +643,12 @@ def step_blows(campaign, turn):
     )
     campaign["sessions"]["gm"] = session
     out = extract_json(text)
-    lines = [str(x).strip() for x in (out.get("blows") or []) if str(x).strip()]
-    for blow, said in zip(fight["blows"], lines):
-        blow["text"] = said
+    account = str(out.get("narration") or "").strip()
 
     draft = turn["draft"]
-    draft["narration"] = "\n\n".join([draft.get("narration") or ""] + lines).strip()
+    draft["narration"] = "\n\n".join(
+        x for x in (fight.get("said"), account) if x
+    ).strip()
     draft["claims"] = out.get("claims") or []
     draft["location"] = out.get("location") or draft.get("location")
     draft["transactions"] = list(draft.get("transactions") or []) + list(out.get("transactions") or [])

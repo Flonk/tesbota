@@ -833,15 +833,6 @@ textarea.prompt:focus { outline: none; }
 
 .fight { display: flex; flex-direction: column; gap: .7rem; }
 .fightwho { color: var(--dim); margin: 0; }
-.blow {
-  display: flex; flex-direction: column; gap: .25rem;
-  border-left: 1px solid var(--line); padding-left: .8rem;
-}
-.blow.landed { border-left-color: var(--good); }
-.blow.taken { border-left-color: var(--bad); }
-.blowno, .blowtoll { font: var(--mono); font-size: .72rem; color: var(--dim); letter-spacing: .06em; }
-.blowchose { font: var(--mono); font-size: .72rem; color: var(--gold); letter-spacing: .1em; }
-.blow .body { margin: 0; }
 
 .arena { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; align-items: start; }
 .corner { min-width: 0; border: 1px solid var(--line); border-radius: 2px; padding: .5rem .6rem; }
@@ -870,15 +861,6 @@ textarea.prompt:focus { outline: none; }
 .statdoes { font: var(--mono); font-size: .64rem; color: var(--dim); }
 .statline.reach .statslot { color: var(--place); }
 .corner { display: flex; flex-direction: column; }
-.blows { display: flex; flex-direction: column; gap: .6rem; }
-.blow {
-  width: 100%; text-align: left; background: none; cursor: pointer;
-  display: flex; flex-direction: column; gap: .25rem;
-  border: 0; border-left: 1px solid var(--line); padding: .1rem 0 .1rem .8rem;
-}
-.blow.ahead { opacity: .32; }
-.blow.landed { border-left-color: var(--good); }
-.blow.taken { border-left-color: var(--bad); }
 
 .replay { align-self: flex-start; }
 
@@ -890,4 +872,3 @@ textarea.prompt:focus { outline: none; }
 .ended.beaten, .ended.fled { color: var(--good); }
 .ended.killed { color: var(--bad); }
 .ended.broken { color: var(--warn); }
-.blow { gap: .35rem; }
