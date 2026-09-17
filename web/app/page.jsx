@@ -228,35 +228,52 @@ function Tile({ who, now, down, acting, side }) {
         .filter(Boolean)
         .join(" · ")
     : null;
-  const rows = [
-    ["attack", `${who.damage} dmg`, true],
-    ...(power ? [[power.name, says, true]] : []),
-    ...(ours ? [] : [["to hit", `dc ${who.dc}`, false]]),
+  const powers = [
+    ["attack", `${who.damage} dmg`],
+    ...(power ? [[power.name, says]] : []),
   ];
+  const rest = ours ? [] : [["to hit", `dc ${who.dc}`]];
+  const gear = ours && who.worn?.length > 0;
   return (
     <div className={`tile ${side}${acting ? " acting" : ""}${down ? " down" : ""}`}>
-      <p className="cornername">
-        <span>{who.name}</span>
-        <span className="cornerhp">{down ? "down" : `${now}/${who.most}`}</span>
-      </p>
-      <Health now={down ? 0 : now} most={who.most} side={side} />
-      <div className="cornerbody">
-        {ours && who.worn?.length > 0 && (
-          <>
-            <p className="cap tilecap">equipped</p>
-            <Pills worn={who.worn} />
-          </>
-        )}
+      <div className="tilepart">
+        <p className="cornername">
+          <span>{who.name}</span>
+          <span className="cornerhp">{down ? "down" : `${now}/${who.most}`}</span>
+        </p>
+        <Health now={down ? 0 : now} most={who.most} side={side} />
+      </div>
+
+      <div className="tilepart">
         <p className="cap tilecap">abilities</p>
-        {rows.map(([what, said, stacked]) => (
-          <p className={`statline${stacked ? " stacked" : ""}`} key={what}>
+        {powers.map(([what, said]) => (
+          <p className="statline stacked" key={what}>
             <span className="statslot">{what}</span>
             <span className="statwhat">
-              <span className={stacked ? "statdoes" : "statname"}>{said}</span>
+              <span className="statdoes">{said}</span>
             </span>
           </p>
         ))}
       </div>
+
+      {(gear || rest.length > 0) && (
+        <div className="tilepart">
+          {gear && (
+            <>
+              <p className="cap tilecap">equipped</p>
+              <Pills worn={who.worn} />
+            </>
+          )}
+          {rest.map(([what, said]) => (
+            <p className="statline" key={what}>
+              <span className="statslot">{what}</span>
+              <span className="statwhat">
+                <span className="statname">{said}</span>
+              </span>
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
