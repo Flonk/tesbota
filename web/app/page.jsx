@@ -6,7 +6,7 @@ import Kit, { Doll } from "./Kit";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
-import Data, { face, rare, tone } from "./Data";
+import Data, { rare } from "./Data";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Settings from "./Settings";
@@ -14,7 +14,7 @@ import Steer from "./Steer";
 import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
-import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Mark, Note, openDossier, Prose, Tabs, Tag } from "./ui";
+import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tabs, Tag } from "./ui";
 
 const PHASE = {
   explorer: "deciding",
@@ -192,28 +192,6 @@ function Health({ now, most, side }) {
   );
 }
 
-const slugOf = (x) =>
-  x.id || String(x.name || "").toLowerCase().replace(/['\u2019]/g, "").replace(/[^a-z0-9]+/g, "-");
-
-function Pills({ worn }) {
-  return (
-    <div className="pills">
-      {(worn || []).map((w) => (
-        <button
-          className="toggle pill"
-          key={w.name}
-          title={[w.slot, w.does].filter(Boolean).join(" · ") || w.name}
-          onClick={() => openDossier(slugOf(w))}
-        >
-          <Mark name={face(w)} tone="worn">
-            <span className={tone(w.rarity)}>{w.name}</span>
-          </Mark>
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function Tile({ who, now, down, acting, side }) {
   const ours = side === "us";
   const power = who.ability;
@@ -233,7 +211,6 @@ function Tile({ who, now, down, acting, side }) {
     ...(power ? [[power.name, says]] : []),
   ];
   const rest = ours ? [] : [["to hit", `dc ${who.dc}`]];
-  const gear = ours && who.worn?.length > 0;
   return (
     <div className={`tile ${side}${acting ? " acting" : ""}${down ? " down" : ""}`}>
       <div className="tilepart">
@@ -255,14 +232,8 @@ function Tile({ who, now, down, acting, side }) {
         ))}
       </div>
 
-      {(gear || rest.length > 0) && (
+      {rest.length > 0 && (
         <div className="tilepart">
-          {gear && (
-            <>
-              <p className="cap tilecap">equipped</p>
-              <Pills worn={who.worn} />
-            </>
-          )}
           {rest.map(([what, said]) => (
             <p className="statline" key={what}>
               <span className="statslot">{what}</span>
