@@ -200,12 +200,14 @@ function Pills({ worn }) {
     <div className="pills">
       {(worn || []).map((w) => (
         <button
-          className={`pill ${tone(w.rarity) || "tint-common"}`}
+          className="toggle pill"
           key={w.name}
           title={[w.slot, w.does].filter(Boolean).join(" · ") || w.name}
           onClick={() => openDossier(slugOf(w))}
         >
-          <Mark name={face(w)}>{w.name}</Mark>
+          <Mark name={face(w)} tone="worn">
+            <span className={tone(w.rarity)}>{w.name}</span>
+          </Mark>
         </button>
       ))}
     </div>
