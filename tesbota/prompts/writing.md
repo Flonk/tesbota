@@ -68,7 +68,7 @@ What a place or a person keeps is written in the same breath as they are:
     INSERT INTO holding (holder, item, qty) VALUES
       ('alheim-mill', 'sacks-of-flour', 12);
 
-`holder` is an entity id. `the-explorer` is the one holder that is not an entity and never yours to write to.
+`holder` is an entity id. `$HOLDER` is the one holder that is not an entity and never yours to write to.
 
 A thing and a book are named the way a title is set — `Explorer's Cap`, `The Pocket Guide to the Greater Plains` — every word capitalised but the small joining ones in the middle. People and places keep the name they are known by.
 

@@ -1,0 +1,75 @@
+{
+  "turn_id": "t0001",
+  "state": "explorer",
+  "created": "2026-09-17T09:14:46+00:00",
+  "action": null,
+  "draft": null,
+  "verdicts": [],
+  "correction": null,
+  "gm_retries": 0,
+  "gap": null,
+  "wake_at": null,
+  "minutes": 0,
+  "opening": true,
+  "at": "Firstday, 1st of Frostfall, 4E202, 13:04",
+  "phases": [
+    {
+      "n": 1,
+      "who": "gm",
+      "kind": "world",
+      "text": "You are standing on a road in wet grass. Fog stands close on every side, and the road runs away from you in two directions. You should probably keep walking.",
+      "status": "checked",
+      "claims": [
+        {
+          "id": "o1",
+          "text": "A road runs through wet grass.",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "o1",
+            "result": "TRUE",
+            "why": "the world opens here"
+          }
+        },
+        {
+          "id": "o2",
+          "text": "Fog stands close around the road on every side, hiding what lies beyond.",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "o2",
+            "result": "TRUE",
+            "why": "the world opens here"
+          }
+        },
+        {
+          "id": "o3",
+          "text": "The road runs away in two directions.",
+          "entity": "the-road",
+          "kind": "places",
+          "verdict": {
+            "claim": "o3",
+            "result": "TRUE",
+            "why": "the world opens here"
+          }
+        }
+      ],
+      "minutes": 0,
+      "fatigue": 0,
+      "roll": null,
+      "outcomes": [],
+      "chosen": null,
+      "fortune": null,
+      "transactions": [],
+      "check": null
+    }
+  ],
+  "location_path": [],
+  "vitals": {
+    "health": 100,
+    "fatigue": 0,
+    "hunger": 0
+  },
+  "quest": null,
+  "resolved": true
+}

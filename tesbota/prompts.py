@@ -2,6 +2,7 @@ import hashlib
 from pathlib import Path
 
 from . import chronicle
+from .config import EXPLORER
 from .state import explorer_name
 
 PROMPTS = Path(__file__).parent / "prompts"
@@ -38,6 +39,7 @@ def fill(text):
         .replace("$CHRONICLE_ID", chronicle.book_id())
         .replace("$CHRONICLE_NAME", chronicle.book_title())
         .replace("$EXPLORER", explorer_name())
+        .replace("$HOLDER", EXPLORER)
     )
 
 

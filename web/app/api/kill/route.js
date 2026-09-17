@@ -1,10 +1,10 @@
-import { launch, tesbota } from "../../../lib/store";
+import { launch, tesbota, who } from "../../../lib/store";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request) {
   const { cause } = await request.json().catch(() => ({}));
-  const recorded = await tesbota(["kill", "--json", ...(cause ? [cause] : [])]);
+  const recorded = await tesbota(["kill", "--json", ...(cause ? [cause] : [])], 900000, who(request));
   if (recorded?.error) return Response.json(recorded);
-  return Response.json(await launch(["step", "--json"], "a new life"));
+  return Response.json(await launch(["step", "--json"], "a new life", who(request)));
 }

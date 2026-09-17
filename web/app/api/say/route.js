@@ -1,9 +1,9 @@
-import { launch } from "../../../lib/store";
+import { launch, who } from "../../../lib/store";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request) {
   const { text } = await request.json();
   if (!text || !text.trim()) return Response.json({ error: "empty" }, { status: 400 });
-  return Response.json(await launch(["say", text], "say"));
+  return Response.json(await launch(["say", text], "say", who(request)));
 }

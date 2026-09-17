@@ -820,3 +820,13 @@ textarea.prompt:focus { outline: none; }
 .glass { flex: 0 0 auto; color: var(--dim); }
 .markface.worn { color: var(--gold); }
 .erow.heavy .ecell.num { color: var(--bad); }
+
+.walkers { display: inline-flex; gap: .15rem; flex: 0 0 auto; }
+.walker {
+  background: none; border: 1px solid transparent; border-radius: 2px;
+  color: color-mix(in srgb, var(--bg) 55%, transparent);
+  font: inherit; letter-spacing: .14em; text-transform: uppercase;
+  padding: .05rem .4rem; cursor: pointer;
+}
+.walker:hover { color: var(--bg); }
+.walker.on { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 35%, transparent); }

@@ -3,6 +3,7 @@ import re
 from . import db
 from .config import (
     EXPLORER,
+    EXPLORERS,
     FORBIDDEN_AUTHORS,
     GODHEADS,
     KINDS,
@@ -418,12 +419,13 @@ def holders():
     of the library."""
     out = []
     for r in db.rows("SELECT DISTINCT holder FROM holding ORDER BY holder"):
-        entity = None if r["holder"] == EXPLORER else find_entity(r["holder"])
+        walker = r["holder"] in EXPLORERS.values()
+        entity = None if walker else find_entity(r["holder"])
         out.append({
             "id": r["holder"],
             "name": entity["name"] if entity else r["holder"].replace("-", " "),
             "kind": entity["kind"] if entity else None,
-            "explorer": r["holder"] == EXPLORER,
+            "explorer": walker,
         })
     return out
 

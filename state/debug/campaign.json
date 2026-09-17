@@ -1,0 +1,54 @@
+{
+  "explorer": "Swantje Bota",
+  "sessions": {
+    "explorer": null,
+    "gm": null,
+    "lore3_sitting": null
+  },
+  "sent": {},
+  "current_turn": "t0001",
+  "turn_counter": 1,
+  "clock": {
+    "hours_per_league": 1.5,
+    "min_leg_minutes": 20,
+    "encounter_chance_per_league": 0.25,
+    "speed_factor": 6000
+  },
+  "time": {
+    "era": 4,
+    "year": 202,
+    "day": 1,
+    "minute": 784,
+    "stamp": "1 Frostfall 4E202, 13:04",
+    "long": "Firstday, 1st of Frostfall, 4E202, 13:04"
+  },
+  "vitals": {
+    "health": 100,
+    "fatigue": 0,
+    "hunger": 0
+  },
+  "quests": [],
+  "skills": {
+    "abilities": {
+      "str": 10,
+      "dex": 11,
+      "con": 12,
+      "int": 11,
+      "wis": 12,
+      "cha": 9
+    },
+    "proficiency": 2,
+    "proficient": [
+      "perception",
+      "survival"
+    ]
+  },
+  "last_narration": "You are standing on a road in wet grass. Fog stands close on every side, and the road runs away from you in two directions. You should probably keep walking.",
+  "note": null,
+  "location": null,
+  "location_path": [],
+  "last_seen": null,
+  "created": "2026-09-17T09:14:40+00:00",
+  "quiet": 1,
+  "calm": 1
+}

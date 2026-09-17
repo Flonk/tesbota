@@ -1,9 +1,20 @@
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CANON = ROOT / "canon"
 CANON_DB = ROOT / "canon.db"
-STATE = ROOT / "state"
+
+PROFILES = ("corda", "debug")
+PROFILE = (os.environ.get("TESBOTA_PROFILE") or PROFILES[0]).strip().lower()
+if PROFILE not in PROFILES:
+    PROFILE = PROFILES[0]
+
+# One world, more than one adventurer walking it. The first keeps the state
+# directory it has always had; anybody else gets a room of their own inside it.
+SHARED = ROOT / "state"
+STATE = SHARED if PROFILE == PROFILES[0] else SHARED / PROFILE
+
 TURNS = STATE / "turns"
 PENDING = ROOT / "pending"
 CAMPAIGN = STATE / "campaign.json"
@@ -104,7 +115,10 @@ FIRST_NAMES = (
 
 STUB = "$BOTA"
 
-EXPLORER = "the-explorer"
+# One world, and a holder for each adventurer walking it. The first keeps the plain
+# name; anybody else is told apart by their profile, so two kits never become one.
+EXPLORERS = {p: ("the-explorer" if p == PROFILES[0] else f"the-explorer-{p}") for p in PROFILES}
+EXPLORER = EXPLORERS[PROFILE]
 
 FORBIDDEN_AUTHORS = ("the explorer", "the adventurer", "explorer", "adventurer")
 

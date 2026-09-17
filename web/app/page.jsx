@@ -47,11 +47,24 @@ function mood(status, busy) {
 
 const given = (who) => String(who || "").split(" ")[0];
 
-function Brand({ status, busy, onSettings }) {
+const WALKERS = ["corda", "debug"];
+
+function Brand({ status, busy, walker, onWalker, onSettings }) {
   return (
     <header className="brand">
       <span className="word">BOTA</span>
-      {status.who && <span className="who">— {status.who}</span>}
+      <span className="walkers">
+        {WALKERS.map((id) => (
+          <button
+            key={id}
+            className={`walker${walker === id ? " on" : ""}`}
+            onClick={() => onWalker(id)}
+            title={id === "corda" ? "the adventurer" : "a second walker, for trying things"}
+          >
+            {id === walker && status.who ? given(status.who) : id}
+          </button>
+        ))}
+      </span>
       <span className="mood">{mood(status, busy)}</span>
       <button className="cog" onClick={onSettings} title="settings" aria-label="settings">
         <Icon name="settings" size={15} />
@@ -329,6 +342,7 @@ export default function Page() {
   const [settings, setSettings] = useState(false);
   const [reading, setReading] = useState(null);
   const [mapAt, setMapAt] = useState(null);
+  const [walker, setWalker] = useState(WALKERS[0]);
   const [face, setFace] = useState("content");
   const keyboard = useKeyboardAvoid();
   const [at, setAt] = useState(0);
@@ -375,6 +389,17 @@ export default function Page() {
       .then(setCatalogue)
       .catch(() => setCatalogue({ error: "the machine did not answer" }));
   }, [tab, sub.library, catalogue]);
+
+  useEffect(() => {
+    const asked = document.cookie.match(/(?:^|;\s*)tesbota_who=([^;]*)/);
+    if (asked && WALKERS.includes(asked[1])) setWalker(asked[1]);
+  }, []);
+
+  const swapWalker = useCallback((id) => {
+    if (!WALKERS.includes(id)) return;
+    document.cookie = `tesbota_who=${id};path=/;max-age=31536000;samesite=lax`;
+    window.location.reload();
+  }, []);
 
   useEffect(() => {
     const open = (e) => {
@@ -611,7 +636,13 @@ export default function Page() {
           : undefined
       }
     >
-      <Brand status={status} busy={busy} onSettings={() => setSettings(true)} />
+      <Brand
+        status={status}
+        busy={busy}
+        walker={walker}
+        onWalker={swapWalker}
+        onSettings={() => setSettings(true)}
+      />
 
       {settings && (
         <Settings

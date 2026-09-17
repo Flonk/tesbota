@@ -57,7 +57,7 @@ An open quest may carry a `script`. It is a suggestion, not canon and not bindin
 
 Your job as a GM is to facilitate fair trades—people can't trade whats not in their inventories. Unless you are trading a promise:
 
-    {"from": "greta-marsch", "to": "the-explorer",
+    {"from": "greta-marsch", "to": "$HOLDER",
      "name": "voucher for one bed at the Alheim Inn", "qty": 1}
 
 She is now one voucher short, serving as a reminder in both inventories. People can only short what they can underwrite.

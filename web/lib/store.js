@@ -8,10 +8,20 @@ import { promisify } from "node:util";
 const run = promisify(execFile);
 
 export const ROOT = path.resolve(process.cwd(), "..");
-const STATE = path.join(ROOT, "state");
-const TURNS = path.join(STATE, "turns");
-const JOB = path.join(STATE, "job.json");
-const JOB_LOG = path.join(STATE, "job.log");
+const SHARED = path.join(ROOT, "state");
+export const PROFILES = ["corda", "debug"];
+const roomOf = (profile) =>
+  profile && profile !== PROFILES[0] ? path.join(SHARED, profile) : SHARED;
+
+export function who(request) {
+  const asked = request?.cookies?.get?.("tesbota_who")?.value;
+  return PROFILES.includes(asked) ? asked : PROFILES[0];
+}
+
+// One world, one job lock: two adventurers may not step at once, because they
+// would be writing the same canon from two directions.
+const JOB = path.join(SHARED, "job.json");
+const JOB_LOG = path.join(SHARED, "job.log");
 
 async function readJson(file, fallback = null) {
   try {
@@ -38,7 +48,9 @@ const BANDS = { very_rare: "epic" };
 const band = (name) => BANDS[name] || name;
 const plain = (text) => (typeof text === "string" ? text.replace(PREFIX, "") : text);
 
-export async function snapshot() {
+export async function snapshot(profile = PROFILES[0]) {
+  const STATE = roomOf(profile);
+  const TURNS = path.join(STATE, "turns");
   const campaign = await readJson(path.join(STATE, "campaign.json"), {});
   const chat = await readJson(path.join(STATE, "lore3.json"), []);
   const sitting = await readJson(path.join(STATE, "lore4.json"), { log: [] });
@@ -526,6 +538,8 @@ function runner(args) {
     : ["uv", ["run", "--directory", ROOT, "tesbota", ...args]];
 }
 
+const under = (profile) => ({ ...process.env, TESBOTA_PROFILE: profile || PROFILES[0] });
+
 export async function mapLayout() {
   const [command, args] = runner(["map", "--json"]);
   try {
@@ -547,7 +561,7 @@ export async function job() {
   return { running, label: j.label || null, error: running ? null : j.error || null };
 }
 
-export async function launch(args, label) {
+export async function launch(args, label, profile = PROFILES[0]) {
   const current = await readJson(JOB, null);
   if (current && alive(current.pid)) return { busy: true, label: current.label || null };
 
@@ -555,12 +569,19 @@ export async function launch(args, label) {
   const [command, argv] = runner(args);
   const child = spawn(command, argv, {
     cwd: ROOT,
+    env: under(profile),
     stdio: ["ignore", log, log],
     detached: true,
   });
   child.unref();
 
-  const record = { pid: child.pid, label, since: new Date().toISOString(), error: null };
+  const record = {
+    pid: child.pid,
+    label,
+    who: profile,
+    since: new Date().toISOString(),
+    error: null,
+  };
   await fs.writeFile(JOB, JSON.stringify(record, null, 2) + "\n");
 
   child.on("exit", async (code, signal) => {
@@ -597,12 +618,13 @@ export async function launch(args, label) {
   return { started: true, label };
 }
 
-export async function tesbota(args, timeout = 900000) {
+export async function tesbota(args, timeout = 900000, profile = PROFILES[0]) {
   let stdout;
   const [command, argv] = runner(args);
   try {
     ({ stdout } = await run(command, argv, {
       cwd: ROOT,
+      env: under(profile),
       timeout,
       maxBuffer: 1024 * 1024 * 16,
     }));
