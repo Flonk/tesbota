@@ -29,7 +29,7 @@ MAX_GM_RETRIES = 3
 
 # A fight is one turn of the world, played out blow by blow. The explorer picks each
 # one; the driver rolls it and pays for it.
-MAX_BLOWS = 6
+MAX_BLOWS = 300
 FLEE_FLOOR = 25
 BLOW_MINUTES = 1
 BLOW_FATIGUE = 3
