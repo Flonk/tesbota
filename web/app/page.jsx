@@ -280,10 +280,18 @@ function Tile({ who, now, down, acting, side }) {
 function Arena({ f, at, ended }) {
   const blow = at > 0 ? f.blows[at - 1] : null;
   const acting = at > 0 && !ended ? blow?.who : at > 0 ? null : f.us[0]?.id;
+  // Frame nought is how everybody stood before the first blow, not how they would
+  // stand fresh — she walks into a fight carrying whatever the road left her.
+  const opening = (side, who) =>
+    who.opened ??
+    (f.blows || []).find((b) => (b[side] || []).some((x) => x.id === who.id))?.[side]?.find(
+      (x) => x.id === who.id
+    )?.health ??
+    who.most;
   const stand = (side, who) => {
     const snap = blow?.[side]?.find((x) => x.id === who.id);
     if (snap) return { now: snap.health, down: snap.dead, there: true };
-    return { now: who.most, down: false, there: !blow };
+    return { now: opening(side, who), down: false, there: !blow };
   };
   const over = ended && at >= (f.blows || []).length;
   return (
