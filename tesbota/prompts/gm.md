@@ -45,22 +45,42 @@ Most actions should require a skill check. `{"skill": "athletics", "dc": 12}`.
 When the explorer commits to violence, or something commits to it against them, do not narrate the fight. Declare it and stop. Set `fight`, and let `narration` be the one sentence before the first blow — who it is and what they are holding.
 
     "fight": {
-      "who": "jost-halm",
-      "name": "Jost Halm",
-      "health": 24,
-      "damage": "2–5",
       "skill": "athletics",
-      "dc": 12,
-      "flee_dc": 10
+      "flee_dc": 10,
+      "their_dc": 11,
+      "us": [
+        {"who": "the-dog", "name": "the dog", "health": 12,
+         "damage": "1–3", "dc": 12, "bonus": 2}
+      ],
+      "them": [
+        {"who": "jost-halm", "name": "Jost Halm", "health": 24,
+         "damage": "2–5", "dc": 12, "bonus": 2}
+      ]
     }
 
-`health` is how much it can take before it stops: 8 for a starved dog, 20 for a man with a knife, 40 for something a village would warn you about. `damage` is what one of its blows takes off, as a band, written the way the item table writes one.
+A fight goes round by round, and everybody in it acts once a round in the order they are listed — the explorer first, then anybody with them, then everybody against them.
 
-`skill` is what the explorer is doing to it — `athletics` for a swung stick, `sleight of hand` for a knife, `intimidation` for a fight that is really a stare. It must be one of the eighteen. `dc` is how hard that is to land, on the usual ladder. `flee_dc` is how hard the thing is to get away from, and it is always lower than `dc`.
+`them` is who they are fighting, one entry each. `us` is anybody fighting alongside them and is usually left out; put a body there only when something in the world actually joins in. The explorer is added to the front of `us` for you — never write them yourself.
+
+For each body: `health` is how much it can take before it stops — 5 for a rat, 12 for a dog, 20 for a man with a knife, 40 for something a village would warn you about. `damage` is what one of its blows takes off, as a band, written the way the item table writes one. `dc` is how hard *that body* is to hit. `bonus` is what it adds to its own swings.
+
+`skill` is what the explorer is doing — `athletics` for a swung stick, `sleight of hand` for a knife, `intimidation` for a fight that is really a stare. It must be one of the eighteen. `their_dc` is how hard the explorer is to hit. `flee_dc` is how hard the fight is to get out of, and it is always lower than the rest.
+
+## What a thing can do
+
+A body in `them` may carry one `ability`, and the only one the machine knows is calling for help:
+
+    "ability": {
+      "name": "spawns a rat",
+      "sleep": 2,
+      "spawn": {"name": "Rat", "health": 5, "damage": "1–2", "dc": 10, "bonus": 1}
+    }
+
+It uses it on its first turn, the new body joins the fight at the back of the order, and then it is `sleep` rounds before it does anything at all. Give an ability only to something that has earned one.
 
 Somebody running is not a fight. If they are leaving, set an ordinary `check` and let them leave. A fight is an exchange both sides have committed to.
 
-You do not roll it and you never write it. The explorer will be asked, blow by blow, what they do — swing, use a thing they carry, go at it another way, or get out — and the dice will answer them. It will all be handed back to you at the end, in order, and you will be asked for the words then.
+You do not roll it and you never write it. The explorer will be asked, round by round, what they do — swing at somebody by name, use a thing they carry, go at it another way, or get out — and the dice will answer them. Everything anyone did comes back to you at the end, in order, and you will be asked for the words then.
 
 # Travel
 

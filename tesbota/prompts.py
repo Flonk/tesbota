@@ -139,35 +139,46 @@ CARRY_SAME = "What they are carrying is exactly as you were last told."
 KEEP_SAME = "What everything here keeps is exactly as you were last told."
 QUEST_SAME = "What they have taken on is exactly as you were last told."
 
-VERBS = """  ATTACK          swing with the {weapon}, {weapon_damage} damage
+VERBS = """  ATTACK <who>    swing with the {weapon}, {weapon_damage} damage
   ITEM <name>     use one thing you carry, and it is gone{kit}
   SKILL <name>    go at it another way, with one of the eighteen
   FLEE            get out"""
 
 
-def fight_open(fight, carried, vitals):
-    """Laid out once. The explorer keeps a session, so every blow after this one is
-    a single line."""
+def sides(fight):
+    """Who is still up, on both sides, and how much is left in them."""
+    def row(x, mine):
+        if x["dead"]:
+            return f"  {x['name']} — down"
+        asleep = " (not stirring)" if x.get("asleep") else ""
+        return f"  {x['name']} — {x['health']} left{asleep}" + (" (you)" if mine else "")
+    ours = "\n".join(row(x, n == 0) for n, x in enumerate(fight["us"]))
+    theirs = "\n".join(row(x, False) for x in fight["them"])
+    return f"With you:\n{ours}\n\nAgainst you:\n{theirs}"
+
+
+def fight_open(fight, me, carried):
+    """Laid out once. The explorer keeps a session, so every turn after this one is
+    a single line and the standing of both sides."""
     kit = "".join(
         f"\n                    {h['name']} — {does(h.get('effects'))}" for h in carried or []
     )
     return (
-        f"{fight['name']} is on you and you are in it now. Every time you are asked, "
-        "answer with one of these and nothing else:\n\n"
-        + VERBS.format(weapon=fight["weapon"], weapon_damage=fight["weapon_damage"], kit=kit)
-        + f"\n\nIt has {fight['health']} in it. You have {vitals.get('health')}. "
-        "You will be told what happened and asked again. One word, nothing else."
+        "You are in a fight. It goes round by round, and this is your turn of it. "
+        "Every time you are asked, answer with one of these and nothing else:\n\n"
+        + VERBS.format(weapon=me.get("weapon", "your hands"),
+                       weapon_damage=me["damage"], kit=kit)
+        + "\n\nName who you are swinging at, or name nobody and you go for whoever is "
+        "closest to dropping.\n\n"
+        + sides(fight)
+        + "\n\nYou will be told what happened and asked again. One line, nothing else."
     )
 
 
-def fight_blow(said, fight, vitals, n):
-    """One sentence, and the question again. Nothing else — the session holds the
-    rest, and a fight is no place to read a briefing."""
-    left = vitals.get("health", 0)
-    hurt = "\n\nYou are hurt badly." if left <= FLEE_FLOOR else ""
-    return (
-        f"{said} {left} left of you, {fight['health']} left of it.{hurt}\n\nWhat do you do?"
-    )
+def fight_blow(fight, me, said):
+    """What just happened, where everybody stands, and the question again."""
+    hurt = "\n\nYou are hurt badly." if me["health"] <= FLEE_FLOOR else ""
+    return f"{said}\n\n{sides(fight)}{hurt}\n\nWhat do you do?"
 
 
 ENDED = {
@@ -205,28 +216,33 @@ FIGHT_DEATH = """It ended: you did not get out. They are dead. Before you reply,
 The last line you write is the last line of their book. Write it as one."""
 
 
-def blow_line(blow, fight):
-    """One row of the roll sheet: what they picked, and what it cost."""
-    said = blow["chose"]
-    if blow["verb"] == "ITEM":
-        return (f"{said} — used, {blow.get('mended') or 'nothing changed'}; "
-                f"it put {blow['taken']} into you, {blow['explorer_health']} left of you")
-    if blow["verb"] == "FLEE" and blow["hit"]:
-        return f"{said} — you got clear"
-    if blow["verb"] == "FLEE":
-        return (f"{said} — failed, it put {blow['taken']} into you, "
-                f"{blow['explorer_health']} left of you")
+def blow_line(blow):
+    """One row of the roll sheet: who acted, what they chose, and what came of it."""
+    who = blow.get("name") or "somebody"
+    said = blow.get("chose") or "ATTACK"
+    if said == "ASLEEP":
+        return f"{who} — does not stir"
+    if blow.get("spawned"):
+        return f"{who} — {said}, and {blow['spawned']} joins it"
+    if said.startswith("ITEM"):
+        return f"{who} — {said}, {blow.get('mended') or 'nothing changed'}, {blow.get('left')} left of them"
+    if said == "FLEE":
+        return f"{who} — broke away" if blow["hit"] else f"{who} — tried to break away and could not"
+    mark = blow.get("atname") or "nobody"
     if blow["hit"]:
-        return (f"{said} — landed, {blow['dealt']} off {fight['name']}, "
-                f"{blow['enemy_health']} left of it")
-    return (f"{said} — missed, it put {blow['taken']} into you, "
-            f"{blow['explorer_health']} left of you")
+        hurt = blow.get("dealt") or blow.get("taken") or 0
+        return f"{who} — {said} on {mark}, landed, {hurt} off them, {blow.get('left')} left of them"
+    return f"{who} — {said} on {mark}, missed"
 
 
 def gm_blows(fight, fate=None):
-    sheet = "\n".join(
-        f"  {b['n']}  {blow_line(b, fight)}" for b in fight["blows"]
-    )
+    rounds, sheet, seen = [], [], None
+    for b in fight["blows"]:
+        if b.get("round") != seen:
+            seen = b.get("round")
+            sheet.append(f"  round {seen}")
+        sheet.append(f"    {b['n']}  {blow_line(b)}")
+    sheet = "\n".join(sheet)
     parts = [BLOWS.format(sheet=sheet, ended=ENDED.get(fight["ended"], "it is not over."))]
     if fate:
         parts.append(FIGHT_FATE)

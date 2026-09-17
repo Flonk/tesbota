@@ -189,80 +189,91 @@ function Health({ now, most, side }) {
   );
 }
 
-function Corner({ name, now, most, side, children }) {
-  return (
-    <div className={`corner ${side}`}>
-      <p className="cornername">
-        <span>{name}</span>
-        <span className="cornerhp">
-          {now}/{most}
-        </span>
-      </p>
-      <Health now={now} most={most} side={side} />
-      <div className="cornerbody">{children}</div>
-    </div>
-  );
-}
-
-function Wears({ her }) {
+function Wears({ who }) {
+  const gear = [...(who.worn || []), ...(who.kit || []).map((k) => ({ ...k, reach: true }))];
   return (
     <>
-      {[...(her.worn || []), ...(her.kit || []).map((k) => ({ ...k, reach: true }))].map((w) => (
+      {gear.map((w) => (
         <p className={`statline${w.reach ? " reach" : ""}`} key={w.name}>
           <span className="statslot">{w.reach ? "reach" : w.slot || w.type}</span>
           <span className="statwhat">
             <Mark name={face(w)} tone={tone(w.rarity) || "tint-common"}>
-              <span className={`statname ${tone(w.rarity)}`} title={w.name}>{w.name}</span>
+              <span className={`statname ${tone(w.rarity)}`} title={w.name}>
+                {w.name}
+              </span>
             </Mark>
             {w.does && <span className="statdoes">{w.does}</span>}
           </span>
         </p>
       ))}
-      <p className="statline">
-        <span className="statslot">rolls</span>
-        <span className="statwhat">
-          <span className="statname">{her.skill}</span>
-          <span className="statdoes">
-            {her.bonus >= 0 ? "+" : ""}
-            {her.bonus}
-            {her.fatigue >= 100 ? " · spent" : ""}
-            {her.hunger >= 100 ? " · starving" : ""}
-          </span>
-        </span>
-      </p>
     </>
+  );
+}
+
+function Tile({ who, now, down, acting, side }) {
+  const rows = [
+    ["hits for", who.damage],
+    ["to hit it", `dc ${who.dc}`],
+    ...(who.skill ? [["rolls", `${who.skill} ${who.bonus >= 0 ? "+" : ""}${who.bonus}`]] : []),
+    ...(who.ability ? [["can", who.ability.name]] : []),
+  ];
+  return (
+    <div className={`tile ${side}${acting ? " acting" : ""}${down ? " down" : ""}`}>
+      <p className="cornername">
+        <span>{who.name}</span>
+        <span className="cornerhp">{down ? "down" : `${now}/${who.most}`}</span>
+      </p>
+      <Health now={down ? 0 : now} most={who.most} side={side} />
+      <div className="cornerbody">
+        {who.worn ? <Wears who={who} /> : null}
+        {rows.map(([what, said]) => (
+          <p className="statline" key={what}>
+            <span className="statslot">{what}</span>
+            <span className="statwhat">
+              <span className="statname">{said}</span>
+            </span>
+          </p>
+        ))}
+      </div>
+    </div>
   );
 }
 
 function Arena({ f, at, ended }) {
   const blow = at > 0 ? f.blows[at - 1] : null;
-  const her = f.her || {};
-  const mine = blow ? blow.explorer_health : her.health ?? 0;
-  const theirs = blow ? blow.enemy_health : f.began;
+  const acting = at > 0 && !ended ? blow?.who : at > 0 ? null : f.us[0]?.id;
+  const stand = (side, who) => {
+    const snap = blow?.[side]?.find((x) => x.id === who.id);
+    if (snap) return { now: snap.health, down: snap.dead, there: true };
+    return { now: who.most, down: false, there: !blow };
+  };
   const over = ended && at >= (f.blows || []).length;
   return (
     <div className="arena">
       {over && (
         <p className={`ended ${ended}`}>
           {END[ended] || "it is not over"}
-          {ended === "broken" ? ` — ${f.name} keeps ${f.health}` : ""}
+          {f.round > 1 ? ` · ${f.round} rounds` : ""}
         </p>
       )}
-      <Corner name={her.name || "you"} now={mine} most={her.most || 100} side="you">
-        <Wears her={her} />
-      </Corner>
-      <Corner name={f.name} now={theirs} most={f.began} side="them">
-        {[["hits for", f.damage], ["to land", `dc ${f.dc}`], ["to escape", `dc ${f.flee_dc}`]].map(
-          ([what, said]) => (
-            <p className="statline" key={what}>
-              <span className="statslot">{what}</span>
-              <span className="statwhat">
-                <span className="statname">{said}</span>
-              </span>
-            </p>
-          )
-        )}
-      </Corner>
+      {["us", "them"].map((side) => (
+        <div className={`ranks ${side}`} key={side}>
+          {(f[side] || []).map((who) => {
+            const { now, down, there } = stand(side, who);
+            if (!there) return null;
+            return (
+              <Tile
+                key={who.id}
+                who={who}
+                now={now}
+                down={down}
+                acting={who.id === acting}
+                side={side}
+              />
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
