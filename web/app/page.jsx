@@ -245,7 +245,6 @@ function Tile({ who, now, down, acting, side }) {
       </div>
 
       <div className="tilepart">
-        <p className="cap tilecap">abilities</p>
         {powers.map(([what, said]) => (
           <p className="statline stacked" key={what}>
             <span className="statslot">{what}</span>
