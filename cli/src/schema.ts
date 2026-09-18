@@ -204,6 +204,14 @@ export const Phase = z.object({
 
 export const StateName = z.enum(STATE_NAMES);
 
+/** One edge of the machine, crossed. Two states name it; `on` is what the step said. */
+export const Crossing = z.object({
+  from: StateName,
+  to: StateName,
+  at: z.string(),
+  on: z.string().optional(),
+});
+
 export const Turn = z.object({
   turn_id: z.string().regex(/^t\d{4}$/),
   state: StateName,
@@ -244,8 +252,32 @@ export const Turn = z.object({
   spent: z.array(z.string()).default([]),
 
   /** the edge the driver last crossed, and the ones before it — what the dev tab draws */
-  took: z.object({ from: StateName, to: StateName, at: z.string() }).nullish(),
-  trail: z.array(z.object({ from: StateName, to: StateName, at: z.string() })).default([]),
+  took: Crossing.nullish(),
+  trail: z.array(Crossing).default([]),
+
+  // What a turn carries between its own steps. These are working state, not the
+  // record — but they are declared here all the same, because anything left out
+  // is silently dropped the next time the turn is read off disk, and a proposal
+  // that vanishes between `propose` and `gm` is a turn that quietly re-prices
+  // itself.
+  proposal: z.record(z.string(), z.unknown()).nullish(),
+  confirmed: z.boolean().default(false),
+  propose_retries: z.number().int().min(0).default(0),
+  blank: z.number().int().min(0).default(0),
+  nudge: z.number().int().min(0).default(0),
+  ready: z.string().nullish(),
+  pressed: z.boolean().nullish(),
+  forced_strange: z.boolean().default(false),
+  fortune: z.number().nullish(),
+  looks: z.array(z.unknown()).default([]),
+  talks: z.array(z.unknown()).default([]),
+  context: z.array(z.unknown()).default([]),
+  /** where the road is taking them, and how much of it is left */
+  destination: z.string().nullish(),
+  leagues_left: z.number().default(0),
+  /** the lore master's sitting, archived onto the turn that needed it */
+  lore: z.array(z.unknown()).default([]),
+  lore_gap: z.string().nullish(),
 
   minutes: z.number().int().min(0).default(0),
   wake_at: z.string().nullish(),

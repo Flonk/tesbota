@@ -7,6 +7,7 @@
 
 import * as actions from "./actions.ts";
 import * as canon from "./canon.ts";
+import { check } from "./check.ts";
 import * as chronicle from "./chronicle.ts";
 import * as db from "./db.ts";
 import * as driver from "./driver.ts";
@@ -203,6 +204,17 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       say(layer.text);
       say("");
     }
+  },
+
+  /** Everything that has to be true before the machine is trusted to run. */
+  check({ flags }) {
+    const wrong = check();
+    if (flags.has("--json")) return say({ ok: !wrong.length, wrong });
+    if (!wrong.length) return say("all clear");
+    for (const w of wrong) say(`  ${w.what}: ${w.said}`);
+    say("");
+    say(`${wrong.length} wrong`);
+    process.exitCode = 1;
   },
 
   /** The machine describing itself — what the dev tab draws. */
