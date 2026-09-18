@@ -407,6 +407,18 @@ export default function Library({
 
   return (
     <div className="lib">
+      {hits === null && kind === "people" && (
+        <Tabs
+          className="sub folk"
+          items={FOLK.map((f) => ({
+            ...f,
+            count: (world?.people || []).filter((r) => (f.id === "mob" ? r.mob : !r.mob)).length,
+          }))}
+          value={folk}
+          onChange={setFolk}
+        />
+      )}
+
       <form className="seek" onSubmit={search}>
         <Mark className="glass" name="search" />
         <input
@@ -425,18 +437,6 @@ export default function Library({
           </Btn>
         )}
       </form>
-
-      {hits === null && kind === "people" && (
-        <Tabs
-          className="sub folk"
-          items={FOLK.map((f) => ({
-            ...f,
-            count: (world?.people || []).filter((r) => (f.id === "mob" ? r.mob : !r.mob)).length,
-          }))}
-          value={folk}
-          onChange={setFolk}
-        />
-      )}
 
       <div className="libbody">
       {hits === null && (
