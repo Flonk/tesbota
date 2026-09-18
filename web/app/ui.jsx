@@ -49,11 +49,12 @@ export function Cap({ children }) {
   return <div className="cap">{children}</div>;
 }
 
-export function Crumb({ where = [], short = false, className = "" }) {
+export function Crumb({ where = [], short = false, lead = null, className = "" }) {
   if (!where.length) return null;
   const shown = short ? where.slice(-2) : where;
   return (
     <div className={`crumb ${className}`.trim()}>
+      {lead}
       {short && where.length > shown.length && (
         <span className="sep" title={where.map((p) => p.name).join(" › ")}>
           …›

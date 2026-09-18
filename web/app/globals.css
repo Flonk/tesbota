@@ -748,9 +748,7 @@ textarea.prompt:focus { outline: none; }
 .dclaimhead { display: flex; gap: .6rem; margin: 0 0 .1rem; text-transform: none; letter-spacing: .06em; }
 .dmention { margin-bottom: .55rem; }
 .dsnip { margin: 0; font-size: .85rem; line-height: 1.45; color: var(--ink); }
-.dtrail { font: var(--mono); letter-spacing: .06em; color: var(--place); margin: 0; }
-.dtrail .sep { opacity: .45; margin: 0 .45em; }
-.dtrail .here { color: var(--gold); }
+.crumblead { color: var(--dim); }
 
 .dlink {
   background: none; border: 0; padding: 0; cursor: pointer;

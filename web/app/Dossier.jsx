@@ -2,7 +2,7 @@
 
 import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
 import { useEffect, useState } from "react";
-import { Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Stub, Table, Tag } from "./ui";
+import { Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Stub, Table, Tag } from "./ui";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -156,21 +156,12 @@ function Head({ thing }) {
   if (thing.kind === "items") return <Made item={thing.item} />;
   if (thing.kind === "places") {
     const sort = thing.place?.type;
-    const chain = thing.within || [];
-    return (
-      <p className="cap dwho">
-        {sort ? sort.replace(/-/g, " ") : <Stub />}
-        {chain.length > 1 && " in "}
-        {chain.slice(0, -1).map((p, n) => (
-          <span key={p.id}>
-            {n > 0 && <span className="sep">›</span>}
-            <button className="dlink" onClick={() => openDossier(p.id)}>
-              {p.name}
-            </button>
-          </span>
-        ))}
-      </p>
+    const chain = (thing.within || []).slice(0, -1);
+    const lead = (
+      <span className="cap crumblead">{sort ? sort.replace(/-/g, " ") : <Stub />}</span>
     );
+    if (!chain.length) return <p className="cap dwho">{lead}</p>;
+    return <Crumb className="dwho" lead={<>{lead}<span className="sep">in</span></>} where={chain} />;
   }
   return null;
 }
@@ -276,25 +267,6 @@ function Section({ label, children }) {
       <p className="cap">{label}</p>
       {children}
     </div>
-  );
-}
-
-function Trail({ chain, self }) {
-  return (
-    <p className="dtrail">
-      {chain.map((p, n) => (
-        <span key={p.id}>
-          {n > 0 && <span className="sep">›</span>}
-          {p.id === self ? (
-            <span className="here">{p.name}</span>
-          ) : (
-            <button className="dlink" onClick={() => openDossier(p.id)}>
-              {p.name}
-            </button>
-          )}
-        </span>
-      ))}
-    </p>
   );
 }
 
@@ -422,12 +394,6 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
               <button className="dlink dmap" onClick={() => openMap(thing.id)}>
                 <Mark name="map" gap=".35rem">show it on the map</Mark>
               </button>
-            )}
-
-            {thing.kind === "people" && thing.within?.length > 1 && (
-              <Section label="where it sits">
-                <Trail chain={thing.within} self={thing.id} />
-              </Section>
             )}
 
             {thing.kind === "items" && <Stats item={thing.item} />}
