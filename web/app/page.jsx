@@ -513,7 +513,7 @@ const TABS = [
   { id: "map", label: "map", icon: "map" },
   { id: "me", label: "you", icon: "person" },
   { id: "library", label: "library", icon: "shelf" },
-  { id: "dev", label: "dev", icon: "cog" },
+  { id: "dev", label: "dev", icon: "settings" },
 ];
 
 export default function Page() {

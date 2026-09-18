@@ -300,7 +300,8 @@ it, or whether it is only a name somebody wrote down.
 
 One component per job, in `web/app/ui.jsx`. `Tag` is a verdict, `Pill` is a name,
 `Mark` is an icon with its words, `Crumb` is a chain of places. Do not write a
-second one.
+second one, and do not draw one either — the state diagram's nodes are `Pill`,
+positioned, not svg rectangles made to look like it.
 
 The library's last tab is **data**: the machine looking at itself. `names` is the
 pool a new adventurer is drawn from, marked where a name is already spoken for,

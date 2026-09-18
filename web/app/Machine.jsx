@@ -1,35 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Empty, Mark } from "./ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Empty, Mark, Pill } from "./ui";
 
 /**
  * The machine, drawn from the machine.
  *
  * Nothing about the shape of the world is written here. `/api/machine` serves
- * `cli/src/machine.ts` and this lays out whatever comes back, so a state added
- * to the table appears on this page without anybody touching it.
+ * `cli/src/machine.ts` and this lays out whatever comes back, so a state added to
+ * the table appears on this page without anybody touching it.
+ *
+ * The states are `Pill`, the same one the rest of the app uses. The edges are an
+ * svg laid underneath at the same measured size, which is the only part of this
+ * that has to know about pixels.
  */
 
 const KIND = {
-  agent: { tone: "agent", what: "an agent is asked" },
-  roll: { tone: "roll", what: "the driver decides" },
-  book: { tone: "book", what: "it is written down" },
-  wait: { tone: "wait", what: "the world holds" },
-  end: { tone: "end", what: "the turn closes" },
+  agent: { what: "an agent is asked" },
+  roll: { what: "the driver decides" },
+  book: { what: "it is written down" },
+  wait: { what: "the world holds" },
+  end: { what: "the turn closes" },
 };
 
-const BOX = { w: 132, h: 46 };
-const GAP = { x: 78, y: 34 };
-const PAD = 30;
+const ROW = 30;   // how tall a pill sits
+const LEAP = 46;  // the gap between one row and the next
+const GUTTER = 14;
+const PAD = 10;
+const COLUMNS = 2;
 
 /**
- * Layered layout. Ranks come from the longest path along the flow, not the
- * shortest, so `done` sits at the end where it belongs instead of being dragged
- * left by the one edge `explorer` has straight to it. Cycles are broken first —
- * a redraft going back to `gm` must not decide anybody's column.
+ * Two columns, running down. Ranks come from the longest path along the flow, so
+ * the main line reads top to bottom; a rank holding two states puts them side by
+ * side, and anything wider wraps rather than running off the screen.
  */
-function layout(states, edges) {
+function layout(states, edges, width) {
   const names = states.map((s) => s.name);
   const forward = edges.filter((e) => e.from !== e.to);
 
@@ -53,7 +58,11 @@ function layout(states, edges) {
 
   const ahead = forward.filter((e) => !back.has(`${e.from}->${e.to}`));
   const into = new Map(names.map((n) => [n, []]));
-  for (const e of ahead) into.get(e.to)?.push(e.from);
+  const onward = new Map(names.map((n) => [n, []]));
+  for (const e of ahead) {
+    into.get(e.to)?.push(e.from);
+    onward.get(e.from)?.push(e.to);
+  }
 
   // Longest path: a state sits one past the last thing that can reach it.
   const rank = new Map();
@@ -68,97 +77,107 @@ function layout(states, edges) {
   };
   for (const n of names) rankOf(n);
 
+  // Then let anything with slack fall as late as it may. Longest-path alone puts
+  // `narrate` one step below `explorer`, because that is the only thing that
+  // reaches it — but it is the end of a turn and belongs down by `done`.
+  for (const n of [...names].sort((a, b) => rank.get(b) - rank.get(a))) {
+    const next = onward.get(n) || [];
+    if (!next.length) continue;
+    const latest = Math.min(...next.map((m) => rank.get(m))) - 1;
+    if (latest > rank.get(n)) rank.set(n, latest);
+  }
+
   const ranks = new Map();
   for (const n of names) {
     const r = rank.get(n);
     if (!ranks.has(r)) ranks.set(r, []);
     ranks.get(r).push(n);
   }
-  const order = [...ranks].sort((a, b) => a[0] - b[0]);
 
-  // Barycentre: put each state opposite the average of what feeds it, a few
-  // passes each way, which is most of what a crossing-free drawing needs.
-  const row = new Map();
-  for (const [, names_] of order) names_.forEach((n, i) => row.set(n, i));
-  const neighbours = (n, dir) =>
-    forward.filter((e) => (dir === "up" ? e.to === n : e.from === n))
-           .map((e) => (dir === "up" ? e.from : e.to));
-  for (let pass = 0; pass < 6; pass++) {
-    const dir = pass % 2 ? "down" : "up";
-    const lanes = dir === "up" ? order : [...order].reverse();
-    for (const [, names_] of lanes) {
-      const weight = new Map(
-        names_.map((n) => {
-          const near = neighbours(n, dir).map((m) => row.get(m)).filter((x) => x != null);
-          return [n, near.length ? near.reduce((a, b) => a + b, 0) / near.length : row.get(n)];
-        })
-      );
-      names_.sort((a, b) => weight.get(a) - weight.get(b) || a.localeCompare(b));
-      names_.forEach((n, i) => row.set(n, i));
+  // A rank of two sits side by side; whichever more of the flow runs through takes
+  // the left column, so the spine of the machine stays in one line.
+  const busy = (n) => forward.filter((e) => e.from === n || e.to === n).length;
+  const wide = Math.max(260, width);
+  const cell = (wide - PAD * 2 - GUTTER * (COLUMNS - 1)) / COLUMNS;
+  const place = new Map();
+  let row = 0;
+  for (const [, held] of [...ranks].sort((a, b) => a[0] - b[0])) {
+    const sorted = [...held].sort((a, b) => busy(b) - busy(a) || a.localeCompare(b));
+    for (let at = 0; at < sorted.length; at += COLUMNS) {
+      const line = sorted.slice(at, at + COLUMNS);
+      const span = line.length * cell + (line.length - 1) * GUTTER;
+      const left = (wide - span) / 2;
+      line.forEach((name, n) => {
+        place.set(name, {
+          x: left + n * (cell + GUTTER),
+          y: PAD + row * (ROW + LEAP),
+          w: cell,
+          row,
+        });
+      });
+      row += 1;
     }
   }
 
-  const tallest = Math.max(...order.map(([, n]) => n.length));
-  const full = tallest * BOX.h + (tallest - 1) * GAP.y;
-  const place = new Map();
-  for (const [d, names_] of order) {
-    const span = names_.length * BOX.h + (names_.length - 1) * GAP.y;
-    const top = PAD + (full - span) / 2;
-    names_.forEach((name, n) => {
-      place.set(name, { x: PAD + d * (BOX.w + GAP.x), y: top + n * (BOX.h + GAP.y) });
-    });
-  }
-
-  return {
-    place,
-    width: PAD * 2 + order.length * BOX.w + (order.length - 1) * GAP.x,
-    height: PAD * 2 + full,
-  };
+  return { place, width: wide, height: PAD * 2 + row * ROW + (row - 1) * LEAP };
 }
 
-/** Where an edge leaves and lands, and the curve between. A self-edge loops above. */
-function wire(from, to) {
+const mid = (at) => ({ x: at.x + at.w / 2, y: at.y + ROW / 2 });
+
+/**
+ * Where an edge leaves and lands. The flow runs down, so a forward edge drops out
+ * of the bottom and a way back bows out to the side and climbs — which is what
+ * makes a redraft legible as a redraft rather than as another step.
+ */
+function wire(from, to, width) {
   if (!from || !to) return null;
-  const a = { x: from.x + BOX.w / 2, y: from.y + BOX.h / 2 };
-  const b = { x: to.x + BOX.w / 2, y: to.y + BOX.h / 2 };
+  const a = mid(from);
+  const b = mid(to);
 
   if (from === to) {
-    const top = from.y;
-    const l = from.x + BOX.w * 0.28;
-    const r = from.x + BOX.w * 0.72;
+    const right = from.x + from.w;
     return {
-      d: `M ${l} ${top} C ${l - 16} ${top - 40}, ${r + 16} ${top - 40}, ${r} ${top}`,
-      mid: { x: from.x + BOX.w / 2, y: top - 28 },
-      back: false,
+      d: `M ${right} ${a.y - 5} C ${right + 20} ${a.y - 15}, ${right + 20} ${a.y + 15}, ${right} ${a.y + 5}`,
     };
   }
 
-  const back = b.x < a.x;
-  const start = { x: a.x + (b.x > a.x ? BOX.w / 2 : -BOX.w / 2), y: a.y };
-  const end = { x: b.x + (b.x > a.x ? -BOX.w / 2 : BOX.w / 2), y: b.y };
-  if (Math.abs(b.x - a.x) < 1) {
-    const side = from.x + BOX.w + 22;
+  if (from.row === to.row) {
+    const rightward = b.x > a.x;
+    const start = rightward ? from.x + from.w : from.x;
+    const end = rightward ? to.x : to.x + to.w;
+    const lift = ROW / 2 + 9;
     return {
-      d: `M ${from.x + BOX.w} ${a.y} C ${side + 30} ${a.y}, ${side + 30} ${b.y}, ${to.x + BOX.w} ${b.y}`,
-      mid: { x: side + 26, y: (a.y + b.y) / 2 },
-      back,
+      d: `M ${start} ${a.y} C ${(start + end) / 2} ${a.y - lift}, ${(start + end) / 2} ${b.y - lift}, ${end} ${b.y}`,
     };
   }
-  const bow = back ? Math.min(70, Math.abs(b.y - a.y) / 2 + 34) : 0;
-  const lift = back ? -bow : 0;
-  const c1 = { x: start.x + (end.x - start.x) * 0.45, y: start.y + lift };
-  const c2 = { x: start.x + (end.x - start.x) * 0.55, y: end.y + lift };
+
+  if (to.row > from.row) {
+    const start = { x: a.x, y: from.y + ROW };
+    const end = { x: b.x, y: to.y };
+    const reach = (end.y - start.y) * 0.5;
+    return {
+      d: `M ${start.x} ${start.y} C ${start.x} ${start.y + reach}, ${end.x} ${end.y - reach}, ${end.x} ${end.y}`,
+    };
+  }
+
+  // Climbing back. Leave by whichever flank is nearer the outside and run up it.
+  const leftish = a.x < width / 2;
+  const side = leftish
+    ? Math.min(from.x, to.x) - 8
+    : Math.max(from.x + from.w, to.x + to.w) + 8;
+  const start = { x: leftish ? from.x : from.x + from.w, y: a.y };
+  const end = { x: leftish ? to.x : to.x + to.w, y: b.y };
   return {
-    d: `M ${start.x} ${start.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${end.x} ${end.y}`,
-    mid: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 + lift * 0.75 },
-    back,
+    d: `M ${start.x} ${start.y} C ${side} ${start.y}, ${side} ${end.y}, ${end.x} ${end.y}`,
   };
 }
 
 export default function Machine({ status }) {
   const [table, setTable] = useState(null);
   const [wrong, setWrong] = useState(null);
-  const [hover, setHover] = useState(null);
+  const [picked, setPicked] = useState(null);
+  const [width, setWidth] = useState(0);
+  const box = useRef(null);
 
   useEffect(() => {
     let live = true;
@@ -171,27 +190,38 @@ export default function Machine({ status }) {
     };
   }, []);
 
+  // The pills are laid out in the page's own pixels, so the edges underneath have
+  // to be told how wide the page turned out to be.
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const watch = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+    watch.observe(el);
+    setWidth(el.getBoundingClientRect().width);
+    return () => watch.disconnect();
+  }, [table]);
+
   const here = status?.state || null;
   const took = status?.took || null;
 
   const plan = useMemo(
-    () => (table ? layout(table.states, table.edges) : null),
-    [table]
+    () => (table && width ? layout(table.states, table.edges, width) : null),
+    [table, width]
   );
 
   if (wrong) return <Empty>the machine would not describe itself — {wrong}</Empty>;
-  if (!table || !plan) return <Empty>reading the machine…</Empty>;
 
   const live = took ? `${took.from}->${took.to}` : null;
-  const shown = hover
-    ? table.edges.find((e) => e.id === hover)
-    : took && table.edges.find((e) => e.from === took.from && e.to === took.to);
+  const edges = table?.edges || [];
+  const shown = picked
+    ? edges.filter((e) => e.from === picked)
+    : edges.filter((e) => live === `${e.from}->${e.to}`);
 
   return (
     <div className="machine">
       <div className="machinetop">
         <span className="cap dim">
-          {table.states.length} states · {table.edges.length} edges
+          {table ? `${table.states.length} states · ${table.edges.length} edges` : "…"}
         </span>
         {here && (
           <span className="cap">
@@ -202,72 +232,74 @@ export default function Machine({ status }) {
         )}
       </div>
 
-      <div className="machinebox">
-        <svg
-          viewBox={`0 0 ${plan.width} ${plan.height}`}
-          width={plan.width}
-          height={plan.height}
-          className="mgraph"
-        >
-          <defs>
-            <marker id="mhead" viewBox="0 0 10 10" refX="9" refY="5"
-                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" className="mheadfill" />
-            </marker>
-            <marker id="mheadlive" viewBox="0 0 10 10" refX="9" refY="5"
-                    markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" className="mheadlivefill" />
-            </marker>
-          </defs>
+      <div className="machinebox" ref={box} style={{ height: plan ? plan.height : 160 }}>
+        {!table && <Empty>reading the machine…</Empty>}
+        {plan && (
+          <>
+            <svg className="mgraph" width={plan.width} height={plan.height} aria-hidden="true">
+              <defs>
+                <marker id="mhead" viewBox="0 0 10 10" refX="8" refY="5"
+                        markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" className="mheadfill" />
+                </marker>
+                <marker id="mheadlive" viewBox="0 0 10 10" refX="8" refY="5"
+                        markerWidth="4.6" markerHeight="4.6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" className="mheadlivefill" />
+                </marker>
+              </defs>
+              {table.edges.map((e) => {
+                const path = wire(plan.place.get(e.from), plan.place.get(e.to), plan.width);
+                if (!path) return null;
+                const isLive = live === `${e.from}->${e.to}`;
+                const lit = picked === e.from;
+                return (
+                  <g key={e.id} className={`medge${isLive ? " live" : ""}${lit ? " lit" : ""}`}>
+                    <path d={path.d} className="mline"
+                          markerEnd={isLive ? "url(#mheadlive)" : "url(#mhead)"} />
+                    {isLive && <path d={path.d} className="mflow" />}
+                  </g>
+                );
+              })}
+            </svg>
 
-          {table.edges.map((e) => {
-            const path = wire(plan.place.get(e.from), plan.place.get(e.to));
-            if (!path) return null;
-            const isLive = live === `${e.from}->${e.to}`;
-            const isHover = hover === e.id;
-            return (
-              <g key={e.id} className={`medge${isLive ? " live" : ""}${isHover ? " lit" : ""}`}
-                 onMouseEnter={() => setHover(e.id)} onMouseLeave={() => setHover(null)}>
-                <path d={path.d} className="mhit" />
-                <path d={path.d} className="mline"
-                      markerEnd={isLive ? "url(#mheadlive)" : "url(#mhead)"} />
-                {isLive && <path d={path.d} className="mflow" />}
-              </g>
-            );
-          })}
-
-          {table.states.map((s) => {
-            const at = plan.place.get(s.name);
-            if (!at) return null;
-            const isHere = here === s.name;
-            const isFrom = took?.from === s.name;
-            return (
-              <g key={s.name} className={`mnode k-${KIND[s.kind]?.tone || "roll"}${isHere ? " here" : ""}${isFrom ? " from" : ""}`}>
-                <rect x={at.x} y={at.y} width={BOX.w} height={BOX.h} rx="3" className="mbox" />
-                <text x={at.x + BOX.w / 2} y={at.y + BOX.h / 2 - 3} className="mname">
-                  {s.name}
-                </text>
-                <text x={at.x + BOX.w / 2} y={at.y + BOX.h / 2 + 12} className="mcalls">
-                  {s.calls ? `${s.calls} call${s.calls > 1 ? "s" : ""}` : KIND[s.kind]?.tone}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
+            {table.states.map((s) => {
+              const at = plan.place.get(s.name);
+              if (!at) return null;
+              return (
+                <span key={s.name} className="mslot"
+                      style={{ left: at.x, top: at.y, width: at.w, height: ROW }}>
+                  <Pill
+                    className={`mpill k-${s.kind}${here === s.name ? " mhere" : ""}`}
+                    on={here === s.name || picked === s.name}
+                    title={`${s.does}${s.calls ? ` — ${s.calls} agent call${s.calls > 1 ? "s" : ""}` : ""}`}
+                    onClick={() => setPicked(picked === s.name ? null : s.name)}
+                  >
+                    {s.name}
+                    {!!s.calls && <i className="mcalls">{s.calls}</i>}
+                  </Pill>
+                </span>
+              );
+            })}
+          </>
+        )}
       </div>
 
-      {shown && (
-        <p className="medgesaid">
-          <strong>{shown.from}</strong>
-          <span className="sep">—{shown.on}→</span>
-          <strong>{shown.to}</strong>
-          <span className="dim"> · {shown.when}</span>
-        </p>
+      {shown.length > 0 && (
+        <ul className="medges">
+          {shown.map((e) => (
+            <li key={e.id} className={live === `${e.from}->${e.to}` ? "live" : ""}>
+              <strong>{e.from}</strong>
+              <span className="sep">—{e.on}→</span>
+              <strong>{e.to}</strong>
+              <span className="dim"> · {e.when}</span>
+            </li>
+          ))}
+        </ul>
       )}
 
       <div className="mkey">
-        {Object.entries(KIND).map(([kind, { tone, what }]) => (
-          <span key={kind} className={`mkeyone k-${tone}`}>
+        {Object.entries(KIND).map(([kind, { what }]) => (
+          <span key={kind} className={`mkeyone k-${kind}`}>
             <i className="mswatch" />
             {kind} <span className="dim">— {what}</span>
           </span>
