@@ -14,7 +14,7 @@ import Steer from "./Steer";
 import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
-import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Prose, Tabs, Tag } from "./ui";
+import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Tabs, Tag } from "./ui";
 
 const PHASE = {
   explorer: "deciding",
@@ -238,9 +238,7 @@ function Tile({ who, now, down, acting, side }) {
           {marks.length > 0 && (
             <div className="dtraits">
               {marks.map((m) => (
-                <span className="toggle pill flat" key={`${m.name}-${m.value || ""}`}>
-                  {m.name}
-                </span>
+                <Pill key={`${m.name}-${m.value || ""}`}>{m.name}</Pill>
               ))}
             </div>
           )}

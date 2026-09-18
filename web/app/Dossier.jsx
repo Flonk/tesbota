@@ -2,7 +2,7 @@
 
 import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
 import { useEffect, useState } from "react";
-import { Empty, Mark, openDossier, openMap, Overlay, Prose, Stub, Table, Tag } from "./ui";
+import { Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Stub, Table, Tag } from "./ui";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -260,7 +260,7 @@ function Traits({ person }) {
       {said.length ? (
         <div className="dtraits">
           {said.map((t) => (
-            <Tag key={t}>{t}</Tag>
+            <Pill key={t}>{t}</Pill>
           ))}
         </div>
       ) : (
@@ -381,13 +381,12 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
               <Section label="aspects">
                 <div className="dtraits">
                   {thing.aspects.map((a) => (
-                    <button
-                      className="toggle pill"
+                    <Pill
                       key={`${a.aspect}-${a.value || ""}`}
                       onClick={() => openDossier(a.aspect)}
                     >
                       {a.name}
-                    </button>
+                    </Pill>
                   ))}
                 </div>
               </Section>
@@ -420,9 +419,9 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
               <Section label="granted by">
                 <div className="dtraits">
                   {thing.granted.map((a) => (
-                    <button className="toggle pill" key={a.id} onClick={() => openDossier(a.id)}>
+                    <Pill key={a.id} onClick={() => openDossier(a.id)}>
                       {a.name}
-                    </button>
+                    </Pill>
                   ))}
                 </div>
               </Section>

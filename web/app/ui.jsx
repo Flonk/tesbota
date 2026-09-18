@@ -7,8 +7,25 @@ export function Btn({ tone = "plain", className = "", ...rest }) {
   return <button className={`btn btn-${tone} ${className}`.trim()} {...rest} />;
 }
 
+// Tag is a verdict. Pill is a name. Mark is an icon with its words.
 export function Tag({ tone = "dim", children }) {
   return <span className={`chip chip-${tone}`}>{children}</span>;
+}
+
+export function Pill({ on, onClick, title, className = "", children }) {
+  const look = `toggle pill${on ? " on" : ""}${onClick ? "" : " flat"} ${className}`.trim();
+  if (!onClick) {
+    return (
+      <span className={look} title={title}>
+        {children}
+      </span>
+    );
+  }
+  return (
+    <button className={look} title={title} onClick={onClick}>
+      {children}
+    </button>
+  );
 }
 
 export function Mark({ name, size, title, tone, gap, className = "", children }) {

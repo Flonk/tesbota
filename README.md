@@ -280,6 +280,9 @@ through. The **map** is drawn from the solved layout, pans and zooms, and weight
 every place by whether the explorer has walked it, whether something merely records
 it, or whether it is only a name somebody wrote down.
 
+One component per job, in `web/app/ui.jsx`. `Tag` is a verdict, `Pill` is a name,
+`Mark` is an icon with its words. Do not write a second one.
+
 The library's last tab is **data**: the machine looking at itself. `names` is the
 pool a new adventurer is drawn from, marked where a name is already spoken for,
 `common` is `tesbota/prompts/common.md` — how to query the world, the schema and the

@@ -23,7 +23,7 @@ Everything with a row has one, whatever its kind — a person, a place, a book, 
 
 It is a glance, not a dossier: one sentence, two at the outside, on what this is and what it is like. Everything a table already holds stays in the table and out of the prose — what a place sits inside, what it contains, what leads out of it, what anybody keeps, who wrote a book and when, what somebody's trade is, where they live, what they are like in `traits`. All of that is shown beside the description already, and repeating it there only makes two places to be wrong.
 
-**Write it plainly.** This is the house style and it is not negotiable: say what the thing is, in the words anybody would use for it, and stop. No atmosphere, no cadence, no clause added because the sentence felt unfinished without it. `A Regular Citizen.` is a finished description. `A mysterious house in [Alheim Forest](bota://places/alheim-forest).` is a finished description. Anything reaching for a mood — *worn smooth and dark at the grip*, *the sort that is worn until it comes apart*, *and the walls answer* — is writing showing off, and it goes.
+Write it plainly. No atmosphere, no cadence. `A Regular Citizen.` is a finished description.
 
 Every person gets a `person` row:
 
@@ -72,7 +72,7 @@ What a place or a person keeps is written in the same breath as they are:
 
 `holder` is an entity id. `$HOLDER` is the one holder that is not an entity and never yours to write to.
 
-A thing, a book, an aspect and an ability are named the way a title is set — `Explorer's Cap`, `The Pocket Guide to the Greater Plains`, `Honorable Citizen`, `Call Guards` — every word capitalised but the small joining ones in the middle. That holds for a one-word name too: the aspect is `Mob`, never `mob`. People and places keep the name they are known by.
+Use title case for entity names.
 
 What a thing does is rows in `effect`, one for each stat it moves, and the amount carries its own sign so the line reads itself:
 
