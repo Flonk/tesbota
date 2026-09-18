@@ -384,11 +384,10 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                     <button
                       className="toggle pill"
                       key={`${a.aspect}-${a.value || ""}`}
-                      title={a.applies === "within" ? `only within ${a.ofName || a.value}` : a.name}
+                      title={a.value ? `of ${a.ofName || a.value}` : a.name}
                       onClick={() => openDossier(a.aspect)}
                     >
                       {a.name}
-                      {a.value ? `: ${a.ofName || a.value}` : ""}
                     </button>
                   ))}
                 </div>
