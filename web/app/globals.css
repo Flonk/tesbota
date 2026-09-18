@@ -946,8 +946,12 @@ textarea.prompt:focus { outline: none; }
 
 /* Who runs it always governs the colour — `.toggle.on` would otherwise paint the
    current state gold and lose the one thing the colour is there to say. Being
-   here, or being tapped, is said with fill instead. */
-.mpill, .mpill.on { border-color: var(--who, var(--line)); color: var(--who, var(--dim)); }
+   here, or being tapped, is said with fill instead. The hover is named too,
+   because `.pill:hover` and `.toggle:hover` outweigh a bare `.mpill`, and a
+   touch leaves the pill hovered after the tap that let it go. */
+.mpill, .mpill.on, .mpill:hover, .mpill.on:hover {
+  border-color: var(--who, var(--line)); color: var(--who, var(--dim));
+}
 .mpill.mheld { border-style: dashed; }
 .mpill.on    { background: color-mix(in srgb, var(--who, var(--gold)) 12%, transparent); }
 .mpill.mhere { background: color-mix(in srgb, var(--who, var(--gold)) 26%, transparent);
