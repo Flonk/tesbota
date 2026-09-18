@@ -50,7 +50,7 @@ def ensure_entity(kind, entity_id, name=None, turn_id=None, author=None):
     if kind not in KINDS:
         kind = "places"
     name = name or entity_id.replace("-", " ")
-    if kind in ("items", "books"):
+    if kind in ("items", "books", "aspects", "abilities"):
         name = titled(name)
     with db.writing() as con:
         con.execute(

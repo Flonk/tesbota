@@ -72,7 +72,7 @@ What a place or a person keeps is written in the same breath as they are:
 
 `holder` is an entity id. `$HOLDER` is the one holder that is not an entity and never yours to write to.
 
-A thing and a book are named the way a title is set — `Explorer's Cap`, `The Pocket Guide to the Greater Plains` — every word capitalised but the small joining ones in the middle. People and places keep the name they are known by.
+A thing, a book, an aspect and an ability are named the way a title is set — `Explorer's Cap`, `The Pocket Guide to the Greater Plains`, `Honorable Citizen`, `Call Guards` — every word capitalised but the small joining ones in the middle. That holds for a one-word name too: the aspect is `Mob`, never `mob`. People and places keep the name they are known by.
 
 What a thing does is rows in `effect`, one for each stat it moves, and the amount carries its own sign so the line reads itself:
 
