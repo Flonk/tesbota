@@ -920,16 +920,11 @@ textarea.prompt:focus { outline: none; }
 .dbody > .dfirst:first-child { margin-top: 0; }
 
 /* --- the machine, drawn from the machine --- */
-.machine { display: flex; flex-direction: column; gap: .6rem; padding: .2rem 0 1rem; }
-.machinetop { display: flex; align-items: center; justify-content: space-between;
-              gap: 1rem; flex-wrap: wrap; }
-.mnow { color: var(--gold); }
-
-/* The pills sit in the page's own pixels; the edges are an svg underneath them.
-   Two columns is a phone's width, so it is held to that on a desk as well rather
-   than stretching two pills across a monitor. */
-.machinebox { position: relative; width: 50%; min-width: 11.5rem; max-width: 26rem;
-              border: 1px solid var(--line); border-radius: 2px; }
+/* The diagram takes half, and whatever you tapped takes the other half beside it. */
+.machine { display: flex; align-items: flex-start; gap: .9rem; padding: .2rem 0 1rem; }
+.machinebox { position: relative; flex: 0 0 50%; max-width: 26rem; }
+.machineside { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
+               gap: .45rem; padding-top: .2rem; }
 .mgraph { position: absolute; inset: 0; pointer-events: none; }
 
 .mslot { position: absolute; display: flex; align-items: center; justify-content: center; }
@@ -960,19 +955,28 @@ textarea.prompt:focus { outline: none; }
   .mflow { animation: none; stroke-dasharray: none; opacity: .5; }
 }
 
-.masks { margin: 0; font: var(--mono); font-size: .72rem; letter-spacing: .04em; }
-.masked { color: var(--place); }
+.msaid { margin: 0; font-size: .78rem; line-height: 1.4; }
+.mtitle { font: var(--mono); letter-spacing: .08em; text-transform: uppercase;
+          color: var(--gold); }
+.masks { margin: 0; font: var(--mono); font-size: .68rem; letter-spacing: .05em;
+         color: var(--place); }
 
-.medges { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;
-          gap: .2rem; font: var(--mono); font-size: .76rem; letter-spacing: .05em; }
-.medges .sep { color: var(--gold); margin: 0 .4em; }
-.medges li.live { color: var(--gold); }
-.medges li.live .dim { color: inherit; opacity: .7; }
+.medges { list-style: none; margin: .1rem 0 0; padding: 0; display: flex;
+          flex-direction: column; gap: .35rem; font-size: .72rem; }
+.medges li { display: flex; flex-direction: column; gap: .05rem; }
+/* `written:  blows -> deliver`, the edge named first and the states after it. */
+.mstep { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5em; }
+.mon { font: var(--mono); letter-spacing: .06em; color: var(--fg); }
+.mon::after { content: ":"; color: var(--dim); }
+.mgo { font: var(--mono); font-size: .92em; letter-spacing: .04em; color: var(--place); }
+.mwhen { line-height: 1.35; }
+.medges li.live .mon, .medges li.live .mgo { color: var(--gold); }
 
-.mkey { display: flex; flex-wrap: wrap; gap: .25rem 1.1rem; font: var(--mono);
-        font-size: .7rem; letter-spacing: .06em; color: var(--fg); }
+.mkey { display: flex; flex-direction: column; gap: .2rem; font: var(--mono);
+        font-size: .66rem; letter-spacing: .05em; color: var(--fg); }
 .mkeyone { display: inline-flex; align-items: center; gap: .4em; }
-.mswatch { width: 10px; height: 10px; border: 1px solid var(--line); border-radius: 5px; }
+.mswatch { width: 10px; height: 10px; border: 1px solid var(--line); border-radius: 5px;
+           flex: 0 0 auto; }
 .mkeyone.k-agent .mswatch { border-color: var(--place); }
 .mkeyone.k-book  .mswatch { border-color: var(--gold); }
 .mkeyone.k-wait  .mswatch { border-color: var(--warn, #b4671f); border-style: dashed; }

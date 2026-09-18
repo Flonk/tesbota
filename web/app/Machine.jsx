@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Empty, Mark, Pill } from "./ui";
+import { Empty, Pill } from "./ui";
 
 /**
  * The machine, drawn from the machine.
@@ -226,22 +226,10 @@ export default function Machine({ status }) {
   const shown = picked
     ? edges.filter((e) => e.from === picked)
     : edges.filter((e) => live === `${e.from}->${e.to}`);
+  const told = picked ? table?.states.find((x) => x.name === picked) : null;
 
   return (
     <div className="machine">
-      <div className="machinetop">
-        <span className="cap dim">
-          {table ? `${table.states.length} states · ${table.edges.length} edges` : "…"}
-        </span>
-        {here && (
-          <span className="cap">
-            <Mark name="pulse" gap=".35rem">
-              now in <strong className="mnow">{here}</strong>
-            </Mark>
-          </span>
-        )}
-      </div>
-
       <div className="machinebox" ref={box} style={{ height: plan ? plan.height : 160 }}>
         {!table && <Empty>reading the machine…</Empty>}
         {plan && (
@@ -303,45 +291,43 @@ export default function Machine({ status }) {
         )}
       </div>
 
-      {picked && table && (
-        <p className="masks">
-          {(() => {
-            const s = table.states.find((x) => x.name === picked);
-            if (!s) return null;
-            return (
-              <>
-                <span className="dim">{s.does}</span>
-                {s.agents?.length ? (
-                  <span className="masked"> · asks {s.agents.join(", ")}</span>
-                ) : (
-                  <span className="masked"> · no agent</span>
-                )}
-              </>
-            );
-          })()}
-        </p>
-      )}
+      <div className="machineside">
+        {told && (
+          <>
+            <p className="msaid">
+              <strong className="mtitle">{told.name}</strong>
+              <span className="dim"> — {told.does}</span>
+            </p>
+            {told.agents?.length > 0 && (
+              <p className="masks">asks {told.agents.join(", ")}</p>
+            )}
+          </>
+        )}
 
-      {shown.length > 0 && (
-        <ul className="medges">
-          {shown.map((e) => (
-            <li key={e.id} className={live === `${e.from}->${e.to}` ? "live" : ""}>
-              <strong>{e.from}</strong>
-              <span className="sep">—{e.on}→</span>
-              <strong>{e.to}</strong>
-              <span className="dim"> · {e.when}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+        {shown.length > 0 && (
+          <ul className="medges">
+            {shown.map((e) => (
+              <li key={e.id} className={live === `${e.from}->${e.to}` ? "live" : ""}>
+                <span className="mstep">
+                  <strong className="mon">{e.on}</strong>
+                  <span className="mgo">{e.from} -&gt; {e.to}</span>
+                </span>
+                <span className="dim mwhen">{e.when}</span>
+              </li>
+            ))}
+          </ul>
+        )}
 
-      <div className="mkey">
-        {Object.entries(KIND).map(([kind, { what }]) => (
-          <span key={kind} className={`mkeyone k-${kind}`}>
-            <i className="mswatch" />
-            {kind} <span className="dim">— {what}</span>
-          </span>
-        ))}
+        {!told && !shown.length && (
+          <div className="mkey">
+            {Object.entries(KIND).map(([kind, { what }]) => (
+              <span key={kind} className={`mkeyone k-${kind}`}>
+                <i className="mswatch" />
+                {kind} <span className="dim">— {what}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
