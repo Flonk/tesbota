@@ -34,6 +34,7 @@ const sitting = () =>
 
 export async function say(text: string) {
   const campaign = loadCampaign();
+  if (!campaign.current_turn) return { error: "nothing is pending" };
   const turn = loadTurn(campaign.current_turn);
   if (turn.state !== "awaiting_human") return { error: "nothing is pending" };
   const session = (campaign.sessions as any).lore3_sitting;
@@ -107,6 +108,7 @@ export function setNote(text: string | null) {
 
 export async function resolve() {
   const campaign = loadCampaign();
+  if (!campaign.current_turn) return { error: "nothing is pending" };
   const turn = loadTurn(campaign.current_turn);
   if (turn.state !== "awaiting_human") return { error: "nothing is pending" };
   (campaign.sessions as any).lore3_sitting = null;

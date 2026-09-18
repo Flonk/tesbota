@@ -290,10 +290,13 @@ export const Turn = z.object({
 
 export const Campaign = z.object({
   created: z.string(),
-  explorer: z.string(),
-  current_turn: z.string(),
+  // A world that has just been made has no adventurer, no turn and nowhere to
+  // stand until the first one opens. Requiring any of them makes `init` fail on
+  // the campaign it has only just written.
+  explorer: z.string().nullish(),
+  current_turn: z.string().nullish(),
   turn_counter: z.number().int().min(0),
-  location: Id,
+  location: Id.nullish(),
   location_path: z.array(z.unknown()).default([]),
   vitals: Vitals,
   skills: z.record(z.string(), z.unknown()).default({}),

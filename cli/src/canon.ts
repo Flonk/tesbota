@@ -76,7 +76,7 @@ export const passage = (bookId: string, ord: number) =>
   db.row("SELECT * FROM passage WHERE book_id = ? AND ord = ?", [slug(bookId), ord]);
 
 /** A place's own row — what contains it and what sort of place it is. */
-export const findPlace = (placeId: string) =>
+export const findPlace = (placeId: string | null | undefined) =>
   db.row("SELECT * FROM place WHERE id = ?", [slug(placeId)]);
 
 export const contains = (placeId: string): string[] =>
@@ -738,7 +738,7 @@ export function transfer(
  * What everything at a place is holding — the place's own stock and whatever
  * stands in it.
  */
-export function holdingsAt(placeId: string) {
+export function holdingsAt(placeId: string | null | undefined) {
   const ident = slug(placeId);
   if (!ident) return [];
   const out = [];

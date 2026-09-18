@@ -149,12 +149,13 @@ export async function run(limit = 1): Promise<Ran> {
   ensureLayout();
   const campaign = loadCampaign();
 
-  if (!campaign.current_turn) newTurn(campaign, "explorer");
-  if (campaign.paused) return { state: "paused", turn: loadTurn(campaign.current_turn) };
+  // A world with no turn yet gets one before anything reads it.
+  const opened = campaign.current_turn ?? newTurn(campaign, "explorer").turn_id;
+  if (campaign.paused) return { state: "paused", turn: loadTurn(opened) };
 
   let completed = 0;
   for (;;) {
-    const turn = loadTurn(campaign.current_turn);
+    const turn = loadTurn(campaign.current_turn ?? opened);
     const state = turn.state as StateName;
 
     const death = pendingDeath();
