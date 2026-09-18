@@ -243,6 +243,10 @@ export const Turn = z.object({
   resolved: z.boolean().default(false),
   spent: z.array(z.string()).default([]),
 
+  /** the edge the driver last crossed, and the ones before it — what the dev tab draws */
+  took: z.object({ from: StateName, to: StateName, at: z.string() }).nullish(),
+  trail: z.array(z.object({ from: StateName, to: StateName, at: z.string() })).default([]),
+
   minutes: z.number().int().min(0).default(0),
   wake_at: z.string().nullish(),
   at: z.string().nullish(),
