@@ -13,6 +13,17 @@
 
 export type Kind = "agent" | "roll" | "book" | "wait" | "end";
 
+/**
+ * The states, named once. Everything else is derived from this, so adding one
+ * here makes the table below incomplete until it is written, which is the point.
+ */
+export const STATE_NAMES = [
+  "explorer", "answer", "propose", "gm", "muster", "swing", "fight", "blows",
+  "lore1", "deliver", "narrate", "awaiting_human", "awaiting_clock", "done",
+] as const;
+
+export type StateName = (typeof STATE_NAMES)[number];
+
 export type Edge = {
   /** the state this edge leads to */
   readonly to: StateName;
@@ -32,7 +43,7 @@ export type State = {
   readonly edges: readonly Edge[];
 };
 
-export const STATES = {
+export const STATES: Record<StateName, State> = {
   explorer: {
     does: "the adventurer decides what to do with the turn",
     kind: "agent",
@@ -40,7 +51,7 @@ export const STATES = {
     edges: [
       { to: "propose", on: "acts", when: "commits to an action" },
       { to: "answer", on: "looks", when: "asks a question first" },
-      { to: "narrate", on: "quiet", when: "nothing to do but let time pass" },
+      { to: "narrate", on: "quiet", when: "they are done — set the turn down" },
       { to: "explorer", on: "again", when: "said nothing usable" },
       { to: "awaiting_human", on: "stuck", when: "could not be reached" },
     ],
@@ -127,8 +138,8 @@ export const STATES = {
     kind: "roll",
     calls: 0,
     edges: [
-      { to: "narrate", on: "resolved", when: "the turn happened" },
-      { to: "explorer", on: "spent", when: "a question, an arrival or an event — the turn is not over" },
+      { to: "explorer", on: "spent", when: "the turn is applied — they get the rest of it" },
+      { to: "done", on: "again", when: "it was already applied" },
     ],
   },
 
@@ -155,8 +166,8 @@ export const STATES = {
     kind: "wait",
     calls: 0,
     edges: [
-      { to: "explorer", on: "arrived", when: "the road ran out" },
-      { to: "awaiting_clock", on: "walking", when: "there is road left" },
+      { to: "gm", on: "arrived", when: "they reached it, or the road was cut short" },
+      { to: "explorer", on: "woken", when: "the time simply passed" },
     ],
   },
 
@@ -169,15 +180,11 @@ export const STATES = {
       { to: "awaiting_clock", on: "walks", when: "the turn put them on the road" },
     ],
   },
-} as const satisfies Record<string, State>;
-
-export type StateName = keyof typeof STATES;
-
-export const STATE_NAMES = Object.keys(STATES) as StateName[];
+};
 
 /** Where a step in this state is allowed to go, by the edge name it returns. */
 export function edgeFrom(state: StateName, on: string): Edge {
-  const found = (STATES[state].edges as readonly Edge[]).find((e) => e.on === on);
+  const found = STATES[state].edges.find((e) => e.on === on);
   if (!found) {
     const legal = STATES[state].edges.map((e) => e.on).join(", ");
     throw new Error(`no edge \`${on}\` out of \`${state}\` — this state goes: ${legal}`);
@@ -195,7 +202,7 @@ export function describe() {
       calls: STATES[name].calls,
     })),
     edges: STATE_NAMES.flatMap((from) =>
-      (STATES[from].edges as readonly Edge[]).map((e) => ({
+      STATES[from].edges.map((e) => ({
         id: `${from}:${e.on}`,
         from,
         to: e.to,

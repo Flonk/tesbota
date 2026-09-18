@@ -202,7 +202,7 @@ export const Phase = z.object({
   check: Check.nullish(),
 });
 
-export const StateName = z.enum(STATE_NAMES as [string, ...string[]]);
+export const StateName = z.enum(STATE_NAMES);
 
 export const Turn = z.object({
   turn_id: z.string().regex(/^t\d{4}$/),
