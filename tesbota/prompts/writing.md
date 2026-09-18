@@ -82,7 +82,7 @@ What a thing does is rows in `effect`, one for each stat it moves, and the amoun
 
 `item.weight` is what one of the thing weighs, in stone — the plains reckon weight in stone and so does this. A loaf is a tenth of one, a pair of boots half. The adventurer can carry half a stone for each point of strength, and past that the road punishes them — every tenth of their capacity they are over doubles what a stretch of walking costs. A thing heavy enough to matter should say so.
 
-There is no fixed list of stats. `damage`, `protection`, `health` and `hunger` are the ones already in use; name any other the way a reader would say it, and never add a column for one. A consumable is single use, so nothing counts uses.
+There is no fixed list of stats. `damage`, `defense`, `health` and `hunger` are the ones already in use; name any other the way a reader would say it, and never add a column for one. A consumable is single use, so nothing counts uses.
 
 ## Aspects
 
@@ -110,9 +110,9 @@ An ability is a thing of its own too, and it is what a body can actually do. Wha
 
 An aspect grants an ability through `grants`, and everything marked with the aspect has it wherever the ability counts.
 
-A spawned thing may be named for the ground that called it: `$SETTLEMENT_NAME Guard` is an Alheim Guard in Alheim and a Flotburg Guard in Flotburg. The token is `$` plus the aspect that let the ability fire, uppercased, plus `_NAME`.
+A spawned thing may be named for the ground that called it: `$GUARDED_NAME Guard` is an Alheim Guard in Alheim and a Greater Plains Guard on the road between. The token is `$`, an aspect uppercased, and `_NAME`; it reads as the nearest place around them carrying that aspect, looking outward until it finds one.
 
-Two aspects earn their keep already and are worth knowing before you write a third. `settlement` marks a place people live in — it is what tells a road from a town, which `place.type` cannot. `mob` marks somebody who is a kind of thing rather than a person: a rat, a guard, anything the world has more than one of. Give a mob a `person` row like anybody else, but do not give it a life.
+Three aspects earn their keep already and are worth knowing before you write a fourth. `settlement` marks a place people live in — it is what tells a road from a town, which `place.type` cannot. `guarded` marks a place with a guard to call, and a region may be guarded where the country between its towns is nobody's. `mob` marks somebody who is a kind of thing rather than a person: a rat, a guard, anything the world has more than one of. Give a mob a `person` row like anybody else, but do not give it a life.
 
 `value` is what the aspect is *of* — the place a citizen belongs to, the house somebody is sworn into — and it is usually an entity id. `applies` says when the aspect's `ability` counts: `always`, or `within`, which means only while standing inside the place named in `value`. `ability` is a fight ability in json, written the way the game master writes one, and it is what makes an aspect bite: raise a hand to a citizen of Alheim inside Alheim and the aspect calls the guard.
 

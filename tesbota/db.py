@@ -239,7 +239,7 @@ ALTER TABLE item_anchored RENAME TO item;
 
 MOVED = (
     ("damage", "damage", ""),
-    ("protection", "protection", ""),
+    ("protection", "defense", ""),
     ("heals", "health", "+"),
     ("sates", "hunger", "−"),
 )

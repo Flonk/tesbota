@@ -9,6 +9,7 @@ from .config import (
     GODHEAD_ID,
     BANDS,
     BLOW_FATIGUE,
+    DEFENSE_HALVES,
     BLOW_MINUTES,
     EXPLORER,
     FLEE_FLOOR,
@@ -503,6 +504,7 @@ def fighter(said, kind, fallback_dc=11):
         "damage": str(said.get("damage") or UNARMED),
         "dc": int(said.get("dc") or fallback_dc),
         "bonus": int(said.get("bonus") or 0),
+        "defense": int(said.get("defense") or 0),
         "skill": str(said.get("skill") or "").lower() or None,
         "ability": said.get("ability") or None,
         "asleep": 0,
@@ -536,6 +538,7 @@ def open_fight(campaign, turn, draft):
         "weapon": weapon,
         "dc": int(said.get("their_dc") or 11),
         "bonus": sheet.skill_bonus(campaign, skill) or 0,
+        "defense": worn_defense(campaign),
         "skill": skill,
         "ability": None,
         "asleep": 0,
@@ -589,42 +592,36 @@ def standing_on(campaign):
 
 
 def counts_here(power, campaign):
-    """Whether what a body can do counts on the ground it is standing on, and if so
-    which place answered for it — the settlement whose guard gets called."""
-    ground = standing_on(campaign)
-    if power.get("within") and canon.slug(power["within"]) not in set(ground):
-        return None
+    """Whether what a body can do counts on the ground it is standing on."""
+    ground = set(standing_on(campaign))
+    if power.get("within") and canon.slug(power["within"]) not in ground:
+        return False
     if power.get("in_kind"):
         sat = canon.find_place(campaign.get("location"))
         if not sat or sat["type"] != power["in_kind"]:
-            return None
-    named = {}
-    if power.get("in_aspect"):
-        bearer = next((x for x in ground if canon.marked_with(x, power["in_aspect"])), None)
-        if not bearer:
-            return None
-        named[power["in_aspect"]] = bearer
-    return named
+            return False
+    if power.get("in_aspect") and not any(
+        canon.marked_with(x, power["in_aspect"]) for x in ground
+    ):
+        return False
+    return True
 
 
 STAND_IN = re.compile(r"\$([A-Z_]+)_NAME")
 
 
-def named_for(text, named):
-    """`$SETTLEMENT_NAME Guard` is an Alheim Guard in Alheim. The token is the aspect
-    that let the ability fire, so a thing called up is called up by somewhere."""
+def named_for(text, campaign):
+    """`$GUARDED_NAME Guard` is an Alheim Guard in Alheim and a Greater Plains Guard
+    on the road between. The token names an aspect; whoever answers is the nearest
+    place around them carrying it."""
     def swap(found):
         want = found.group(1).lower().replace("_", "-")
-        where = named.get(want)
-        if not where:
-            return found.group(0)
-        known = find_entity(where)
-        return (known["name"] if known else where.replace("-", " "))
+        for place in standing_on(campaign):
+            if canon.marked_with(place, want):
+                known = canon.find_entity(place)
+                return known["name"] if known else place.replace("-", " ")
+        return found.group(0)
     return STAND_IN.sub(swap, str(text or ""))
-
-
-def find_entity(ident):
-    return canon.find_entity(ident)
 
 
 def borne(who, campaign):
@@ -638,17 +635,31 @@ def borne(who, campaign):
         return who
     for mark in marks:
         for power in canon.abilities_of(mark["aspect"]):
-            named = counts_here(power, campaign)
-            if named is None:
+            if not counts_here(power, campaign):
                 continue
             power = dict(power, **{"from": mark["name"]})
             if power.get("spawn"):
                 power["spawn"] = dict(
-                    power["spawn"], name=named_for(power["spawn"].get("name"), named)
+                    power["spawn"], name=named_for(power["spawn"].get("name"), campaign)
                 )
             who["ability"] = power
             return who
     return who
+
+
+def worn_defense(campaign):
+    """What they have on adds up. Nothing they are carrying but not wearing counts."""
+    total = 0
+    for held in canon.holdings(EXPLORER):
+        if not held.get("worn"):
+            continue
+        for e in held.get("effects") or []:
+            if e["stat"] == "defense":
+                try:
+                    total += int(re.sub(r"[^0-9-]", "", e["amount"]) or 0)
+                except ValueError:
+                    pass
+    return total
 
 
 def standing_in(campaign, skill):
@@ -886,9 +897,20 @@ def arrive(fight, rng):
     fight["owed"] = waiting
 
 
+def soften(hurt, guard):
+    """What armour is worth. It does not subtract from a blow, it divides it — so a
+    great deal of defense is a great deal of good and is never quite enough."""
+    kept = DEFENSE_HALVES / (DEFENSE_HALVES + max(0, int(guard or 0)))
+    return max(1, round(hurt * kept))
+
+
 def wound(fight, mark, hurt, blow):
     if not hurt:
         return
+    raw = hurt
+    hurt = soften(hurt, mark.get("defense"))
+    if raw != hurt:
+        blow["blocked"] = raw - hurt
     mark["health"] = max(0, mark["health"] - hurt)
     if mark["health"] <= 0:
         mark["dead"] = True

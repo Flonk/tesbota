@@ -27,6 +27,10 @@ WRITE_TOOLS = ["Bash"]
 
 MAX_GM_RETRIES = 3
 
+# Defense does not subtract from a blow, it divides it — a body with DEFENSE_HALVES
+# takes half of what lands, twice that takes a third, and nothing is ever immune.
+DEFENSE_HALVES = 100
+
 # A fight is one turn of the world, played out blow by blow. The explorer picks each
 # one; the driver rolls it and pays for it.
 MAX_BLOWS = 300
@@ -244,7 +248,7 @@ PLACE_TYPES = (
 
 ITEM_TYPES = (
     ("weapon", "damage", "sword", ("mainhand", "offhand")),
-    ("apparel", "protection", "shirt", ("helmet", "chest", "legs", "feet", "offhand", "ring")),
+    ("apparel", "defense", "shirt", ("helmet", "chest", "legs", "feet", "offhand", "ring")),
     ("consumable", "health, hunger", "flask", ()),
     ("tool", "what it lets them do", "hammer", ()),
     ("valuable", "worth, to whom, and who owes it", "coin", ()),
@@ -255,11 +259,11 @@ STARTING_INVENTORY = [
     {"name": "Explorer's Cap", "type": "apparel", "qty": 1, "worn": True, "slot": "helmet",
      "weight": 0.1, "rarity": "uncommon"},
     {"name": "Linen Shirt", "type": "apparel", "qty": 1, "worn": True, "slot": "chest",
-     "effects": {"protection": "2"}, "weight": 0.2, "rarity": "common"},
+     "effects": {"defense": "2"}, "weight": 0.2, "rarity": "common"},
     {"name": "Wool Leggings", "type": "apparel", "qty": 1, "worn": True, "slot": "legs",
-     "effects": {"protection": "1"}, "weight": 0.3, "rarity": "common"},
+     "effects": {"defense": "1"}, "weight": 0.3, "rarity": "common"},
     {"name": "Walking Boots", "type": "apparel", "qty": 1, "worn": True, "slot": "feet",
-     "effects": {"protection": "1"}, "weight": 0.5, "rarity": "common"},
+     "effects": {"defense": "1"}, "weight": 0.5, "rarity": "common"},
     {"name": "Bread from Alheim Mill", "type": "consumable", "qty": 1,
      "effects": {"health": "+15", "hunger": "−20"}, "weight": 0.1, "rarity": "common"},
     {"name": "Walking Cane", "type": "weapon", "qty": 1, "worn": True, "slot": "mainhand",

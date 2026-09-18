@@ -238,11 +238,7 @@ function Tile({ who, now, down, acting, side }) {
           {marks.length > 0 && (
             <div className="dtraits">
               {marks.map((m) => (
-                <span
-                  className="toggle pill flat"
-                  key={`${m.name}-${m.value || ""}`}
-                  title={m.value ? `of ${m.of || m.value}` : m.name}
-                >
+                <span className="toggle pill flat" key={`${m.name}-${m.value || ""}`}>
                   {m.name}
                 </span>
               ))}
