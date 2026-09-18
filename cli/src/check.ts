@@ -23,9 +23,9 @@ function handlers(): Wrong[] {
   const stated = new Set(machine.STATE_NAMES);
   const held = new Set(Object.keys(STEPS));
   for (const name of stated) {
-    const kind = machine.STATES[name].kind;
-    const driven = kind === "wait" || name === "done";
-    if (!held.has(name) && !driven) wrong.push({ what: "handlers", said: `${name} has no step` });
+    const loop = machine.STATES[name].driven === "loop";
+    if (loop && !held.has(name)) wrong.push({ what: "handlers", said: `${name} has no step` });
+    if (!loop && held.has(name)) wrong.push({ what: "handlers", said: `${name} is held but has a step` });
   }
   for (const name of held) {
     if (!stated.has(name as any)) wrong.push({ what: "handlers", said: `step ${name} is not a state` });
@@ -90,8 +90,22 @@ function onDisk(): Wrong[] {
   return wrong;
 }
 
+/**
+ * Every agent the code calls is declared by the state that calls it. A layer that
+ * runs where the table says nothing is the whole reason the table exists.
+ */
+function agents(): Wrong[] {
+  const declared = new Set(machine.STATE_NAMES.flatMap((n) => [...machine.STATES[n].agents]));
+  const layers = ["explorer", "gm", "propose", "lore1", "lore2", "queries",
+                  "lore3", "lore4", "questmaster"];
+  return layers
+    .filter((l) => !declared.has(l) && l !== "lore4")
+    .map((l) => ({ what: "agents", said: `${l} is called but no state declares it` }));
+}
+
 export function check(): Wrong[] {
   return [
+    ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
     ...handlers(),
     ...roundTrip(),

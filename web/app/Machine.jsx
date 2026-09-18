@@ -23,16 +23,17 @@ const KIND = {
   end: { what: "the turn closes" },
 };
 
-const ROW = 30;   // how tall a pill sits
-const LEAP = 46;  // the gap between one row and the next
-const GUTTER = 14;
-const PAD = 10;
+const ROW = 24;   // how tall a pill sits
+const LEAP = 26;  // the gap between one row and the next
+const GUTTER = 30;  // the names are short now, so the columns get room to breathe
+const PAD = 7;
 const COLUMNS = 2;
 
 /**
- * Two columns, running down. Ranks come from the longest path along the flow, so
- * the main line reads top to bottom; a rank holding two states puts them side by
- * side, and anything wider wraps rather than running off the screen.
+ * Two columns, running down, two to a line the whole way. Ranks come from the
+ * longest path along the flow, so the order is the order the world moves in —
+ * but a rank of one no longer takes a line to itself, because half the diagram
+ * was blank and the thing has to fit a phone.
  */
 function layout(states, edges, width) {
   const names = states.map((s) => s.name);
@@ -94,32 +95,41 @@ function layout(states, edges, width) {
     ranks.get(r).push(n);
   }
 
-  // A rank of two sits side by side; whichever more of the flow runs through takes
-  // the left column, so the spine of the machine stays in one line.
+  // Flow order, then two to a line. Within a rank the state more of the flow runs
+  // through goes first, so the spine stays on the left where it can.
   const busy = (n) => forward.filter((e) => e.from === n || e.to === n).length;
-  const wide = Math.max(260, width);
+  const flow = [...ranks]
+    .sort((a, b) => a[0] - b[0])
+    .flatMap(([, held]) => [...held].sort((a, b) => busy(b) - busy(a) || a.localeCompare(b)));
+
+  const wide = Math.max(170, width);
   const cell = (wide - PAD * 2 - GUTTER * (COLUMNS - 1)) / COLUMNS;
   const place = new Map();
-  let row = 0;
-  for (const [, held] of [...ranks].sort((a, b) => a[0] - b[0])) {
-    const sorted = [...held].sort((a, b) => busy(b) - busy(a) || a.localeCompare(b));
-    for (let at = 0; at < sorted.length; at += COLUMNS) {
-      const line = sorted.slice(at, at + COLUMNS);
-      const span = line.length * cell + (line.length - 1) * GUTTER;
-      const left = (wide - span) / 2;
-      line.forEach((name, n) => {
-        place.set(name, {
-          x: left + n * (cell + GUTTER),
-          y: PAD + row * (ROW + LEAP),
-          w: cell,
-          row,
-        });
+  for (let at = 0; at < flow.length; at += COLUMNS) {
+    const row = at / COLUMNS;
+    flow.slice(at, at + COLUMNS).forEach((name, n) => {
+      place.set(name, {
+        x: PAD + n * (cell + GUTTER),
+        y: PAD + row * (ROW + LEAP),
+        w: cell,
+        row,
       });
-      row += 1;
-    }
+    });
   }
 
-  return { place, width: wide, height: PAD * 2 + row * ROW + (row - 1) * LEAP };
+  // The longest name has to fit the column it lands in, at any width, and the call
+  // count rides beside it — so it is measured as part of the name rather than
+  // discovered to be two characters too many once it is on the screen.
+  const longest = Math.max(
+    ...states.map((s) => s.name.length + (s.calls ? String(s.calls).length + 1 : 0))
+  );
+  const type = Math.max(7, Math.min(11, (cell - 12) / (longest * 0.62)));
+
+  const rows = Math.ceil(flow.length / COLUMNS);
+  return {
+    place, type, width: wide,
+    height: PAD * 2 + rows * ROW + (rows - 1) * LEAP,
+  };
 }
 
 const mid = (at) => ({ x: at.x + at.w / 2, y: at.y + ROW / 2 });
@@ -247,19 +257,23 @@ export default function Machine({ status }) {
                   <path d="M 0 0 L 10 5 L 0 10 z" className="mheadlivefill" />
                 </marker>
               </defs>
-              {table.edges.map((e) => {
-                const path = wire(plan.place.get(e.from), plan.place.get(e.to), plan.width);
-                if (!path) return null;
-                const isLive = live === `${e.from}->${e.to}`;
-                const lit = picked === e.from;
-                return (
-                  <g key={e.id} className={`medge${isLive ? " live" : ""}${lit ? " lit" : ""}`}>
-                    <path d={path.d} className="mline"
-                          markerEnd={isLive ? "url(#mheadlive)" : "url(#mhead)"} />
-                    {isLive && <path d={path.d} className="mflow" />}
-                  </g>
-                );
-              })}
+              {/* svg has no z-index — what is drawn last is drawn on top — so the
+                  edge the world is crossing is sorted to the end and nothing can
+                  lie over it. */}
+              {[...table.edges]
+                .map((e) => ({ e, rank: live === `${e.from}->${e.to}` ? 2 : picked === e.from ? 1 : 0 }))
+                .sort((a, b) => a.rank - b.rank)
+                .map(({ e, rank }) => {
+                  const path = wire(plan.place.get(e.from), plan.place.get(e.to), plan.width);
+                  if (!path) return null;
+                  return (
+                    <g key={e.id} className={`medge${rank === 2 ? " live" : ""}${rank === 1 ? " lit" : ""}`}>
+                      <path d={path.d} className="mline"
+                            markerEnd={rank === 2 ? "url(#mheadlive)" : "url(#mhead)"} />
+                      {rank === 2 && <path d={path.d} className="mflow" />}
+                    </g>
+                  );
+                })}
             </svg>
 
             {table.states.map((s) => {
@@ -267,11 +281,16 @@ export default function Machine({ status }) {
               if (!at) return null;
               return (
                 <span key={s.name} className="mslot"
-                      style={{ left: at.x, top: at.y, width: at.w, height: ROW }}>
+                      style={{ left: at.x, top: at.y, width: at.w, height: ROW,
+                               fontSize: `${plan.type}px` }}>
                   <Pill
                     className={`mpill k-${s.kind}${here === s.name ? " mhere" : ""}`}
                     on={here === s.name || picked === s.name}
-                    title={`${s.does}${s.calls ? ` — ${s.calls} agent call${s.calls > 1 ? "s" : ""}` : ""}`}
+                    title={
+                      `${s.does}` +
+                      (s.agents?.length ? `\n\nasks: ${s.agents.join(", ")}` : "") +
+                      (s.driven === "held" ? "\n\nthe loop does not step this one" : "")
+                    }
                     onClick={() => setPicked(picked === s.name ? null : s.name)}
                   >
                     {s.name}
@@ -283,6 +302,25 @@ export default function Machine({ status }) {
           </>
         )}
       </div>
+
+      {picked && table && (
+        <p className="masks">
+          {(() => {
+            const s = table.states.find((x) => x.name === picked);
+            if (!s) return null;
+            return (
+              <>
+                <span className="dim">{s.does}</span>
+                {s.agents?.length ? (
+                  <span className="masked"> · asks {s.agents.join(", ")}</span>
+                ) : (
+                  <span className="masked"> · no agent</span>
+                )}
+              </>
+            );
+          })()}
+        </p>
+      )}
 
       {shown.length > 0 && (
         <ul className="medges">

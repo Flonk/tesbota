@@ -60,14 +60,14 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
   const lines = [`${BOLD}tesbota${OFF} ${DIM}— ${turn.turn_id}${OFF}`, ""];
   const state = turn.state;
 
-  if (state === "awaiting_clock") {
+  if (state === "clock") {
     const left = parse(String(turn.wake_at)).getTime() - now().getTime();
     lines.push(`  the adventurer is on the road to ${(turn as any).destination}`);
     lines.push(
       `  wakes in ${duration(left)}` +
         ((turn as any).leagues_left ? ", and the road does not get them there" : "")
     );
-  } else if (state === "awaiting_human") {
+  } else if (state === "lore3") {
     lines.push(`  ${WARN}the lore master is waiting on you${OFF} — run: tesbota lore`);
     lines.push("");
     for (const line of String(turn.gap ?? "").trim().split("\n")) lines.push(`  ${line}`);
@@ -86,7 +86,7 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
   }
 
   const narration = campaign.last_narration;
-  if (narration && state !== "awaiting_human") {
+  if (narration && state !== "lore3") {
     lines.push("", `${DIM}  last seen:${OFF}`, wrap(narration));
   }
   return lines.join("\n");

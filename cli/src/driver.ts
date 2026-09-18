@@ -23,7 +23,7 @@ import {
 } from "./state.ts";
 import type { CampaignT, TurnT } from "./schema.ts";
 
-const SUSPENDED = ["awaiting_human", "awaiting_clock"];
+const SUSPENDED = ["lore3", "clock"];
 const TRAIL = 40;
 
 export const pendingPath = (turnId: string) => path.join(PENDING, `${turnId}.md`);
@@ -104,7 +104,7 @@ export function walk(
   const [minutes, left, cut] = travel.leg(
     campaign.clock as any, leagues, rng, travel.drag(sheet.load(campaign))
   );
-  return newTurn(campaign, "awaiting_clock", {
+  return newTurn(campaign, "clock", {
     wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock as any, minutes))),
     destination,
     leagues_left: cut ? left : 0,
@@ -117,7 +117,7 @@ export function advance(campaign: CampaignT, turn: TurnT): TurnT {
 
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {
-    return newTurn(campaign, "awaiting_clock", {
+    return newTurn(campaign, "clock", {
       wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock as any, minutes))),
     });
   }
@@ -131,14 +131,14 @@ export function tickClock(turn: TurnT, moment: Date): boolean {
   turn.wake_at = null;
   if ((turn as any).leagues_left) {
     turn.event = "true";
-    turn.state = edgeFrom("awaiting_clock", "arrived").to;
+    turn.state = edgeFrom("clock", "arrived").to;
     return true;
   }
   if (destination) {
     turn.arrival = destination;
-    turn.state = edgeFrom("awaiting_clock", "arrived").to;
+    turn.state = edgeFrom("clock", "arrived").to;
   } else {
-    turn.state = edgeFrom("awaiting_clock", "woken").to;
+    turn.state = edgeFrom("clock", "woken").to;
   }
   return true;
 }
@@ -163,13 +163,13 @@ export async function run(limit = 1): Promise<Ran> {
       return { state: "done", turn: await bury(campaign, death.cause) };
     }
 
-    if (state === "awaiting_human") {
+    if (state === "lore3") {
       writePending(turn);
-      return { state: "awaiting_human", turn };
+      return { state: "lore3", turn };
     }
 
-    if (state === "awaiting_clock") {
-      if (!tickClock(turn, now())) return { state: "awaiting_clock", turn };
+    if (state === "clock") {
+      if (!tickClock(turn, now())) return { state: "clock", turn };
       saveTurn(turn);
       continue;
     }
@@ -231,7 +231,7 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
 
   const blows = ((turn as any).fight || {}).blows || [];
   const edge = blows.length ? "ruled_fight" : turn.looking ? "ruled_answer" : "ruled";
-  turn.state = edgeFrom("awaiting_human", edge).to;
+  turn.state = edgeFrom("lore3", edge).to;
   saveTurn(turn);
   const file = pendingPath(turn.turn_id);
   if (fs.existsSync(file)) fs.rmSync(file);

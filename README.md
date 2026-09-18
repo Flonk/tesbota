@@ -134,6 +134,7 @@ The world runs on node. There is no build step — node strips the types.
 nix-shell
 cd cli && npm install
 node cli/src/index.ts init
+node cli/src/index.ts check     # the machine audits itself before it is trusted
 node cli/src/index.ts step      # advance until something suspends
 node cli/src/index.ts status    # where things stand, how long until they wake
 node cli/src/index.ts machine   # every state and edge, and an audit of them
@@ -144,13 +145,9 @@ node cli/src/index.ts map       # the world as mermaid; --json for the layout
 node cli/src/index.ts kill      # end this life; the next step starts another
 ```
 
-`tesbota/` is the python this was ported from. It still runs and reads the same
-`canon.db` and `state/`, and `TESBOTA_PY=1` puts the web back on it — which is the
-way out if the port turns out to be wrong about something.
-
 Autoplay is `node cli/src/index.ts play`, a loop that steps, honours the pause
 switch and waits between. An agent that will not answer in json no longer kills
-it: the stumble is printed and the loop waits, which the python one did not do. Without it — or the timer below — nothing turns
+it: the stumble is printed and the loop waits, rather than the process dying. Without it — or the timer below — nothing turns
 the world over; the web UI has no stepper of its own.
 
 Make it tick on its own with a user timer:
@@ -305,7 +302,7 @@ positioned, not svg rectangles made to look like it.
 
 The library's last tab is **data**: the machine looking at itself. `names` is the
 pool a new adventurer is drawn from, marked where a name is already spoken for,
-`common` is `tesbota/prompts/common.md` — how to query the world, the schema and the
+`common` is `prompts/common.md` — how to query the world, the schema and the
 deeplinks, which every agent but the explorer includes — and after them comes one tab
 per system prompt — explorer, game master, propose, lore 1,
 queries, lore 3, lore 4 — each shown exactly as that agent receives it, deeplinks
@@ -605,7 +602,7 @@ from north, and `distance_band()` turns a distance into a low and a high in metr
 — wide on purpose, because "a short walk" is 200 to 1200 metres and pretending
 otherwise is a lie. Both return nothing at all for the vague cases rather than a
 guess, and most of this world's roads are a vague case. They live in
-`tesbota/travel.py`, which already owns leagues and journey timing.
+`cli/src/travel.ts`, which already owns leagues and journey timing.
 
 *Established, stored.* A place may carry an `extent` — GeoJSON on `entity` — and
 only lore master 3 writes one, only where a document in the world measured the
@@ -613,7 +610,7 @@ thing. The Council surveys a road; a plate carries a boundary. A place with no
 extent is not a defect and is never given one to make the map look better, because
 coordinates would mean inventing precision nobody established.
 
-`tesbota/mapping.py` solves the two into a layout — seeded, so the same world always
+`cli/src/mapping.ts` solves the two into a layout — seeded, so the same world always
 draws the same map — with an extent pinning a place absolutely, a bearing fixing an
 angle, a distance band fixing a range, and containment placing whatever has nothing
 else. A place with no bearing and no distance to anything is `floating`: it is

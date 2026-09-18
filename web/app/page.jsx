@@ -34,7 +34,8 @@ const MOOD = {
   swing: "the fight is on — their move",
   fight: "the fight is on — blows falling",
   blows: "the fight is being written",
-  lore1: "the record is being checked",
+  lore1: "the record is being read",
+  lore2: "the record is being checked",
   narrate: "the narrator is writing",
   done: "the world sleeps",
   uninitialised: "nothing has begun",
@@ -43,8 +44,8 @@ const MOOD = {
 function mood(status, busy) {
   if (status.paused) return "the world is held";
   if (busy) return "the world turns";
-  if (status.state === "awaiting_human") return "the world is silent";
-  if (status.state === "awaiting_clock") {
+  if (status.state === "lore3") return "the world is silent";
+  if (status.state === "clock") {
     return `the adventurer walks${status.wakesIn ? ` — ${status.wakesIn} to go` : ""}`;
   }
   return MOOD[status.state] || "the world sleeps";
@@ -79,14 +80,14 @@ function Brand({ status, busy, walker, onWalker, onSettings }) {
 }
 
 function Status({ status }) {
-  if (status.state === "awaiting_clock") {
+  if (status.state === "clock") {
     return (
       <span className="stat">
         on the road{status.destination ? ` to ${status.destination}` : ""} — {status.wakesIn}
       </span>
     );
   }
-  if (status.state === "awaiting_human") return <span className="stat warn">the world is silent</span>;
+  if (status.state === "lore3") return <span className="stat warn">the world is silent</span>;
   return <span className="stat">{PHASE[status.state] || status.state}</span>;
 }
 
@@ -667,7 +668,7 @@ export default function Page() {
       setError(failed);
     }
     if (!failed) shown.current = null;
-    const stuck = data.status?.state === "awaiting_human";
+    const stuck = data.status?.state === "lore3";
     if (stuck && !wasBlocked.current) {
       setTab("chat");
       pickSub("chat", "lore");
@@ -810,7 +811,7 @@ export default function Page() {
 
   const { status, slides, gap, chat, vitals, skills, inventory } = data;
   const quests = data.quests || [];
-  const blocked = status.state === "awaiting_human";
+  const blocked = status.state === "lore3";
   const open = quests.filter((q) => q.status === "active").length;
 
   return (

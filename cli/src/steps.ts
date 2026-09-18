@@ -511,12 +511,13 @@ export function derived(raw: any[]): [any[], any[]] {
 }
 
 /**
- * Read the world out of a narration and rule on it. The one place the lore masters
- * are asked anything, so a fight pays for it once, at its declaration.
+ * Lore 1: what the narration asserts about the world. It is handed the words and
+ * nothing else — no canon, no tools — so it cannot quietly frame a fact to fit
+ * what the record already holds.
  */
-export async function checkRecord(
-  { campaign, turn }: World, narration: string, roster?: string | null, unknown?: any[] | null
-): Promise<[any[], any[], Record<string, any>]> {
+export async function readRecord(
+  { campaign, turn }: World, narration: string, roster?: string | null
+): Promise<string[]> {
   const [read] = await ask(
     prompts.lore1Turn(narration, {
       where: campaign.location_path as any[],
@@ -529,7 +530,16 @@ export async function checkRecord(
     .map((f: unknown) => String(f).trim())
     .filter(Boolean);
   T(turn).facts = facts;
+  return facts;
+}
 
+/**
+ * Lore 2: the ruling. The only layer that reads canon, which is what splitting the
+ * reading from the ruling was for.
+ */
+export async function ruleRecord(
+  { campaign, turn }: World, narration: string, facts: string[], unknown?: any[] | null
+): Promise<[any[], any[], Record<string, any>]> {
   const [text] = await ask(prompts.lore2Turn(narration, facts, unknown), {
     system: prompts.LORE2_SYSTEM(),
     tools: READ_TOOLS,
@@ -574,8 +584,10 @@ export const stepMuster: Step = async (world) => {
   const { campaign, turn } = world;
   const running = T(turn).fight as fight.Fight;
   const strangers = fight.unbound(running).map((x) => ({ id: x.id, name: x.name }));
-  const [claims, verdicts, ruled] = await checkRecord(
-    world, running.said || "", prompts.muster(running), strangers.length ? strangers : null
+  const said = running.said || "";
+  const facts = await readRecord(world, said, prompts.muster(running));
+  const [claims, verdicts, ruled] = await ruleRecord(
+    world, said, facts, strangers.length ? strangers : null
   );
 
   const asked: string[] = [];
@@ -698,8 +710,9 @@ export function redraftEdge(turn: TurnT): string {
   return "reanswer";
 }
 
+/** Lore 1 alone: read the world out of it, then hand the facts to the ruling. */
 export const stepLore1: Step = async (world) => {
-  const { campaign, turn } = world;
+  const { turn } = world;
   const draft = T(turn).draft;
 
   if (turn.opening) {
@@ -707,11 +720,19 @@ export const stepLore1: Step = async (world) => {
       claim: c.id, result: "TRUE", why: "the world opens here",
       question: "", alternative: "", sources: [],
     }));
-    return "stands";
+    return "opens";
   }
 
+  await readRecord(world, draft.narration || "");
+  return "read";
+};
+
+/** Lore 2 alone: rule on what lore 1 read, and decide where the draft goes. */
+export const stepLore2: Step = async (world) => {
+  const { campaign, turn } = world;
+  const draft = T(turn).draft;
   const narration = draft.narration || "";
-  const [claims, verdicts] = await checkRecord(world, narration);
+  const [claims, verdicts] = await ruleRecord(world, narration, T(turn).facts || []);
 
   const wrong = verdicts.filter((v) => v.result === "FALSE");
   const unresolved = verdicts.filter((v) => v.result === "UNRESOLVED");
@@ -1292,6 +1313,7 @@ export const STEPS: Record<string, Step> = {
   fight: stepFight,
   blows: stepBlows,
   lore1: stepLore1,
+  lore2: stepLore2,
   deliver: stepDeliver,
   narrate: stepNarrate,
 };

@@ -12,6 +12,7 @@ import * as chronicle from "./chronicle.ts";
 import * as db from "./db.ts";
 import * as driver from "./driver.ts";
 import * as machine from "./machine.ts";
+import * as mapping from "./mapping.ts";
 import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
 import * as view from "./view.ts";
@@ -51,11 +52,11 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     if (flags.has("--json")) return say(await actions.step());
     const ran = await driver.run(1);
     const turn = ran.turn;
-    if (ran.state === "awaiting_human") {
+    if (ran.state === "lore3") {
       say(`[${turn.turn_id}] the world is silent. run: tesbota lore`);
       say("");
       say(String(turn.gap ?? "").trim());
-    } else if (ran.state === "awaiting_clock") {
+    } else if (ran.state === "clock") {
       const left = parse(String(turn.wake_at)).getTime() - now().getTime();
       say(`[${turn.turn_id}] travelling to ${(turn as any).destination} — ${Math.max(0, Math.floor(left / 60000))} min to go`);
     } else {
@@ -88,7 +89,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         continue;
       }
       say(`[${ran.turn.turn_id}] ${ran.state}`);
-      if (ran.state === "awaiting_human") return;
+      if (ran.state === "lore3") return;
       await new Promise((r) => setTimeout(r, every * 1000));
     }
   },
@@ -192,7 +193,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 
   map({ flags }) {
-    if (flags.has("--json")) return say(canon.graph());
+    if (flags.has("--json")) return say(mapping.layout());
     say(canon.mermaid());
   },
 

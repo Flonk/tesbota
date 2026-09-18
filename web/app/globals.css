@@ -928,15 +928,15 @@ textarea.prompt:focus { outline: none; }
 /* The pills sit in the page's own pixels; the edges are an svg underneath them.
    Two columns is a phone's width, so it is held to that on a desk as well rather
    than stretching two pills across a monitor. */
-.machinebox { position: relative; width: 100%; max-width: 30rem;
+.machinebox { position: relative; width: 50%; min-width: 11.5rem; max-width: 26rem;
               border: 1px solid var(--line); border-radius: 2px; }
 .mgraph { position: absolute; inset: 0; pointer-events: none; }
 
 .mslot { position: absolute; display: flex; align-items: center; justify-content: center; }
 .mpill { width: 100%; justify-content: center; display: inline-flex; align-items: center;
-         gap: .4em; padding: .25rem .5rem; overflow: hidden; }
-.mpill > span, .mpill { text-overflow: ellipsis; }
-.mcalls { font-style: normal; font-size: .82em; opacity: .5; }
+         gap: .3em; padding: .1rem .3rem; overflow: hidden; white-space: nowrap;
+         font-size: inherit; letter-spacing: .02em; }
+.mcalls { font-style: normal; font-size: .85em; opacity: .5; }
 
 /* What kind of work a state is, on the pill itself. */
 .mpill.k-agent { border-color: var(--place); }
@@ -959,6 +959,9 @@ textarea.prompt:focus { outline: none; }
 @media (prefers-reduced-motion: reduce) {
   .mflow { animation: none; stroke-dasharray: none; opacity: .5; }
 }
+
+.masks { margin: 0; font: var(--mono); font-size: .72rem; letter-spacing: .04em; }
+.masked { color: var(--place); }
 
 .medges { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;
           gap: .2rem; font: var(--mono); font-size: .76rem; letter-spacing: .05em; }

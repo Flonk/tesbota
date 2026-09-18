@@ -158,7 +158,7 @@ export async function snapshot(profile = PROFILES[0]) {
     : 1;
 
   const gap =
-    current?.state === "awaiting_human" ? { turn: current.turn_id, text: current.gap || "" } : null;
+    current?.state === "lore3" ? { turn: current.turn_id, text: current.gap || "" } : null;
 
   return { status, slides, gap, chat, talk: sitting.log || [], vitals, skills, inventory, load, quests, names: names(), job: await job(), note: campaign.note || null };
 }
@@ -605,17 +605,9 @@ export async function look(question) {
   }
 }
 
-// The world moved to the node cli. TESBOTA_PY=1 puts it back on python, which is
-// the way out if the port turns out to be wrong about something.
+// Everything that changes the world goes through the node cli, and nothing else.
 function runner(args) {
-  const node = path.join(ROOT, "cli/src/index.ts");
-  if (!process.env.TESBOTA_PY && fsSync.existsSync(node)) {
-    return [process.execPath, [node, ...args]];
-  }
-  const own = path.join(ROOT, ".venv/bin/python");
-  return fsSync.existsSync(own)
-    ? [own, ["-m", "tesbota.cli", ...args]]
-    : ["uv", ["run", "--directory", ROOT, "tesbota", ...args]];
+  return [process.execPath, [path.join(ROOT, "cli/src/index.ts"), ...args]];
 }
 
 const under = (profile) => ({ ...process.env, TESBOTA_PROFILE: profile || PROFILES[0] });

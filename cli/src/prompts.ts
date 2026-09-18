@@ -1,7 +1,7 @@
 /**
  * Every message an agent is handed, and every system prompt behind one.
  *
- * The prompts themselves are markdown on disk in `tesbota/prompts/` — they are
+ * The prompts themselves are markdown on disk in `prompts/` — they are
  * the world's text, not code, and they stay there. This assembles them, fills in
  * the few things that change with the life being lived, and builds the per-turn
  * messages around them.
@@ -16,7 +16,7 @@ import { bookId, bookTitle } from "./chronicle.ts";
 import { EXPLORER } from "./config.ts";
 import { explorerName } from "./state.ts";
 
-export const PROMPTS = path.join(ROOT, "tesbota", "prompts");
+export const PROMPTS = path.join(ROOT, "prompts");
 const INCLUDE = ["COMMON", "WRITING"];
 
 /**

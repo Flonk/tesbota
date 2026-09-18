@@ -19,7 +19,7 @@ export type Kind = "agent" | "roll" | "book" | "wait" | "end";
  */
 export const STATE_NAMES = [
   "explorer", "answer", "propose", "gm", "muster", "swing", "fight", "blows",
-  "lore1", "deliver", "narrate", "awaiting_human", "awaiting_clock", "done",
+  "lore1", "lore2", "deliver", "narrate", "lore3", "clock", "done",
 ] as const;
 
 export type StateName = (typeof STATE_NAMES)[number];
@@ -38,8 +38,18 @@ export type State = {
   readonly does: string;
   /** what kind of work it is, which is what the diagram colours by */
   readonly kind: Kind;
-  /** how many agent calls it costs to leave, for the cost readout */
-  readonly calls: number;
+  /**
+   * Which prompt layers this state asks, in the order it asks them. This is the
+   * honest count of what a turn costs, and it is here because a state named after
+   * one agent quietly calling a second is exactly the kind of thing a table like
+   * this exists to stop.
+   */
+  readonly agents: readonly string[];
+  /**
+   * Who advances it. The loop runs most of them; a `held` state waits on the
+   * clock or on a person, and the driver will not step it on its own.
+   */
+  readonly driven: "loop" | "held";
   readonly edges: readonly Edge[];
 };
 
@@ -47,27 +57,30 @@ export const STATES: Record<StateName, State> = {
   explorer: {
     does: "the adventurer decides what to do with the turn",
     kind: "agent",
-    calls: 1,
+    agents: ["explorer"],
+    driven: "loop",
     edges: [
       { to: "propose", on: "acts", when: "commits to an action" },
       { to: "answer", on: "looks", when: "asks a question first" },
       { to: "narrate", on: "quiet", when: "they are done — set the turn down" },
       { to: "explorer", on: "again", when: "said nothing usable" },
-      { to: "awaiting_human", on: "stuck", when: "could not be reached" },
+      { to: "lore3", on: "stuck", when: "could not be reached" },
     ],
   },
 
   answer: {
     does: "the game master answers without the world moving",
     kind: "agent",
-    calls: 1,
+    agents: ["gm"],
+    driven: "loop",
     edges: [{ to: "lore1", on: "answered", when: "the answer needs checking" }],
   },
 
   propose: {
     does: "the game master prices the action — how long, how tiring, how it could go",
     kind: "agent",
-    calls: 1,
+    agents: ["propose", "queries"],
+    driven: "loop",
     edges: [
       { to: "gm", on: "priced", when: "the cost is settled" },
       { to: "propose", on: "again", when: "the proposal did not parse" },
@@ -77,7 +90,8 @@ export const STATES: Record<StateName, State> = {
   gm: {
     does: "the game master narrates what happens",
     kind: "agent",
-    calls: 1,
+    agents: ["gm"],
+    driven: "loop",
     edges: [
       { to: "lore1", on: "narrated", when: "an ordinary turn" },
       { to: "muster", on: "declares", when: "it declared a fight" },
@@ -87,25 +101,28 @@ export const STATES: Record<StateName, State> = {
   muster: {
     does: "the only lore check a fight gets: the declaration and every body in it",
     kind: "agent",
-    calls: 2,
+    agents: ["lore1", "lore2"],
+    driven: "loop",
     edges: [
       { to: "swing", on: "mustered", when: "the roster stands" },
       { to: "gm", on: "rejected", when: "the record will not bear it" },
-      { to: "awaiting_human", on: "unwritten", when: "it named something nobody has written" },
+      { to: "lore3", on: "unwritten", when: "it named something nobody has written" },
     ],
   },
 
   swing: {
     does: "the adventurer is asked what to do with this round of theirs",
     kind: "agent",
-    calls: 1,
+    agents: ["explorer"],
+    driven: "loop",
     edges: [{ to: "fight", on: "chose", when: "they said what they are doing" }],
   },
 
   fight: {
     does: "one body takes its turn — the driver rolls, nobody argues",
     kind: "roll",
-    calls: 0,
+    agents: [],
+    driven: "loop",
     edges: [
       { to: "swing", on: "theirs", when: "it is the adventurer's turn again" },
       { to: "fight", on: "next", when: "the next body acts" },
@@ -116,27 +133,41 @@ export const STATES: Record<StateName, State> = {
   blows: {
     does: "the game master puts words on the exchange that was already rolled",
     kind: "agent",
-    calls: 1,
+    agents: ["gm"],
+    driven: "loop",
     edges: [{ to: "deliver", on: "written", when: "the fight was checked at its muster" }],
   },
 
   lore1: {
-    does: "lore 1 reads the world out of the narration, lore 2 rules on every claim",
+    does: "reads the world out of the narration — it cannot see canon, only the words",
     kind: "agent",
-    calls: 2,
+    agents: ["lore1"],
+    driven: "loop",
+    edges: [
+      { to: "lore2", on: "read", when: "the facts are out of it and want ruling on" },
+      { to: "deliver", on: "opens", when: "the world opens here and rules itself" },
+    ],
+  },
+
+  lore2: {
+    does: "rules on every claim against the record, and it is the only layer that reads canon",
+    kind: "agent",
+    agents: ["lore2"],
+    driven: "loop",
     edges: [
       { to: "deliver", on: "stands", when: "nothing contradicts the record" },
       { to: "gm", on: "redraft", when: "a claim is FALSE, or the dice went against them" },
       { to: "blows", on: "rewrite", when: "the same rolled fight needs different words" },
       { to: "answer", on: "reanswer", when: "the answer needs redrafting" },
-      { to: "awaiting_human", on: "unwritten", when: "the world is silent and cannot go on" },
+      { to: "lore3", on: "unwritten", when: "the world is silent and cannot go on" },
     ],
   },
 
   deliver: {
     does: "the turn is applied — vitals, inventory, quests, the clock, the fight's wounds",
     kind: "roll",
-    calls: 0,
+    agents: ["questmaster"],
+    driven: "loop",
     edges: [
       { to: "explorer", on: "spent", when: "the turn is applied — they get the rest of it" },
       { to: "done", on: "again", when: "it was already applied" },
@@ -146,14 +177,16 @@ export const STATES: Record<StateName, State> = {
   narrate: {
     does: "the narrator sets the turn down as a passage of the life",
     kind: "book",
-    calls: 0,
+    agents: [],
+    driven: "loop",
     edges: [{ to: "done", on: "written", when: "it is in the book" }],
   },
 
-  awaiting_human: {
+  lore3: {
     does: "the world is silent and holds until somebody writes what is missing",
     kind: "wait",
-    calls: 0,
+    agents: ["lore3"],
+    driven: "held",
     edges: [
       { to: "gm", on: "ruled", when: "canon was written — narrate it again" },
       { to: "blows", on: "ruled_fight", when: "canon was written mid-fight" },
@@ -161,10 +194,11 @@ export const STATES: Record<StateName, State> = {
     ],
   },
 
-  awaiting_clock: {
+  clock: {
     does: "they are walking, and real time has to pass before they arrive",
     kind: "wait",
-    calls: 0,
+    agents: [],
+    driven: "held",
     edges: [
       { to: "gm", on: "arrived", when: "they reached it, or the road was cut short" },
       { to: "explorer", on: "woken", when: "the time simply passed" },
@@ -174,10 +208,11 @@ export const STATES: Record<StateName, State> = {
   done: {
     does: "the turn is closed and the next one begins",
     kind: "end",
-    calls: 0,
+    agents: [],
+    driven: "held",
     edges: [
       { to: "explorer", on: "next", when: "another turn" },
-      { to: "awaiting_clock", on: "walks", when: "the turn put them on the road" },
+      { to: "clock", on: "walks", when: "the turn put them on the road" },
     ],
   },
 };
@@ -199,7 +234,9 @@ export function describe() {
       name,
       does: STATES[name].does,
       kind: STATES[name].kind,
-      calls: STATES[name].calls,
+      agents: STATES[name].agents,
+      driven: STATES[name].driven,
+      calls: STATES[name].agents.length,
     })),
     edges: STATE_NAMES.flatMap((from) =>
       STATES[from].edges.map((e) => ({
