@@ -21,7 +21,7 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     effect(item, stat, amount)                         what a thing does, a row per stat
     aspect(id)                                         a mark things can carry
     tagged(entity, aspect, value)                      who carries it, and what of
-    ability(id, damage, advantage, cooldown, sleep, delay, spawn, within, in_aspect, in_kind, doing)
+    ability(id, damage, advantage, cooldown, sleep, delay, spawn, within, in_aspect, in_kind)
                                                        what a body can do
     grants(aspect, ability)                            what a mark hands out
     holding(holder, item, qty, worn)                   what a place, a person or the explorer keeps

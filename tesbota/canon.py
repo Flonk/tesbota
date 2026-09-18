@@ -442,7 +442,7 @@ def aspect(name, applies=None, ability=None, about=None):
 
 
 ABILITY = ("damage", "advantage", "cooldown", "sleep", "delay", "spawn",
-           "within", "in_kind", "in_aspect", "doing")
+           "within", "in_kind", "in_aspect")
 
 
 def ability(name, about=None, **how):

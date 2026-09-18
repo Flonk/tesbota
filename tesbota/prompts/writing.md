@@ -99,14 +99,13 @@ An aspect is a mark anything can carry, and it is an entity like any other — `
 An ability is a thing of its own too, and it is what a body can actually do. What the driver can roll is columns; everything else is `doing`, in plain words, for the game master to play:
 
     INSERT INTO entity (id, kind, name) VALUES ('call-guards', 'abilities', 'Call Guards');
-    INSERT INTO ability (id, cooldown, delay, within, in_aspect, spawn, doing) VALUES (
-      'call-guards', 10, 1, 'the-greater-plains', 'settlement',
-      '{"name":"Beefy Guard","health":22,"damage":"3–6","dc":14,"bonus":4,"count":3}',
-      'They shout for the guard and keep shouting.'
+    INSERT INTO ability (id, cooldown, delay, spawn) VALUES (
+      'call-guards', 10, 1,
+      '{"name":"$GUARDED_NAME Guard","health":100,"damage":"18–22","dc":17,"bonus":5,"defense":22,"count":3}'
     );
     INSERT INTO grants (aspect, ability) VALUES ('honorable-citizen', 'call-guards');
 
-`damage`, `advantage`, `cooldown`, `sleep`, `delay` and `spawn` are rolled by the driver and need no telling. `delay` is how many rounds pass before what was called for turns up. `within` and `in_aspect` say where the ability counts at all — inside a named place, and somewhere carrying a named aspect. `doing` is for what no column can hold, and the game master reads it when it narrates.
+`damage`, `advantage`, `cooldown`, `sleep`, `delay` and `spawn` are rolled by the driver and need no telling. `delay` is how many rounds pass before what was called for turns up. `within` and `in_aspect` say where the ability counts at all — inside a named place, and somewhere carrying a named aspect. Everything no column can hold goes in the ability's own `about`, like every other thing in this world; there is no second description.
 
 An aspect grants an ability through `grants`, and everything marked with the aspect has it wherever the ability counts.
 

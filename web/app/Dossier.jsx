@@ -413,9 +413,6 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                 {where(thing.ability) && (
                   <p className="statdoes dim">{where(thing.ability)}</p>
                 )}
-                {thing.ability.doing && (
-                  <Prose className="body told" text={thing.ability.doing} />
-                )}
               </Section>
             )}
 

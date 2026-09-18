@@ -94,8 +94,7 @@ CREATE TABLE IF NOT EXISTS ability (
   spawn     TEXT,
   within    TEXT,
   in_kind   TEXT,
-  in_aspect TEXT,
-  doing     TEXT
+  in_aspect TEXT
 );
 
 CREATE TABLE IF NOT EXISTS grants (
@@ -330,6 +329,15 @@ def setup():
         borne = {r["name"] for r in con.execute("PRAGMA table_info(ability)")}
         if borne and "in_aspect" not in borne:
             con.execute("ALTER TABLE ability ADD COLUMN in_aspect TEXT")
+        if "doing" in borne:
+            # An ability had two descriptions: its own `about` like everything else,
+            # and this. One thing, one description.
+            con.execute(
+                "UPDATE entity SET about = trim(coalesce(about, '') || ' ' || "
+                "coalesce((SELECT doing FROM ability WHERE ability.id = entity.id), '')) "
+                "WHERE id IN (SELECT id FROM ability WHERE trim(coalesce(doing, '')) <> '')"
+            )
+            con.execute("ALTER TABLE ability DROP COLUMN doing")
         item_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='item'") or ""
         if "REFERENCES entity" not in item_sql:
             con.execute("DELETE FROM item WHERE id NOT IN (SELECT id FROM entity)")
