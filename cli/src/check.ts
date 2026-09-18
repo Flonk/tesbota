@@ -13,6 +13,7 @@ import path from "node:path";
 import * as machine from "./machine.ts";
 import { Campaign, Turn } from "./schema.ts";
 import { PROFILES, roomOf } from "./config.ts";
+import { sqlite3 } from "./sqlite.ts";
 import { STEPS } from "./steps.ts";
 
 export type Wrong = { what: string; said: string };
@@ -103,8 +104,16 @@ function agents(): Wrong[] {
     .map((l) => ({ what: "agents", said: `${l} is called but no state declares it` }));
 }
 
+/** The one command every layer above the explorer reads the world with. */
+function reader(): Wrong[] {
+  return sqlite3()
+    ? []
+    : [{ what: "sqlite3", said: "no sqlite3 anywhere — every agent above the explorer is blind" }];
+}
+
 export function check(): Wrong[] {
   return [
+    ...reader(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
     ...handlers(),

@@ -15,6 +15,7 @@ import * as machine from "./machine.ts";
 import * as mapping from "./mapping.ts";
 import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
+import { reachable } from "./sqlite.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
 import {
@@ -271,6 +272,9 @@ const MAKES = "init";
 const NEEDS_NOBODY = new Set(["machine", "check", "prompts", "library", "map", "traits"]);
 
 async function main() {
+  // Before anything is asked of an agent, make sure the one command it reads the
+  // world with is on the PATH it will inherit.
+  reachable();
   const [, , command, ...argv] = process.argv;
   if (!command || command === "--help" || command === "-h") {
     say(`tesbota — ${Object.keys(COMMANDS).sort().join(", ")}`);
