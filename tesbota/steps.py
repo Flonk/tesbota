@@ -639,9 +639,12 @@ def borne(who, campaign):
                 continue
             power = dict(power, **{"from": mark["name"]})
             if power.get("spawn"):
-                power["spawn"] = dict(
-                    power["spawn"], name=named_for(power["spawn"].get("name"), campaign)
-                )
+                called = named_for(power["spawn"].get("name"), campaign)
+                # Nobody to answer means nobody comes. A citizen out on the road can
+                # shout as long as they like.
+                if STAND_IN.search(called):
+                    continue
+                power["spawn"] = dict(power["spawn"], name=called)
             who["ability"] = power
             return who
     return who

@@ -283,7 +283,7 @@ export function Toggle({ on, onClick, className = "", children }) {
   );
 }
 
-export function Overlay({ title, tags, face, tone, under, onClose, children }) {
+export function Overlay({ title, tags, face, tone, under, copy, onClose, children }) {
   const panel = useRef(null);
   useEffect(() => {
     function key(e) {
@@ -305,7 +305,18 @@ export function Overlay({ title, tags, face, tone, under, onClose, children }) {
     <div className="dossier">
       <div className="dpanel" ref={panel}>
         <div className="dhead">
-          {face && <Icon name={face} size={34} />}
+          {face &&
+            (copy ? (
+              <button
+                className="dface"
+                title={`copy ${copy}`}
+                onClick={() => navigator.clipboard?.writeText(copy).catch(() => {})}
+              >
+                <Icon name={face} size={22} />
+              </button>
+            ) : (
+              <Icon name={face} size={34} />
+            ))}
           <div className="dtitle">
             <span className={`dname ${tone || ""}`}>
               {title}

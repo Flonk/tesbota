@@ -155,20 +155,20 @@ function Head({ thing }) {
   if (thing.kind === "books") return <Wrote book={thing.book} />;
   if (thing.kind === "items") return <Made item={thing.item} />;
   if (thing.kind === "places") {
-    const parent = thing.within?.length > 1 ? thing.within[thing.within.length - 2] : null;
     const sort = thing.place?.type;
-    if (!parent && !sort) return null;
+    const chain = thing.within || [];
     return (
       <p className="cap dwho">
         {sort ? sort.replace(/-/g, " ") : <Stub />}
-        {parent && (
-          <>
-            {" in "}
-            <button className="dlink" onClick={() => openDossier(parent.id)}>
-              {parent.name}
+        {chain.length > 1 && " in "}
+        {chain.slice(0, -1).map((p, n) => (
+          <span key={p.id}>
+            {n > 0 && <span className="sep">›</span>}
+            <button className="dlink" onClick={() => openDossier(p.id)}>
+              {p.name}
             </button>
-          </>
-        )}
+          </span>
+        ))}
       </p>
     );
   }
@@ -279,23 +279,6 @@ function Section({ label, children }) {
   );
 }
 
-function Address({ address }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <button
-      className="daddr"
-      title="copy this address"
-      onClick={() => {
-        navigator.clipboard?.writeText(address).catch(() => {});
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1200);
-      }}
-    >
-      {copied ? "copied" : address}
-    </button>
-  );
-}
-
 function Trail({ chain, self }) {
   return (
     <p className="dtrail">
@@ -349,11 +332,11 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
       tone={thing?.kind === "items" ? tone(thing.item?.rarity) : ""}
       title={thing?.name || id.replace(/-/g, " ")}
       tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
+      copy={thing?.address}
       under={
         thing ? (
           <>
             <Head thing={thing} />
-            <Address address={thing.address} />
           </>
         ) : null
       }
@@ -367,15 +350,12 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
               <Leaves thing={thing} fragment={fragment} />
             )}
 
-            {!(thing.kind === "books" && face === "content") && (
-              <Section label="description">
-                {thing.about ? (
-                  <Prose className="dclaimtext" text={thing.about} />
-                ) : (
-                  <Empty>nothing describes it yet</Empty>
-                )}
-              </Section>
-            )}
+            {!(thing.kind === "books" && face === "content") &&
+              (thing.about ? (
+                <Prose className="dclaimtext dfirst" text={thing.about} />
+              ) : (
+                <Empty>nothing describes it yet</Empty>
+              ))}
 
             {(thing.aspects || []).length > 0 && (
               <Section label="aspects">
@@ -438,18 +418,15 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.kind === "people" && <Traits person={thing.person} />}
 
-            {thing.kind !== "items" && !(thing.kind === "books" && face === "content") && thing.within && (
+            {thing.kind === "places" && (
+              <button className="dlink dmap" onClick={() => openMap(thing.id)}>
+                <Mark name="map" gap=".35rem">show it on the map</Mark>
+              </button>
+            )}
+
+            {thing.kind === "people" && thing.within?.length > 1 && (
               <Section label="where it sits">
-                {thing.within.length > 1 ? (
-                  <Trail chain={thing.within} self={thing.id} />
-                ) : (
-                  <Empty>nothing says what it is part of</Empty>
-                )}
-                {thing.kind === "places" && (
-                  <button className="dlink dmap" onClick={() => openMap(thing.id)}>
-                    <Mark name="map" gap=".35rem">show it on the map</Mark>
-                  </button>
-                )}
+                <Trail chain={thing.within} self={thing.id} />
               </Section>
             )}
 
@@ -486,8 +463,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                 />
             )}
 
-            {(thing.kind === "people" || thing.kind === "places") &&
-              !(thing.kind === "people" && settled(thing.person?.died)) && (
+            {thing.kind === "people" && !settled(thing.person?.died) && (
               <Table
                 {...KEEPS}
                 rows={thing.holdings}

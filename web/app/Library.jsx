@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PLACE_ICON, rare, tone } from "./Data";
-import { Btn, Empty, Mark, Note, Prose, Stub, Table, Tabs, Toggle } from "./ui";
+import { Btn, Empty, Mark, Note, Prose, Stub, Table, Tabs } from "./ui";
 
 const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
@@ -28,27 +28,6 @@ const FOLK = [
   { id: "mob", label: "mob", icon: "people" },
 ];
 
-const FILTERS = [
-  { id: "stub", label: "has $BOTA", kinds: WRITTEN, test: (r) => r.stub },
-  { id: "orphan", label: "orphan", kinds: ["places"], test: (r) => !r.parent },
-  { id: "ways", label: "has exits", kinds: ["places"], test: (r) => r.exits > 0 },
-  { id: "keeps", label: "holds something", kinds: ["places"], test: (r) => r.keeps > 0 },
-  { id: "wrote", label: "wrote something", kinds: ["people"], test: (r) => r.wrote > 0 },
-  { id: "jobless", label: "no trade", kinds: ["people"], test: (r) => OPEN(r.work) },
-  { id: "adrift", label: "nowhere", kinds: ["people"], test: (r) => OPEN(r.lives) },
-  { id: "undated", label: "no dates", kinds: ["people"],
-    test: (r) => OPEN(r.born) && OPEN(r.died) },
-  { id: "gone", label: "dead", kinds: ["people"], test: (r) => !OPEN(r.died) },
-  { id: "godhead", label: "godhead", kinds: ["books"], test: (r) => r.godhead },
-  { id: "authored", label: "has an author row", kinds: ["books"], test: (r) => !!r.authorId },
-  ...ORDER.filter(Boolean).map((rarity) => ({
-    id: `rarity:${rarity}`,
-    label: rarity.replace(/_/g, " "),
-    kinds: ["books"],
-    group: "rarity",
-    test: (r) => r.rarity === rarity,
-  })),
-];
 
 function branch(row, toggle) {
   return (
@@ -240,7 +219,6 @@ export default function Library({
   const [world, setWorld] = useState(null);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState(null);
-  const [on, setOn] = useState({});
   const [folk, setFolk] = useState("npc");
   const [sort, setSort] = useState({ key: "name", dir: 1 });
   const [folded, setFolded] = useState(() => new Set());
@@ -357,14 +335,6 @@ export default function Library({
   }
 
   const shelf = books || [];
-  const filters = FILTERS.filter((f) => !f.kinds || f.kinds.includes(kind));
-  const active = filters.filter((f) => on[f.id]);
-
-  function keep(row) {
-    const groups = {};
-    for (const f of active) (groups[f.group || f.id] ||= []).push(f.test(row));
-    return Object.values(groups).every((g) => g.some(Boolean));
-  }
 
   function by(key) {
     setSort((s) => (s.key === key ? { key, dir: -s.dir } : { key, dir: 1 }));
@@ -389,10 +359,10 @@ export default function Library({
   const held = kind === "books" ? shelf : world?.[kind] || [];
   const all =
     kind === "people" ? held.filter((r) => (folk === "mob" ? r.mob : !r.mob)) : held;
-  const hit = (r) => (!q || r.name.toLowerCase().includes(q) || r.id.includes(q)) && keep(r);
+  const hit = (r) => (!q || r.name.toLowerCase().includes(q) || r.id.includes(q));
   const tree = kind === "places";
   const rows = tree
-    ? treeify(all, folded, q || active.length ? new Set(all.filter(hit).map((r) => r.id)) : null)
+    ? treeify(all, folded, q ? new Set(all.filter(hit).map((r) => r.id)) : null)
     : all
         .filter(hit)
         .sort((a, b) => compare(a, b, sort.key) * sort.dir || compare(a, b, "name"));
@@ -439,25 +409,6 @@ export default function Library({
       </form>
 
       <div className="libbody">
-      {hits === null && (
-        <div className="filters">
-          {filters.map((f) => (
-            <Toggle
-              key={f.id}
-              on={on[f.id]}
-              onClick={() => setOn((s) => ({ ...s, [f.id]: !s[f.id] }))}
-            >
-              {f.label}
-            </Toggle>
-          ))}
-          {active.length > 0 && (
-            <Toggle className="clear" onClick={() => setOn({})}>
-              clear
-            </Toggle>
-          )}
-        </div>
-      )}
-
       {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={onOpen} />}
       {hits === null && reading && <Empty>reading the shelves…</Empty>}
       {hits === null && !reading && (

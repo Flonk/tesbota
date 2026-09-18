@@ -912,3 +912,11 @@ textarea.prompt:focus { outline: none; }
 .statdoes.dim { opacity: .7; }
 
 .tabs.folk { flex: 0 0 auto; }
+
+.dface {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; padding: 0; cursor: pointer;
+  background: none; border: 1px solid var(--line); border-radius: 2px; color: var(--dim);
+}
+.dface:hover { color: var(--gold); border-color: var(--gold); }
+.dbody > .dfirst:first-child { margin-top: 0; }
