@@ -9,7 +9,7 @@ LINK = re.compile(r"bota://(people|places|books|items)/([a-z0-9][a-z0-9-]*)(?:#(
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS entity (
   id         TEXT PRIMARY KEY,
-  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects')),
+  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects','abilities')),
   name       TEXT NOT NULL,
   introduced TEXT,
   extent     TEXT,
@@ -81,6 +81,29 @@ CREATE TABLE IF NOT EXISTS aspect (
   applies TEXT CHECK (applies IN ('always','within')),
   ability TEXT
 );
+
+-- What a body can do, as a thing in its own right. The columns are what the driver
+-- can roll on its own; `doing` is everything else, for the game master to play.
+CREATE TABLE IF NOT EXISTS ability (
+  id        TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  damage    TEXT,
+  advantage INTEGER NOT NULL DEFAULT 0,
+  cooldown  INTEGER NOT NULL DEFAULT 0,
+  sleep     INTEGER NOT NULL DEFAULT 0,
+  delay     INTEGER NOT NULL DEFAULT 0,
+  spawn     TEXT,
+  within    TEXT,
+  in_kind   TEXT,
+  in_aspect TEXT,
+  doing     TEXT
+);
+
+CREATE TABLE IF NOT EXISTS grants (
+  id      INTEGER PRIMARY KEY,
+  aspect  TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,
+  ability TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS grants_once ON grants(aspect, ability);
 
 CREATE TABLE IF NOT EXISTS tagged (
   id     INTEGER PRIMARY KEY,
@@ -184,7 +207,7 @@ DROP VIEW IF EXISTS writing;
 DROP VIEW IF EXISTS unwritten;
 CREATE TABLE entity_kinds (
   id         TEXT PRIMARY KEY,
-  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects')),
+  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects','abilities')),
   name       TEXT NOT NULL,
   introduced TEXT,
   extent     TEXT,
@@ -296,7 +319,7 @@ def setup():
         )
         con.commit()
         kinds = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='entity'") or ""
-        if "'aspects'" not in kinds:
+        if "'abilities'" not in kinds:
             # Rebuilding entity takes its view and its triggers with it, so the
             # schema is laid down again afterwards to put them back.
             con.execute("PRAGMA foreign_keys = OFF")
@@ -304,6 +327,9 @@ def setup():
             con.executescript(SCHEMA)
             con.commit()
             con.execute("PRAGMA foreign_keys = ON")
+        borne = {r["name"] for r in con.execute("PRAGMA table_info(ability)")}
+        if borne and "in_aspect" not in borne:
+            con.execute("ALTER TABLE ability ADD COLUMN in_aspect TEXT")
         item_sql = value("SELECT sql FROM sqlite_master WHERE type='table' AND name='item'") or ""
         if "REFERENCES entity" not in item_sql:
             con.execute("DELETE FROM item WHERE id NOT IN (SELECT id FROM entity)")

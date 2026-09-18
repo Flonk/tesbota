@@ -21,7 +21,9 @@ A thing's own description goes on the thing, where it needs no author:
 
 Everything with a row has one, whatever its kind — a person, a place, a book, a thing — and it is the first thing a reader is shown. Write it in the same breath as the entity itself and never leave it empty; `$BOTA` where the world has not decided.
 
-It is a glance, not a dossier: one sentence, two at the outside, on what this is and what it is like. Everything a table already holds stays in the table and out of the prose — what a place sits inside, what it contains, what leads out of it, what anybody keeps, who wrote a book and when, what somebody's trade is, where they live, what they are like in `traits`. All of that is shown beside the description already, and repeating it there only makes two places to be wrong. `A mysterious house in [Alheim Forest](bota://places/alheim-forest).` is a finished description.
+It is a glance, not a dossier: one sentence, two at the outside, on what this is and what it is like. Everything a table already holds stays in the table and out of the prose — what a place sits inside, what it contains, what leads out of it, what anybody keeps, who wrote a book and when, what somebody's trade is, where they live, what they are like in `traits`. All of that is shown beside the description already, and repeating it there only makes two places to be wrong.
+
+**Write it plainly.** This is the house style and it is not negotiable: say what the thing is, in the words anybody would use for it, and stop. No atmosphere, no cadence, no clause added because the sentence felt unfinished without it. `A Regular Citizen.` is a finished description. `A mysterious house in [Alheim Forest](bota://places/alheim-forest).` is a finished description. Anything reaching for a mood — *worn smooth and dark at the grip*, *the sort that is worn until it comes apart*, *and the walls answer* — is writing showing off, and it goes.
 
 Every person gets a `person` row:
 

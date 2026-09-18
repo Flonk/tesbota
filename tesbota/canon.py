@@ -76,6 +76,11 @@ def passage(book_id, ord):
     return db.row("SELECT * FROM passage WHERE book_id = ? AND ord = ?", (slug(book_id), ord))
 
 
+def find_place(place_id):
+    """A place's own row — what contains it and what sort of place it is."""
+    return db.row("SELECT * FROM place WHERE id = ?", (slug(place_id),))
+
+
 def contains(place_id):
     return [r["id"] for r in db.rows("SELECT id FROM place WHERE parent = ? ORDER BY id", (slug(place_id),))]
 
@@ -436,6 +441,69 @@ def aspect(name, applies=None, ability=None, about=None):
     return ident
 
 
+ABILITY = ("damage", "advantage", "cooldown", "sleep", "delay", "spawn",
+           "within", "in_kind", "in_aspect", "doing")
+
+
+def ability(name, about=None, **how):
+    """What a body can do, written down once as a thing of its own. The columns are
+    what the driver rolls; `doing` is the rest, in words, for the game master."""
+    ident = ensure_entity("abilities", slug(name), name=str(name))
+    known = {k: v for k, v in how.items() if k in ABILITY and v is not None}
+    if "spawn" in known and not isinstance(known["spawn"], str):
+        known["spawn"] = json.dumps(known["spawn"], ensure_ascii=False)
+    if "advantage" in known:
+        known["advantage"] = int(bool(known["advantage"]))
+    with db.writing() as con:
+        con.execute("INSERT OR IGNORE INTO ability (id) VALUES (?)", (ident,))
+        if known:
+            sets = ", ".join(f"{k} = ?" for k in known)
+            con.execute(f"UPDATE ability SET {sets} WHERE id = ?", (*known.values(), ident))
+        if about is not None:
+            con.execute("UPDATE entity SET about = ? WHERE id = ?", (about, ident))
+    return ident
+
+
+def grant(aspect_id, ability_id):
+    """An aspect hands out an ability to everything marked with it."""
+    with db.writing() as con:
+        con.execute("INSERT OR IGNORE INTO grants (aspect, ability) VALUES (?,?)",
+                    (slug(aspect_id), slug(ability_id)))
+    return True
+
+
+def read_ability(row):
+    if not row:
+        return None
+    out = {k: row[k] for k in ABILITY}
+    out["id"] = row["id"]
+    out["name"] = row["name"] or row["id"].replace("-", " ")
+    out["advantage"] = bool(out["advantage"])
+    out["spawn"] = json.loads(out["spawn"]) if out["spawn"] else None
+    return out
+
+
+def abilities_of(aspect_id):
+    """Everything an aspect hands out."""
+    return [
+        read_ability(r)
+        for r in db.rows(
+            """SELECT a.*, e.name FROM grants g
+                 JOIN ability a ON a.id = g.ability
+                 LEFT JOIN entity e ON e.id = g.ability
+                WHERE g.aspect = ? ORDER BY g.id""",
+            (slug(aspect_id),),
+        )
+    ]
+
+
+def find_ability(ability_id):
+    return read_ability(db.row(
+        "SELECT a.*, e.name FROM ability a LEFT JOIN entity e ON e.id = a.id WHERE a.id = ?",
+        (slug(ability_id),),
+    ))
+
+
 def tag(entity_id, aspect_id, value=None):
     """Mark a thing with an aspect. `value` is what the aspect is of — the place a
     citizen belongs to, the house somebody is sworn into."""
@@ -478,6 +546,15 @@ def aspects_of(entity_id):
             (slug(entity_id),),
         )
     ]
+
+
+def marked_with(entity_id, aspect_id):
+    """Whether a thing carries an aspect — used to ask of a place whether it is the
+    sort of place something counts in."""
+    return bool(db.row(
+        "SELECT 1 FROM tagged WHERE entity = ? AND aspect = ?",
+        (slug(entity_id), slug(aspect_id)),
+    ))
 
 
 def bearing_aspect(aspect_id, value=None):

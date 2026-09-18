@@ -574,12 +574,34 @@ def show_fight(turn, fight):
     return gm_phase(turn, "fight", fight.get("said") or "", fight=fight)
 
 
+def counts_here(power, campaign):
+    """Whether what a body can do counts on the ground it is standing on. `within`
+    names a place it must be inside; `in_kind` names the sort of place it must be."""
+    if power.get("within"):
+        chain = {
+            (x.get("id") if isinstance(x, dict) else x)
+            for x in (campaign.get("location_path") or [])
+        }
+        chain.add(campaign.get("location"))
+        if canon.slug(power["within"]) not in chain:
+            return False
+    if power.get("in_kind"):
+        sat = canon.find_place(campaign.get("location"))
+        if not sat or sat.get("type") != power["in_kind"]:
+            return False
+    if power.get("in_aspect"):
+        standing = [campaign.get("location")] + [
+            (x.get("id") if isinstance(x, dict) else x)
+            for x in (campaign.get("location_path") or [])
+        ]
+        if not any(canon.marked_with(x, power["in_aspect"]) for x in standing if x):
+            return False
+    return True
+
+
 def borne(who, campaign):
-    """What a body is marked with, and what those markings are worth here. A citizen
-    of Alheim is only a citizen of Alheim while they are standing in it."""
-    here = [str(x) for x in (campaign.get("location_path") or [])]
-    here = {x.get("id") if isinstance(x, dict) else x for x in (campaign.get("location_path") or [])}
-    here.add(campaign.get("location"))
+    """What a body is marked with, and what its markings hand it here. A citizen is
+    only worth anything where the mark says it is."""
     marks = canon.aspects_of(who["id"])
     who["aspects"] = [
         {"name": m["name"], "value": m["value"], "of": m["of"]} for m in marks
@@ -587,13 +609,11 @@ def borne(who, campaign):
     if who.get("ability"):
         return who
     for mark in marks:
-        if not mark.get("ability"):
-            continue
-        if mark["applies"] == "within" and canon.slug(mark["value"] or "") not in here:
-            continue
-        who["ability"] = mark["ability"]
-        who["ability"]["from"] = mark["name"]
-        break
+        for power in canon.abilities_of(mark["aspect"]):
+            if not counts_here(power, campaign):
+                continue
+            who["ability"] = dict(power, **{"from": mark["name"]})
+            return who
     return who
 
 
@@ -693,9 +713,9 @@ def strike(fight, who, mark, skill, dc, rng, campaign=None, turn=None, edge=Fals
     return check, hurt
 
 
-def spawn(fight, who, rng):
+def spawn(fight, who, rng, said=None):
     """An ability that puts bodies on the field — one, or a street's worth."""
-    said = who["ability"]["spawn"]
+    said = said or who["ability"]["spawn"]
     come = []
     for _ in range(max(1, int(said.get("count") or 1))):
         born = fighter(said, "foe")
@@ -765,11 +785,20 @@ def step_fight(campaign, turn, rng=random):
     elif who["kind"] == "explorer":
         take_turn(campaign, turn, fight, who, blow, rng)
     elif ready(who) and who["ability"].get("spawn"):
-        born = spawn(fight, who, rng)
-        who["asleep"] = int(who["ability"].get("sleep") or 0)
-        who["ability"]["used"] = True
-        blow.update(chose=str(who["ability"].get("name") or "spawns"),
-                    spawned=", ".join(x["name"] for x in born))
+        power = who["ability"]
+        wait = int(power.get("delay") or 0)
+        blow["chose"] = str(power.get("name") or "spawns")
+        if wait:
+            fight.setdefault("owed", []).append(
+                {"at": fight["round"] + wait, "spawn": power["spawn"], "by": who["name"]}
+            )
+            blow["calling"] = f"{power['spawn'].get('name')} x{power['spawn'].get('count') or 1}"
+        else:
+            born = spawn(fight, who, rng)
+            blow["spawned"] = ", ".join(x["name"] for x in born)
+        who["asleep"] = int(power.get("sleep") or 0)
+        who["cool"] = int(power.get("cooldown") or 0)
+        power["used"] = True
     else:
         who["cool"] = max(0, int(who.get("cool") or 0) - 1)
         power = who["ability"] if ready(who) and who.get("ability") else None
@@ -793,6 +822,7 @@ def step_fight(campaign, turn, rng=random):
     fight["turn"] += 1
     if fight["turn"] >= len(order(fight)):
         fight["turn"], fight["round"] = 0, fight["round"] + 1
+        arrive(fight, rng)
 
     blow["us"] = [{"id": x["id"], "health": x["health"], "dead": x["dead"]} for x in fight["us"]]
     blow["them"] = [{"id": x["id"], "health": x["health"], "dead": x["dead"]} for x in fight["them"]]
@@ -802,6 +832,24 @@ def step_fight(campaign, turn, rng=random):
         fight["ended"] = "broken"
     turn["state"] = "blows" if fight["ended"] else "fight"
     return campaign, turn
+
+
+def arrive(fight, rng):
+    """Anything called for in an earlier round turns up when its round comes."""
+    owed, waiting = [], []
+    for due in fight.get("owed") or []:
+        (owed if due["at"] <= fight["round"] else waiting).append(due)
+    for due in owed:
+        come = spawn(fight, None, rng, said=due["spawn"])
+        fight["blows"].append({
+            "n": len(fight["blows"]) + 1, "round": fight["round"], "who": "the-world",
+            "name": ", ".join(x["name"] for x in come), "side": "them",
+            "chose": f"answers {due['by']}", "hit": False, "dealt": 0, "taken": 0,
+            "check": None, "text": "", "arrived": True,
+            "us": [{"id": x["id"], "health": x["health"], "dead": x["dead"]} for x in fight["us"]],
+            "them": [{"id": x["id"], "health": x["health"], "dead": x["dead"]} for x in fight["them"]],
+        })
+    fight["owed"] = waiting
 
 
 def wound(fight, mark, hurt, blow):
