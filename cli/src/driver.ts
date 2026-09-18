@@ -23,7 +23,7 @@ import {
 } from "./state.ts";
 import type { CampaignT, TurnT } from "./schema.ts";
 
-const SUSPENDED = ["lore3", "clock"];
+const SUSPENDED = ["arbiter", "lore3", "clock"];
 const TRAIL = 40;
 
 export const pendingPath = (turnId: string) => path.join(PENDING, `${turnId}.md`);
@@ -163,10 +163,15 @@ export async function run(limit = 1): Promise<Ran> {
       return { state: "done", turn: await bury(campaign, death.cause) };
     }
 
-    if (state === "lore3") {
+    if (state === "arbiter") {
       writePending(turn);
-      return { state: "lore3", turn };
+      return { state: "arbiter", turn };
     }
+
+    // The lore master has it. `say` moved the turn here before it asked, and
+    // `say` is what moves it off again; the loop must not walk into the middle
+    // of an answer that is still being written.
+    if (state === "lore3") return { state: "lore3", turn };
 
     if (state === "clock") {
       if (!tickClock(turn, now())) return { state: "clock", turn };

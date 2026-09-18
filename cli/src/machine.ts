@@ -17,7 +17,7 @@
  * `human` for what waits on a person.
  */
 export type Runs =
-  | "explorer" | "propose" | "gm" | "lore1" | "lore2" | "questmaster"
+  | "explorer" | "propose" | "gm" | "lore1" | "lore2" | "lore3" | "questmaster"
   | "cli" | "human";
 
 /**
@@ -26,7 +26,7 @@ export type Runs =
  */
 export const STATE_NAMES = [
   "explorer", "answer", "propose", "gm", "muster", "swing", "fight", "blows",
-  "lore1", "lore2", "deliver", "narrate", "lore3", "clock", "done",
+  "lore1", "lore2", "deliver", "narrate", "arbiter", "lore3", "clock", "done",
 ] as const;
 
 export type StateName = (typeof STATE_NAMES)[number];
@@ -71,7 +71,7 @@ export const STATES: Record<StateName, State> = {
       { to: "answer", on: "looks", when: "asks a question first" },
       { to: "narrate", on: "quiet", when: "they are done — set the turn down" },
       { to: "explorer", on: "again", when: "said nothing usable" },
-      { to: "lore3", on: "stuck", when: "could not be reached" },
+      { to: "arbiter", on: "stuck", when: "could not be reached" },
     ],
   },
 
@@ -113,7 +113,7 @@ export const STATES: Record<StateName, State> = {
     edges: [
       { to: "swing", on: "mustered", when: "the roster stands" },
       { to: "gm", on: "rejected", when: "the record will not bear it" },
-      { to: "lore3", on: "unwritten", when: "it named something nobody has written" },
+      { to: "arbiter", on: "unwritten", when: "it named something nobody has written" },
     ],
   },
 
@@ -166,7 +166,7 @@ export const STATES: Record<StateName, State> = {
       { to: "gm", on: "redraft", when: "a claim is FALSE, or the dice went against them" },
       { to: "blows", on: "rewrite", when: "the same rolled fight needs different words" },
       { to: "answer", on: "reanswer", when: "the answer needs redrafting" },
-      { to: "lore3", on: "unwritten", when: "the world is silent and cannot go on" },
+      { to: "arbiter", on: "unwritten", when: "the world is silent and cannot go on" },
     ],
   },
 
@@ -189,12 +189,24 @@ export const STATES: Record<StateName, State> = {
     edges: [{ to: "done", on: "written", when: "it is in the book" }],
   },
 
-  lore3: {
-    does: "the world is silent and holds until somebody writes what is missing",
+  // The silence is two states, not one. A single `lore3` could not say whether
+  // the world was waiting on a person or whether the lore master was mid-answer,
+  // so anybody watching from outside saw nothing happen for as long as it took.
+  arbiter: {
+    does: "the world is silent and holds until you settle what is missing",
     runs: "human",
+    agents: [],
+    driven: "held",
+    edges: [{ to: "lore3", on: "said", when: "you wrote something back" }],
+  },
+
+  lore3: {
+    does: "the lore master answers you, and writes the world where it was silent",
+    runs: "lore3",
     agents: ["lore3"],
     driven: "held",
     edges: [
+      { to: "arbiter", on: "answered", when: "it wrote back and the silence stands" },
       { to: "gm", on: "ruled", when: "canon was written — narrate it again" },
       { to: "blows", on: "ruled_fight", when: "canon was written mid-fight" },
       { to: "answer", on: "ruled_answer", when: "canon was written for a question" },

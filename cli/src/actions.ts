@@ -14,6 +14,8 @@ import * as prompts from "./prompts.ts";
 import { ask } from "./agent.ts";
 import { sqliteGate } from "./gate.ts";
 import { MODELS, MYSTERY, STATE, WRITE_TOOLS } from "./config.ts";
+import { edgeFrom, type StateName } from "./machine.ts";
+import type { TurnT } from "./schema.ts";
 import {
   loadCampaign, loadTurn, readJson, recordDeath, saveCampaign, saveTurn, writeJson,
 } from "./state.ts";
@@ -29,6 +31,19 @@ export function appendChat(role: string, text: string) {
   writeJson(CHAT_FILE, log);
 }
 
+/**
+ * Move the turn across one edge from outside the loop. The silence is settled by
+ * a conversation, not by a step, and the two halves of it — you writing, and the
+ * lore master answering — are two states that have to be written down as they
+ * change hands or nothing watching can tell which of you is holding it.
+ */
+function hand(turn: TurnT, from: StateName, on: string): TurnT {
+  turn.state = edgeFrom(from, on).to;
+  driver.took(turn, from, on);
+  saveTurn(turn);
+  return turn;
+}
+
 const sitting = () =>
   fs.existsSync(TALK_FILE) ? readJson(TALK_FILE) : { session: null, log: [] };
 
@@ -36,20 +51,34 @@ export async function say(text: string) {
   const campaign = loadCampaign();
   if (!campaign.current_turn) return { error: "nothing is pending" };
   const turn = loadTurn(campaign.current_turn);
-  if (turn.state !== "lore3") return { error: "nothing is pending" };
+  // `lore3` here means an earlier answer was cut off mid-flight and left the turn
+  // in the lore master's hands; asking again is how you take it back.
+  if (turn.state !== "arbiter" && turn.state !== "lore3") {
+    return { error: "nothing is pending" };
+  }
   const session = (campaign.sessions as any).lore3_sitting;
   const message = session
     ? text
     : prompts.lore3Turn(turn.gap || "") + "\n\n" + text;
   appendChat("you", text);
+  if (turn.state === "arbiter") hand(turn, "arbiter", "said");
 
-  const [reply, next] = await ask(message, {
-    system: prompts.LORE3_SYSTEM(),
-    tools: WRITE_TOOLS,
-    permission: sqliteGate({ readonly: false }),
-    session,
-    model: MODELS.lore3,
-  });
+  let reply: string;
+  let next: unknown;
+  try {
+    [reply, next] = await ask(message, {
+      system: prompts.LORE3_SYSTEM(),
+      tools: WRITE_TOOLS,
+      permission: sqliteGate({ readonly: false }),
+      session,
+      model: MODELS.lore3,
+    });
+  } catch (exc) {
+    // Whatever went wrong, the turn does not stay in the hands of a layer that
+    // is no longer answering — it goes back to you.
+    hand(loadTurn(turn.turn_id), "lore3", "answered");
+    throw exc;
+  }
 
   const lines = reply.trim().split("\n").filter((l) => l.trim());
   let finished = !!lines.length && lines[lines.length - 1].trim() === "RESOLVED";
@@ -68,10 +97,12 @@ export async function say(text: string) {
       `world, which is not an author: ${illegal.join(", ")}. ` +
       "Direct observation is not testimony. Remove or reattribute them, then finish.";
     appendChat("driver", note);
+    hand(loadTurn(held.current_turn!), "lore3", "answered");
     return { reply: said, resolved: false, rejected: note };
   }
 
   if (finished) await resolve();
+  else hand(loadTurn(held.current_turn!), "lore3", "answered");
   return { reply: said, resolved: finished };
 }
 
@@ -109,7 +140,10 @@ export function setNote(text: string | null) {
 export async function resolve() {
   const campaign = loadCampaign();
   if (!campaign.current_turn) return { error: "nothing is pending" };
-  const turn = loadTurn(campaign.current_turn);
+  let turn = loadTurn(campaign.current_turn);
+  // Settling it yourself is you doing the lore master's half of it, so the turn
+  // goes through the same state on its way out.
+  if (turn.state === "arbiter") turn = hand(turn, "arbiter", "said");
   if (turn.state !== "lore3") return { error: "nothing is pending" };
   (campaign.sessions as any).lore3_sitting = null;
   saveCampaign(campaign);

@@ -52,7 +52,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     if (flags.has("--json")) return say(await actions.step());
     const ran = await driver.run(1);
     const turn = ran.turn;
-    if (ran.state === "lore3") {
+    if (ran.state === "arbiter") {
       say(`[${turn.turn_id}] the world is silent. run: tesbota lore`);
       say("");
       say(String(turn.gap ?? "").trim());
@@ -89,7 +89,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         continue;
       }
       say(`[${ran.turn.turn_id}] ${ran.state}`);
-      if (ran.state === "lore3") return;
+      if (ran.state === "arbiter") return;
       await new Promise((r) => setTimeout(r, every * 1000));
     }
   },

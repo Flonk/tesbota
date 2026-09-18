@@ -87,7 +87,7 @@ export const clear = () =>
   db.writing((con) => con.prepare("DELETE FROM passage WHERE book_id = ?").run(bookId()).changes);
 
 export function played(turn: TurnT): boolean {
-  if (turn.state === "lore3") return false;
+  if (turn.state === "arbiter" || turn.state === "lore3") return false;
   if ((turn.phases || []).length) {
     return turn.phases.some((p) => p.who === "gm" && String(p.text || "").trim());
   }

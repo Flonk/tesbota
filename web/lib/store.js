@@ -158,7 +158,9 @@ export async function snapshot(profile = PROFILES[0]) {
     : 1;
 
   const gap =
-    current?.state === "lore3" ? { turn: current.turn_id, text: current.gap || "" } : null;
+    current?.state === "arbiter" || current?.state === "lore3"
+      ? { turn: current.turn_id, text: current.gap || "" }
+      : null;
 
   return { status, slides, gap, chat, talk: sitting.log || [], vitals, skills, inventory, load, quests, names: names(), job: await job(), note: campaign.note || null };
 }

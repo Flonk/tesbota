@@ -67,7 +67,7 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
       `  wakes in ${duration(left)}` +
         ((turn as any).leagues_left ? ", and the road does not get them there" : "")
     );
-  } else if (state === "lore3") {
+  } else if (state === "arbiter") {
     lines.push(`  ${WARN}the lore master is waiting on you${OFF} — run: tesbota lore`);
     lines.push("");
     for (const line of String(turn.gap ?? "").trim().split("\n")) lines.push(`  ${line}`);
@@ -86,7 +86,7 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
   }
 
   const narration = campaign.last_narration;
-  if (narration && state !== "lore3") {
+  if (narration && state !== "arbiter" && state !== "lore3") {
     lines.push("", `${DIM}  last seen:${OFF}`, wrap(narration));
   }
   return lines.join("\n");

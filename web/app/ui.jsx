@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "./icons";
 
 export function Btn({ tone = "plain", className = "", ...rest }) {
@@ -107,9 +107,13 @@ export function Bar({ label, value, max, tone }) {
   );
 }
 
-export function Bubble({ who, at, tone, children }) {
+export function Bubble({ who, at, tone, pending, children }) {
   return (
-    <div className={`bubble${who === "you" ? " you" : ""}${tone ? ` bubble-${tone}` : ""}`}>
+    <div
+      className={`bubble${who === "you" ? " you" : ""}${tone ? ` bubble-${tone}` : ""}${
+        pending ? " sending" : ""
+      }`}
+    >
       <span className="who">
         {who}
         {at && <span className="when">{at}</span>}
@@ -117,6 +121,61 @@ export function Bubble({ who, at, tone, children }) {
       <div className="msg">{children}</div>
     </div>
   );
+}
+
+/** Somebody is composing an answer. Every chat says it the same way. */
+export function Working({ who }) {
+  return (
+    <div className="bubble working">
+      <span className="who">{who}</span>
+      <div className="msg">
+        <span className="dots" aria-label="writing">
+          <i />
+          <i />
+          <i />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * What you just said, held in front of you until the world hands it back.
+ *
+ * Every message makes a round trip through a file on disk and a poll before it
+ * comes back as part of the log, which is seconds at best. Showing it the moment
+ * you send it is the difference between a chat and a form. An echo is counted out
+ * rather than matched on its words, so saying the same thing twice still shows
+ * twice, and it is dropped the moment the log is that much longer than it was.
+ */
+export function useEcho(log) {
+  const [echo, setEcho] = useState([]);
+  const next = useRef(0);
+  const mine = log.filter((m) => m.role === "you").length;
+
+  useEffect(() => {
+    setEcho((held) => {
+      const left = held.filter((e) => mine < e.want);
+      return left.length === held.length ? held : left;
+    });
+  }, [mine]);
+
+  const echoed = useCallback(
+    (text) => {
+      const mark = (next.current += 1);
+      setEcho((held) => [...held, { mark, text, want: mine + held.length + 1 }]);
+      return mark;
+    },
+    [mine]
+  );
+
+  // A send the world would not take never becomes a message, so its echo has to
+  // go — otherwise it sits there greyed out forever looking like it is on its way.
+  const forget = useCallback(
+    (mark) => setEcho((held) => held.filter((e) => e.mark !== mark)),
+    []
+  );
+  return [echo, echoed, forget];
 }
 
 export function Thread({ stick, children }) {

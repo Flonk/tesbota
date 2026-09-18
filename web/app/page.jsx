@@ -43,8 +43,11 @@ const MOOD = {
 
 function mood(status, busy) {
   if (status.paused) return "the world is held";
+  // The silence is said before anything else, because a job is running through
+  // all of it and "the world turns" would swallow whose turn it is to write.
+  if (status.state === "arbiter") return "the world is silent";
+  if (status.state === "lore3") return "the lore master is writing";
   if (busy) return "the world turns";
-  if (status.state === "lore3") return "the world is silent";
   if (status.state === "clock") {
     return `the adventurer walks${status.wakesIn ? ` — ${status.wakesIn} to go` : ""}`;
   }
@@ -87,7 +90,8 @@ function Status({ status }) {
       </span>
     );
   }
-  if (status.state === "lore3") return <span className="stat warn">the world is silent</span>;
+  if (status.state === "arbiter") return <span className="stat warn">the world is silent</span>;
+  if (status.state === "lore3") return <span className="stat gold">the lore master is writing</span>;
   return <span className="stat">{PHASE[status.state] || status.state}</span>;
 }
 
@@ -548,6 +552,9 @@ export default function Page() {
   const pinned = useRef(true);
   const shown = useRef(null);
   const wasBlocked = useRef(false);
+  // Requests that answer for themselves rather than through a job file. A poll
+  // must not decide the world is idle while one of them is still out.
+  const flight = useRef(0);
 
   const busy = pending || (data?.job?.running ? data.job.label || "step" : null);
 
@@ -556,11 +563,15 @@ export default function Page() {
     if (res.ok) setData(await res.json());
   }, []);
 
+  // A quiet world is polled slowly; one with something in flight is polled fast,
+  // because that is when a chat is waiting to be told what has happened.
+  const moving = !!pending || !!data?.job?.running || data?.status?.state === "lore3";
+
   useEffect(() => {
     load();
-    const id = setInterval(load, 4000);
+    const id = setInterval(load, moving ? 1000 : 4000);
     return () => clearInterval(id);
-  }, [load]);
+  }, [load, moving]);
 
   useEffect(() => {
     if (data?.names) knowNames(data.names);
@@ -661,14 +672,14 @@ export default function Page() {
 
   useEffect(() => {
     if (!data) return;
-    if (!data.job?.running) setPending(null);
+    if (!data.job?.running && !flight.current) setPending(null);
     const failed = data.job?.error || null;
     if (failed && failed !== shown.current) {
       shown.current = failed;
       setError(failed);
     }
     if (!failed) shown.current = null;
-    const stuck = data.status?.state === "lore3";
+    const stuck = data.status?.state === "arbiter";
     if (stuck && !wasBlocked.current) {
       setTab("chat");
       pickSub("chat", "lore");
@@ -787,6 +798,7 @@ export default function Page() {
     setPending(label);
     setError(null);
     shown.current = null;
+    flight.current += 1;
     try {
       const res = await fetch(path, {
         method: "POST",
@@ -797,13 +809,27 @@ export default function Page() {
       try {
         payload = await res.json();
       } catch {}
-      if (!res.ok) setError(`${res.status} — ${label} did not start`);
-      else if (payload?.busy) setError(`already running: ${payload.label || "a step"}`);
-      else if (payload?.error && payload.error !== "nothing is pending") setError(payload.error);
+      let ok = true;
+      if (!res.ok) {
+        setError(`${res.status} — ${label} did not start`);
+        ok = false;
+      } else if (payload?.busy) {
+        setError(`already running: ${payload.label || "a step"}`);
+        ok = false;
+      } else if (payload?.error && payload.error !== "nothing is pending") {
+        setError(payload.error);
+        ok = false;
+      }
+      flight.current -= 1;
       await load();
+      // Whoever asked has to be told whether it was taken, so that what they
+      // wrote can be put back in front of them rather than quietly dropped.
+      return { ok, payload };
     } catch (err) {
+      flight.current -= 1;
       setPending(null);
       setError(String(err));
+      return { ok: false, payload: null };
     }
   }
 
@@ -811,7 +837,8 @@ export default function Page() {
 
   const { status, slides, gap, chat, vitals, skills, inventory } = data;
   const quests = data.quests || [];
-  const blocked = status.state === "lore3";
+  const blocked = status.state === "arbiter";
+  const answering = status.state === "lore3";
   const open = quests.filter((q) => q.status === "active").length;
 
   return (
@@ -1013,6 +1040,7 @@ export default function Page() {
               chat={chat}
               busy={busy}
               blocked={blocked}
+              answering={answering}
               onSay={(t) => post("/api/say", { text: t }, "say")}
             />
           )}
