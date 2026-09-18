@@ -18,12 +18,12 @@ import * as sheet from "./sheet.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
 import {
-  APPAREL_ICON, EXPLORER, FIRST_NAMES, ITEM_TYPES, PLACE_TYPES, RARITY,
+  APPAREL_ICON, EXPLORER, FIRST_NAMES, ITEM_TYPES, PLACE_TYPES, PROFILE, RARITY,
   STARTING_INVENTORY, SURNAME, TRAITS,
 } from "./config.ts";
 import {
-  allTurns, catalogue, ensureLayout, explorerName, loadCampaign, loadTurn, now,
-  parse, saveCampaign, stock,
+  allTurns, campaignIfAny, catalogue, ensureLayout, explorerName, loadCampaign,
+  loadTurn, now, parse, saveCampaign, stock,
 } from "./state.ts";
 
 const say = (x: unknown) => console.log(typeof x === "string" ? x : JSON.stringify(x));
@@ -261,6 +261,15 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 };
 
+/**
+ * `init` is the only thing that brings a world into being. Everything else either
+ * needs one already or does not care — and the ones that need one must say so
+ * rather than quietly minting an adventurer to answer with, which is what reading
+ * an empty profile used to do.
+ */
+const MAKES = "init";
+const NEEDS_NOBODY = new Set(["machine", "check", "prompts", "library", "map", "traits"]);
+
 async function main() {
   const [, , command, ...argv] = process.argv;
   if (!command || command === "--help" || command === "-h") {
@@ -275,6 +284,14 @@ async function main() {
   }
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
   const rest = argv.filter((a) => !a.startsWith("--"));
+
+  if (command !== MAKES && !NEEDS_NOBODY.has(command) && !campaignIfAny()) {
+    const said = { error: `no world in ${PROFILE} yet — run: tesbota init` };
+    say(flags.has("--json") ? said : said.error);
+    process.exitCode = 3;
+    return;
+  }
+
   await run({ flags, rest });
 }
 

@@ -143,7 +143,7 @@ export async function snapshot(profile = PROFILES[0]) {
   const vitals = campaign.vitals || { health: 100, fatigue: 0, hunger: 0 };
   const skills = campaign.skills || {};
   const quests = campaign.quests || [];
-  const inventory = holdings(EXPLORER);
+  const inventory = holdings(explorerOf(profile));
   const capacity = Math.round((skills.abilities?.str ?? 10) * CARRY_PER_STR * 10) / 10;
   const load = {
     carried:
@@ -174,7 +174,11 @@ function alive(pid) {
 }
 
 const CANON = path.join(ROOT, "canon.db");
-const EXPLORER = "the-explorer";
+// One world, a holder for each adventurer walking it — the same rule the cli
+// keeps in config.ts. Reading the wrong one shows somebody else's kit, and once
+// that somebody is gone it shows none at all.
+const explorerOf = (profile) =>
+  profile && profile !== PROFILES[0] ? `the-explorer-${profile}` : "the-explorer";
 const CARRY_PER_STR = 0.5;
 const OVER_DRAG = 10;
 

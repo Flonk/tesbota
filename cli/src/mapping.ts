@@ -13,7 +13,7 @@
 import * as db from "./db.ts";
 import * as travel from "./travel.ts";
 import { seeded as seededRng, type Rng } from "./rng.ts";
-import { allTurns, loadCampaign, saveCampaign } from "./state.ts";
+import { allTurns, campaignIfAny, loadCampaign, saveCampaign } from "./state.ts";
 
 export const SEED = 1729;
 export const ROUNDS = 600;
@@ -280,7 +280,8 @@ export function relax(
  * the answer is kept on the campaign.
  */
 export function walked(): Set<string> {
-  const campaign = loadCampaign();
+  const campaign = campaignIfAny();
+  if (!campaign) return new Set();
   const seen = new Set<string>(((campaign as any).walked || []) as string[]);
   const mark = String((campaign as any).walked_through || "");
   let latest = mark;

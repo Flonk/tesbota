@@ -98,6 +98,14 @@ export function stock(inventory: readonly (KitEntry | string)[]) {
   }
 }
 
+/**
+ * The campaign if there is one, and nothing if there is not. Reading the world
+ * should never bring an adventurer into being — a map drawn on an empty profile
+ * was minting a name and a life to draw it with.
+ */
+export const campaignIfAny = (): CampaignT | null =>
+  fs.existsSync(CAMPAIGN) ? loadCampaign() : null;
+
 export function loadCampaign(): CampaignT {
   if (!fs.existsSync(CAMPAIGN)) {
     const made = newCampaign();
