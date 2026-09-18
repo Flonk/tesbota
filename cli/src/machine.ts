@@ -11,7 +11,14 @@
  * given, and a state added here appears there without anybody drawing it.
  */
 
-export type Kind = "agent" | "roll" | "book" | "wait" | "end";
+/**
+ * Who does the work in a state. Every prompt layer is one of these, and so are the
+ * two that are not agents at all: `cli` for what the driver does on its own, and
+ * `human` for what waits on a person.
+ */
+export type Runs =
+  | "explorer" | "propose" | "gm" | "lore1" | "lore2" | "questmaster"
+  | "cli" | "human";
 
 /**
  * The states, named once. Everything else is derived from this, so adding one
@@ -36,8 +43,8 @@ export type Edge = {
 export type State = {
   /** what happens while the world is here */
   readonly does: string;
-  /** what kind of work it is, which is what the diagram colours by */
-  readonly kind: Kind;
+  /** who does the work here, which is what the diagram colours by */
+  readonly runs: Runs;
   /**
    * Which prompt layers this state asks, in the order it asks them. This is the
    * honest count of what a turn costs, and it is here because a state named after
@@ -56,7 +63,7 @@ export type State = {
 export const STATES: Record<StateName, State> = {
   explorer: {
     does: "the adventurer decides what to do with the turn",
-    kind: "agent",
+    runs: "explorer",
     agents: ["explorer"],
     driven: "loop",
     edges: [
@@ -70,7 +77,7 @@ export const STATES: Record<StateName, State> = {
 
   answer: {
     does: "the game master answers without the world moving",
-    kind: "agent",
+    runs: "gm",
     agents: ["gm"],
     driven: "loop",
     edges: [{ to: "lore1", on: "answered", when: "the answer needs checking" }],
@@ -78,7 +85,7 @@ export const STATES: Record<StateName, State> = {
 
   propose: {
     does: "the game master prices the action — how long, how tiring, how it could go",
-    kind: "agent",
+    runs: "propose",
     agents: ["propose", "queries"],
     driven: "loop",
     edges: [
@@ -89,7 +96,7 @@ export const STATES: Record<StateName, State> = {
 
   gm: {
     does: "the game master narrates what happens",
-    kind: "agent",
+    runs: "gm",
     agents: ["gm"],
     driven: "loop",
     edges: [
@@ -100,7 +107,7 @@ export const STATES: Record<StateName, State> = {
 
   muster: {
     does: "the only lore check a fight gets: the declaration and every body in it",
-    kind: "agent",
+    runs: "lore2",
     agents: ["lore1", "lore2"],
     driven: "loop",
     edges: [
@@ -112,7 +119,7 @@ export const STATES: Record<StateName, State> = {
 
   swing: {
     does: "the adventurer is asked what to do with this round of theirs",
-    kind: "agent",
+    runs: "explorer",
     agents: ["explorer"],
     driven: "loop",
     edges: [{ to: "fight", on: "chose", when: "they said what they are doing" }],
@@ -120,7 +127,7 @@ export const STATES: Record<StateName, State> = {
 
   fight: {
     does: "one body takes its turn — the driver rolls, nobody argues",
-    kind: "roll",
+    runs: "cli",
     agents: [],
     driven: "loop",
     edges: [
@@ -132,7 +139,7 @@ export const STATES: Record<StateName, State> = {
 
   blows: {
     does: "the game master puts words on the exchange that was already rolled",
-    kind: "agent",
+    runs: "gm",
     agents: ["gm"],
     driven: "loop",
     edges: [{ to: "deliver", on: "written", when: "the fight was checked at its muster" }],
@@ -140,7 +147,7 @@ export const STATES: Record<StateName, State> = {
 
   lore1: {
     does: "reads the world out of the narration — it cannot see canon, only the words",
-    kind: "agent",
+    runs: "lore1",
     agents: ["lore1"],
     driven: "loop",
     edges: [
@@ -151,7 +158,7 @@ export const STATES: Record<StateName, State> = {
 
   lore2: {
     does: "rules on every claim against the record, and it is the only layer that reads canon",
-    kind: "agent",
+    runs: "lore2",
     agents: ["lore2"],
     driven: "loop",
     edges: [
@@ -165,7 +172,7 @@ export const STATES: Record<StateName, State> = {
 
   deliver: {
     does: "the turn is applied — vitals, inventory, quests, the clock, the fight's wounds",
-    kind: "roll",
+    runs: "cli",
     agents: ["questmaster"],
     driven: "loop",
     edges: [
@@ -176,7 +183,7 @@ export const STATES: Record<StateName, State> = {
 
   narrate: {
     does: "the narrator sets the turn down as a passage of the life",
-    kind: "book",
+    runs: "cli",
     agents: [],
     driven: "loop",
     edges: [{ to: "done", on: "written", when: "it is in the book" }],
@@ -184,7 +191,7 @@ export const STATES: Record<StateName, State> = {
 
   lore3: {
     does: "the world is silent and holds until somebody writes what is missing",
-    kind: "wait",
+    runs: "human",
     agents: ["lore3"],
     driven: "held",
     edges: [
@@ -196,7 +203,7 @@ export const STATES: Record<StateName, State> = {
 
   clock: {
     does: "they are walking, and real time has to pass before they arrive",
-    kind: "wait",
+    runs: "cli",
     agents: [],
     driven: "held",
     edges: [
@@ -207,7 +214,7 @@ export const STATES: Record<StateName, State> = {
 
   done: {
     does: "the turn is closed and the next one begins",
-    kind: "end",
+    runs: "cli",
     agents: [],
     driven: "held",
     edges: [
@@ -233,7 +240,7 @@ export function describe() {
     states: STATE_NAMES.map((name) => ({
       name,
       does: STATES[name].does,
-      kind: STATES[name].kind,
+      runs: STATES[name].runs,
       agents: STATES[name].agents,
       driven: STATES[name].driven,
       calls: STATES[name].agents.length,

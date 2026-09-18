@@ -15,13 +15,7 @@ import { Empty, Pill } from "./ui";
  * that has to know about pixels.
  */
 
-const KIND = {
-  agent: { what: "an agent is asked" },
-  roll: { what: "the driver decides" },
-  book: { what: "it is written down" },
-  wait: { what: "the world holds" },
-  end: { what: "the turn closes" },
-};
+
 
 const ROW = 24;   // how tall a pill sits
 const LEAP = 26;  // the gap between one row and the next
@@ -272,11 +266,16 @@ export default function Machine({ status }) {
                       style={{ left: at.x, top: at.y, width: at.w, height: ROW,
                                fontSize: `${plan.type}px` }}>
                   <Pill
-                    className={`mpill k-${s.kind}${here === s.name ? " mhere" : ""}`}
+                    className={
+                      `mpill r-${s.runs}` +
+                      (s.driven === "held" ? " mheld" : "") +
+                      (here === s.name ? " mhere" : "")
+                    }
                     on={here === s.name || picked === s.name}
                     title={
                       `${s.does}` +
-                      (s.agents?.length ? `\n\nasks: ${s.agents.join(", ")}` : "") +
+                      `\n\nruns: ${s.runs}` +
+                      (s.agents?.length ? `\nasks: ${s.agents.join(", ")}` : "") +
                       (s.driven === "held" ? "\n\nthe loop does not step this one" : "")
                     }
                     onClick={() => setPicked(picked === s.name ? null : s.name)}
@@ -298,9 +297,9 @@ export default function Machine({ status }) {
               <strong className="mtitle">{told.name}</strong>
               <span className="dim"> — {told.does}</span>
             </p>
-            {told.agents?.length > 0 && (
-              <p className="masks">asks {told.agents.join(", ")}</p>
-            )}
+            <p className={`masks r-${told.runs}`}>
+              {told.agents?.length ? `asks ${told.agents.join(", ")}` : told.runs}
+            </p>
           </>
         )}
 
@@ -318,12 +317,12 @@ export default function Machine({ status }) {
           </ul>
         )}
 
-        {!told && !shown.length && (
-          <div className="mkey">
-            {Object.entries(KIND).map(([kind, { what }]) => (
-              <span key={kind} className={`mkeyone k-${kind}`}>
+        {table && (
+          <div className="mlegend">
+            {[...new Set(table.states.map((x) => x.runs))].sort().map((who) => (
+              <span key={who} className={`mlegendone r-${who}`}>
                 <i className="mswatch" />
-                {kind} <span className="dim">— {what}</span>
+                {who}
               </span>
             ))}
           </div>
