@@ -242,6 +242,7 @@ const ROWS = `
          (SELECT count(*) FROM holding h WHERE h.holder = e.id) AS keeps,
          (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
          (SELECT count(*) FROM tagged tg WHERE tg.aspect = e.id) AS marks,
+         (SELECT count(*) FROM grants gr WHERE gr.aspect = e.id) AS gives,
          (SELECT count(*) FROM book b WHERE b.author_id = e.id) AS wrote,
          (SELECT pr.work FROM person pr WHERE pr.id = e.id) AS work,
          (SELECT pr.born FROM person pr WHERE pr.id = e.id) AS born,
@@ -303,7 +304,8 @@ export function entities(kind) {
     });
     if (kind) return rows.all(kind).map(shape);
     const out = {};
-    for (const k of ["places", "people", "items", "aspects"]) out[k] = rows.all(k).map(shape);
+    for (const k of ["places", "people", "items", "aspects", "abilities"])
+      out[k] = rows.all(k).map(shape);
     return out;
   } finally {
     db.close();
@@ -467,7 +469,39 @@ export function entity(id) {
       )
       .all(ident);
 
+    if (row.kind === "abilities") {
+      bundle.ability =
+        db.prepare(`SELECT * FROM ability WHERE id = ?`).get(ident) || null;
+      if (bundle.ability?.spawn) {
+        try {
+          bundle.ability.spawn = JSON.parse(bundle.ability.spawn);
+        } catch {}
+      }
+      bundle.granted = db
+        .prepare(
+          `SELECT g.aspect AS id, coalesce(e.name, replace(g.aspect, '-', ' ')) AS name
+             FROM grants g LEFT JOIN entity e ON e.id = g.aspect
+            WHERE g.ability = ? ORDER BY g.id`
+        )
+        .all(ident);
+    }
+
     if (row.kind === "aspects") {
+      bundle.grants = db
+        .prepare(
+          `SELECT a.*, coalesce(e.name, replace(a.id, '-', ' ')) AS name
+             FROM grants g JOIN ability a ON a.id = g.ability
+             LEFT JOIN entity e ON e.id = a.id
+            WHERE g.aspect = ? ORDER BY g.id`
+        )
+        .all(ident)
+        .map((x) => {
+          try {
+            return { ...x, spawn: x.spawn ? JSON.parse(x.spawn) : null };
+          } catch {
+            return { ...x, spawn: null };
+          }
+        });
       bundle.marks = db
         .prepare(
           `SELECT t.entity, t.value, coalesce(e.name, replace(t.entity, '-', ' ')) AS name, e.kind

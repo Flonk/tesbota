@@ -19,8 +19,11 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
                                                        slot: helmet | chest | legs | feet |
                                                        mainhand | offhand | ring, or none
     effect(item, stat, amount)                         what a thing does, a row per stat
-    aspect(id, applies, ability)                       a mark things can carry
+    aspect(id)                                         a mark things can carry
     tagged(entity, aspect, value)                      who carries it, and what of
+    ability(id, damage, advantage, cooldown, sleep, delay, spawn, within, in_aspect, in_kind, doing)
+                                                       what a body can do
+    grants(aspect, ability)                            what a mark hands out
     holding(holder, item, qty, worn)                   what a place, a person or the explorer keeps
 
     writing(ref, entity, kind, section, body)          every passage, with its address

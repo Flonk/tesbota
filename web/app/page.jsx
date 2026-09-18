@@ -472,10 +472,10 @@ function Turn({ s, last, blocked, vitals }) {
   );
 }
 
-const KINDS = ["places", "people", "books", "items", "aspects"];
+const KINDS = ["places", "people", "books", "items", "aspects", "abilities"];
 const REMEMBER = "tesbota.sub";
 
-const ICONS = { places: "pin", people: "people", books: "book", items: "box", aspects: "aspect" };
+const ICONS = { places: "pin", people: "people", books: "book", items: "box", aspects: "aspect", abilities: "pulse" };
 
 const LAYER_ICON = {
   common: "lines",

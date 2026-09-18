@@ -310,3 +310,5 @@
 2026-09-17T12:33:35Z ERR Request failed error="Unable to reach the origin service. The service may be down or it may not be responding to traffic from cloudflared: dial tcp 127.0.0.1:3000: connect: connection refused" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/ event=0 ip=198.41.192.67 type=http
 2026-09-17T23:59:43Z ERR  error="Error writing response header: stream 20669 canceled by remote with error code 0" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
 2026-09-17T23:59:43Z ERR Request failed error="Error writing response header: stream 20669 canceled by remote with error code 0" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http
+2026-09-18T00:16:26Z ERR  error="Incoming request ended abruptly: context canceled" connIndex=0 event=1 ingressRule=0 originService=http://127.0.0.1:3000
+2026-09-18T00:16:26Z ERR Request failed error="Incoming request ended abruptly: context canceled" connIndex=0 dest=https://fiscal-defeat-algebra-kilometers.trycloudflare.com/api/state event=0 ip=198.41.192.67 type=http

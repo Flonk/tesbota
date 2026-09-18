@@ -19,7 +19,7 @@ function span(person) {
   return born ? `${born}–` : `–${died}`;
 }
 
-const WRITTEN = ["places", "people", "books", "items", "aspects"];
+const WRITTEN = ["places", "people", "books", "items", "aspects", "abilities"];
 
 const FILTERS = [
   { id: "stub", label: "has $BOTA", kinds: WRITTEN, test: (r) => r.stub },
@@ -152,10 +152,17 @@ const COLUMNS = {
     ],
   },
   aspects: {
-    cols: "minmax(8rem, 2fr) 5rem 5rem",
+    cols: "minmax(8rem, 2fr) 4.5rem 4.5rem",
     fields: [
       { key: "name", strong: true, label: "aspect", cell: (r) => r.name },
       { key: "marks", label: "marks", num: true, cell: (r) => COUNT(r.marks) },
+      { key: "gives", label: "grants", num: true, cell: (r) => COUNT(r.gives) },
+    ],
+  },
+  abilities: {
+    cols: "minmax(8rem, 2fr) 5rem",
+    fields: [
+      { key: "name", strong: true, label: "ability", cell: (r) => r.name },
       { key: "mentions", label: "mentioned", cell: (r) => COUNT(r.mentions), num: true },
     ],
   },
@@ -320,6 +327,7 @@ export default function Library({
       places: (world.places || []).length,
       people: (world.people || []).length,
       aspects: (world.aspects || []).length,
+      abilities: (world.abilities || []).length,
       books: books.length,
       items: (world.items || []).length,
     });

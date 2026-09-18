@@ -906,3 +906,7 @@ textarea.prompt:focus { outline: none; }
 
 .pill.flat { cursor: default; }
 .pill.flat:hover { border-color: var(--line); }
+
+.grant { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .5rem; }
+.granted { align-self: flex-start; font-size: .9rem; }
+.statdoes.dim { opacity: .7; }

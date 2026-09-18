@@ -45,6 +45,29 @@ const CONTAINS = {
   ],
 };
 
+function says(a) {
+  return [
+    a.damage ? `${a.damage} dmg` : null,
+    a.spawn ? `calls ${a.spawn.count || 1} × ${a.spawn.name}` : null,
+    a.advantage ? "advantage" : null,
+    a.cooldown ? `cooldown ${a.cooldown}` : null,
+    a.delay ? `arrives ${a.delay} round${a.delay > 1 ? "s" : ""} later` : null,
+    a.sleep ? `sleep ${a.sleep}` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function where(a) {
+  return [
+    a.within ? `within ${a.within.replace(/-/g, " ")}` : null,
+    a.in_aspect ? `somewhere ${a.in_aspect.replace(/-/g, " ")}` : null,
+    a.in_kind ? `in a ${a.in_kind.replace(/-/g, " ")}` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 const MARKS = {
   cols: "minmax(8rem, 2fr) minmax(5rem, 1fr)",
   fields: [
@@ -117,7 +140,7 @@ const HELD_BY = {
   ],
 };
 
-const KIND = { people: "person", places: "pin", books: "book", items: "box", aspects: "aspect" };
+const KIND = { people: "person", places: "pin", books: "book", items: "box", aspects: "aspect", abilities: "pulse" };
 
 function face_of(thing) {
   if (!thing) return null;
@@ -366,6 +389,44 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                     >
                       {a.name}
                       {a.value ? `: ${a.ofName || a.value}` : ""}
+                    </button>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {(thing.grants || []).length > 0 && (
+              <Section label="grants">
+                {thing.grants.map((a) => (
+                  <div className="grant" key={a.id}>
+                    <button className="dlink granted" onClick={() => openDossier(a.id)}>
+                      {a.name}
+                    </button>
+                    <span className="statdoes">{says(a)}</span>
+                    {where(a) && <span className="statdoes dim">{where(a)}</span>}
+                  </div>
+                ))}
+              </Section>
+            )}
+
+            {thing.kind === "abilities" && thing.ability && (
+              <Section label="what it does">
+                <p className="statdoes">{says(thing.ability)}</p>
+                {where(thing.ability) && (
+                  <p className="statdoes dim">{where(thing.ability)}</p>
+                )}
+                {thing.ability.doing && (
+                  <Prose className="body told" text={thing.ability.doing} />
+                )}
+              </Section>
+            )}
+
+            {(thing.granted || []).length > 0 && (
+              <Section label="granted by">
+                <div className="dtraits">
+                  {thing.granted.map((a) => (
+                    <button className="toggle pill" key={a.id} onClick={() => openDossier(a.id)}>
+                      {a.name}
                     </button>
                   ))}
                 </div>

@@ -94,6 +94,22 @@ An aspect is a mark anything can carry, and it is an entity like any other — `
       ('greta-marsch', 'citizen', 'alheim'),
       ('jost-marsch', 'citizen', 'alheim');
 
+## Abilities
+
+An ability is a thing of its own too, and it is what a body can actually do. What the driver can roll is columns; everything else is `doing`, in plain words, for the game master to play:
+
+    INSERT INTO entity (id, kind, name) VALUES ('call-guards', 'abilities', 'Call Guards');
+    INSERT INTO ability (id, cooldown, delay, within, in_aspect, spawn, doing) VALUES (
+      'call-guards', 10, 1, 'the-greater-plains', 'settlement',
+      '{"name":"Beefy Guard","health":22,"damage":"3–6","dc":14,"bonus":4,"count":3}',
+      'They shout for the guard and keep shouting.'
+    );
+    INSERT INTO grants (aspect, ability) VALUES ('honorable-citizen', 'call-guards');
+
+`damage`, `advantage`, `cooldown`, `sleep`, `delay` and `spawn` are rolled by the driver and need no telling. `delay` is how many rounds pass before what was called for turns up. `within` and `in_aspect` say where the ability counts at all — inside a named place, and somewhere carrying a named aspect. `doing` is for what no column can hold, and the game master reads it when it narrates.
+
+An aspect grants an ability through `grants`, and everything marked with the aspect has it wherever the ability counts.
+
 `value` is what the aspect is *of* — the place a citizen belongs to, the house somebody is sworn into — and it is usually an entity id. `applies` says when the aspect's `ability` counts: `always`, or `within`, which means only while standing inside the place named in `value`. `ability` is a fight ability in json, written the way the game master writes one, and it is what makes an aspect bite: raise a hand to a citizen of Alheim inside Alheim and the aspect calls the guard.
 
 Mark a thing when the marking is a fact about it, not a mood. A miller is a `person.work`; a citizen is an aspect, because the place has a claim on them.
