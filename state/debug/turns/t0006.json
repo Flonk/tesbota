@@ -1,0 +1,23 @@
+{
+  "turn_id": "t0006",
+  "state": "propose",
+  "created": "2026-09-18T01:07:04+00:00",
+  "action": "I get back up and keep going, not stopping.",
+  "draft": null,
+  "verdicts": [],
+  "correction": null,
+  "gm_retries": 0,
+  "gap": null,
+  "wake_at": null,
+  "minutes": 0,
+  "phases": [
+    {
+      "n": 1,
+      "who": "explorer",
+      "kind": "action",
+      "text": "I get back up and keep going, not stopping.",
+      "status": "said",
+      "claims": []
+    }
+  ]
+}

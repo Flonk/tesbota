@@ -9,8 +9,8 @@
     "inventory": "41e0b0194a105650",
     "others": "fa854afbb6d3fc5b"
   },
-  "current_turn": "t0005",
-  "turn_counter": 5,
+  "current_turn": "t0006",
+  "turn_counter": 6,
   "clock": {
     "hours_per_league": 1.5,
     "min_leg_minutes": 20,
@@ -47,7 +47,7 @@
     ]
   },
   "last_narration": "You don't look back, but the Nest Warden doesn't need you to — it closes the gap on the open road, and its jaws snap shut on empty air where you should have been standing, as if something with shoulder and weight had shouldered you half a step aside.\n\nYou swing the cane at the Nest Warden and it's already twisting clear, the blow finding nothing.\n\nIt closes the last of the distance in one lunge and its jaws close over your side, the impact taking your footing out from under you and slamming you into the road.\n\nYou wrench yourself back up before it can strike again and you don't stop running.",
-  "note": null,
+  "note": "The Nest Warden has caught up with Swantje on the open road. Declare the fight now, do not narrate it. them: the Nest Warden (18 health, 2-4 damage, dc 12, bonus 2). us: the dog.",
   "location": "the-road",
   "location_path": [
     {

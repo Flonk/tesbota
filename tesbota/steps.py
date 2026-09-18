@@ -478,7 +478,7 @@ def step_gm(campaign, turn):
     turn["correction"] = None
     if (draft.get("fight") or campaign.get("fight")) and not (turn.get("fight") or {}).get("blows"):
         open_fight(campaign, turn, draft)
-        turn["state"] = "swing"
+        turn["state"] = "muster"
         return campaign, turn
     turn["state"] = "lore1"
     return campaign, turn
@@ -991,7 +991,6 @@ def step_blows(campaign, turn):
     draft["narration"] = "\n\n".join(
         x for x in [fight.get("said"), *lines] if x
     ).strip()
-    draft["claims"] = out.get("claims") or []
     draft["location"] = out.get("location") or draft.get("location")
     draft["transactions"] = list(draft.get("transactions") or []) + list(out.get("transactions") or [])
     for name in turn.get("spent") or []:
@@ -1013,8 +1012,10 @@ def step_blows(campaign, turn):
     told["text"] = draft["narration"]
     told["status"] = "pending"
     turn["correction"] = None
-    turn["state"] = "lore1"
-    return campaign, turn
+    # The record was checked when the fight was declared. Swinging is the game
+    # master's alone — every blow is a particular, and particulars are never
+    # the lore master's to rule on.
+    return deliver(campaign, turn)
 
 
 MENDED = {"health": re.compile(r"([+\-\u2212]?\d+)\s*health"),
@@ -1059,22 +1060,15 @@ def derived(entries):
     return claims, verdicts
 
 
-def step_lore1(campaign, turn):
-    draft = turn["draft"]
-
-    if turn.get("opening"):
-        claims = draft.get("claims") or []
-        turn["verdicts"] = [
-            {"claim": c["id"], "result": "TRUE", "why": "the world opens here"} for c in claims
-        ]
-        return deliver(campaign, turn)
-
-    narration = draft.get("narration") or ""
+def check_record(campaign, turn, narration, roster=None):
+    """Read the world out of a narration and rule on it. The one place the lore
+    masters are asked anything, so a fight pays for it once, at its declaration."""
     read, _ = ask(
         prompts.lore1_turn(
             narration,
             where=campaign.get("location_path"),
             now=worldclock.long_stamp(campaign.get("time")),
+            roster=roster,
         ),
         system=prompts.LORE1_SYSTEM,
         tools=[],
@@ -1093,7 +1087,7 @@ def step_lore1(campaign, turn):
         model=MODELS["lore2"],
     )
     claims, verdicts = derived(extract_json(text).get("claims", []))
-    draft["claims"] = claims
+    turn["draft"]["claims"] = claims
 
     settled = {plain(t) for t in (campaign.get("settled") or [])}
     for verdict in verdicts:
@@ -1101,27 +1095,78 @@ def step_lore1(campaign, turn):
         if claim and plain(claim.get("text")) in settled:
             verdict.update(result="WITHIN_BOUNDS", why="already ruled on")
     turn["verdicts"] = verdicts
+    return claims, verdicts
+
+
+def hold_for_lore(campaign, turn, claims, unresolved):
+    """Nothing can go on until somebody writes the missing document."""
+    by_id = {c["id"]: c for c in claims}
+    turn["gap"] = "\n".join(
+        "- "
+        + ((v.get("question") or "").strip() or by_id.get(v["claim"], {}).get("text", v["claim"]))
+        for v in unresolved
+    )
+    blocked = open_phase(turn)
+    if blocked:
+        blocked["status"] = "blocked"
+    campaign["quiet"] = 0
+    turn["state"] = "awaiting_human"
+    return campaign, turn
+
+
+def step_muster(campaign, turn):
+    """The whole of the lore master's part in a fight. Everything it puts on the
+    ground is ruled on once, here, before a die is thrown — after this the fight
+    belongs to the game master and nobody checks a blow."""
+    fight = turn["fight"]
+    claims, verdicts = check_record(
+        campaign, turn, fight.get("said") or "", roster=prompts.muster(fight)
+    )
+
+    unresolved = [v for v in verdicts if v.get("result") == "UNRESOLVED"]
+    if unresolved:
+        return hold_for_lore(campaign, turn, claims, unresolved)
+
+    false_ones = [v for v in verdicts if v.get("result") == "FALSE"]
+    if false_ones:
+        if turn["gm_retries"] >= MAX_GM_RETRIES:
+            turn["gap"] = (
+                "The game master could not declare a fight that survives adjudication.\n\n"
+                + json.dumps({"false": false_ones}, indent=2)
+            )
+            turn["state"] = "awaiting_human"
+            return campaign, turn
+        turn["gm_retries"] += 1
+        turn["correction"] = json.dumps({"contradicts_the_record": false_ones}, indent=2)
+        turn.pop("fight", None)
+        turn["phases"] = [x for x in turn.get("phases") or [] if x.get("kind") != "fight"]
+        turn["state"] = "gm"
+        return campaign, turn
+
+    turn["correction"] = None
+    turn["state"] = "swing"
+    return campaign, turn
+
+
+def step_lore1(campaign, turn):
+    draft = turn["draft"]
+
+    if turn.get("opening"):
+        claims = draft.get("claims") or []
+        turn["verdicts"] = [
+            {"claim": c["id"], "result": "TRUE", "why": "the world opens here"} for c in claims
+        ]
+        return deliver(campaign, turn)
+
+    narration = draft.get("narration") or ""
+    claims, verdicts = check_record(campaign, turn, narration)
 
     by_id = {c["id"]: c for c in claims}
     false_ones = [v for v in verdicts if v.get("result") == "FALSE"]
     unresolved = [v for v in verdicts if v.get("result") == "UNRESOLVED"]
 
     if unresolved:
-        turn["gap"] = "\n".join(
-            "- "
-            + (
-                (v.get("question") or "").strip()
-                or by_id.get(v["claim"], {}).get("text", v["claim"])
-            )
-            for v in unresolved
-        )
-        blocked = open_phase(turn)
-        if blocked:
-            blocked["status"] = "blocked"
-        campaign["quiet"] = 0
-        turn["state"] = "awaiting_human"
-        return campaign, turn
-
+        return hold_for_lore(campaign, turn, claims, unresolved)
 
     exhausted = too_tired(campaign, draft)
     if exhausted and not turn.get("fate") and turn["gm_retries"] < MAX_GM_RETRIES:
@@ -1567,6 +1612,7 @@ STEPS = {
     "answer": step_answer,
     "propose": step_propose,
     "gm": step_gm,
+    "muster": step_muster,
     "swing": step_swing,
     "fight": step_fight,
     "blows": step_blows,

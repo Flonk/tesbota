@@ -202,10 +202,10 @@ Never write the tallies out. The numbers are on the page beside your line, and a
 
 Reply in the same json shape you always use, with `blows` in place of `narration`:
 
-    {{"blows": ["…", "…"], "claims": [], "location": "kebab-id",
+    {{"blows": ["…", "…"], "location": "kebab-id",
      "transactions": [], "quest_open": [], "quest_update": [], "quest_close": []}}
 
-`minutes`, `fatigue`, `health`, `check` and `fight` are not yours this time — the fight already cost what it cost. `transactions` still are: what comes off a body, what breaks, what is dropped."""
+`claims` are not yours this time either — the record was checked when the fight was declared, and a blow is a particular, which nobody rules on. `minutes`, `fatigue`, `health`, `check` and `fight` are not yours this time — the fight already cost what it cost. `transactions` still are: what comes off a body, what breaks, what is dropped."""
 
 FIGHT_FATE = """The dice also went hard against them, in the doing of this. Put it in the fight, in the blow it belongs to — the strap goes, the footing goes, something arrives. Do not soften it and do not undo a blow."""
 
@@ -418,7 +418,7 @@ def gm_propose(action, previous=None, vitals=None, answers=None, note=None, inve
     return "\n\n".join(parts)
 
 
-def lore1_turn(narration, where=None, now=None):
+def lore1_turn(narration, where=None, now=None, roster=None):
     parts = []
     if where:
         named = [w.get("name") or w.get("id") if isinstance(w, dict) else str(w) for w in where]
@@ -426,8 +426,43 @@ def lore1_turn(narration, where=None, now=None):
     if now:
         parts.append(f"When: {now}")
     parts.append(f"What the game master narrated:\n\n{narration}")
+    if roster:
+        parts.append(
+            "A fight is being declared, and these are the bodies it puts on the "
+            "ground. They are as much of an assertion as the sentences are — take "
+            "the kinds and the capabilities out of them too:\n\n" + roster
+        )
     parts.append("Write down what it asserts about the world.")
     return "\n\n".join(parts)
+
+
+def muster_line(who):
+    bits = [who.get("name") or "somebody"]
+    if who.get("most"):
+        bits.append(f"{who['most']} health")
+    if who.get("damage"):
+        bits.append(f"{who['damage']} damage")
+    if who.get("defense"):
+        bits.append(f"{who['defense']} defense")
+    power = who.get("ability") or {}
+    if power.get("name"):
+        said = [power["name"]]
+        if power.get("damage"):
+            said.append(f"{power['damage']} damage")
+        called = (power.get("spawn") or {}).get("name")
+        if called:
+            said.append(f"calls in {called}")
+        bits.append("can " + ", ".join(said))
+    return "- " + ", ".join(bits)
+
+
+def muster(fight):
+    sides = []
+    for side, label in (("them", "Against them"), ("us", "With them")):
+        bodies = [x for x in fight.get(side) or [] if x.get("kind") != "explorer"]
+        if bodies:
+            sides.append(label + ":\n" + "\n".join(muster_line(x) for x in bodies))
+    return "\n\n".join(sides)
 
 
 def lore2_turn(narration, facts):

@@ -29,6 +29,7 @@ const MOOD = {
   propose: "the adventurer is deciding",
   answer: "it looks closer",
   gm: "the world turns",
+  muster: "the record is being checked",
   swing: "the fight is on — their move",
   fight: "the fight is on — blows falling",
   blows: "the fight is being written",

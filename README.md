@@ -43,6 +43,16 @@ godhead`, who states the world's laws, and `The Narrator`, who keeps the record 
 what has actually happened. Every other author is
 testimony, and may be contradicted freely.
 
+The two are infallible about different things, and conflating them is how the
+whole thing goes circular. The godhead settles what the world is *like*. The
+narrator settles only that something *happened*, and licenses nothing beyond it:
+a rat attacking in the chronicle does not establish that rats exist, and a proper
+noun first appearing there is not thereby recorded. The chronicle is the world's
+memory of a turn, never the document that permitted it — anything in it was
+settled elsewhere or was never settled at all. Neither is the scene under
+adjudication its own evidence: that a thing is named and acting in the narration
+is the question, not the answer.
+
 So lore master 1 returns four verdicts:
 
 - **TRUE** — nothing contradicts it
@@ -64,10 +74,11 @@ at `bota://books/the-life-of-lene-bota`. No call, no prompt, no model. The turn 
 already on disk; setting it down is string work.
 
 The book is one row in `entity`, one in `book` — author `The Narrator`, rarity
-`unique` — and one `passage` row per turn, in turn order. Because it is godhead-class
-it is law, and nothing any other layer narrates or claims may contradict it. That is
-what holds the observed world together, and it is why there is no longer a special
-kind of claim doing the same job badly.
+`unique` — and one `passage` row per turn, in turn order. Nothing any other layer
+narrates or claims may contradict it, and that is what holds the observed world
+together. It cuts one way only: the chronicle is unarguable about what happened
+and is evidence for nothing about what is, so a lore master that can find nothing
+for a claim but the chronicle has found nothing.
 
 Every life gets its own book. The adventurer is named when a campaign starts — a
 first name off a pool, the family name always `Bota` — and the title and the id
@@ -281,7 +292,8 @@ every place by whether the explorer has walked it, whether something merely reco
 it, or whether it is only a name somebody wrote down.
 
 One component per job, in `web/app/ui.jsx`. `Tag` is a verdict, `Pill` is a name,
-`Mark` is an icon with its words. Do not write a second one.
+`Mark` is an icon with its words, `Crumb` is a chain of places. Do not write a
+second one.
 
 The library's last tab is **data**: the machine looking at itself. `names` is the
 pool a new adventurer is drawn from, marked where a name is already spoken for,
@@ -439,7 +451,8 @@ see what canon already holds, so it cannot quietly frame a fact to fit.
 
 ## Verdicts
 
-- **TRUE** — the record affirms it: a godhead book or the narrator's says so.
+- **TRUE** — the record affirms it: a godhead book says so, or it implies nothing
+  beyond the moment. Never the narrator's book, and never the narration being ruled on.
 - **WITHIN_BOUNDS** — nothing establishes it, but it follows from what does: ordinary
   furniture, or the only sensible continuation of the record. It stands, and lore
   master 1 settles it rather than escalating. The common verdict.
@@ -451,6 +464,17 @@ see what canon already holds, so it cannot quietly frame a fact to fit.
 
 TRUE and WITHIN_BOUNDS both deliver; only FALSE costs a redraft. What
 is recorded is the narrator's passage, written once the whole turn is through.
+
+**A fight is adjudicated once, at its declaration.** The game master declares who
+is on the ground, and the `muster` step puts that declaration and the whole roster
+— every body, its health, its damage, what it can do — through lore masters 1 and
+2. FALSE sends the fight back to be declared again; UNRESOLVED holds the world
+until somebody writes the missing document. Past that the fight is the game
+master's alone: the blows are rolled by the driver and narrated by the game
+master, and no lore master sees any of it. A blow is a particular — one body doing
+one thing at one moment — and particulars were never theirs to rule on. Checking
+them turn by turn asked the same questions thirty times and answered them out of
+the scene itself.
 
 A lore session is archived onto the turn that triggered it. When the silence is
 filled the conversation moves from the live chat into the turn record, along with

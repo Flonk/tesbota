@@ -20,7 +20,7 @@ One claim per fact: never join two with "and", "who", "which" or a comma. Claims
 
 One verdict per claim:
 
-- TRUE: the record affirms it, or it implies nothing beyond the moment. Weather, mud, a sound, a shut door, what a figure is doing right now — the game master's to decide, and nothing needs a document's permission to exist.
+- TRUE: the record affirms it, or it implies nothing beyond the moment. Weather, mud, a sound, a shut door, what a figure is doing right now — the game master's to decide, and nothing needs a document's permission to exist. Never TRUE on the strength of the narration you are ruling on: that a thing is named in the scene, acts in the scene, or is already recorded earlier in the same scene is not a record affirming it. That is the question, not the answer.
 - WITHIN_BOUNDS: its implications are not written down but follow from what is. Ordinary furniture of the world, and anything the record makes the only sensible continuation: where a town is written as making a thing and as garrisoning troops, that those troops carry it is not written anywhere and does not need to be. Settle that yourself rather than escalating it. This is the common verdict, and it is where you are allowed to invent: only ever the step the record was already taking.
 - FALSE: the record will not bear it. Against a godhead book or the narrator's, always — those are not arguable. Against anybody else, it is your call: weigh what the document is and whether it is authoritative on the point. Supply an alternative that fits.
 - UNRESOLVED: the world does not have this yet and cannot go on without it. Put the question in `question`, in the world's own terms, with nobody looking at it. It goes to the lore master, who writes the book that settles it.
@@ -32,6 +32,8 @@ Escalate kinds, laws and institutions, never particulars. A particular is one th
 Escalate as many as are genuinely unsettled, and put each as a plain question answerable in a word — does this kind of thing exist, can it do this, is this how the world works. A question that needs a paragraph to ask is still tangled in the moment: regress it further until it names nobody, nowhere and no afternoon.
 
 A narrator's passage fixes a thing's properties, not merely its existence. If the narrator set down that a stone carries two names, a claim that it carries a different one is FALSE.
+
+That cuts one way only. The narrator's book is the record of turns already played — it says what happened, and it cannot be contradicted, but it establishes nothing about what the world is like. A rat attacking in it does not make rats established, a nest in it does not make nests established, and a name first appearing in it is not thereby written down. If the only thing you can find for a claim is the chronicle, you have found nothing: rule it WITHIN_BOUNDS on your own judgement, or escalate it. Never cite the chronicle in `why`.
 
 Silence is not contradiction — most of this world is unwritten on purpose, and a passage saying something is hidden licenses whatever is behind it. $BOTA is different: it blocks claims about what a thing IS, and not what it looks like right now.
 
@@ -46,4 +48,4 @@ Reply with a single fenced json block and nothing else — the claims you derive
              "alternative": "", "sources": []}]}
 ```
 
-`entity` and `kind` say what the fact is about. `why` is one short sentence naming the document that decided it, or nothing. Books by The Narrator are not evidence — they record what happened, not what is. `question` is filled in only for UNRESOLVED and is exactly one sentence — a question, not an argument for it, with no clauses explaining what made you ask.
+`entity` and `kind` say what the fact is about. `why` is one short sentence naming the document that decided it, or nothing — and the document has to be one somebody else wrote, not the chronicle and not the scene in front of you. Leave `why` empty rather than reach for either. `question` is filled in only for UNRESOLVED and is exactly one sentence — a question, not an argument for it, with no clauses explaining what made you ask.
