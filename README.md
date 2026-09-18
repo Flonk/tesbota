@@ -128,22 +128,29 @@ A deeplink pointing at a row nobody has written is an unresolved fact.
 
 ## Use
 
+The world runs on node. There is no build step — node strips the types.
+
 ```
 nix-shell
-uv sync
-uv run tesbota init
-uv run tesbota step      # advance until something suspends
-uv run tesbota status    # where things stand, how long until the adventurer wakes
-uv run tesbota lore      # sit down with lore master 3 and end a silence
-uv run tesbota talk "…"  # say one thing to lore master 4, any time
-uv run tesbota chronicle # the narrator's book, the life so far
-uv run tesbota holdings  # what everybody in the world is keeping
-uv run tesbota map       # the world as mermaid; --json for the solved layout
-uv run tesbota kill      # end this life; the next step sets a new one walking
+cd cli && npm install
+node cli/src/index.ts init
+node cli/src/index.ts step      # advance until something suspends
+node cli/src/index.ts status    # where things stand, how long until they wake
+node cli/src/index.ts machine   # every state and edge, and an audit of them
+node cli/src/index.ts talk "…"  # say one thing to lore master 4, any time
+node cli/src/index.ts chronicle # the narrator's book, the life so far
+node cli/src/index.ts holdings  # what everybody in the world is keeping
+node cli/src/index.ts map       # the world as mermaid; --json for the layout
+node cli/src/index.ts kill      # end this life; the next step starts another
 ```
 
-Autoplay is `uv run tesbota play`, a loop that steps, honours the pause switch and
-waits `--every` seconds in between. Without it — or the timer below — nothing turns
+`tesbota/` is the python this was ported from. It still runs and reads the same
+`canon.db` and `state/`, and `TESBOTA_PY=1` puts the web back on it — which is the
+way out if the port turns out to be wrong about something.
+
+Autoplay is `node cli/src/index.ts play`, a loop that steps, honours the pause
+switch and waits between. An agent that will not answer in json no longer kills
+it: the stumble is printed and the loop waits, which the python one did not do. Without it — or the timer below — nothing turns
 the world over; the web UI has no stepper of its own.
 
 Make it tick on its own with a user timer:
@@ -464,6 +471,15 @@ see what canon already holds, so it cannot quietly frame a fact to fit.
 
 TRUE and WITHIN_BOUNDS both deliver; only FALSE costs a redraft. What
 is recorded is the narrator's passage, written once the whole turn is through.
+
+**The machine is declared in one file.** `cli/src/machine.ts` holds every state
+and every edge between them, each edge with a name and a plain sentence saying
+what it means. A step does not assign its next state — it returns an edge name,
+and the driver looks that name up. An edge that is not in the table cannot be
+taken, `audit()` proves every state is reachable and no two edges share a pair of
+states, and the dev tab draws the diagram straight from it, so there is no second
+copy to drift. What a turn *is* lives next to it in `cli/src/schema.ts` as zod:
+one shape, parsed at every boundary.
 
 **A fight is fought against things the world keeps.** Every body in one carries an
 id, and that id has to be a row. `body(id, health, damage, dc, bonus, defense, skill)`

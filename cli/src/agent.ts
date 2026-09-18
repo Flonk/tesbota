@@ -89,18 +89,21 @@ async function once(
   const chunks: string[] = [];
   let sessionId: string | null = session ?? null;
 
-  for await (const message of query({
-    prompt,
-    options: {
-      systemPrompt: system,
-      allowedTools: [...tools],
-      permissionMode: "acceptEdits",
-      resume: session ?? undefined,
-      cwd: ROOT,
-      model: model ?? undefined,
-      canUseTool: permission ?? undefined,
-    },
-  })) {
+  // A bare name in `allowedTools` auto-approves the whole tool and the gate is
+  // never consulted — which silently handed every agent an unrestricted shell.
+  // When there is a gate, the tool is left out of the allowlist so every call
+  // falls through to it.
+  const options: Record<string, unknown> = {
+    systemPrompt: system,
+    permissionMode: "acceptEdits",
+    resume: session ?? undefined,
+    cwd: ROOT,
+    model: model ?? undefined,
+  };
+  if (permission) options.canUseTool = permission;
+  else options.allowedTools = [...tools];
+
+  for await (const message of query({ prompt, options: options as any })) {
     if (message.type === "assistant") {
       for (const block of message.message.content) {
         if (block.type === "text") chunks.push(block.text);

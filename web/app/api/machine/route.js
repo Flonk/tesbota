@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const { stdout } = await run(
       process.execPath,
-      ["--eval", `import("${path.join(ROOT, "cli/src/machine.ts")}").then(m => console.log(JSON.stringify(m.describe())))`],
+      [path.join(ROOT, "cli/src/index.ts"), "machine", "--json"],
       { cwd: ROOT, timeout: 15000, maxBuffer: 1024 * 1024 * 4 }
     );
     return Response.json(JSON.parse(stdout.trim().split("\n").pop()));

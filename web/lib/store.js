@@ -605,7 +605,13 @@ export async function look(question) {
   }
 }
 
+// The world moved to the node cli. TESBOTA_PY=1 puts it back on python, which is
+// the way out if the port turns out to be wrong about something.
 function runner(args) {
+  const node = path.join(ROOT, "cli/src/index.ts");
+  if (!process.env.TESBOTA_PY && fsSync.existsSync(node)) {
+    return [process.execPath, [node, ...args]];
+  }
   const own = path.join(ROOT, ".venv/bin/python");
   return fsSync.existsSync(own)
     ? [own, ["-m", "tesbota.cli", ...args]]
