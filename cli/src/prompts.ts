@@ -457,10 +457,48 @@ const named = (where: any[]) =>
     .filter(Boolean)
     .join(" > ");
 
+/**
+ * Everything the game master did besides narrate.
+ *
+ * A turn comes back as prose and as a block of structured fields beside it, and
+ * for a long time only the prose was ever ruled on — so a place could be invented,
+ * an item could change hands and an errand could be taken on without any of it
+ * passing a lore master. The fields say as much about the world as the sentences
+ * do, so they are read out here in plain words and go the same way.
+ */
+export function doings(draft: Record<string, any> | null | undefined): string {
+  if (!draft) return "";
+  const said: string[] = [];
+
+  if (typeof draft.location === "string" && draft.location.trim()) {
+    said.push(`They are now at: ${draft.location.trim()}`);
+  }
+  for (const t of draft.transactions || []) {
+    if (!t?.name) continue;
+    const from = t.from && t.from !== "the-godhead" ? t.from : "the world";
+    const to = t.to && t.to !== "the-godhead" ? t.to : "the world";
+    const many = Math.abs(Number(t.qty) || 1);
+    said.push(`${many} ${t.name} passed from ${from} to ${to}`);
+  }
+  for (const q of draft.quest_open || []) {
+    if (!q?.title && !q?.id) continue;
+    said.push(`They have taken on: ${q.title || q.id}` + (q.giver ? `, set by ${q.giver}` : ""));
+  }
+  for (const q of draft.quest_close || []) {
+    const id = typeof q === "object" ? q?.id : q;
+    if (id) said.push(`An errand is finished: ${id}`);
+  }
+  const road = draft.travel;
+  if (road?.leagues) {
+    said.push(`They set out for ${road.destination || "somewhere"}, ${road.leagues} leagues off`);
+  }
+  return said.map((x) => `- ${x}`).join("\n");
+}
+
 export function lore1Turn(
   narration: string,
-  { where = null, now = null, roster = null }:
-  { where?: any[] | null; now?: string | null; roster?: string | null } = {}
+  { where = null, now = null, roster = null, did = null }:
+  { where?: any[] | null; now?: string | null; roster?: string | null; did?: string | null } = {}
 ): string {
   const parts: string[] = [];
   if (where) parts.push("Where: " + named(where));
@@ -471,6 +509,13 @@ export function lore1Turn(
       "A fight is being declared, and these are the bodies it puts on the " +
         "ground. They are as much of an assertion as the sentences are — take " +
         "the kinds and the capabilities out of them too:\n\n" + roster
+    );
+  }
+  if (did) {
+    parts.push(
+      "It also did these, beside the words. They assert as much as the sentences " +
+        "do — where somebody now is, what changed hands, what was taken on — so " +
+        "read the world out of them too:\n\n" + did
     );
   }
   parts.push("Write down what it asserts about the world.");

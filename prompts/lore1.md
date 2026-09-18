@@ -13,6 +13,8 @@ Regress from the particular to the kind, and keep going until you reach facts ab
 
 One fact per line, most particular first, plainest words, and do not stop early — the last lines should be flat statements about the world, not about this scene. Include the flat and obvious ones — that houses exist, that fog exists — because somewhere they were decided once and may not have been decided here. Say nothing about the person walking through it: what they feel, intend or notice is not a fact about the world.
 
+The game master does more than narrate: it says where they now are, what changed hands, what errand was taken on. Those arrive beside the sentences and they assert as much — a place named there is a place claimed to exist, a thing handed over is a thing claimed to have been theirs to hand over. Read the world out of them the same way, and regress them the same way: `They are now at: wet grass road` is *a road runs through wet grass at this place*, and under that, *roads exist*.
+
 Atmosphere is not a fact. Simile and mood assert nothing — take the plain thing under them, and where a line is only a way of putting it, write nothing for it.
 
 Reply with a single fenced json block and nothing else:

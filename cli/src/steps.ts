@@ -523,6 +523,8 @@ export async function readRecord(
       where: campaign.location_path as any[],
       now: worldclock.longStamp(campaign.time as any),
       roster: roster ?? null,
+      // The structured half of the draft goes the same way the prose does.
+      did: prompts.doings(T(turn).draft) || null,
     }),
     { system: prompts.LORE1_SYSTEM(), tools: [], session: null, model: MODELS.lore1 }
   );
