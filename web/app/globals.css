@@ -964,8 +964,10 @@ textarea.prompt:focus { outline: none; }
 .medges { list-style: none; margin: .1rem 0 0; padding: 0; display: flex;
           flex-direction: column; gap: .35rem; font-size: .72rem; }
 .medges li { display: flex; flex-direction: column; gap: .05rem; }
-/* `written:  blows -> deliver`, the edge named first and the states after it. */
-.mstep { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5em; }
+/* Three lines, always: what the edge is called, where it goes, what it means.
+   Letting the first two share a line made them share it only when they fitted,
+   so the list changed shape with the width of the column. */
+.mstep { display: flex; flex-direction: column; gap: .05rem; }
 .mon { font: var(--mono); letter-spacing: .06em; color: var(--fg); }
 .mon::after { content: ":"; color: var(--dim); }
 .mgo { font: var(--mono); font-size: .92em; letter-spacing: .04em; color: var(--place); }

@@ -310,7 +310,7 @@ export default function Machine({ status }) {
               <li key={e.id} className={live === `${e.from}->${e.to}` ? "live" : ""}>
                 <span className="mstep">
                   <strong className="mon">{e.on}</strong>
-                  <span className="mgo">{e.from} -&gt; {e.to}</span>
+                  <span className="mgo">{e.from} → {e.to}</span>
                 </span>
                 <span className="dim mwhen">{e.when}</span>
               </li>
