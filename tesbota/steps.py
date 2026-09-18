@@ -574,29 +574,57 @@ def show_fight(turn, fight):
     return gm_phase(turn, "fight", fight.get("said") or "", fight=fight)
 
 
+def standing_on(campaign):
+    """Every place they are inside, innermost first."""
+    chain = [campaign.get("location")] + [
+        (x.get("id") if isinstance(x, dict) else x)
+        for x in reversed(campaign.get("location_path") or [])
+    ]
+    seen, out = set(), []
+    for x in chain:
+        if x and x not in seen:
+            seen.add(x)
+            out.append(x)
+    return out
+
+
 def counts_here(power, campaign):
-    """Whether what a body can do counts on the ground it is standing on. `within`
-    names a place it must be inside; `in_kind` names the sort of place it must be."""
-    if power.get("within"):
-        chain = {
-            (x.get("id") if isinstance(x, dict) else x)
-            for x in (campaign.get("location_path") or [])
-        }
-        chain.add(campaign.get("location"))
-        if canon.slug(power["within"]) not in chain:
-            return False
+    """Whether what a body can do counts on the ground it is standing on, and if so
+    which place answered for it — the settlement whose guard gets called."""
+    ground = standing_on(campaign)
+    if power.get("within") and canon.slug(power["within"]) not in set(ground):
+        return None
     if power.get("in_kind"):
         sat = canon.find_place(campaign.get("location"))
-        if not sat or sat.get("type") != power["in_kind"]:
-            return False
+        if not sat or sat["type"] != power["in_kind"]:
+            return None
+    named = {}
     if power.get("in_aspect"):
-        standing = [campaign.get("location")] + [
-            (x.get("id") if isinstance(x, dict) else x)
-            for x in (campaign.get("location_path") or [])
-        ]
-        if not any(canon.marked_with(x, power["in_aspect"]) for x in standing if x):
-            return False
-    return True
+        bearer = next((x for x in ground if canon.marked_with(x, power["in_aspect"])), None)
+        if not bearer:
+            return None
+        named[power["in_aspect"]] = bearer
+    return named
+
+
+STAND_IN = re.compile(r"\$([A-Z_]+)_NAME")
+
+
+def named_for(text, named):
+    """`$SETTLEMENT_NAME Guard` is an Alheim Guard in Alheim. The token is the aspect
+    that let the ability fire, so a thing called up is called up by somewhere."""
+    def swap(found):
+        want = found.group(1).lower().replace("_", "-")
+        where = named.get(want)
+        if not where:
+            return found.group(0)
+        known = find_entity(where)
+        return (known["name"] if known else where.replace("-", " "))
+    return STAND_IN.sub(swap, str(text or ""))
+
+
+def find_entity(ident):
+    return canon.find_entity(ident)
 
 
 def borne(who, campaign):
@@ -610,9 +638,15 @@ def borne(who, campaign):
         return who
     for mark in marks:
         for power in canon.abilities_of(mark["aspect"]):
-            if not counts_here(power, campaign):
+            named = counts_here(power, campaign)
+            if named is None:
                 continue
-            who["ability"] = dict(power, **{"from": mark["name"]})
+            power = dict(power, **{"from": mark["name"]})
+            if power.get("spawn"):
+                power["spawn"] = dict(
+                    power["spawn"], name=named_for(power["spawn"].get("name"), named)
+                )
+            who["ability"] = power
             return who
     return who
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PLACE_ICON, rare, tone } from "./Data";
-import { Btn, Empty, Mark, Note, Prose, Stub, Table, Toggle } from "./ui";
+import { Btn, Empty, Mark, Note, Prose, Stub, Table, Tabs, Toggle } from "./ui";
 
 const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
@@ -20,6 +20,13 @@ function span(person) {
 }
 
 const WRITTEN = ["places", "people", "books", "items", "aspects", "abilities"];
+
+// Somebody in particular, or a kind of thing. The people shelf holds both and they
+// are not read the same way.
+const FOLK = [
+  { id: "npc", label: "npc", icon: "person" },
+  { id: "mob", label: "mob", icon: "people" },
+];
 
 const FILTERS = [
   { id: "stub", label: "has $BOTA", kinds: WRITTEN, test: (r) => r.stub },
@@ -234,6 +241,7 @@ export default function Library({
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState(null);
   const [on, setOn] = useState({});
+  const [folk, setFolk] = useState("npc");
   const [sort, setSort] = useState({ key: "name", dir: 1 });
   const [folded, setFolded] = useState(() => new Set());
   const [selected, setSelected] = useState(null);
@@ -378,7 +386,9 @@ export default function Library({
     ...(world?.items || []),
   ];
   const named = q ? everything.filter((r) => r.name.toLowerCase().includes(q)) : [];
-  const all = kind === "books" ? shelf : world?.[kind] || [];
+  const held = kind === "books" ? shelf : world?.[kind] || [];
+  const all =
+    kind === "people" ? held.filter((r) => (folk === "mob" ? r.mob : !r.mob)) : held;
   const hit = (r) => (!q || r.name.toLowerCase().includes(q) || r.id.includes(q)) && keep(r);
   const tree = kind === "places";
   const rows = tree
@@ -415,6 +425,18 @@ export default function Library({
           </Btn>
         )}
       </form>
+
+      {hits === null && kind === "people" && (
+        <Tabs
+          className="sub folk"
+          items={FOLK.map((f) => ({
+            ...f,
+            count: (world?.people || []).filter((r) => (f.id === "mob" ? r.mob : !r.mob)).length,
+          }))}
+          value={folk}
+          onChange={setFolk}
+        />
+      )}
 
       <div className="libbody">
       {hits === null && (

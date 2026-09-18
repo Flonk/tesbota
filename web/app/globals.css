@@ -910,3 +910,5 @@ textarea.prompt:focus { outline: none; }
 .grant { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .5rem; }
 .granted { align-self: flex-start; font-size: .9rem; }
 .statdoes.dim { opacity: .7; }
+
+.tabs.folk { flex: 0 0 auto; }

@@ -243,6 +243,7 @@ const ROWS = `
          (SELECT count(*) FROM writing w WHERE w.body LIKE '%/' || e.id || '%') AS mentions,
          (SELECT count(*) FROM tagged tg WHERE tg.aspect = e.id) AS marks,
          (SELECT count(*) FROM grants gr WHERE gr.aspect = e.id) AS gives,
+         EXISTS (SELECT 1 FROM tagged mb WHERE mb.entity = e.id AND mb.aspect = 'mob') AS mob,
          (SELECT count(*) FROM book b WHERE b.author_id = e.id) AS wrote,
          (SELECT pr.work FROM person pr WHERE pr.id = e.id) AS work,
          (SELECT pr.born FROM person pr WHERE pr.id = e.id) AS born,
@@ -301,6 +302,7 @@ export function entities(kind) {
       lives: r.lives || null,
       livesName: r.lives ? r.livesName : "",
       stub: !!r.stub,
+      mob: !!r.mob,
     });
     if (kind) return rows.all(kind).map(shape);
     const out = {};

@@ -110,6 +110,10 @@ An ability is a thing of its own too, and it is what a body can actually do. Wha
 
 An aspect grants an ability through `grants`, and everything marked with the aspect has it wherever the ability counts.
 
+A spawned thing may be named for the ground that called it: `$SETTLEMENT_NAME Guard` is an Alheim Guard in Alheim and a Flotburg Guard in Flotburg. The token is `$` plus the aspect that let the ability fire, uppercased, plus `_NAME`.
+
+Two aspects earn their keep already and are worth knowing before you write a third. `settlement` marks a place people live in — it is what tells a road from a town, which `place.type` cannot. `mob` marks somebody who is a kind of thing rather than a person: a rat, a guard, anything the world has more than one of. Give a mob a `person` row like anybody else, but do not give it a life.
+
 `value` is what the aspect is *of* — the place a citizen belongs to, the house somebody is sworn into — and it is usually an entity id. `applies` says when the aspect's `ability` counts: `always`, or `within`, which means only while standing inside the place named in `value`. `ability` is a fight ability in json, written the way the game master writes one, and it is what makes an aspect bite: raise a hand to a citizen of Alheim inside Alheim and the aspect calls the guard.
 
 Mark a thing when the marking is a fact about it, not a mood. A miller is a `person.work`; a citizen is an aspect, because the place has a claim on them.
