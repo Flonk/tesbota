@@ -1,0 +1,71 @@
+{
+  "explorer": "Swantje Bota",
+  "sessions": {
+    "explorer": "dd3fc768-a0af-40fc-b88c-56d16d6bf910",
+    "gm": "9344ff03-1345-4d8d-b402-afadeb2b8f3b",
+    "lore3_sitting": null
+  },
+  "sent": {
+    "inventory": "41e0b0194a105650",
+    "others": "fa854afbb6d3fc5b"
+  },
+  "current_turn": "t0006",
+  "turn_counter": 6,
+  "clock": {
+    "hours_per_league": 1.5,
+    "min_leg_minutes": 20,
+    "encounter_chance_per_league": 0.25,
+    "speed_factor": 6000
+  },
+  "time": {
+    "era": 4,
+    "year": 202,
+    "day": 1,
+    "minute": 821,
+    "stamp": "1 Frostfall 4E202, 13:41",
+    "long": "Firstday, 1st of Frostfall, 4E202, 13:41"
+  },
+  "vitals": {
+    "health": 0,
+    "fatigue": 100,
+    "hunger": 2
+  },
+  "quests": [],
+  "skills": {
+    "abilities": {
+      "str": 10,
+      "dex": 11,
+      "con": 12,
+      "int": 11,
+      "wis": 12,
+      "cha": 9
+    },
+    "proficiency": 2,
+    "proficient": [
+      "perception",
+      "survival"
+    ]
+  },
+  "last_narration": "You don't look back, but the Nest Warden doesn't need you to — it closes the gap on the open road, and its jaws snap shut on empty air where you should have been standing, as if something with shoulder and weight had shouldered you half a step aside.\n\nYou swing the cane at the Nest Warden and it's already twisting clear, the blow finding nothing.\n\nIt closes the last of the distance in one lunge and its jaws close over your side, the impact taking your footing out from under you and slamming you into the road.\n\nYou wrench yourself back up before it can strike again and you don't stop running.",
+  "note": null,
+  "location": "the-road",
+  "location_path": [
+    {
+      "id": "terra",
+      "name": "Terra"
+    },
+    {
+      "id": "the-greater-plains",
+      "name": "The Greater Plains"
+    },
+    {
+      "id": "the-road",
+      "name": "The Road"
+    }
+  ],
+  "last_seen": null,
+  "created": "2026-09-17T09:14:40+00:00",
+  "quiet": 0,
+  "calm": 2,
+  "fight": null
+}

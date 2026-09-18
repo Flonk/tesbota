@@ -948,7 +948,7 @@ def take_turn(campaign, turn, fight, me, blow, rng):
     skill = what if verb == "SKILL" else me["skill"]
     if verb == "SKILL":
         blow["chose"] = f"SKILL {what}"
-    mark = picked.get("mark") or marks(fight, me)
+    mark = still_up(fight, picked.get("mark")) or marks(fight, me)
     if not mark:
         return
     check, hurt = strike(fight, me, mark, skill, mark["dc"], rng, campaign, turn)
@@ -1475,15 +1475,27 @@ def chosen_blow(said, campaign, fight=None):
 
 
 def aimed(head, fight):
-    """`ATTACK the rat mother` picks its mark. Naming nobody leaves the choosing to
-    the driver, which goes for whoever is closest to dropping."""
+    """`ATTACK the rat mother` picks its mark, and picks it by id. Naming nobody
+    leaves the choosing to the driver, which goes for whoever is closest to dropping."""
     if not fight:
         return None
     want = canon.slug(head.split(None, 1)[1]) if len(head.split(None, 1)) > 1 else ""
     if not want:
         return None
-    return next((x for x in fight["them"]
-                 if not x["dead"] and (x["id"] == want or canon.slug(x["name"]) == want)), None)
+    found = next((x for x in fight["them"]
+                  if not x["dead"] and (x["id"] == want or canon.slug(x["name"]) == want)), None)
+    return found["id"] if found else None
+
+
+def still_up(fight, want):
+    """The body a stored choice names, found again in the fight as it stands. What
+    the explorer picked is written to disk between the asking and the swing, so
+    keeping hold of the body itself swings at a copy and throws the wound away."""
+    if isinstance(want, dict):
+        want = want.get("id")
+    if not want:
+        return None
+    return next((x for x in fight["them"] if x["id"] == want and not x["dead"]), None)
 
 
 def said_blow(blow):

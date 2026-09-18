@@ -1,16 +1,17 @@
 {
-  "explorer": "Swantje Bota",
+  "explorer": "Ubbo Bota",
   "sessions": {
-    "explorer": "dd3fc768-a0af-40fc-b88c-56d16d6bf910",
-    "gm": "9344ff03-1345-4d8d-b402-afadeb2b8f3b",
+    "explorer": "d440b59a-b139-44a9-bee8-037bcd69ad1f",
+    "gm": "08618457-c1e9-4af7-95af-92dab2556d37",
     "lore3_sitting": null
   },
   "sent": {
-    "inventory": "41e0b0194a105650",
+    "inventory": "23b2c4990c610515",
     "others": "fa854afbb6d3fc5b"
   },
-  "current_turn": "t0006",
-  "turn_counter": 6,
+  "fight": null,
+  "current_turn": "t0004",
+  "turn_counter": 4,
   "clock": {
     "hours_per_league": 1.5,
     "min_leg_minutes": 20,
@@ -21,14 +22,14 @@
     "era": 4,
     "year": 202,
     "day": 1,
-    "minute": 821,
-    "stamp": "1 Frostfall 4E202, 13:41",
-    "long": "Firstday, 1st of Frostfall, 4E202, 13:41"
+    "minute": 914,
+    "stamp": "1 Frostfall 4E202, 15:14",
+    "long": "Firstday, 1st of Frostfall, 4E202, 15:14"
   },
   "vitals": {
-    "health": 0,
-    "fatigue": 100,
-    "hunger": 2
+    "health": 41,
+    "fatigue": 56,
+    "hunger": 6
   },
   "quests": [],
   "skills": {
@@ -46,9 +47,9 @@
       "survival"
     ]
   },
-  "last_narration": "You don't look back, but the Nest Warden doesn't need you to — it closes the gap on the open road, and its jaws snap shut on empty air where you should have been standing, as if something with shoulder and weight had shouldered you half a step aside.\n\nYou swing the cane at the Nest Warden and it's already twisting clear, the blow finding nothing.\n\nIt closes the last of the distance in one lunge and its jaws close over your side, the impact taking your footing out from under you and slamming you into the road.\n\nYou wrench yourself back up before it can strike again and you don't stop running.",
+  "last_narration": "Grain sacks by the mill door burst and rats spill out in a mass — two lean things and something bigger and paler shoving up behind them — and they come straight for you.\n\nYou drive the cane down on the nearest rat and feel it connect solid.\n\nTeeth catch your calf and you shake it off, stinging.\n\nA second set of teeth finds the same leg, quick and mean.\n\nThe big pale one barrels in and rakes you before you can turn.\n\nYou bring the cane around again and the rat under it staggers.\n\nAnother bite, and your leg is starting to burn.\n\nOne more nips in past your guard.\n\nThe Warden lunges and you twist away too slow.\n\nYou swing and the cane whistles through empty air.\n\nA rat gets under your reach and sinks in.\n\nIts fellow follows suit, quick and low.\n\nThe Warden's claws rake you from the side.\n\nYour cane cracks across the rat's spine and it goes still.\n\nTeeth graze past you, missing their mark this time.\n\nThe other rat's rush comes to nothing.\n\nThe Warden lunges and finds only air.\n\nYou catch the next rat clean and it drops.\n\nA bite lands and your leg screams at you.\n\nIts partner tries the same and gets you again.\n\nThe Warden's strike goes wide of you.\n\nYou club the last small rat down hard.\n\nA snap at your ankle finds nothing there.\n\nThe second rat's lunge misses clean.\n\nThe Warden circles and its swipe goes wide.\n\nYou swing for the rat and miss your footing as much as your aim.\n\nTeeth close on you again, and it tells.\n\nThe Warden's claws find you once more.\n\nYou catch the rat square and it reels.\n\nA bite lands hard on your forearm.\n\nThe Warden slashes and connects.\n\nYou put the cane through the last rat and it stops moving.\n\nA bite grazes past, this time missing.\n\nIts partner's teeth do not miss.\n\nThe Warden's blow lands heavy on your shoulder.\n\nYou swing at the rat and go wide.\n\nA bite catches your arm, sharp.\n\nThe other rat's teeth find nothing.\n\nThe Warden's strike goes wide.\n\nYou catch the rat clean and it drops for good.\n\nTeeth miss you by a hair.\n\nThe second rat's bite lands, stinging.\n\nThe Warden's claws pass over you, missing.\n\nYou swing hard and the last rat goes down.\n\nA snap at your leg finds nothing.\n\nIts partner's lunge misses too.\n\nThe Warden's blow catches you square.\n\nYou turn on the Warden itself and your cane lands.\n\nA bite tries you and misses.\n\nThe other rat's teeth find nothing either.\n\nThe Warden's claws rake you again, harder.\n\nYou strike the Warden and it shudders under the blow.\n\nTeeth miss you clean.\n\nThe rat's bite lands, deep this time.\n\nThe Warden's swipe catches you across the ribs.\n\nYou aim at the Warden and the cane goes wide.\n\nA bite misses you entirely.\n\nThe rat's teeth find your leg again, hard.\n\nThe Warden's strike passes you by.\n\nYou break off the bread and eat fast, feeling the ache ease.\n\nA rat's bite lands while your hands are full.\n\nThe other rat sinks its teeth in too.\n\nThe Warden's claws catch you deep, and it is enough — you break and run.",
   "note": null,
-  "location": "the-road",
+  "location": "alheim",
   "location_path": [
     {
       "id": "terra",
@@ -59,13 +60,12 @@
       "name": "The Greater Plains"
     },
     {
-      "id": "the-road",
-      "name": "The Road"
+      "id": "alheim",
+      "name": "Alheim"
     }
   ],
   "last_seen": null,
-  "created": "2026-09-17T09:14:40+00:00",
-  "quiet": 6,
-  "calm": 2,
-  "fight": null
+  "created": "2026-09-18T01:18:31+00:00",
+  "quiet": 4,
+  "calm": 0
 }

@@ -1,6 +1,6 @@
 {
   "turn_id": "t0006",
-  "state": "lore1",
+  "state": "awaiting_human",
   "created": "2026-09-18T01:07:04+00:00",
   "action": "I get back up and keep going, not stopping.",
   "draft": {
@@ -16,7 +16,56 @@
     "quest_open": [],
     "quest_update": [],
     "quest_close": [],
-    "claims": [],
+    "claims": [
+      {
+        "id": "c1",
+        "text": "something paced closely alongside a traveler on the road",
+        "entity": "the-road",
+        "kind": "places"
+      },
+      {
+        "id": "c2",
+        "text": "a present thing can vanish from sight the instant it is looked at directly",
+        "entity": "the-road",
+        "kind": "places"
+      },
+      {
+        "id": "c3",
+        "text": "fog can thin enough to reveal the road beneath it",
+        "entity": "the-road",
+        "kind": "places"
+      },
+      {
+        "id": "c4",
+        "text": "the road runs straight at that stretch",
+        "entity": "the-road",
+        "kind": "places"
+      },
+      {
+        "id": "c5",
+        "text": "the road has a bend somewhere along its length",
+        "entity": "the-road",
+        "kind": "places"
+      },
+      {
+        "id": "c6",
+        "text": "the ground underfoot along the road is firm in places",
+        "entity": "the-road",
+        "kind": "places"
+      },
+      {
+        "id": "c7",
+        "text": "roads exist in the Greater Plains",
+        "entity": "the-greater-plains",
+        "kind": "places"
+      },
+      {
+        "id": "c8",
+        "text": "fog exists in the Greater Plains",
+        "entity": "the-greater-plains",
+        "kind": "places"
+      }
+    ],
     "hunger": null
   },
   "verdicts": [
@@ -30,9 +79,9 @@
     },
     {
       "claim": "c2",
-      "result": "TRUE",
+      "result": "UNRESOLVED",
       "why": "",
-      "question": "",
+      "question": "Can something present beside a person vanish from sight the instant it is looked at directly?",
       "alternative": "",
       "sources": []
     },
@@ -54,7 +103,7 @@
     },
     {
       "claim": "c5",
-      "result": "TRUE",
+      "result": "WITHIN_BOUNDS",
       "why": "",
       "question": "",
       "alternative": "",
@@ -71,7 +120,7 @@
     {
       "claim": "c7",
       "result": "TRUE",
-      "why": "",
+      "why": "established by the Greater Plains Council's register of ways",
       "question": "",
       "alternative": "",
       "sources": []
@@ -83,35 +132,11 @@
       "question": "",
       "alternative": "",
       "sources": []
-    },
-    {
-      "claim": "c9",
-      "result": "TRUE",
-      "why": "the-road is recorded as a location within the-greater-plains, mapped by the Greater Plains Council and described in Konrad Ebsen's pocket guide",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c10",
-      "result": "TRUE",
-      "why": "",
-      "question": "",
-      "alternative": "",
-      "sources": []
-    },
-    {
-      "claim": "c11",
-      "result": "TRUE",
-      "why": "",
-      "question": "",
-      "alternative": "",
-      "sources": []
     }
   ],
   "correction": null,
   "gm_retries": 0,
-  "gap": null,
+  "gap": "- Can something present beside a person vanish from sight the instant it is looked at directly?",
   "wake_at": null,
   "minutes": 0,
   "phases": [
@@ -128,7 +153,7 @@
       "who": "gm",
       "kind": "outcome",
       "text": "You force yourself up and keep running, a solid weight still pacing exactly at your left heel and gone the instant you risk a glance — and for one stretch the fog thins just enough to show the road running straight instead of the blind bend you braced for, the firmer ground under your feet the only reason your legs keep taking you with it.",
-      "status": "pending",
+      "status": "blocked",
       "claims": [],
       "redrafts": 1
     }
@@ -184,16 +209,13 @@
   "pressed": false,
   "facts": [
     "something paced at the runner's left heel",
-    "the thing pacing at the heel was solid",
-    "nothing was there when looked at directly",
-    "the road tilts",
-    "fatigue affects the runner",
-    "the runner lost blood",
-    "the runner collapsed on the open road",
-    "the runner did not get up",
+    "the thing pacing the runner vanishes from sight when looked at directly",
+    "the fog thinned enough to show the road",
+    "the road runs straight at that stretch",
+    "the road has a bend",
+    "the ground underfoot is firm",
     "roads exist in the Greater Plains",
-    "blood exists",
-    "fatigue exists"
+    "fog exists"
   ],
   "roll": 399,
   "rolled": true,
