@@ -1,10 +1,114 @@
 {
   "turn_id": "t0006",
-  "state": "propose",
+  "state": "lore1",
   "created": "2026-09-18T01:07:04+00:00",
   "action": "I get back up and keep going, not stopping.",
-  "draft": null,
-  "verdicts": [],
+  "draft": {
+    "narration": "You force yourself up and keep running, a solid weight still pacing exactly at your left heel and gone the instant you risk a glance — and for one stretch the fog thins just enough to show the road running straight instead of the blind bend you braced for, the firmer ground under your feet the only reason your legs keep taking you with it.",
+    "travel": null,
+    "minutes": 10,
+    "fatigue": 0,
+    "health": 0,
+    "check": null,
+    "fight": null,
+    "location": "the-road",
+    "transactions": [],
+    "quest_open": [],
+    "quest_update": [],
+    "quest_close": [],
+    "claims": [],
+    "hunger": null
+  },
+  "verdicts": [
+    {
+      "claim": "c1",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c2",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c3",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c4",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c5",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c6",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c7",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c8",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c9",
+      "result": "TRUE",
+      "why": "the-road is recorded as a location within the-greater-plains, mapped by the Greater Plains Council and described in Konrad Ebsen's pocket guide",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c10",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c11",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    }
+  ],
   "correction": null,
   "gm_retries": 0,
   "gap": null,
@@ -18,6 +122,80 @@
       "text": "I get back up and keep going, not stopping.",
       "status": "said",
       "claims": []
+    },
+    {
+      "n": 2,
+      "who": "gm",
+      "kind": "outcome",
+      "text": "You force yourself up and keep running, a solid weight still pacing exactly at your left heel and gone the instant you risk a glance — and for one stretch the fog thins just enough to show the road running straight instead of the blind bend you braced for, the firmer ground under your feet the only reason your legs keep taking you with it.",
+      "status": "pending",
+      "claims": [],
+      "redrafts": 1
     }
-  ]
+  ],
+  "note": "The Nest Warden has caught up with Swantje on the open road. Declare the fight now, do not narrate it. them: the Nest Warden (18 health, 2-4 damage, dc 12, bonus 2). us: the dog.",
+  "answers": [],
+  "proposal": {
+    "summary": "You force yourself back onto your feet and keep running down the open road, not stopping to look back.",
+    "target": "the-road",
+    "minutes": 10,
+    "fatigue": 0
+  },
+  "outcomes": [
+    {
+      "band": "common",
+      "text": "You're up and running, the Nest Warden's pursuit settling into a grim rhythm at your back — no ground gained, none lost.",
+      "p": 0.35
+    },
+    {
+      "band": "common",
+      "text": "You scramble up and put a real stretch of road behind you, lungs burning, the sound of it behind you thinning a little.",
+      "p": 0.35
+    },
+    {
+      "band": "uncommon",
+      "text": "Something corrects your stride again before a stumble can take you down, and you run on steadier than your legs have any right to manage.",
+      "p": 0.18
+    },
+    {
+      "band": "rare",
+      "text": "Somewhere behind you a snarl breaks off into a heavy weight hitting the ground that isn't yours, and whatever was closing on you doesn't close any further.",
+      "p": 0.08
+    },
+    {
+      "band": "epic",
+      "text": "For the length of the run you feel a solid weight pacing exactly at your left heel, one you could lean into on the turns, and there is nothing there when you risk the glance.",
+      "p": 0.03
+    },
+    {
+      "band": "legendary",
+      "text": "The line of paw-prints keeping pace beside yours on the road turns, mid-stride, to face back the way you came — and stays turned that way even as you keep moving forward.",
+      "p": 0.01
+    }
+  ],
+  "fortune": 0.689132740064773,
+  "chosen": {
+    "band": "epic",
+    "text": "For the length of the run you feel a solid weight pacing exactly at your left heel, one you could lean into on the turns, and there is nothing there when you risk the glance.",
+    "p": 0.03
+  },
+  "forced_strange": true,
+  "confirmed": true,
+  "pressed": false,
+  "facts": [
+    "something paced at the runner's left heel",
+    "the thing pacing at the heel was solid",
+    "nothing was there when looked at directly",
+    "the road tilts",
+    "fatigue affects the runner",
+    "the runner lost blood",
+    "the runner collapsed on the open road",
+    "the runner did not get up",
+    "roads exist in the Greater Plains",
+    "blood exists",
+    "fatigue exists"
+  ],
+  "roll": 399,
+  "rolled": true,
+  "fate": "lesser_fortune"
 }

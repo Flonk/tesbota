@@ -10,11 +10,11 @@ narrates that — run six times inside one turn instead of once.
 
 The state machine gains one state. `STEPS` becomes:
 
-    explorer → propose → gm → fight ⇄ swing → blows → lore1 → deliver
-                                    └── once per blow ──┘
+    explorer → propose → gm → muster → fight ⇄ swing → blows → deliver
+                                               └── once per blow ──┘
 
 `step_gm` is unchanged except for its last line: if the draft it got back carries a
-`fight` key, the next state is `fight` instead of `lore1`. Everything else — the
+`fight` key, the next state is `muster` instead of `lore1`. Everything else — the
 proposal, the six outcomes, `chosen`, `PRESS`, the inventory and holdings blocks — runs
 exactly as it does now. A fight is a thing an ordinary turn turns into, not a mode the
 world enters.
@@ -51,8 +51,11 @@ One new key on the draft it already returns:
 ```
 
 `narration` on that same draft is the sentence before the first blow and nothing more.
-It is not adjudicated on its own; it becomes the fight's opening line and goes to lore1
-with the rest of the exchange, once.
+It is the only thing in the fight that is adjudicated, and `step_muster` does it before
+a die is thrown — that sentence plus the whole roster, every body with its health, its
+damage and what it can do, through lore 1 and lore 2 once. FALSE sends the fight back to
+be declared again; UNRESOLVED holds the world. Past the muster no lore master sees any
+of it: a blow is a particular, and particulars were never theirs to rule on.
 
 `health` is the thing's pool. `damage` is a band in the same notation the `item` table
 uses — `"2–5"`, en dash or hyphen. `skill` is one of the eighteen in `SKILL_ABILITY`,
@@ -231,7 +234,9 @@ them — a fight the explorer steered should read as steered.
 `blows[].check` is `roll_check`'s dict verbatim, so `<Check/>` renders it with no
 change. `blows[].text` is the game master's line, matched back to the roll by index.
 `text` on the phase is `"\n\n".join(opening + lines)` and is also `draft["narration"]`,
-so `last_narration`, `chronicle.write` and the lore1 pass all keep working untouched.
+so `last_narration` and `chronicle.write` keep working untouched. `step_blows` delivers
+straight from there — the claims and verdicts on the turn are the muster's, and the game
+master is not asked for claims during blows at all.
 
 `web/lib/store.js` needs no change — the phase map already spreads `...x`, so `fight`
 survives to the client.
