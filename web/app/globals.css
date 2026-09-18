@@ -987,14 +987,3 @@ textarea.prompt:focus { outline: none; }
 .mgo { font: var(--mono); font-size: .92em; letter-spacing: .04em; color: var(--place); }
 .mwhen { line-height: 1.35; }
 .medges li.live .mon, .medges li.live .mgo { color: var(--gold); }
-
-/* Just the agent names. Spelling out what each one is only repeated the name.
-   Not `.mkey` — that is the map's own button, and taking its name gave this a
-   black background and an outline nobody asked for. */
-.mlegend { display: flex; flex-wrap: wrap; gap: .2rem .7rem; margin-top: .2rem;
-           font: var(--mono); font-size: .66rem; letter-spacing: .05em; color: var(--fg); }
-.mlegendone { display: inline-flex; align-items: center; gap: .4em; }
-.mswatch { width: 10px; height: 10px; border: 1px solid var(--who, var(--line));
-           background: color-mix(in srgb, var(--who, var(--line)) 30%, transparent);
-           border-radius: 5px; flex: 0 0 auto; }
-.mlegendone { color: var(--who, var(--fg)); }

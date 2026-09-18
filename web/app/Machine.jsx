@@ -316,17 +316,6 @@ export default function Machine({ status }) {
             ))}
           </ul>
         )}
-
-        {table && (
-          <div className="mlegend">
-            {[...new Set(table.states.map((x) => x.runs))].sort().map((who) => (
-              <span key={who} className={`mlegendone r-${who}`}>
-                <i className="mswatch" />
-                {who}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
