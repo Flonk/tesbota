@@ -1050,7 +1050,8 @@ def step_blows(campaign, turn):
     # The record was checked when the fight was declared. Swinging is the game
     # master's alone — every blow is a particular, and particulars are never
     # the lore master's to rule on.
-    return deliver(campaign, turn)
+    turn["state"] = "deliver"
+    return campaign, turn
 
 
 MENDED = {"health": re.compile(r"([+\-\u2212]?\d+)\s*health"),
@@ -1225,7 +1226,8 @@ def step_lore1(campaign, turn):
         turn["verdicts"] = [
             {"claim": c["id"], "result": "TRUE", "why": "the world opens here"} for c in claims
         ]
-        return deliver(campaign, turn)
+        turn["state"] = "deliver"
+    return campaign, turn
 
     narration = draft.get("narration") or ""
     claims, verdicts, _ = check_record(campaign, turn, narration)
@@ -1300,7 +1302,8 @@ def step_lore1(campaign, turn):
         turn["state"] = redraft_state(turn)
         return campaign, turn
 
-    return deliver(campaign, turn)
+    turn["state"] = "deliver"
+    return campaign, turn
 
 
 FATE_INSTRUCTIONS = {
@@ -1606,7 +1609,10 @@ def roll_fate(turn, rng=random):
     return fate
 
 
-def deliver(campaign, turn):
+def step_deliver(campaign, turn):
+    """Everything a turn changes about the world, applied in one place. Nothing
+    above it writes to the campaign, so a turn that never reaches here leaves no
+    mark — which is what makes a rejected draft safe to throw away."""
     if turn.get("delivered"):
         turn["state"] = "done"
         return campaign, turn
@@ -1698,5 +1704,6 @@ STEPS = {
     "fight": step_fight,
     "blows": step_blows,
     "lore1": step_lore1,
+    "deliver": step_deliver,
     "narrate": step_narrate,
 }

@@ -129,6 +129,9 @@ export async function snapshot(profile = PROFILES[0]) {
     where: campaign.location_path || [],
     now,
     day: t.day ?? null,
+    // the edge the world just crossed, which is the one the diagram lights up
+    took: current?.took || null,
+    trail: current?.trail || [],
   };
   if (current?.wake_at) {
     status.destination = current.destination;

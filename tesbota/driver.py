@@ -24,6 +24,22 @@ from .steps import STEPS
 SUSPENDED = ("awaiting_human", "awaiting_clock")
 
 
+TRAIL = 40
+
+
+def took(turn, came_from):
+    """The edge the world just crossed, kept on the turn. Two states name an edge
+    on their own, which is why no two edges in the machine may share a pair."""
+    landed = turn.get("state")
+    if not landed or landed == came_from:
+        return turn
+    turn["took"] = {"from": came_from, "to": landed, "at": stamp()}
+    trail = turn.setdefault("trail", [])
+    trail.append(turn["took"])
+    del trail[:-TRAIL]
+    return turn
+
+
 def pending_path(turn_id):
     return PENDING / f"{turn_id}.md"
 
@@ -166,6 +182,7 @@ def run(limit=1):
             continue
 
         campaign, turn = STEPS[state](campaign, turn)
+        took(turn, state)
         save_turn(turn)
         save_campaign(campaign)
         if turn["state"] == "done":

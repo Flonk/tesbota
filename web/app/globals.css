@@ -918,3 +918,54 @@ textarea.prompt:focus { outline: none; }
 }
 .dface:hover { color: var(--gold); border-color: var(--gold); }
 .dbody > .dfirst:first-child { margin-top: 0; }
+
+/* --- the machine, drawn from the machine --- */
+.machine { display: flex; flex-direction: column; gap: .6rem; padding: .2rem 0 1rem; }
+.machinetop { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.mnow { color: var(--gold); }
+.machinebox { overflow: auto; border: 1px solid var(--line); border-radius: 2px; padding: .4rem; }
+.mgraph { display: block; flex: 0 0 auto; }
+
+.mbox { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+.mname { font: var(--mono); font-size: 12px; letter-spacing: .06em; fill: var(--fg);
+         text-anchor: middle; dominant-baseline: middle; }
+.mcalls { font: var(--mono); font-size: 9px; letter-spacing: .08em; fill: var(--dim);
+          text-anchor: middle; dominant-baseline: middle; opacity: .75; }
+
+.mnode.k-agent .mbox { stroke: var(--place); }
+.mnode.k-roll  .mbox { stroke: var(--line); }
+.mnode.k-book  .mbox { stroke: var(--gold); }
+.mnode.k-wait  .mbox { stroke: var(--warn, #b4671f); stroke-dasharray: 3 3; }
+.mnode.k-end   .mbox { stroke: var(--dim); }
+
+.mnode.here .mbox { stroke: var(--gold); stroke-width: 2; fill: color-mix(in srgb, var(--gold) 12%, var(--bg)); }
+.mnode.here .mname { fill: var(--gold); }
+.mnode.from .mbox { stroke-width: 1.6; }
+
+.mline { fill: none; stroke: var(--line); stroke-width: 1; }
+.mhit { fill: none; stroke: transparent; stroke-width: 14; cursor: pointer; }
+.mheadfill { fill: var(--line); }
+.mheadlivefill { fill: var(--gold); }
+.medge.lit .mline { stroke: var(--fg); }
+.medge.live .mline { stroke: var(--gold); stroke-width: 2; }
+
+/* the edge the world is crossing right now */
+.mflow { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round;
+         stroke-dasharray: 10 250; filter: drop-shadow(0 0 3px var(--gold));
+         animation: mrun 1.5s linear infinite; }
+@keyframes mrun { from { stroke-dashoffset: 260; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .mflow { animation: none; stroke-dasharray: none; opacity: .5; }
+}
+
+.medgesaid { font: var(--mono); font-size: .8rem; letter-spacing: .05em; margin: 0; }
+.medgesaid .sep { color: var(--gold); margin: 0 .5em; }
+
+.mkey { display: flex; flex-wrap: wrap; gap: .25rem 1.1rem; font: var(--mono);
+        font-size: .72rem; letter-spacing: .06em; color: var(--fg); }
+.mkeyone { display: inline-flex; align-items: center; gap: .4em; }
+.mswatch { width: 11px; height: 11px; border: 1px solid var(--line); border-radius: 2px; }
+.mkeyone.k-agent .mswatch { border-color: var(--place); }
+.mkeyone.k-book  .mswatch { border-color: var(--gold); }
+.mkeyone.k-wait  .mswatch { border-color: var(--warn, #b4671f); border-style: dashed; }
+.mkeyone.k-end   .mswatch { border-color: var(--dim); }

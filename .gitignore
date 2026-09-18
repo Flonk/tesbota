@@ -12,7 +12,10 @@ state/death.json
 state/lives/
 web/node_modules/
 web/.next/
+cli/node_modules/
+state/debug/
 state/job.json
 state/job.log
 canon.db-wal
 canon.db-shm
+state/*.log

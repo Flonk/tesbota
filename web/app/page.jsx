@@ -14,6 +14,7 @@ import Steer from "./Steer";
 import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
+import Machine from "./Machine";
 import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Tabs, Tag } from "./ui";
 
 const PHASE = {
@@ -504,6 +505,7 @@ const SUBS = {
     ...KINDS.map((id) => ({ id, label: id, icon: ICONS[id] })),
     { id: "data", label: "data", icon: "db" },
   ],
+  dev: [{ id: "states", label: "states", icon: "pulse" }],
 };
 
 const TABS = [
@@ -511,6 +513,7 @@ const TABS = [
   { id: "map", label: "map", icon: "map" },
   { id: "me", label: "you", icon: "person" },
   { id: "library", label: "library", icon: "shelf" },
+  { id: "dev", label: "dev", icon: "cog" },
 ];
 
 export default function Page() {
@@ -519,7 +522,7 @@ export default function Page() {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("chat");
   const [dossier, setDossier] = useState(null);
-  const [sub, setSub] = useState({ chat: "talk", me: "equipped", library: "places" });
+  const [sub, setSub] = useState({ chat: "talk", me: "equipped", library: "places", dev: "states" });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const [catalogue, setCatalogue] = useState(null);
@@ -1041,6 +1044,7 @@ export default function Page() {
               boxRef={pen}
             />
           )}
+          {tab === "dev" && sub.dev === "states" && <Machine status={status} />}
           {tab === "library" && sub.library !== "data" && (
             <Library
               dossier={dossier}
