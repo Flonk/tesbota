@@ -471,6 +471,17 @@ export function entity(id) {
       )
       .all(ident);
 
+    bundle.body = db.prepare(`SELECT * FROM body WHERE id = ?`).get(ident) || null;
+    if (bundle.body) {
+      bundle.body.worn = db
+        .prepare(
+          `SELECT coalesce(sum(CAST(f.amount AS INTEGER)), 0) AS n
+             FROM holding h JOIN effect f ON f.item = h.item
+            WHERE h.holder = ? AND h.worn = 1 AND f.stat = 'defense'`
+        )
+        .get(ident)?.n || 0;
+    }
+
     if (row.kind === "abilities") {
       bundle.ability =
         db.prepare(`SELECT * FROM ability WHERE id = ?`).get(ident) || null;

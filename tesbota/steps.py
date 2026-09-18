@@ -491,26 +491,61 @@ def bandtop(said):
 
 
 def fighter(said, kind, fallback_dc=11):
-    """One body in a fight, on either side. Everything it needs to swing and to be
-    swung at, and nothing about which side it is on — that is the list it sits in."""
-    health = int(said.get("health") or 10)
+    """One body in a fight, on either side. What it is comes off its record, so a Rat
+    is the same Rat every time; what the game master wrote stands over the record for
+    this fight only and is never written back."""
+    ident = canon.slug(said.get("who") or said.get("name") or kind)
+    kept = canon.body(ident) or {}
+    written = canon.called(ident)
+
+    def take(field, fallback=None):
+        said_it = said.get(field)
+        if said_it not in (None, ""):
+            return said_it
+        held = kept.get(field)
+        return fallback if held in (None, "") else held
+
+    health = int(take("health") or 10)
     return {
-        "id": canon.slug(said.get("who") or said.get("name") or kind),
-        "name": str(said.get("name") or said.get("who") or kind),
+        "id": ident,
+        "as_written": dict(said),
+        "name": str(said.get("name") or written or said.get("who") or kind),
         "kind": kind,
         "health": health,
         "most": int(said.get("most") or health),
         "opened": health,
-        "damage": str(said.get("damage") or UNARMED),
-        "dc": int(said.get("dc") or fallback_dc),
-        "bonus": int(said.get("bonus") or 0),
-        "defense": int(said.get("defense") or 0),
-        "skill": str(said.get("skill") or "").lower() or None,
+        "damage": str(take("damage") or UNARMED),
+        "dc": int(take("dc") or fallback_dc),
+        "bonus": int(take("bonus") or 0),
+        "defense": int(take("defense") or 0) + worn_defense(ident),
+        "skill": str(take("skill") or "").lower() or None,
         "ability": said.get("ability") or None,
         "asleep": 0,
         "cool": 0,
         "dead": False,
     }
+
+
+def unbound(fight):
+    """Bodies the game master named that the world has no row for. Everything else in
+    a fight is a thing already written down, and is met as what it is."""
+    return [x for x in fight["them"] + fight["us"][1:] if not canon.called(x["id"])]
+
+
+def rebind(fight, declared, bound):
+    """A body the lore master matched to something already recorded. It comes back as
+    that thing, with that thing's stats, keeping whatever the game master wrote over
+    them and whatever it called it in the scene."""
+    for side in ("them", "us"):
+        for at, who in enumerate(fight[side]):
+            if who["id"] != declared:
+                continue
+            said = dict(who.get("as_written") or {})
+            said["who"] = bound
+            said.setdefault("name", who["name"])
+            fight[side][at] = fighter(said, who["kind"])
+            return fight[side][at]
+    return None
 
 
 def open_fight(campaign, turn, draft):
@@ -538,7 +573,7 @@ def open_fight(campaign, turn, draft):
         "weapon": weapon,
         "dc": int(said.get("their_dc") or 11),
         "bonus": sheet.skill_bonus(campaign, skill) or 0,
-        "defense": worn_defense(campaign),
+        "defense": worn_defense(),
         "skill": skill,
         "ability": None,
         "asleep": 0,
@@ -650,10 +685,10 @@ def borne(who, campaign):
     return who
 
 
-def worn_defense(campaign):
-    """What they have on adds up. Nothing they are carrying but not wearing counts."""
+def worn_defense(holder=EXPLORER):
+    """What a body has on adds up, whoever it is. Nothing carried but not worn counts."""
     total = 0
-    for held in canon.holdings(EXPLORER):
+    for held in canon.holdings(holder):
         if not held.get("worn"):
             continue
         for e in held.get("effects") or []:
@@ -1060,7 +1095,7 @@ def derived(entries):
     return claims, verdicts
 
 
-def check_record(campaign, turn, narration, roster=None):
+def check_record(campaign, turn, narration, roster=None, unknown=None):
     """Read the world out of a narration and rule on it. The one place the lore
     masters are asked anything, so a fight pays for it once, at its declaration."""
     read, _ = ask(
@@ -1079,14 +1114,15 @@ def check_record(campaign, turn, narration, roster=None):
     turn["facts"] = facts
 
     text, _ = ask(
-        prompts.lore2_turn(narration, facts),
+        prompts.lore2_turn(narration, facts, unknown=unknown),
         system=prompts.LORE2_SYSTEM,
         tools=READ_TOOLS,
         permission=sqlite_gate(),
         session=None,
         model=MODELS["lore2"],
     )
-    claims, verdicts = derived(extract_json(text).get("claims", []))
+    ruled = extract_json(text)
+    claims, verdicts = derived(ruled.get("claims", []))
     turn["draft"]["claims"] = claims
 
     settled = {plain(t) for t in (campaign.get("settled") or [])}
@@ -1095,7 +1131,7 @@ def check_record(campaign, turn, narration, roster=None):
         if claim and plain(claim.get("text")) in settled:
             verdict.update(result="WITHIN_BOUNDS", why="already ruled on")
     turn["verdicts"] = verdicts
-    return claims, verdicts
+    return claims, verdicts, ruled
 
 
 def hold_for_lore(campaign, turn, claims, unresolved):
@@ -1114,15 +1150,48 @@ def hold_for_lore(campaign, turn, claims, unresolved):
     return campaign, turn
 
 
+def hold_for_bodies(campaign, turn, asked):
+    """A fight naming something the world has never heard of. Nothing is rolled until
+    somebody writes the creature, because what it is decides what it can take."""
+    turn["gap"] = "\n".join("- " + q for q in asked)
+    blocked = open_phase(turn)
+    if blocked:
+        blocked["status"] = "blocked"
+    campaign["quiet"] = 0
+    turn["state"] = "awaiting_human"
+    return campaign, turn
+
+
 def step_muster(campaign, turn):
     """The whole of the lore master's part in a fight. Everything it puts on the
     ground is ruled on once, here, before a die is thrown — after this the fight
     belongs to the game master and nobody checks a blow."""
     fight = turn["fight"]
-    claims, verdicts = check_record(
-        campaign, turn, fight.get("said") or "", roster=prompts.muster(fight)
+    strangers = [{"id": x["id"], "name": x["name"]} for x in unbound(fight)]
+    claims, verdicts, ruled = check_record(
+        campaign, turn, fight.get("said") or "",
+        roster=prompts.muster(fight), unknown=strangers or None,
     )
 
+    asked = []
+    for bound in ruled.get("bodies") or []:
+        declared = canon.slug(bound.get("declared") or "")
+        became = canon.slug(bound.get("is") or "")
+        if became and canon.called(became) and rebind(fight, declared, became):
+            continue
+        was = next((x["name"] for x in strangers if x["id"] == declared), declared)
+        asked.append((bound.get("question") or "").strip()
+                     or f"does {was} exist, and what is it")
+    for stray in unbound(fight):
+        if not any(x["id"] == stray["id"] for x in strangers):
+            continue
+        if not any(stray["name"] in q or stray["id"] in q for q in asked):
+            asked.append(f"does {stray['name']} exist, and what is it")
+    if asked:
+        show_fight(turn, fight)
+        return hold_for_bodies(campaign, turn, asked)
+
+    show_fight(turn, fight)
     unresolved = [v for v in verdicts if v.get("result") == "UNRESOLVED"]
     if unresolved:
         return hold_for_lore(campaign, turn, claims, unresolved)
@@ -1159,7 +1228,7 @@ def step_lore1(campaign, turn):
         return deliver(campaign, turn)
 
     narration = draft.get("narration") or ""
-    claims, verdicts = check_record(campaign, turn, narration)
+    claims, verdicts, _ = check_record(campaign, turn, narration)
 
     by_id = {c["id"]: c for c in claims}
     false_ones = [v for v in verdicts if v.get("result") == "FALSE"]

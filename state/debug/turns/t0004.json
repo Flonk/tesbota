@@ -1,6 +1,6 @@
 {
   "turn_id": "t0004",
-  "state": "lore1",
+  "state": "awaiting_human",
   "created": "2026-09-18T01:33:15+00:00",
   "action": "I keep running until the mill's noise fades behind me, then stop to check how bad the bites are.",
   "draft": {
@@ -16,13 +16,147 @@
     "quest_open": [],
     "quest_update": [],
     "quest_close": [],
-    "claims": [],
+    "claims": [
+      {
+        "id": "c1",
+        "text": "a field wall stands in Alheim",
+        "entity": "alheim",
+        "kind": "places"
+      },
+      {
+        "id": "c2",
+        "text": "two of the bites have skin around them gone faintly grey",
+        "entity": "the-life-of-ubbo-bota",
+        "kind": "books"
+      },
+      {
+        "id": "c3",
+        "text": "the grey is spreading outward from those two bites",
+        "entity": "the-life-of-ubbo-bota",
+        "kind": "books"
+      },
+      {
+        "id": "c4",
+        "text": "several other bites are ordinary red welts",
+        "entity": "the-life-of-ubbo-bota",
+        "kind": "books"
+      },
+      {
+        "id": "c5",
+        "text": "an injury's appearance can go on changing in the time after the fight that caused it",
+        "entity": "the-life-of-ubbo-bota",
+        "kind": "books"
+      },
+      {
+        "id": "c6",
+        "text": "rats exist",
+        "entity": "rat",
+        "kind": "people"
+      },
+      {
+        "id": "c7",
+        "text": "rat bites do not cause grey spreading skin",
+        "entity": "rat",
+        "kind": "people"
+      },
+      {
+        "id": "c8",
+        "text": "a mill stands nearby in Alheim",
+        "entity": "alheim-mill",
+        "kind": "places"
+      },
+      {
+        "id": "c9",
+        "text": "mills exist",
+        "entity": "alheim-mill",
+        "kind": "places"
+      }
+    ],
     "hunger": null
   },
-  "verdicts": [],
+  "verdicts": [
+    {
+      "claim": "c1",
+      "result": "WITHIN_BOUNDS",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": [
+        "bota://books/the-pocket-guide-to-the-greater-plains-4e196#p2"
+      ]
+    },
+    {
+      "claim": "c2",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c3",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c4",
+      "result": "TRUE",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c5",
+      "result": "WITHIN_BOUNDS",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c6",
+      "result": "WITHIN_BOUNDS",
+      "why": "",
+      "question": "",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c7",
+      "result": "UNRESOLVED",
+      "why": "",
+      "question": "Can a rat's bite cause the flesh around it to turn grey and spread?",
+      "alternative": "",
+      "sources": []
+    },
+    {
+      "claim": "c8",
+      "result": "TRUE",
+      "why": "established by Konrad Ebsen's pocket guide to the greater plains",
+      "question": "",
+      "alternative": "",
+      "sources": [
+        "bota://books/the-pocket-guide-to-the-greater-plains-4e196#p2"
+      ]
+    },
+    {
+      "claim": "c9",
+      "result": "TRUE",
+      "why": "established by Konrad Ebsen's pocket guide to the greater plains",
+      "question": "",
+      "alternative": "",
+      "sources": [
+        "bota://books/the-pocket-guide-to-the-greater-plains-4e196#p2"
+      ]
+    }
+  ],
   "correction": null,
   "gm_retries": 0,
-  "gap": null,
+  "gap": "- Can a rat's bite cause the flesh around it to turn grey and spread?",
   "wake_at": null,
   "minutes": 0,
   "phases": [
@@ -39,7 +173,7 @@
       "who": "gm",
       "kind": "outcome",
       "text": "The mill's clatter fades behind you and you stop against a field wall, rolling up sleeve and trouser leg to count the damage — and among the ordinary red welts, the skin around two of the bites has gone faintly grey, the grey creeping outward as you watch, like nothing a rat ever left on anyone.",
-      "status": "pending",
+      "status": "blocked",
       "claims": []
     }
   ],
@@ -90,5 +224,16 @@
   },
   "forced_strange": true,
   "confirmed": true,
-  "pressed": false
+  "pressed": false,
+  "facts": [
+    "a field wall stands in Alheim",
+    "two of the bites have skin around them gone faintly grey",
+    "the grey is spreading outward from those two bites",
+    "several other bites are ordinary red welts",
+    "rats exist",
+    "rat bites do not cause grey spreading skin",
+    "something other than a rat caused the two grey-rimmed bites",
+    "a mill stands nearby in Alheim",
+    "mills exist"
+  ]
 }

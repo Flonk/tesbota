@@ -97,6 +97,19 @@ CREATE TABLE IF NOT EXISTS ability (
   in_aspect TEXT
 );
 
+-- What a body brings to a fight. Anything that can be fought carries one of these,
+-- so a Rat is the same Rat every time it comes out of the grass. The game master may
+-- write over any of it for one fight; what it writes never comes back here.
+CREATE TABLE IF NOT EXISTS body (
+  id      TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  health  INTEGER,
+  damage  TEXT,
+  dc      INTEGER,
+  bonus   INTEGER NOT NULL DEFAULT 0,
+  defense INTEGER NOT NULL DEFAULT 0,
+  skill   TEXT
+);
+
 CREATE TABLE IF NOT EXISTS grants (
   id      INTEGER PRIMARY KEY,
   aspect  TEXT NOT NULL REFERENCES entity(id) ON DELETE CASCADE,

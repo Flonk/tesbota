@@ -465,6 +465,21 @@ see what canon already holds, so it cannot quietly frame a fact to fit.
 TRUE and WITHIN_BOUNDS both deliver; only FALSE costs a redraft. What
 is recorded is the narrator's passage, written once the whole turn is through.
 
+**A fight is fought against things the world keeps.** Every body in one carries an
+id, and that id has to be a row. `body(id, health, damage, dc, bonus, defense, skill)`
+is what a thing brings, written against the thing itself, so a Rat is the same Rat
+every time it comes out of the grass; what it wears adds its own defense on top, the
+way the explorer's does. The game master may write any of those over for one fight — a
+half-starved rat, a guard already bloodied — and what it writes is never kept.
+
+A body the game master names that has no row goes to lore master 2, which can read
+canon and so can tell the two cases apart. Same kind under another name binds to what
+is recorded: *a mill rat* is `rat`, keeps that name in the scene, and fights with the
+Rat's numbers. A different kind binds to nothing — an orc is not an elf and is not the
+nearest thing the world happens to have — so it comes back UNRESOLVED and the fight
+stops until somebody writes the creature. Lore staying silent about a stranger is
+treated as a refusal, not as consent.
+
 **A fight is adjudicated once, at its declaration.** The game master declares who
 is on the ground, and the `muster` step puts that declaration and the whole roster
 — every body, its health, its damage, what it can do — through lore masters 1 and

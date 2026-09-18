@@ -48,13 +48,11 @@ When the explorer commits to violence, or something commits to it against them, 
       "skill": "athletics",
       "flee_dc": 10,
       "their_dc": 11,
-      "us": [
-        {"who": "the-dog", "name": "the dog", "health": 12,
-         "damage": "1–3", "dc": 12, "bonus": 2}
-      ],
+      "us": [],
       "them": [
-        {"who": "jost-halm", "name": "Jost Halm", "health": 24,
-         "damage": "2–5", "dc": 12, "bonus": 2}
+        {"who": "rat", "name": "a mill rat"},
+        {"who": "greater-plains-guard", "name": "the guard on the bridge",
+         "health": 60}
       ]
     }
 
@@ -62,7 +60,9 @@ A fight goes round by round, and everybody in it acts once a round in the order 
 
 `them` is who they are fighting, one entry each. `us` is anybody fighting alongside them and is usually left out; put a body there only when something in the world actually joins in. The explorer is added to the front of `us` for you — never write them yourself.
 
-For each body: `health` is how much it can take before it stops — 5 for a rat, 12 for a dog, 20 for a man with a knife, 40 for something a village would warn you about. `damage` is what one of its blows takes off, as a band, written the way the item table writes one. `dc` is how hard *that body* is to hit. `bonus` is what it adds to its own swings.
+`who` is the id of something the world already keeps, and a fight is fought against those. Look for one before you write anything else — `SELECT e.id, e.name FROM entity e JOIN tagged t ON t.entity = e.id AND t.aspect = 'mob'` is where the kinds live, and a named person is a body too. `name` is what to call it in this scene, and it may differ: a rat from the mill is `{"who": "rat", "name": "a mill rat"}`, not a new creature. Naming something the world has no version of stops the fight until somebody writes it, so do that only when the thing really is new.
+
+For each body, `health`, `damage`, `dc`, `bonus`, `defense` and `skill` are read off its record and you may leave every one of them out. Write one only to bend that body for this fight — a half-starved rat, a guard who has already been in a fight today — and what you write holds for this fight and is never kept. `health` is how much it can take before it stops — 5 for a rat, 12 for a dog, 20 for a man with a knife, 40 for something a village would warn you about. `damage` is what one of its blows takes off, as a band, written the way the item table writes one. `dc` is how hard *that body* is to hit. `bonus` is what it adds to its own swings. What a body wears adds its own defense on top and is never yours to write.
 
 `skill` is what the explorer is doing — `athletics` for a swung stick, `sleight of hand` for a knife, `intimidation` for a fight that is really a stare. It must be one of the eighteen. `their_dc` is how hard the explorer is to hit. `flee_dc` is how hard the fight is to get out of, and it is always lower than the rest.
 

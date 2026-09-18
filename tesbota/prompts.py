@@ -465,13 +465,26 @@ def muster(fight):
     return "\n\n".join(sides)
 
 
-def lore2_turn(narration, facts):
+def lore2_turn(narration, facts, unknown=None):
     listed = "\n".join(f"- {f}" for f in facts) or "- (nothing was read out of it)"
-    return (
-        f"What the game master narrated:\n\n{narration}\n\n"
-        f"What it asserts about the world:\n{listed}\n\n"
-        "Rule on each."
-    )
+    parts = [
+        f"What the game master narrated:\n\n{narration}",
+        f"What it asserts about the world:\n{listed}",
+    ]
+    if unknown:
+        named = "\n".join(
+            f"- `{x['id']}`, written as \"{x['name']}\"" for x in unknown
+        )
+        parts.append(
+            "A fight is being declared, and these bodies in it have no row in the "
+            "world:\n\n" + named + "\n\nSay what each one is. Look for what the "
+            "world already keeps for fighting and bind it to that where it is the "
+            "same kind of thing under another name — a mill rat is a rat. Bind "
+            "nothing across a kind: if the world has no such creature at all, leave "
+            "`is` empty and ask whether it exists. Answer in `bodies`."
+        )
+    parts.append("Rule on each.")
+    return "\n\n".join(parts)
 
 
 def lore3_turn(gap):

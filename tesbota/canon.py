@@ -464,6 +464,45 @@ def ability(name, about=None, **how):
     return ident
 
 
+BODY = ("health", "damage", "dc", "bonus", "defense", "skill")
+
+
+def embody(entity_id, **stats):
+    """What a thing brings to a fight, written against the thing itself so it is the
+    same every time it is met."""
+    ident = slug(entity_id)
+    known = {k: v for k, v in stats.items() if k in BODY and v is not None}
+    with db.writing() as con:
+        con.execute("INSERT OR IGNORE INTO body (id) VALUES (?)", (ident,))
+        if known:
+            sets = ", ".join(f"{k} = ?" for k in known)
+            con.execute(f"UPDATE body SET {sets} WHERE id = ?", (*known.values(), ident))
+    return ident
+
+
+def called(entity_id):
+    """What the record calls a thing, or nothing if it has no row."""
+    return db.value("SELECT name FROM entity WHERE id = ?", (slug(entity_id),))
+
+
+def body(entity_id):
+    """The fight stats a thing carries, or nothing if it has never been given any."""
+    row = db.row("SELECT * FROM body WHERE id = ?", (slug(entity_id),))
+    return {k: row[k] for k in BODY} if row else None
+
+
+def mobs():
+    """Every kind of body the world keeps for fighting, with what it brings."""
+    out = []
+    for row in db.rows(
+        "SELECT e.id, e.name, e.about FROM entity e"
+        " JOIN tagged t ON t.entity = e.id AND t.aspect = 'mob' ORDER BY e.name"
+    ):
+        out.append({"id": row["id"], "name": row["name"], "about": row["about"],
+                    "body": body(row["id"])})
+    return out
+
+
 def grant(aspect_id, ability_id):
     """An aspect hands out an ability to everything marked with it."""
     with db.writing() as con:

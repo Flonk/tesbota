@@ -132,6 +132,8 @@ const STATS = {
   ],
 };
 
+const FIGHTS = { ...STATS, fields: [{ ...STATS.fields[0], label: "in a fight" }, STATS.fields[1]] };
+
 const HELD_BY = {
   cols: "minmax(9rem, 2fr) 4rem",
   fields: [
@@ -203,6 +205,25 @@ function Stats({ item }) {
   ];
   if (!rows.length) return <Empty>nothing is written about what it does</Empty>;
   return <Table {...STATS} rows={rows} />;
+}
+
+function Body({ body }) {
+  const worn = Number(body.worn || 0);
+  const own = Number(body.defense || 0);
+  const rows = [
+    body.health && { id: "health", stat: "health", value: body.health },
+    body.damage && { id: "damage", stat: "damage", value: body.damage },
+    body.dc && { id: "dc", stat: "hard to hit", value: `dc ${body.dc}` },
+    body.bonus ? { id: "bonus", stat: "swings at", value: `${body.bonus > 0 ? "+" : ""}${body.bonus}` } : null,
+    (own || worn) && {
+      id: "defense",
+      stat: "defense",
+      value: worn && own ? `${own + worn} (${worn} worn)` : String(own + worn),
+    },
+    body.skill && { id: "skill", stat: "fights with", value: body.skill },
+  ].filter(Boolean);
+  if (!rows.length) return null;
+  return <Table {...FIGHTS} rows={rows} />;
 }
 
 function Who({ person }) {
@@ -357,6 +378,8 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                 ))}
               </Section>
             )}
+
+            {thing.body && <Body body={thing.body} />}
 
             {thing.kind === "abilities" && thing.ability && (
               <Section label="what it does">
