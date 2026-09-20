@@ -8,6 +8,12 @@
  *
  * A place is `fixed` if somebody surveyed it, `constrained` if a road or a child
  * pins it, and `floating` if the world has only ever named it.
+ *
+ * Surveyed means `lat`/`lon` on the place, or the middle of the shape in `extent`.
+ * The record keeps those in degrees and the roads are in metres, so the two are
+ * brought together on a plane laid flat against the world at the middle of
+ * everything anybody has fixed — near enough over the distances a life walks, and
+ * the only place in here that needs to know the world is round.
  */
 
 import * as db from "./db.ts";
@@ -25,9 +31,16 @@ const PULL = 0.2;
 export type Place = {
   name: string;
   extent: string | null;
+  lat: number | null;
+  lon: number | null;
   parent: string | null;
   children: string[];
 };
+
+/** Metres to a degree of latitude; longitude shrinks by the cosine of where you are. */
+export const PER_DEGREE = 111320;
+
+export type Anchor = { lat: number; lon: number };
 
 export type Road = {
   src: string; dst: string; bearing: string; distance: string;
@@ -36,9 +49,15 @@ export type Road = {
 
 export function places(): Record<string, Place> {
   const known: Record<string, Place> = {};
-  for (const r of db.rows("SELECT id, name, extent FROM entity WHERE kind = 'places' ORDER BY id")) {
+  for (const r of db.rows(
+    `SELECT e.id, e.name, e.extent, p.lat, p.lon
+       FROM entity e LEFT JOIN place p ON p.id = e.id
+      WHERE e.kind = 'places' ORDER BY e.id`
+  )) {
     known[String(r.id)] = {
-      name: String(r.name), extent: r.extent ?? null, parent: null, children: [],
+      name: String(r.name), extent: r.extent ?? null,
+      lat: r.lat ?? null, lon: r.lon ?? null,
+      parent: null, children: [],
     };
   }
   for (const r of db.rows("SELECT id AS src, parent AS dst FROM place WHERE parent IS NOT NULL ORDER BY id")) {
@@ -70,8 +89,8 @@ export function roads(known: Record<string, Place>): Road[] {
 }
 
 /**
- * The middle of a measured shape, so a place the world has surveyed can be pinned
- * rather than solved.
+ * The middle of a measured shape, in degrees — GeoJSON writes a point as
+ * `[lon, lat]` and this hands it back the same way round.
  */
 export function centre(extent: string | null): [number, number] | null {
   let shape: any;
@@ -97,6 +116,44 @@ export function centre(extent: string | null): [number, number] | null {
   ];
 }
 
+/** Where a place says it is, in degrees, however it says it. */
+export function degrees(place: Place): Anchor | null {
+  if (place.lat != null && place.lon != null) return { lat: place.lat, lon: place.lon };
+  const middle = centre(place.extent);
+  return middle ? { lon: middle[0], lat: middle[1] } : null;
+}
+
+/** The middle of everything surveyed, which is where the plane touches the world. */
+export function anchor(known: Record<string, Place>): Anchor | null {
+  const fixed = Object.keys(known).sort().map((i) => degrees(known[i])).filter(Boolean) as Anchor[];
+  if (!fixed.length) return null;
+  return {
+    lat: fixed.reduce((a, p) => a + p.lat, 0) / fixed.length,
+    lon: fixed.reduce((a, p) => a + p.lon, 0) / fixed.length,
+  };
+}
+
+export const flatten = (at: Anchor, on: Anchor): [number, number] => [
+  (on.lon - at.lon) * PER_DEGREE * Math.cos((at.lat * Math.PI) / 180),
+  (on.lat - at.lat) * PER_DEGREE,
+];
+
+export const round = (at: Anchor, x: number, y: number): Anchor => ({
+  lat: at.lat + y / PER_DEGREE,
+  lon: at.lon + x / (PER_DEGREE * Math.cos((at.lat * Math.PI) / 180)),
+});
+
+/** Everywhere the record actually fixes, in metres on the plane. */
+export function pinned(known: Record<string, Place>, at: Anchor | null) {
+  const out: Record<string, [number, number]> = {};
+  if (!at) return out;
+  for (const [ident, place] of Object.entries(known)) {
+    const said = degrees(place);
+    if (said) out[ident] = flatten(at, said);
+  }
+  return out;
+}
+
 const heading = (degrees: number): [number, number] => {
   const rad = (degrees * Math.PI) / 180;
   return [Math.sin(rad), Math.cos(rad)];
@@ -113,11 +170,14 @@ export function anchors(edges: Road[]): Set<string> {
   return out;
 }
 
-export function confidences(known: Record<string, Place>, edges: Road[]): Record<string, string> {
+export function confidences(
+  known: Record<string, Place>, edges: Road[], at: Anchor | null = anchor(known)
+): Record<string, string> {
   const anchored = anchors(edges);
+  const fixed = pinned(known, at);
   const out: Record<string, string> = {};
-  for (const [ident, place] of Object.entries(known)) {
-    if (place.extent && centre(place.extent)) out[ident] = "fixed";
+  for (const ident of Object.keys(known)) {
+    if (fixed[ident]) out[ident] = "fixed";
     else if (anchored.has(ident)) out[ident] = "constrained";
   }
   // A parent whose child is pinned is pinned by it, and that spreads upward —
@@ -142,15 +202,10 @@ export function confidences(known: Record<string, Place>, edges: Road[]): Record
  * something already roughly right.
  */
 export function seed(
-  known: Record<string, Place>, edges: Road[], confidence: Record<string, string>, rng: Rng
+  known: Record<string, Place>, edges: Road[], confidence: Record<string, string>, rng: Rng,
+  anchored: Anchor | null = anchor(known)
 ): Record<string, [number, number]> {
-  const at: Record<string, [number, number]> = {};
-  for (const [ident, place] of Object.entries(known)) {
-    if (confidence[ident] === "fixed") {
-      const found = centre(place.extent);
-      if (found) at[ident] = found;
-    }
-  }
+  const at: Record<string, [number, number]> = { ...pinned(known, anchored) };
 
   const out: Record<string, Road[]> = {};
   for (const e of edges) {
@@ -311,15 +366,20 @@ export const knowledge = (ident: string, been: Set<string>) =>
 export function solve(seedWith = SEED, rounds = ROUNDS) {
   const known = places();
   const edges = roads(known);
-  const confidence = confidences(known, edges);
-  const at = relax(
-    seed(known, edges, confidence, seededRng(seedWith)), known, edges, confidence, rounds
+  const at = anchor(known);
+  const confidence = confidences(known, edges, at);
+  const solved = relax(
+    seed(known, edges, confidence, seededRng(seedWith), at), known, edges, confidence, rounds
   );
   const out: Record<string, any> = {};
   for (const ident of Object.keys(known).sort()) {
+    const here = solved[ident];
+    const back = here && at ? round(at, here[0], here[1]) : null;
     out[ident] = {
-      x: at[ident] ? Number(at[ident][0].toFixed(3)) : null,
-      y: at[ident] ? Number(at[ident][1].toFixed(3)) : null,
+      x: here ? Number(here[0].toFixed(3)) : null,
+      y: here ? Number(here[1].toFixed(3)) : null,
+      lat: back ? Number(back.lat.toFixed(6)) : null,
+      lon: back ? Number(back.lon.toFixed(6)) : null,
       fixed: confidence[ident] === "fixed",
       confidence: confidence[ident],
     };
@@ -344,6 +404,7 @@ export function layout(seedWith = SEED, rounds = ROUNDS) {
   }
   return {
     seed: seedWith,
+    anchor: anchor(known),
     places: out,
     roads: roads(known),
     floating: Object.entries(solved).filter(([, m]) => m.confidence === "floating").map(([i]) => i),

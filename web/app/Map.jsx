@@ -338,6 +338,15 @@ export default function Map({ where = [], focus = null }) {
     openDossier(id);
   }
 
+  /**
+   * Frame a place. A thing with nothing inside it gets a window around it; a thing
+   * with places inside gets its own bounds, because that is what it is.
+   *
+   * It used to take whichever was smaller, this or the view you already had, which
+   * meant asking to be shown something bigger than the screen did nothing at all —
+   * and a container holding one child sits exactly where that child sits, so you
+   * were left looking at the innermost thing and told it was the outermost.
+   */
   const centre = useCallback(
     (id, close = false) => {
       const n = spot[id];
@@ -346,7 +355,7 @@ export default function Map({ where = [], focus = null }) {
       setView((now) => {
         if (!now) return now;
         if (!close) return { ...now, x: n.x - now.w / 2, y: n.y - now.h / 2 };
-        const w = Math.min(now.w, n.size.w * 3);
+        const w = Math.max(n.size.w, LEAF_W) * (n.size.kids.length ? 1.3 : 3);
         const h = box?.width ? (w * box.height) / box.width : now.h * (w / now.w);
         return { x: n.x - w / 2, y: n.y - h / 2, w, h };
       });

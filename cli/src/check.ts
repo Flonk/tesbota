@@ -13,7 +13,9 @@ import path from "node:path";
 import * as machine from "./machine.ts";
 import { Campaign, Turn } from "./schema.ts";
 import { DAYS_PER_MONTH, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
+import * as db from "./db.ts";
 import * as sky from "./sky.ts";
+import * as travel from "./travel.ts";
 import { sqlite3 } from "./sqlite.ts";
 import { STEPS } from "./steps.ts";
 
@@ -127,6 +129,41 @@ function calendar(): Wrong[] {
   }];
 }
 
+/**
+ * A road written from both ends has to disagree with itself by half a turn. Any
+ * pair that does not describes a shape no world can hold, and the map solver will
+ * not say so — it quietly splits the difference and puts the place somewhere
+ * neither row asked for.
+ */
+function ways(): Wrong[] {
+  let both: Array<Record<string, any>>;
+  try {
+    both = db.rows("SELECT src, dst, bearing FROM way ORDER BY src, dst");
+  } catch {
+    return [];
+  }
+  const said = new Map(both.map((w) => [`${w.src}|${w.dst}`, String(w.bearing ?? "")]));
+  const wrong: Wrong[] = [];
+  const seen = new Set<string>();
+  for (const w of both) {
+    const back = said.get(`${w.dst}|${w.src}`);
+    if (back === undefined || seen.has(`${w.dst}|${w.src}`)) continue;
+    seen.add(`${w.src}|${w.dst}`);
+    const there = travel.bearingDegrees(w.bearing);
+    const home = travel.bearingDegrees(back);
+    if (there === undefined || home === undefined) continue;
+    const apart = Math.abs(((there - home + 540) % 360) - 180);
+    if (Math.abs(apart - 180) <= 22.5) continue;
+    wrong.push({
+      what: "ways",
+      said:
+        `${w.src} says ${w.dst} lies ${w.bearing}, and ${w.dst} says ${w.src} lies ` +
+        `${back} — they cannot both be true`,
+    });
+  }
+  return wrong;
+}
+
 /** The one command every layer above the explorer reads the world with. */
 function reader(): Wrong[] {
   return sqlite3()
@@ -138,6 +175,7 @@ export function check(): Wrong[] {
   return [
     ...reader(),
     ...calendar(),
+    ...ways(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
     ...handlers(),
