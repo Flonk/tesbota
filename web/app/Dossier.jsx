@@ -134,6 +134,10 @@ const STATS = {
 
 const FIGHTS = { ...STATS, fields: [{ ...STATS.fields[0], label: "in a fight" }, STATS.fields[1]] };
 
+// A village has a latitude and nothing else; a world has the rest of it. Same
+// table either way, named for what is actually in it.
+const sky_of = (label) => ({ ...STATS, fields: [{ ...STATS.fields[0], label }, STATS.fields[1]] });
+
 const HELD_BY = {
   cols: "minmax(9rem, 2fr) 4rem",
   fields: [
@@ -224,6 +228,70 @@ function Body({ body }) {
   ].filter(Boolean);
   if (!rows.length) return null;
   return <Table {...FIGHTS} rows={rows} />;
+}
+
+const AU = 1.495978707e11;
+const trim = (n, to = 2) => Number(n).toFixed(to).replace(/\.?0+$/, "");
+
+function span(metres) {
+  if (metres >= AU / 20) return `${trim(metres / AU, 3)} AU`;
+  if (metres >= 1e9) return `${trim(metres / 1e9)} million km`;
+  if (metres >= 1000) return `${Math.round(metres / 1000).toLocaleString()} km`;
+  return `${Math.round(metres)} m`;
+}
+
+const hours = (seconds) => `${trim(seconds / 3600, 3)} h`;
+
+/**
+ * What a world is, and what follows from being it.
+ *
+ * Nothing here is read off a column except the first few. The year, the day and
+ * where it stands right now are solved from the mass it goes round and the
+ * distance it keeps, every time this is asked for.
+ */
+function Sky({ sky, where }) {
+  const rows = [
+    where?.lat != null && where?.lon != null && {
+      id: "where", stat: "stands at",
+      value: `${Math.abs(where.lat).toFixed(4)}°${where.lat < 0 ? "S" : "N"}, ` +
+             `${Math.abs(where.lon).toFixed(4)}°${where.lon < 0 ? "W" : "E"}`,
+    },
+    sky?.semiMajor != null && {
+      id: "orbit", stat: "orbit",
+      value: `${span(sky.semiMajor)} out` +
+             (sky.eccentricity ? `, eccentricity ${sky.eccentricity}` : ", a circle"),
+    },
+    sky?.days_per_year != null && {
+      id: "year", stat: "a year", value: `${trim(sky.days_per_year, 3)} of its own days`,
+    },
+    sky?.rotation != null && {
+      id: "turns", stat: "turns once in", value: hours(sky.rotation),
+    },
+    sky?.solar_day != null && {
+      id: "day", stat: "a day", value: hours(sky.solar_day),
+    },
+    sky?.radius != null && {
+      id: "radius", stat: "across", value: `${span(sky.radius)} at the equator`,
+    },
+    sky?.oblateness ? {
+      id: "oblate", stat: "flattened by", value: String(sky.oblateness),
+    } : null,
+    sky?.mass != null && {
+      id: "mass", stat: "weighs", value: `${Number(sky.mass).toExponential(4)} kg`,
+    },
+    sky?.tilt ? { id: "tilt", stat: "leans", value: `${sky.tilt}°` } : null,
+    sky?.subsolar && {
+      id: "subsolar", stat: "sun stands over",
+      value: `${Math.abs(sky.subsolar.lat).toFixed(2)}°${sky.subsolar.lat < 0 ? "S" : "N"}, ` +
+             `${Math.abs(sky.subsolar.lon).toFixed(2)}°${sky.subsolar.lon < 0 ? "W" : "E"}`,
+    },
+    ...(sky?.seasons || []).map((mark) => ({
+      id: mark.name, stat: mark.name, value: `day ${mark.day} of the year`,
+    })),
+  ].filter(Boolean);
+  if (!rows.length) return null;
+  const overhead = sky?.semiMajor != null || sky?.mass != null;
+  return <Table {...sky_of(overhead ? "in the sky" : "where it is")} rows={rows} />;
 }
 
 function Who({ person }) {
@@ -418,6 +486,8 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                 <Mark name="map" gap=".35rem">show it on the map</Mark>
               </button>
             )}
+
+            {thing.kind === "places" && <Sky sky={thing.sky} where={thing.place} />}
 
             {thing.kind === "items" && <Stats item={thing.item} />}
 

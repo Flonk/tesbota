@@ -944,12 +944,10 @@ textarea.prompt:focus { outline: none; }
 /* --- the system, drawn from the system --- */
 /* The orbit takes what it can get and the facts sit beside it, the same split
    the state diagram uses. */
-.orbit { display: flex; align-items: flex-start; gap: 1rem; padding: .4rem .2rem 1.2rem;
-         flex-wrap: wrap; }
-.orbitbox { flex: 1 1 15rem; min-width: 0; max-width: min(24rem, 58vh); }
+.orbit { display: flex; flex-direction: column; align-items: center; gap: .4rem;
+         padding: .6rem .2rem 1.2rem; }
+.orbitbox { width: 100%; max-width: min(26rem, 62vh); }
 .orbitsvg { display: block; width: 100%; height: auto; overflow: visible; }
-.orbitside { flex: 1 1 13rem; min-width: 0; display: flex; flex-direction: column;
-             gap: .5rem; }
 
 .orbitring { fill: none; stroke: var(--line); stroke-width: 1.6; }
 .orbitring.on { stroke: var(--gold); }
@@ -971,17 +969,6 @@ textarea.prompt:focus { outline: none; }
 .orbitmark.midsummer { stroke: var(--warn); }
 .orbitmark.midwinter { stroke: var(--place); }
 
-.osaid { margin: 0; }
-.otitle { color: var(--ink); }
-.ofacts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .15rem .7rem;
-          margin: .2rem 0 0; font-size: .88rem; }
-.ofacts dt { font: var(--mono); letter-spacing: .1em; color: var(--faint);
-             text-transform: uppercase; padding-top: .16rem; }
-.ofacts dd { margin: 0; color: var(--ink); }
-.oseasons { list-style: none; margin: .3rem 0 0; padding: 0; display: flex;
-            flex-direction: column; gap: .12rem; font-size: .85rem; }
-.oseasons li { display: flex; gap: .5rem; justify-content: space-between; }
-.omark { color: var(--dim); }
 
 /* --- the machine, drawn from the machine --- */
 /* The diagram takes half, and whatever you tapped takes the other half beside it. */

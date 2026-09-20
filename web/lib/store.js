@@ -400,7 +400,8 @@ export function entity(id) {
             WHERE pl.parent = ? ORDER BY pl.id`
         )
         .all(ident);
-      bundle.place = db.prepare(`SELECT type, parent FROM place WHERE id = ?`).get(ident) || null;
+      bundle.place =
+        db.prepare(`SELECT type, parent, lat, lon FROM place WHERE id = ?`).get(ident) || null;
       bundle.lives = db
         .prepare(
           `SELECT p.id, coalesce(e.name, replace(p.id, '-', ' ')) AS name, p.work
