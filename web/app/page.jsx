@@ -14,6 +14,7 @@ import Steer from "./Steer";
 import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
 import Map from "./Map";
+import Orbit from "./Orbit";
 import Machine from "./Machine";
 import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Tabs, Tag } from "./ui";
 
@@ -495,6 +496,10 @@ const LAYER_ICON = {
 };
 
 const SUBS = {
+  map: [
+    { id: "places", label: "places", icon: "pin" },
+    { id: "sky", label: "sky", icon: "pulse" },
+  ],
   chat: [
     { id: "talk", label: "lore master", icon: "pen" },
     { id: "gm", label: "game master", icon: "dice" },
@@ -527,7 +532,9 @@ export default function Page() {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("chat");
   const [dossier, setDossier] = useState(null);
-  const [sub, setSub] = useState({ chat: "talk", me: "equipped", library: "places", dev: "states" });
+  const [sub, setSub] = useState({
+    chat: "talk", map: "places", me: "equipped", library: "places", dev: "states",
+  });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const [catalogue, setCatalogue] = useState(null);
@@ -1022,7 +1029,9 @@ export default function Page() {
         <div className="tabbody">
           <div
             className={`tabpanel${
-              tab === "chat" || tab === "map" || (tab === "library" && sub.library !== "data")
+              tab === "chat" ||
+              (tab === "map" && sub.map === "places") ||
+              (tab === "library" && sub.library !== "data")
                 ? " flush"
                 : ""
             }${tab === "library" && sub.library === "data" && sheaf === "prompts" ? " edit" : ""}`}
@@ -1052,7 +1061,10 @@ export default function Page() {
               onNote={(text) => post("/api/note", { text }, "note")}
             />
           )}
-          {tab === "map" && <Map where={status.where} focus={mapAt} />}
+          {tab === "map" && sub.map === "places" && (
+            <Map where={status.where} focus={mapAt} />
+          )}
+          {tab === "map" && sub.map === "sky" && <Orbit />}
           {tab === "me" && sub.me === "equipped" && <Doll inventory={inventory || []} />}
           {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "stats" && (

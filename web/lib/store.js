@@ -632,6 +632,23 @@ export async function mapLayout() {
   }
 }
 
+// The system, solved, at whatever moment this adventurer is standing in. The cli
+// owns the orbital mechanics; the page only draws what comes back.
+export async function skyLayout(profile = PROFILES[0]) {
+  const [command, args] = runner(["sky", "--json"]);
+  try {
+    const { stdout } = await run(command, args, {
+      cwd: ROOT,
+      env: under(profile),
+      timeout: 60000,
+      maxBuffer: 1024 * 1024 * 8,
+    });
+    return JSON.parse(stdout.trim().split("\n").pop());
+  } catch (err) {
+    return { error: String(err.stderr || err.message || err).trim().slice(-400) };
+  }
+}
+
 export async function job() {
   const j = await readJson(JOB, null);
   if (!j) return { running: false, label: null, error: null };

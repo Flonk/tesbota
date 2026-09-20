@@ -170,6 +170,58 @@ export function seasonAngle(
 }
 
 /**
+ * Where on its orbit a body stands when it is that far round, in metres from the
+ * primary. The primary sits at a focus and not at the middle, which is the whole
+ * difference an eccentricity makes and the reason this is not a circle.
+ */
+export function atLongitude(it: Body, deg: number): { x: number; y: number; r: number } | null {
+  if (!it.semiMajor) return null;
+  const e = it.eccentricity;
+  const from = (deg - it.periapsis) * RAD;
+  const r = (it.semiMajor * (1 - e * e)) / (1 + e * Math.cos(from));
+  return { x: r * Math.cos(deg * RAD), y: r * Math.sin(deg * RAD), r };
+}
+
+/** Where it actually is, now. */
+export function at(it: Body, when: When, known: Record<string, Body> = bodies()) {
+  const angle = seasonAngle(it, when, known);
+  if (angle === null) return null;
+  const spot = atLongitude(it, angle);
+  return spot && { ...spot, angle };
+}
+
+/**
+ * The four days the tilt turns on: the two the primary stands furthest from the
+ * equator, and the two it crosses it. They are found by walking the year rather
+ * than by formula, because the year is however many days it is.
+ */
+export function seasons(it: Body, when: When, known: Record<string, Body> = bodies()) {
+  const year = Math.round(daysPerYear(it, known) ?? 0);
+  if (!year || !it.tilt) return [];
+  const lat: number[] = [];
+  for (let day = 1; day <= year; day++) {
+    const spot = subsolar(it, { ...when, day, minute: MINUTES_PER_DAY / 2 }, known);
+    lat.push(spot ? spot.lat : 0);
+  }
+  const found: Array<{ name: string; day: number; lat: number }> = [
+    { name: "midwinter", day: lat.indexOf(Math.min(...lat)) + 1, lat: Math.min(...lat) },
+    { name: "midsummer", day: lat.indexOf(Math.max(...lat)) + 1, lat: Math.max(...lat) },
+  ];
+  for (let n = 0; n < year; n++) {
+    const here = lat[n];
+    const next = lat[(n + 1) % year];
+    if (here <= 0 && next > 0) found.push({ name: "spring", day: n + 2, lat: next });
+    if (here >= 0 && next < 0) found.push({ name: "autumn", day: n + 2, lat: next });
+  }
+  return found
+    .map((mark) => ({
+      ...mark,
+      angle: seasonAngle(it, { ...when, day: mark.day, minute: MINUTES_PER_DAY / 2 }, known),
+    }))
+    .sort((a, b) => a.day - b.day);
+}
+
+/**
  * The point the primary stands straight over. Its latitude is the season; its
  * longitude is the hour, because the clock is the prime meridian's solar time.
  */
@@ -271,7 +323,7 @@ export const reread = () => {
 };
 
 /** The whole system as plain data, the way `mapping.layout` hands over the map. */
-export function describe() {
+export function describe(when: When | null = null) {
   const known = bodies();
   const out: Record<string, unknown> = {};
   for (const id of Object.keys(known).sort()) {
@@ -284,9 +336,12 @@ export function describe() {
       solar_day: day,
       days_per_year: daysPerYear(it, known),
       moves: !!year,
+      at: when ? at(it, when, known) : null,
+      subsolar: when ? subsolar(it, when, known) : null,
+      seasons: when ? seasons(it, when, known) : [],
     };
   }
-  return { bodies: out, home: home(known)?.id ?? null, calendar: calendar() };
+  return { bodies: out, home: home(known)?.id ?? null, calendar: calendar(), when };
 }
 
 /**

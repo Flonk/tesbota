@@ -21,7 +21,7 @@ import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
 import {
   APPAREL_ICON, EXPLORER, FIRST_NAMES, ITEM_TYPES, PLACE_TYPES, PROFILE, RARITY,
-  STARTING_INVENTORY, SURNAME, TRAITS,
+  STARTING_INVENTORY, SURNAME, TRAITS, WORLD_START,
 } from "./config.ts";
 import {
   allTurns, campaignIfAny, catalogue, ensureLayout, explorerName, loadCampaign,
@@ -103,7 +103,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       if (flags.has("--json")) return say({ seeded: written });
       say(written.length ? `wrote the sky for ${written.join(", ")}` : "the sky was already written");
     }
-    const said = sky.describe();
+    const held = campaignIfAny();
+    const said = sky.describe((held?.time as any) ?? WORLD_START);
     if (flags.has("--json")) return say(said);
 
     const hours = (seconds: number | null) =>
