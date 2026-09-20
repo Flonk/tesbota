@@ -104,7 +104,13 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       say(written.length ? `wrote the sky for ${written.join(", ")}` : "the sky was already written");
     }
     const held = campaignIfAny();
-    const said = sky.describe((held?.time as any) ?? WORLD_START);
+    const when = (held?.time as any) ?? WORLD_START;
+    const said = sky.describe(when);
+    for (const body of Object.values(said.bodies) as any[]) {
+      for (const mark of body.seasons || []) {
+        mark.at = worldclock.date({ ...when, day: mark.day });
+      }
+    }
     if (flags.has("--json")) return say(said);
 
     const hours = (seconds: number | null) =>

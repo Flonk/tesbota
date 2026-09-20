@@ -242,6 +242,9 @@ function span(metres) {
 
 const hours = (seconds) => `${trim(seconds / 3600, 3)} h`;
 
+const degrees = (deg, up, down, places = 4) =>
+  `${Math.abs(deg).toFixed(places)}°${deg < 0 ? down : up}`;
+
 /**
  * What a world is, and what follows from being it.
  *
@@ -252,41 +255,39 @@ const hours = (seconds) => `${trim(seconds / 3600, 3)} h`;
 function Sky({ sky, where }) {
   const rows = [
     where?.lat != null && where?.lon != null && {
-      id: "where", stat: "stands at",
-      value: `${Math.abs(where.lat).toFixed(4)}°${where.lat < 0 ? "S" : "N"}, ` +
-             `${Math.abs(where.lon).toFixed(4)}°${where.lon < 0 ? "W" : "E"}`,
+      id: "where", stat: "position", value: `${degrees(where.lat, "N", "S")}, ${degrees(where.lon, "E", "W")}`,
     },
     sky?.semiMajor != null && {
-      id: "orbit", stat: "orbit",
-      value: `${span(sky.semiMajor)} out` +
-             (sky.eccentricity ? `, eccentricity ${sky.eccentricity}` : ", a circle"),
+      id: "semimajor", stat: "semi-major axis", value: span(sky.semiMajor),
+    },
+    sky?.semiMajor != null && {
+      id: "eccentricity", stat: "eccentricity", value: trim(sky.eccentricity, 4) || "0",
     },
     sky?.days_per_year != null && {
-      id: "year", stat: "a year", value: `${trim(sky.days_per_year, 3)} of its own days`,
+      id: "period", stat: "orbital period", value: `${trim(sky.days_per_year, 3)} days`,
     },
     sky?.rotation != null && {
-      id: "turns", stat: "turns once in", value: hours(sky.rotation),
+      id: "sidereal", stat: "sidereal rotation", value: hours(sky.rotation),
     },
     sky?.solar_day != null && {
-      id: "day", stat: "a day", value: hours(sky.solar_day),
+      id: "solar", stat: "solar day", value: hours(sky.solar_day),
     },
     sky?.radius != null && {
-      id: "radius", stat: "across", value: `${span(sky.radius)} at the equator`,
+      id: "radius", stat: "equatorial radius", value: span(sky.radius),
     },
     sky?.oblateness ? {
-      id: "oblate", stat: "flattened by", value: String(sky.oblateness),
+      id: "oblate", stat: "oblateness", value: String(sky.oblateness),
     } : null,
     sky?.mass != null && {
-      id: "mass", stat: "weighs", value: `${Number(sky.mass).toExponential(4)} kg`,
+      id: "mass", stat: "mass", value: `${Number(sky.mass).toExponential(4)} kg`,
     },
-    sky?.tilt ? { id: "tilt", stat: "leans", value: `${sky.tilt}°` } : null,
+    sky?.tilt ? { id: "tilt", stat: "axial tilt", value: `${sky.tilt}°` } : null,
     sky?.subsolar && {
-      id: "subsolar", stat: "sun stands over",
-      value: `${Math.abs(sky.subsolar.lat).toFixed(2)}°${sky.subsolar.lat < 0 ? "S" : "N"}, ` +
-             `${Math.abs(sky.subsolar.lon).toFixed(2)}°${sky.subsolar.lon < 0 ? "W" : "E"}`,
+      id: "subsolar", stat: "subsolar point",
+      value: `${degrees(sky.subsolar.lat, "N", "S", 2)}, ${degrees(sky.subsolar.lon, "E", "W", 2)}`,
     },
     ...(sky?.seasons || []).map((mark) => ({
-      id: mark.name, stat: mark.name, value: `day ${mark.day} of the year`,
+      id: mark.name, stat: mark.says || mark.name, value: mark.at || `day ${mark.day}`,
     })),
   ].filter(Boolean);
   if (!rows.length) return null;

@@ -966,8 +966,8 @@ textarea.prompt:focus { outline: none; }
    solstices are the ones worth telling apart, and the list beside the diagram
    names all four. */
 .orbitmark { fill: none; stroke: var(--faint); stroke-width: 1.5; }
-.orbitmark.midsummer { stroke: var(--warn); }
-.orbitmark.midwinter { stroke: var(--place); }
+.orbitmark.summer-solstice { stroke: var(--warn); }
+.orbitmark.winter-solstice { stroke: var(--place); }
 
 
 /* --- the machine, drawn from the machine --- */

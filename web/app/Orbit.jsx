@@ -97,7 +97,7 @@ export default function Orbit() {
             return (
               <circle key={mark.name} className={`orbitmark ${mark.name}`} cx={at.x} cy={at.y} r={5}>
                 <title>
-                  {mark.name}, day {mark.day}
+                  {mark.says || mark.name} — {mark.at || `day ${mark.day}`}
                 </title>
               </circle>
             );

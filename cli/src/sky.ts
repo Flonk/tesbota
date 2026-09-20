@@ -203,15 +203,25 @@ export function seasons(it: Body, when: When, known: Record<string, Body> = bodi
     const spot = subsolar(it, { ...when, day, minute: MINUTES_PER_DAY / 2 }, known);
     lat.push(spot ? spot.lat : 0);
   }
-  const found: Array<{ name: string; day: number; lat: number }> = [
-    { name: "midwinter", day: lat.indexOf(Math.min(...lat)) + 1, lat: Math.min(...lat) },
-    { name: "midsummer", day: lat.indexOf(Math.max(...lat)) + 1, lat: Math.max(...lat) },
+  const found: Array<{ name: string; says: string; day: number; lat: number }> = [
+    {
+      name: "winter-solstice", says: "winter solstice",
+      day: lat.indexOf(Math.min(...lat)) + 1, lat: Math.min(...lat),
+    },
+    {
+      name: "summer-solstice", says: "summer solstice",
+      day: lat.indexOf(Math.max(...lat)) + 1, lat: Math.max(...lat),
+    },
   ];
   for (let n = 0; n < year; n++) {
     const here = lat[n];
     const next = lat[(n + 1) % year];
-    if (here <= 0 && next > 0) found.push({ name: "spring", day: n + 2, lat: next });
-    if (here >= 0 && next < 0) found.push({ name: "autumn", day: n + 2, lat: next });
+    if (here <= 0 && next > 0) {
+      found.push({ name: "vernal-equinox", says: "vernal equinox", day: n + 2, lat: next });
+    }
+    if (here >= 0 && next < 0) {
+      found.push({ name: "autumnal-equinox", says: "autumnal equinox", day: n + 2, lat: next });
+    }
   }
   return found
     .map((mark) => ({
