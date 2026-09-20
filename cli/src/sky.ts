@@ -30,6 +30,8 @@ export const REFRACTION = -0.833;
 export type Body = {
   id: string;
   name: string;
+  /** what sort of place it is — `celestial-body`, `celestial-system` */
+  type: string | null;
   /** what it goes round, or null for the thing everything else goes round */
   around: string | null;
   /** semi-major axis, metres */
@@ -62,11 +64,15 @@ export const wrap180 = (deg: number) => wrap360(deg + 180) - 180;
 export function bodies(): Record<string, Body> {
   const out: Record<string, Body> = {};
   for (const r of db.rows(
-    `SELECT o.*, e.name FROM orbit o JOIN entity e ON e.id = o.id ORDER BY o.id`
+    `SELECT o.*, e.name, p.type FROM orbit o
+        JOIN entity e ON e.id = o.id
+        LEFT JOIN place p ON p.id = o.id
+       ORDER BY o.id`
   )) {
     out[String(r.id)] = {
       id: String(r.id),
       name: String(r.name),
+      type: r.type ?? null,
       around: r.around ?? null,
       semiMajor: r.semi_major ?? null,
       eccentricity: Number(r.eccentricity ?? 0),

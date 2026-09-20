@@ -86,7 +86,7 @@ There is no column for how long a year is, how long a day is, or how many days a
 
 Which means: **do not move terra.** Its year is the calendar every date in every book is written in. Eight months of twenty-eight days have to come to exactly one orbit, and `tesbota check` refuses a world where they do not.
 
-`the-terra-system` holds the mass at its middle because nobody has written the sun yet. Write one and the mass belongs on it, with terra going round that instead.
+A `celestial-system` is a container and never gets an `orbit` row of its own — the mass belongs on the star at the middle of it, and everything else goes round the star.
 
 What a place or a person keeps is written in the same breath as they are:
 

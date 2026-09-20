@@ -185,13 +185,13 @@ export const WORLD_START = { era: 4, year: 202, day: 1, minute: 13 * 60 + 4 };
  * set down in a book still reads the same after the sky is solved rather than
  * declared. `tesbota check` will not let that drift.
  *
- * The system carries the mass at its middle because nobody has written a sun yet.
- * When somebody does, the mass moves onto it and terra goes round that instead.
+ * A system is not a body and carries nothing: the mass is on the star, and terra
+ * goes round the star.
  */
 export const WORLD_SKY = {
-  "the-terra-system": { mass: 1.98892e30 },
+  sol: { mass: 1.98892e30, radius: 6.957e8, rotation: 2192832 },
   terra: {
-    around: "the-terra-system",
+    around: "sol",
     semi_major: 107993108578,
     eccentricity: 0.0167,
     // Midwinter falls in the middle of Deepfrost and midsummer in the middle of

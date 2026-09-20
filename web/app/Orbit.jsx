@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Cap, Empty, Note, openDossier } from "./ui";
+import { Empty, Note, openDossier } from "./ui";
 
 /**
  * The system, drawn from the system.
@@ -12,9 +12,10 @@ import { Cap, Empty, Note, openDossier } from "./ui";
  * than a circle because the primary sits at a focus, which is what an eccentricity
  * means and the only thing about an orbit you can see by looking.
  *
- * It says where things are and nothing else. What a world weighs and how far over
- * it leans belong with the world, in its own entry, the way what a place contains
- * does — so tapping a body opens it rather than explaining it here.
+ * It says where things are and nothing else — no dates, no turns of the year.
+ * What a world weighs, how far over it leans and when its solstices fall belong
+ * with the world, in its own entry, the way what a place contains does. So
+ * tapping a body opens it rather than explaining it here.
  */
 
 const SIZE = 1000;
@@ -55,9 +56,11 @@ export default function Orbit() {
 
   const plan = useMemo(() => {
     if (!sky?.bodies) return null;
-    const all = Object.values(sky.bodies);
+    // A system is the space the bodies are in, not a thing sitting in the middle
+    // of it. What sits in the middle is whatever everything else goes round.
+    const all = Object.values(sky.bodies).filter((b) => b.type !== "celestial-system");
     const moving = all.filter((b) => b.at && b.semiMajor);
-    const middles = all.filter((b) => !b.at || !b.semiMajor);
+    const middles = all.filter((b) => !(b.at && b.semiMajor));
     if (!moving.length) return { middles, moving: [], scale: 1 };
     const widest = Math.max(...moving.map((b) => b.semiMajor * (1 + b.eccentricity)));
     return { middles, moving, scale: (MIDDLE * EDGE) / widest };
@@ -69,8 +72,6 @@ export default function Orbit() {
     return <Empty>nobody has written the sky down yet</Empty>;
   }
 
-  const marks = (sky.bodies[sky.home] || {}).seasons || [];
-  const home = sky.bodies[sky.home];
 
   return (
     <div className="orbit">
@@ -80,28 +81,6 @@ export default function Orbit() {
             <path key={`ring-${body.id}`} d={ring(body, plan.scale)} className="orbitring" />
           ))}
 
-          {/* Where the tilt turns the year over. They sit on the orbit because that
-              is what a season is: a place a world has got to. */}
-          {marks.map((mark) => {
-            const from = ((mark.angle - home.periapsis) * Math.PI) / 180;
-            const r =
-              (home.semiMajor * (1 - home.eccentricity ** 2)) /
-              (1 + home.eccentricity * Math.cos(from));
-            const at = spot(
-              {
-                x: r * Math.cos((mark.angle * Math.PI) / 180),
-                y: r * Math.sin((mark.angle * Math.PI) / 180),
-              },
-              plan.scale
-            );
-            return (
-              <circle key={mark.name} className={`orbitmark ${mark.name}`} cx={at.x} cy={at.y} r={5}>
-                <title>
-                  {mark.says || mark.name} — {mark.at || `day ${mark.day}`}
-                </title>
-              </circle>
-            );
-          })}
 
           {plan.middles.map((body) => (
             <g key={body.id} className="orbitbody middle" onClick={() => openDossier(body.id)}>
@@ -126,8 +105,6 @@ export default function Orbit() {
           })}
         </svg>
       </div>
-
-      {sky.when?.long && <Cap>{sky.when.long}</Cap>}
     </div>
   );
 }

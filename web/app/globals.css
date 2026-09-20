@@ -962,12 +962,6 @@ textarea.prompt:focus { outline: none; }
 .orbitbody.on circle { stroke: var(--gold); }
 .orbitbody.on text { fill: var(--ink); }
 
-/* The four turns of the year, said in colour rather than in words: the two
-   solstices are the ones worth telling apart, and the list beside the diagram
-   names all four. */
-.orbitmark { fill: none; stroke: var(--faint); stroke-width: 1.5; }
-.orbitmark.summer-solstice { stroke: var(--warn); }
-.orbitmark.winter-solstice { stroke: var(--place); }
 
 
 /* --- the machine, drawn from the machine --- */

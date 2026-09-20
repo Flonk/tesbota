@@ -269,7 +269,10 @@ function Sky({ sky, where }) {
     sky?.rotation != null && {
       id: "sidereal", stat: "sidereal rotation", value: hours(sky.rotation),
     },
-    sky?.solar_day != null && {
+    // Only worth saying for something that goes round a thing: a body orbiting
+    // nothing faces its primary exactly as often as it turns, and the row would
+    // just repeat the one above it.
+    sky?.solar_day != null && sky?.around && {
       id: "solar", stat: "solar day", value: hours(sky.solar_day),
     },
     sky?.radius != null && {
