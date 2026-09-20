@@ -10,9 +10,15 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     book(id, author, author_id, written, rarity)       author_id when the author has a row
     person(id, lives, work, born, died)
     passage(book_id, ord, text)                        a book's text, one paragraph a row
-    place(id, parent, type)                            every place sits inside one
+    place(id, parent, type, lat, lon)                  every place sits inside one
                                                        type: location | region | river |
                                                        celestial-body | celestial-system | realm
+                                                       lat/lon in degrees, where it is fixed
+                                                       enough to stand on one spot
+    orbit(id, around, semi_major, eccentricity,        what a celestial body is: metres,
+          longitude, periapsis, mass, radius,          kilograms, degrees, seconds. How long
+          oblateness, tilt, rotation, meridian)        its year and its day are follow from
+                                                       these and are never written down
     way(src, dst, bearing, distance)                   what leads where
     item(id, type, weight, worth, owed_by, rarity, slot)
                                                        weight in stone, for one of them

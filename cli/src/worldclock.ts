@@ -1,11 +1,22 @@
 /**
  * The world's calendar: eight months of four seven-day weeks, and a clock that
  * only ever moves forward by the minutes an action cost.
+ *
+ * How long the year is does not live here — it is however long terra takes to go
+ * round, solved in `sky.ts` from the mass it orbits and the distance it keeps.
+ * The months and the weeks do live here, because those are something people did
+ * to a year rather than something a year does. `tesbota check` holds the two
+ * together: eight months of twenty-eight days have to come to exactly one orbit,
+ * or the calendar has stopped describing the sky and says so.
  */
 
+import * as sky from "./sky.ts";
 import {
-  DAY_NAMES, DAYS_PER_MONTH, DAYS_PER_WEEK, DAYS_PER_YEAR, MONTH_NAMES, WORLD_START,
+  DAY_NAMES, DAYS_PER_MONTH, DAYS_PER_WEEK, MONTH_NAMES, WORLD_START,
 } from "./config.ts";
+
+/** How many days terra takes to come back round to where it started. */
+export const yearDays = () => sky.calendar().days;
 
 export const MINUTES_PER_HOUR = 60;
 export const HOURS_PER_DAY = 24;
@@ -20,13 +31,19 @@ export function normalise(time?: Partial<Time> | null): Time {
   const minute = Math.trunc(Number(t.minute) || 0);
   const day = (Math.trunc(Number(t.day) || 1)) + Math.floor(minute / MINUTES_PER_DAY);
   t.minute = ((minute % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
-  t.year = (Math.trunc(Number(t.year) || 0)) + Math.floor((day - 1) / DAYS_PER_YEAR);
-  t.day = (((day - 1) % DAYS_PER_YEAR) + DAYS_PER_YEAR) % DAYS_PER_YEAR + 1;
+  const inYear = yearDays();
+  t.year = (Math.trunc(Number(t.year) || 0)) + Math.floor((day - 1) / inYear);
+  t.day = (((day - 1) % inYear) + inYear) % inYear + 1;
   return t;
 }
 
+// A year the sky has made longer than the months can tile spills into the last
+// of them rather than off the end of the list — a wrong month name is a wrong
+// date, and `check` is already shouting about it.
 export const month = (time?: Partial<Time> | null) =>
-  MONTH_NAMES[Math.floor((normalise(time).day - 1) / DAYS_PER_MONTH)];
+  MONTH_NAMES[
+    Math.min(MONTH_NAMES.length - 1, Math.floor((normalise(time).day - 1) / DAYS_PER_MONTH))
+  ];
 
 export const dayOfMonth = (time?: Partial<Time> | null) =>
   ((normalise(time).day - 1) % DAYS_PER_MONTH) + 1;

@@ -52,9 +52,32 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS place (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm'))
+  type   TEXT CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm')),
+  lat    REAL,
+  lon    REAL
 );
 CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
+
+-- What a body is, never what follows from it. There is no period here and no
+-- day length: both are solved in sky.ts from the mass it goes round and the
+-- distance it keeps, so no stored number can disagree with what made it.
+--
+-- A system's own row carries the mass at its middle and goes round nothing, so
+-- a world can have a year before anybody has written down a sun.
+CREATE TABLE IF NOT EXISTS orbit (
+  id           TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
+  around       TEXT REFERENCES entity(id),
+  semi_major   REAL,
+  eccentricity REAL NOT NULL DEFAULT 0,
+  longitude    REAL NOT NULL DEFAULT 0,
+  periapsis    REAL NOT NULL DEFAULT 0,
+  mass         REAL,
+  radius       REAL,
+  oblateness   REAL NOT NULL DEFAULT 0,
+  tilt         REAL NOT NULL DEFAULT 0,
+  rotation     REAL,
+  meridian     REAL NOT NULL DEFAULT 0
+);
 
 CREATE TABLE IF NOT EXISTS way (
   src      TEXT NOT NULL,
@@ -308,6 +331,10 @@ export function setup(): string {
         "ALTER TABLE place ADD COLUMN type TEXT " +
           "CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm'))"
       );
+    }
+    const stood = columnsOf(db, "place");
+    for (const where of ["lat", "lon"]) {
+      if (!stood.has(where)) db.exec(`ALTER TABLE place ADD COLUMN ${where} REAL`);
     }
 
     if (columnsOf(db, "holding").has("note")) db.exec("ALTER TABLE holding DROP COLUMN note");

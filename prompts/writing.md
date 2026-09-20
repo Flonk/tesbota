@@ -65,6 +65,29 @@ Distance may be vague — "a short walk", "half a day". A number belongs there o
     UPDATE entity SET extent = '{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[0,0]]]}'
      WHERE id = 'alheim-forest';
 
+`place.lat` and `place.lon` are where on its world a place actually stands, in degrees. Write them only where the place is fixed enough to have a position somebody could survey — a town, a bridge, a mill. A road or a region is a sprawl, not a point, and wants `extent` instead. They are what says whether the sun is up there, so a wrong one is a night that happens at the wrong time.
+
+## The sky
+
+A world is a `place` like any other, with `type` `celestial-body`, and what it *is* goes in an `orbit` row:
+
+    INSERT INTO orbit (id, around, semi_major, eccentricity, mass, radius, tilt, rotation)
+    VALUES ('the-lesser-moon', 'terra', 384400000, 0.055, 7.3e22, 1737000, 6.7, 2360592);
+
+- `around` — the id of what it goes round.
+- `semi_major` — the middle of its orbit, in metres. `eccentricity` is how far from a circle, 0 to just under 1.
+- `mass` in kilograms, `radius` in metres across the equator.
+- `tilt` — how far over its axis leans, in degrees. This is the one that makes seasons; a world with no tilt has twelve hours of light everywhere, forever.
+- `oblateness` — how far from a sphere the spin has pulled it, `(equatorial − polar) / equatorial`. It changes nothing anybody standing on it would notice.
+- `rotation` — one turn against the stars, in seconds. Not one day: the day is longer, and the difference is solved.
+- `longitude` and `periapsis` say where it was when the era began, in degrees, and `meridian` which face was turned toward its primary.
+
+There is no column for how long a year is, how long a day is, or how many days are in a year, and there will not be. All three follow from the mass it goes round and the distance it keeps, and are worked out fresh every time anybody asks — so a body you move has a different year the moment you move it, and nothing is left behind saying otherwise.
+
+Which means: **do not move terra.** Its year is the calendar every date in every book is written in. Eight months of twenty-eight days have to come to exactly one orbit, and `tesbota check` refuses a world where they do not.
+
+`the-terra-system` holds the mass at its middle because nobody has written the sun yet. Write one and the mass belongs on it, with terra going round that instead.
+
 What a place or a person keeps is written in the same breath as they are:
 
     INSERT INTO holding (holder, item, qty) VALUES

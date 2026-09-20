@@ -12,7 +12,8 @@ import fs from "node:fs";
 import path from "node:path";
 import * as machine from "./machine.ts";
 import { Campaign, Turn } from "./schema.ts";
-import { PROFILES, roomOf } from "./config.ts";
+import { DAYS_PER_MONTH, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
+import * as sky from "./sky.ts";
 import { sqlite3 } from "./sqlite.ts";
 import { STEPS } from "./steps.ts";
 
@@ -104,6 +105,28 @@ function agents(): Wrong[] {
     .map((l) => ({ what: "agents", said: `${l} is called but no state declares it` }));
 }
 
+/**
+ * The calendar still describes the sky.
+ *
+ * The year is terra going round once; the months are something people did to that
+ * year. Nothing stops lore moving terra further out, and nothing should — but a
+ * year the months no longer tile is a date that has quietly stopped meaning what
+ * every stamp already written down meant, and that is worth stopping for.
+ */
+function calendar(): Wrong[] {
+  const { days, derived } = sky.calendar();
+  if (!derived) return [];
+  const tiled = MONTH_NAMES.length * DAYS_PER_MONTH;
+  if (days === tiled) return [];
+  return [{
+    what: "calendar",
+    said:
+      `terra takes ${days} days to go round but the calendar cuts the year into ` +
+      `${MONTH_NAMES.length} months of ${DAYS_PER_MONTH} — ${tiled} days. ` +
+      "Every date written since is off by the difference.",
+  }];
+}
+
 /** The one command every layer above the explorer reads the world with. */
 function reader(): Wrong[] {
   return sqlite3()
@@ -114,6 +137,7 @@ function reader(): Wrong[] {
 export function check(): Wrong[] {
   return [
     ...reader(),
+    ...calendar(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
     ...handlers(),

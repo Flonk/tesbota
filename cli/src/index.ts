@@ -15,6 +15,7 @@ import * as machine from "./machine.ts";
 import * as mapping from "./mapping.ts";
 import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
+import * as sky from "./sky.ts";
 import { reachable } from "./sqlite.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
@@ -93,6 +94,35 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       if (ran.state === "arbiter") return;
       await new Promise((r) => setTimeout(r, every * 1000));
     }
+  },
+
+  /** The system, solved. `--seed` lays the starting sky down where it is missing. */
+  sky({ flags }) {
+    if (flags.has("--seed")) {
+      const written = sky.seed();
+      if (flags.has("--json")) return say({ seeded: written });
+      say(written.length ? `wrote the sky for ${written.join(", ")}` : "the sky was already written");
+    }
+    const said = sky.describe();
+    if (flags.has("--json")) return say(said);
+
+    const hours = (seconds: number | null) =>
+      seconds ? `${(seconds / 3600).toFixed(4)} h` : "—";
+    for (const [id, it] of Object.entries(said.bodies) as Array<[string, any]>) {
+      say(`${view.BOLD}${it.name}${view.OFF}${view.DIM} — ${id}${view.OFF}`);
+      if (it.around) say(`  goes round ${it.around}`);
+      if (it.semiMajor) {
+        say(`  ${(it.semiMajor / 1e9).toFixed(3)} million km out, eccentricity ${it.eccentricity}`);
+      }
+      if (it.mass) say(`  ${it.mass.toExponential(4)} kg`);
+      if (it.radius) say(`  ${(it.radius / 1000).toFixed(0)} km across the equator, oblateness ${it.oblateness}`);
+      if (it.tilt) say(`  leans ${it.tilt}°`);
+      if (it.rotation) say(`  turns once in ${hours(it.rotation)}, and faces its primary again after ${hours(it.solar_day)}`);
+      if (it.days_per_year) say(`  a year is ${it.days_per_year.toFixed(3)} of its days`);
+      say("");
+    }
+    const { days, derived } = said.calendar;
+    say(`${derived ? "solved" : "declared"}: ${days} days to the year`);
   },
 
   status() {
@@ -269,7 +299,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
  * an empty profile used to do.
  */
 const MAKES = "init";
-const NEEDS_NOBODY = new Set(["machine", "check", "prompts", "library", "map", "traits"]);
+const NEEDS_NOBODY = new Set(["machine", "check", "prompts", "library", "map", "traits", "sky"]);
 
 async function main() {
   // Before anything is asked of an agent, make sure the one command it reads the
