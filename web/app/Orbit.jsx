@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Globe from "./Globe";
-import { Btn, Cap, Empty, Note, openDossier } from "./ui";
+import { Crumb, Empty, Note, openDossier } from "./ui";
 
 /**
  * The system, drawn from the system.
@@ -82,43 +82,39 @@ export default function Orbit({ focus = null }) {
 
 
   const ground = picked ? sky.bodies[picked] : null;
+
+  // The trail is the same bar the places map wears, but its steps are views: the
+  // system you can go back to, and the world you are standing over. The one you
+  // are already on opens its record instead.
+  const trail = [
+    sky.system && { id: sky.system.id, name: sky.system.name },
+    ground && { id: ground.id, name: ground.name },
+  ].filter(Boolean);
+
+  const step = (id) => {
+    if (ground && id === ground.id) return openDossier(id);
+    if (sky.system && id === sky.system.id) return ground ? setPicked(null) : openDossier(id);
+    setPicked(id);
+  };
+
   if (ground?.standing) {
     return (
       <div className="orbit">
-        <Cap>
-          <button className="orbitwhere" onClick={() => setPicked(null)}>
-            {sky.system?.name || "the system"}
-          </button>
-          {" · "}
-          <button className="orbitwhere on" onClick={() => openDossier(ground.id)}>
-            {ground.name}
-          </button>
-        </Cap>
-        <div className="globebox">
-          <Globe body={ground} here={sky.here} />
-        </div>
-        <div className="pills">
-          <Btn onClick={() => setPicked(null)}>back to the system</Btn>
-        </div>
+        <Crumb className="maptrail" where={trail} onPick={step} />
+        <Globe body={ground} here={sky.here} />
       </div>
     );
   }
 
   return (
     <div className="orbit">
-      {sky.system && (
-        <Cap>
-          <button className="orbitwhere" onClick={() => openDossier(sky.system.id)}>
-            {sky.system.name}
-          </button>
-        </Cap>
-      )}
-      <div className="orbitbox">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="orbitsvg" role="img">
+      <Crumb className="maptrail" where={trail} onPick={step} />
+      <div className="orbitpane">
+        <div className="orbitbox">
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="orbitsvg" role="img">
           {plan.moving.map((body) => (
             <path key={`ring-${body.id}`} d={ring(body, plan.scale)} className="orbitring" />
           ))}
-
 
           {plan.middles.map((body) => (
             <g key={body.id} className="orbitbody middle" onClick={() => setPicked(body.id)}>
@@ -141,7 +137,8 @@ export default function Orbit({ focus = null }) {
               </g>
             );
           })}
-        </svg>
+          </svg>
+        </div>
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ export function Cap({ children }) {
   return <div className="cap">{children}</div>;
 }
 
-export function Crumb({ where = [], short = false, lead = null, className = "" }) {
+export function Crumb({ where = [], short = false, lead = null, onPick = null, className = "" }) {
   if (!where.length) return null;
   const shown = short ? where.slice(-2) : where;
   return (
@@ -64,7 +64,7 @@ export function Crumb({ where = [], short = false, lead = null, className = "" }
         <span key={p.id || n}>
           {n > 0 && <span className="sep">›</span>}
           {p.id ? (
-            <button className="dlink" onClick={() => openDossier(p.id)}>
+            <button className="dlink" onClick={() => (onPick ? onPick(p.id) : openDossier(p.id))}>
               {p.name}
             </button>
           ) : (

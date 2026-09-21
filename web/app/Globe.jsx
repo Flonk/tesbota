@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { openDossier } from "./ui";
 
 /**
@@ -11,15 +11,16 @@ import { openDossier } from "./ui";
  * is the trade Mercator makes and it is taken knowingly: the shape of a coast is
  * worth more here than the last five degrees of ice.
  *
- * Nothing is computed about the sky here either. `/api/sky` says where the primary
- * stands over the world and how high it is above every place anybody has fixed;
- * this draws the curve those two things imply.
+ * Nothing is computed about the sky here. `/api/sky` says where the primary stands
+ * over the world and how high it is above every place anybody has fixed; this
+ * draws the curve those two things imply, and lets you get closer to it.
  */
 
 const W = 1440;
 const H = 900;
 const LIMIT = 85;
 const RAD = Math.PI / 180;
+const CLOSEST = 64;
 
 /** Mercator stretches toward the poles without bound, so it is cut at 85°. */
 const TALL = Math.log(Math.tan((45 + LIMIT / 2) * RAD));
@@ -37,6 +38,8 @@ const across = (lon) => ((wrapped(lon) + 180) / 360) * W;
 // point has to stay at the right-hand edge rather than wrapping round to the
 // left — which folded the night in half and drew it across the map.
 const straight = (lon) => ((lon + 180) / 360) * W;
+
+const hold = (n, low, high) => Math.max(low, Math.min(high, n));
 
 /**
  * The day/night line: for every meridian, the latitude at which the primary sits
@@ -60,13 +63,15 @@ function night(subsolar) {
 }
 
 /**
- * Everything within a few degrees is one mark, because a world map is not the
- * scale at which a village and its mill are different places.
+ * Everything within a few degrees is one mark. How few depends on how close you
+ * are: a village and its mill are the same place on a world map and different ones
+ * once you have come down to them.
  */
-function gather(standing, here) {
+function gather(standing, here, span) {
+  const cell = 3 * span;
   const held = new Map();
   for (const place of standing) {
-    const key = `${Math.round(place.lat / 3)}:${Math.round(place.lon / 3)}`;
+    const key = `${Math.round(place.lat / cell)}:${Math.round(place.lon / cell)}`;
     if (!held.has(key)) held.set(key, []);
     held.get(key).push(place);
   }
@@ -87,44 +92,206 @@ function gather(standing, here) {
   });
 }
 
+const FIT = { x: 0, y: 0, w: W, h: H };
+
 export default function Globe({ body, here }) {
+  const [view, setView] = useState(FIT);
+  const [wide, setWide] = useState(0);
+  const svg = useRef(null);
+  const grab = useRef(null);
+  const held = useRef(FIT);
+  const touches = useRef({ at: {}, span: 0 });
+
+  useEffect(() => {
+    held.current = view;
+  }, [view]);
+
+  // A fresh world starts whole again.
+  useEffect(() => {
+    setView(FIT);
+  }, [body?.id]);
+
+  // How wide the picture is on the screen, which is what a pin has to be measured
+  // against. Against the map, a pin would be three pixels across on a phone.
+  useEffect(() => {
+    const el = svg.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const watch = new ResizeObserver(([entry]) => setWide(entry.contentRect.width));
+    watch.observe(el);
+    setWide(el.getBoundingClientRect().width);
+    return () => watch.disconnect();
+  }, [body?.id]);
+
   const sun = body?.subsolar || null;
-  const marks = useMemo(() => gather(body?.standing || [], here), [body, here]);
+  const marks = useMemo(
+    () => gather(body?.standing || [], here, view.w / W),
+    [body, here, view.w]
+  );
+  const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
+
+  /** Where the picture actually sits on the screen, so a finger can be put on it. */
+  const framed = useCallback(() => {
+    const box = svg.current?.getBoundingClientRect();
+    if (!box) return null;
+    const now = held.current;
+    const k = Math.min(box.width / now.w, box.height / now.h);
+    return {
+      k,
+      ox: box.left + (box.width - now.w * k) / 2,
+      oy: box.top + (box.height - now.h * k) / 2,
+    };
+  }, []);
+
+  /** Keep the world in the window: you may come closer, never sail off the edge. */
+  const settle = useCallback((want) => {
+    const w = hold(want.w, W / CLOSEST, W);
+    const h = (w * H) / W;
+    return { w, h, x: hold(want.x, 0, W - w), y: hold(want.y, 0, H - h) };
+  }, []);
+
+  const zoomAt = useCallback(
+    (clientX, clientY, factor) => {
+      const f = framed();
+      if (!f) return;
+      setView((now) => {
+        const px = now.x + (clientX - f.ox) / f.k;
+        const py = now.y + (clientY - f.oy) / f.k;
+        const w = hold(now.w * factor, W / CLOSEST, W);
+        const step = w / now.w;
+        return settle({ x: px - (px - now.x) * step, y: py - (py - now.y) * step, w, h: now.h * step });
+      });
+    },
+    [framed, settle]
+  );
+
+  useEffect(() => {
+    const el = svg.current;
+    if (!el) return;
+    const wheel = (e) => {
+      e.preventDefault();
+      zoomAt(e.clientX, e.clientY, Math.exp(e.deltaY * 0.0018));
+    };
+    el.addEventListener("wheel", wheel, { passive: false });
+    return () => el.removeEventListener("wheel", wheel);
+  }, [zoomAt]);
+
+  function seat(x, y, moved) {
+    grab.current = { from: { ...held.current }, x, y, moved };
+  }
+
+  function press(e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    touches.current.at[e.pointerId] = { x: e.clientX, y: e.clientY };
+    const on = Object.keys(touches.current.at).length;
+    if (on === 1) seat(e.clientX, e.clientY, false);
+    if (on >= 2) {
+      grab.current = null;
+      touches.current.span = 0;
+      touches.current.pinched = true;
+    }
+  }
+
+  function move(e) {
+    const finger = touches.current.at[e.pointerId];
+    if (!finger) return;
+    finger.x = e.clientX;
+    finger.y = e.clientY;
+
+    const on = Object.values(touches.current.at);
+    if (on.length >= 2) {
+      const [one, two] = on;
+      const span = Math.hypot(two.x - one.x, two.y - one.y);
+      const last = touches.current.span || span;
+      touches.current.span = span;
+      if (span > 0 && last > 0) zoomAt((one.x + two.x) / 2, (one.y + two.y) / 2, last / span);
+      return;
+    }
+
+    const g = grab.current;
+    const f = framed();
+    if (!g || !f) return;
+    const dx = e.clientX - g.x;
+    const dy = e.clientY - g.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) g.moved = true;
+    setView(settle({ ...g.from, x: g.from.x - dx / f.k, y: g.from.y - dy / f.k }));
+  }
+
+  function lift(e) {
+    delete touches.current.at[e.pointerId];
+    const left = Object.values(touches.current.at);
+    touches.current.span = 0;
+    if (left.length === 1) seat(left[0].x, left[0].y, true);
+    else if (!left.length) touches.current.pinched = false;
+  }
+
+  function tap(id) {
+    if (grab.current?.moved || touches.current.pinched) return;
+    openDossier(id);
+  }
 
   if (!sun) return null;
 
-  const dark = night(sun);
+  // Everything drawn on top of the world is kept the same size on the screen
+  // however close you are, the way a pin does not grow when a map is zoomed. One
+  // user unit at this scale is one pixel, so the numbers below are pixels.
+  const near = wide ? view.w / wide : view.w / W;
 
+  // Two names on top of each other say less than one name does. Whoever you are
+  // standing with wins, then whoever stands with the most.
+  const said = [];
+  for (const mark of [...marks].sort(
+    (a, b) => (b.here ? 1 : 0) - (a.here ? 1 : 0) || b.all.length - a.all.length
+  )) {
+    const x = across(mark.lon);
+    const y = down(mark.lat);
+    const crowded = said.some(
+      (kept) => Math.abs(kept.x - x) < 90 * near && Math.abs(kept.y - y) < 26 * near
+    );
+    if (!crowded) said.push({ id: mark.id, x, y });
+  }
+  const named = new Set(said.map((k) => k.id));
   const tropic = Math.abs(body.tilt || 0);
   const lines = [];
-  for (let lon = -180; lon <= 180; lon += 30) lines.push({ lon });
+  for (let lon = -180; lon < 180; lon += 30) lines.push({ lon });
   for (let lat = -60; lat <= 60; lat += 30) lines.push({ lat });
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="globesvg" role="img">
+    <svg
+      ref={svg}
+      viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
+      className="globesvg"
+      role="img"
+      onPointerDown={press}
+      onPointerMove={move}
+      onPointerUp={lift}
+      onPointerCancel={lift}
+    >
       <rect x="0" y="0" width={W} height={H} className="globeday" />
       <path d={dark} className="globenight" />
 
-      {lines.map((line, n) =>
-        line.lon !== undefined ? (
-          <line key={`m${n}`} x1={across(line.lon)} y1="0" x2={across(line.lon)} y2={H}
-                className="globegrid" />
-        ) : (
-          <line key={`p${n}`} x1="0" y1={down(line.lat)} x2={W} y2={down(line.lat)}
-                className="globegrid" />
-        )
-      )}
-      <line x1="0" y1={down(0)} x2={W} y2={down(0)} className="globegrid equator" />
-      {!!tropic && (
-        <>
-          <line x1="0" y1={down(tropic)} x2={W} y2={down(tropic)} className="globegrid tropic" />
-          <line x1="0" y1={down(-tropic)} x2={W} y2={down(-tropic)} className="globegrid tropic" />
-        </>
-      )}
+      <g style={{ strokeWidth: near }}>
+        {lines.map((line, n) =>
+          line.lon !== undefined ? (
+            <line key={`m${n}`} x1={across(line.lon)} y1="0" x2={across(line.lon)} y2={H}
+                  className="globegrid" />
+          ) : (
+            <line key={`p${n}`} x1="0" y1={down(line.lat)} x2={W} y2={down(line.lat)}
+                  className="globegrid" />
+          )
+        )}
+        <line x1="0" y1={down(0)} x2={W} y2={down(0)} className="globegrid equator" />
+        {!!tropic && (
+          <>
+            <line x1="0" y1={down(tropic)} x2={W} y2={down(tropic)} className="globegrid tropic" />
+            <line x1="0" y1={down(-tropic)} x2={W} y2={down(-tropic)} className="globegrid tropic" />
+          </>
+        )}
+      </g>
 
-      <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)})`}>
-        <circle r="13" />
-        <circle r="24" className="globeglow" />
+      <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)}) scale(${near})`}>
+        <circle r="7" />
+        <circle r="13" className="globeglow" />
         <title>the sun stands straight over here</title>
       </g>
 
@@ -132,14 +299,16 @@ export default function Globe({ body, here }) {
         <g
           key={mark.id}
           className={`globemark${mark.here ? " here" : ""}${mark.day ? " lit" : ""}`}
-          transform={`translate(${across(mark.lon)} ${down(mark.lat)})`}
-          onClick={() => openDossier(mark.id)}
+          transform={`translate(${across(mark.lon)} ${down(mark.lat)}) scale(${near})`}
+          onClick={() => tap(mark.id)}
         >
-          <circle r="9" />
-          <text y="-20" textAnchor="middle">
-            {mark.name}
-            {mark.more > 0 ? ` +${mark.more}` : ""}
-          </text>
+          <circle r="5" />
+          {named.has(mark.id) && (
+            <text y="-11" textAnchor="middle">
+              {mark.name}
+              {mark.more > 0 ? ` +${mark.more}` : ""}
+            </text>
+          )}
           <title>
             {mark.all.map((p) => p.name).join(", ")} —{" "}
             {mark.day

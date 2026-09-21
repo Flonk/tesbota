@@ -1046,9 +1046,7 @@ export default function Page() {
         <div className="tabbody">
           <div
             className={`tabpanel${
-              tab === "chat" ||
-              (tab === "map" && sub.map === "places") ||
-              (tab === "library" && sub.library !== "data")
+              tab === "chat" || tab === "map" || (tab === "library" && sub.library !== "data")
                 ? " flush"
                 : ""
             }${tab === "library" && sub.library === "data" && sheaf === "prompts" ? " edit" : ""}`}

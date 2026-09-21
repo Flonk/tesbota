@@ -944,9 +944,15 @@ textarea.prompt:focus { outline: none; }
 /* --- the system, drawn from the system --- */
 /* The orbit takes what it can get and the facts sit beside it, the same split
    the state diagram uses. */
-.orbit { display: flex; flex-direction: column; align-items: center; gap: .4rem;
-         padding: .6rem .2rem 1.2rem; }
-.orbitbox { width: 100%; max-width: min(26rem, 62vh); }
+/* The sky fills its pane the way the places map does, trail bar and all. */
+.orbit {
+  flex: 1 1 auto; min-width: 0; min-height: 14rem;
+  display: flex; flex-direction: column; align-items: stretch;
+  position: relative; background: #000; overflow: hidden;
+}
+.orbitpane { flex: 1 1 auto; min-height: 0; display: flex; align-items: center;
+             justify-content: center; padding: .8rem; }
+.orbitbox { width: 100%; max-width: min(30rem, 100%); max-height: 100%; }
 /* The system is the one thing in here that is not drawn, because it is the space
    the drawing is of. So it is said instead. */
 .orbitwhere { background: none; border: 0; padding: 0; cursor: pointer;
@@ -956,12 +962,13 @@ textarea.prompt:focus { outline: none; }
 
 /* A world flattened. Mercator cannot reach a pole, so the picture stops at 85°
    and the dark cap runs off the top or the bottom of it. */
-.globebox { width: 100%; max-width: 44rem; border: 1px solid var(--line); }
-.globesvg { display: block; width: 100%; height: auto; }
+.globesvg { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; display: block;
+            touch-action: none; cursor: grab; }
+.globesvg:active { cursor: grabbing; }
 .globeday { fill: color-mix(in srgb, var(--place) 26%, var(--panel)); }
 .globenight { fill: color-mix(in srgb, #000 78%, transparent); }
-.globegrid { stroke: color-mix(in srgb, var(--line) 70%, transparent); stroke-width: 1; }
-.globegrid.equator { stroke: var(--line); stroke-width: 2; }
+.globegrid { stroke: color-mix(in srgb, var(--line) 70%, transparent); }
+.globegrid.equator { stroke: var(--line); }
 .globegrid.tropic { stroke: color-mix(in srgb, var(--warn) 45%, transparent);
                     stroke-dasharray: 8 8; }
 
@@ -969,11 +976,12 @@ textarea.prompt:focus { outline: none; }
 .globesun .globeglow { fill: color-mix(in srgb, var(--gold) 22%, transparent); }
 
 .globemark { cursor: pointer; }
-.globemark circle { fill: var(--dim); stroke: var(--bg); stroke-width: 2.5; }
+.globemark circle { fill: var(--dim); stroke: var(--bg); stroke-width: 1.5; }
 .globemark.lit circle { fill: var(--ink); }
 .globemark.here circle { fill: var(--gold); }
-.globemark text { fill: var(--dim); font: var(--mono); font-size: 26px;
-                  letter-spacing: .06em; }
+.globemark text { fill: var(--dim); font: var(--mono); font-size: 11px;
+                  letter-spacing: .06em; paint-order: stroke; stroke: var(--bg);
+                  stroke-width: 3; }
 .globemark.here text { fill: var(--gold); }
 .globemark:hover circle { filter: brightness(1.4); }
 .orbitsvg { display: block; width: 100%; height: auto; overflow: visible; }
