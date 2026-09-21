@@ -338,6 +338,25 @@ export const reread = () => {
   kept = undefined;
 };
 
+/**
+ * The space these bodies are in. It has no orbit row — a system is not a body —
+ * so it is found the other way round: whatever holds the thing everything else
+ * goes round.
+ */
+export function system(known: Record<string, Body> = bodies()) {
+  const middle = Object.values(known).find((it) => !it.around);
+  if (!middle) return null;
+  const found = db.row(
+    `SELECT e.id, e.name
+       FROM place held
+       JOIN place holder ON holder.id = held.parent
+       JOIN entity e ON e.id = holder.id
+      WHERE held.id = ? AND holder.type = 'celestial-system'`,
+    [middle.id]
+  );
+  return found ? { id: String(found.id), name: String(found.name) } : null;
+}
+
 /** The whole system as plain data, the way `mapping.layout` hands over the map. */
 export function describe(when: When | null = null) {
   const known = bodies();
@@ -357,7 +376,10 @@ export function describe(when: When | null = null) {
       seasons: when ? seasons(it, when, known) : [],
     };
   }
-  return { bodies: out, home: home(known)?.id ?? null, calendar: calendar(), when };
+  return {
+    bodies: out, home: home(known)?.id ?? null, system: system(known),
+    calendar: calendar(), when,
+  };
 }
 
 /**

@@ -947,6 +947,11 @@ textarea.prompt:focus { outline: none; }
 .orbit { display: flex; flex-direction: column; align-items: center; gap: .4rem;
          padding: .6rem .2rem 1.2rem; }
 .orbitbox { width: 100%; max-width: min(26rem, 62vh); }
+/* The system is the one thing in here that is not drawn, because it is the space
+   the drawing is of. So it is said instead. */
+.orbitwhere { background: none; border: 0; padding: 0; cursor: pointer;
+              font: inherit; letter-spacing: inherit; color: var(--dim); }
+.orbitwhere:hover { color: var(--gold); }
 .orbitsvg { display: block; width: 100%; height: auto; overflow: visible; }
 
 .orbitring { fill: none; stroke: var(--line); stroke-width: 1.6; }

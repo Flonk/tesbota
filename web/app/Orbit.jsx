@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Empty, Note, openDossier } from "./ui";
+import { Cap, Empty, Note, openDossier } from "./ui";
 
 /**
  * The system, drawn from the system.
@@ -75,6 +75,13 @@ export default function Orbit() {
 
   return (
     <div className="orbit">
+      {sky.system && (
+        <Cap>
+          <button className="orbitwhere" onClick={() => openDossier(sky.system.id)}>
+            {sky.system.name}
+          </button>
+        </Cap>
+      )}
       <div className="orbitbox">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="orbitsvg" role="img">
           {plan.moving.map((body) => (
