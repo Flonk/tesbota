@@ -96,7 +96,7 @@ const FIT = { x: 0, y: 0, w: W, h: H };
 
 export default function Globe({ body, here }) {
   const [view, setView] = useState(FIT);
-  const [wide, setWide] = useState(0);
+  const [pane, setPane] = useState({ w: 0, h: 0 });
   const svg = useRef(null);
   const grab = useRef(null);
   const held = useRef(FIT);
@@ -111,14 +111,17 @@ export default function Globe({ body, here }) {
     setView(FIT);
   }, [body?.id]);
 
-  // How wide the picture is on the screen, which is what a pin has to be measured
+  // How big the picture is on the screen, which is what a pin has to be measured
   // against. Against the map, a pin would be three pixels across on a phone.
   useEffect(() => {
     const el = svg.current;
     if (!el || typeof ResizeObserver === "undefined") return;
-    const watch = new ResizeObserver(([entry]) => setWide(entry.contentRect.width));
+    const watch = new ResizeObserver(([entry]) =>
+      setPane({ w: entry.contentRect.width, h: entry.contentRect.height })
+    );
     watch.observe(el);
-    setWide(el.getBoundingClientRect().width);
+    const box = el.getBoundingClientRect();
+    setPane({ w: box.width, h: box.height });
     return () => watch.disconnect();
   }, [body?.id]);
 
@@ -129,12 +132,16 @@ export default function Globe({ body, here }) {
   );
   const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
 
-  /** Where the picture actually sits on the screen, so a finger can be put on it. */
+  /**
+   * Where the picture actually sits on the screen, so a finger can be put on it.
+   * The world covers its pane rather than sitting letterboxed inside it, so the
+   * scale is whichever of the two is larger and the overflow is simply cropped.
+   */
   const framed = useCallback(() => {
     const box = svg.current?.getBoundingClientRect();
     if (!box) return null;
     const now = held.current;
-    const k = Math.min(box.width / now.w, box.height / now.h);
+    const k = Math.max(box.width / now.w, box.height / now.h);
     return {
       k,
       ox: box.left + (box.width - now.w * k) / 2,
@@ -142,11 +149,25 @@ export default function Globe({ body, here }) {
     };
   }, []);
 
-  /** Keep the world in the window: you may come closer, never sail off the edge. */
+  /**
+   * Keep the world in the window: you may come closer, never sail off the edge.
+   *
+   * What has to stay on the map is the part you can actually see, which is smaller
+   * than the box being asked for — covering a pane crops it. So the middle is what
+   * is held, half a screen in from either side.
+   */
   const settle = useCallback((want) => {
     const w = hold(want.w, W / CLOSEST, W);
     const h = (w * H) / W;
-    return { w, h, x: hold(want.x, 0, W - w), y: hold(want.y, 0, H - h) };
+    const box = svg.current?.getBoundingClientRect();
+    if (!box?.width || !box?.height) {
+      return { w, h, x: hold(want.x, 0, W - w), y: hold(want.y, 0, H - h) };
+    }
+    const k = Math.max(box.width / w, box.height / h);
+    const seen = { w: box.width / k, h: box.height / k };
+    const cx = hold(want.x + w / 2, seen.w / 2, W - seen.w / 2);
+    const cy = hold(want.y + h / 2, seen.h / 2, H - seen.h / 2);
+    return { w, h, x: cx - w / 2, y: cy - h / 2 };
   }, []);
 
   const zoomAt = useCallback(
@@ -234,8 +255,13 @@ export default function Globe({ body, here }) {
 
   // Everything drawn on top of the world is kept the same size on the screen
   // however close you are, the way a pin does not grow when a map is zoomed. One
-  // user unit at this scale is one pixel, so the numbers below are pixels.
-  const near = wide ? view.w / wide : view.w / W;
+  // user unit at this scale is one pixel, so the numbers below are pixels — and
+  // because the world covers its pane, the scale comes from whichever side of it
+  // is doing the covering.
+  const near =
+    pane.w && pane.h
+      ? Math.min(view.w / pane.w, view.h / pane.h)
+      : view.w / W;
 
   // Two names on top of each other say less than one name does. Whoever you are
   // standing with wins, then whoever stands with the most.
@@ -261,6 +287,7 @@ export default function Globe({ body, here }) {
       ref={svg}
       viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
       className="globesvg"
+      preserveAspectRatio="xMidYMid slice"
       role="img"
       onPointerDown={press}
       onPointerMove={move}
