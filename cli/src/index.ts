@@ -105,7 +105,9 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     }
     const held = campaignIfAny();
     const when = (held?.time as any) ?? WORLD_START;
-    const said = sky.describe(when);
+    // Everywhere they have actually stood, so the map can tell what was walked
+    // from what was only ever written down.
+    const said = sky.describe(when, mapping.walked());
     for (const body of Object.values(said.bodies) as any[]) {
       for (const mark of body.seasons || []) {
         mark.at = worldclock.date({ ...when, day: mark.day });

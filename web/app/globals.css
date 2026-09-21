@@ -975,6 +975,23 @@ textarea.prompt:focus { outline: none; }
 .globesun circle { fill: var(--gold); }
 .globesun .globeglow { fill: color-mix(in srgb, var(--gold) 22%, transparent); }
 
+/* What is written on the ground. Ground is filled, a run is stroked, and
+   anywhere the adventurer has actually stood is said a little louder than
+   somewhere only ever read about. */
+.globeshape { cursor: pointer; vector-effect: non-scaling-stroke; }
+.globeshape.region { fill: color-mix(in srgb, var(--good) 14%, transparent);
+                     stroke: color-mix(in srgb, var(--good) 45%, transparent); }
+/* Ground is held lightly so that ground inside ground still reads: a village is
+   an outline, and the houses on its street are outlines within it. */
+.globeshape.location { fill: color-mix(in srgb, var(--ink) 15%, transparent);
+                       stroke: color-mix(in srgb, var(--ink) 75%, transparent); }
+.globeshape.road { fill: none; stroke: color-mix(in srgb, var(--warn) 70%, transparent);
+                   stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.globeshape.river { fill: none; stroke: color-mix(in srgb, var(--place) 85%, transparent);
+                    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.globeshape.walked { stroke: var(--gold); }
+.globeshape:hover { filter: brightness(1.5); }
+
 .globemark { cursor: pointer; }
 .globemark circle { fill: var(--dim); stroke: var(--bg); stroke-width: 1.5; }
 .globemark.lit circle { fill: var(--ink); }

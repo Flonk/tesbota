@@ -20,7 +20,10 @@ const W = 1440;
 const H = 900;
 const LIMIT = 85;
 const RAD = Math.PI / 180;
-const CLOSEST = 64;
+// A village street is nine hundred metres on a world six thousand kilometres
+// across. Coming close enough to tell an inn from a sawmill is four figures of
+// zoom, not two.
+const CLOSEST = 60000;
 
 /** Mercator stretches toward the poles without bound, so it is cut at 85°. */
 const TALL = Math.log(Math.tan((45 + LIMIT / 2) * RAD));
@@ -63,6 +66,36 @@ function night(subsolar) {
 }
 
 /**
+ * A shape, in the picture's own units. Roads and rivers are runs and are drawn as
+ * one; everything else has ground and is drawn closed.
+ */
+function outline(extent) {
+  let drawn;
+  try {
+    drawn = JSON.parse(extent);
+  } catch {
+    return null;
+  }
+  const runs = [];
+  const walk = (node) => {
+    if (!Array.isArray(node)) return;
+    if (node.length && Array.isArray(node[0]) && typeof node[0][0] === "number") runs.push(node);
+    else node.forEach(walk);
+  };
+  walk(drawn.coordinates);
+  if (!runs.length) return null;
+  const shut = drawn.type === "Polygon" || drawn.type === "MultiPolygon";
+  return runs
+    .map(
+      (run) =>
+        "M " +
+        run.map(([lon, lat]) => `${across(lon).toFixed(5)} ${down(lat).toFixed(5)}`).join(" L ") +
+        (shut ? " Z" : "")
+    )
+    .join(" ");
+}
+
+/**
  * Everything within a few degrees is one mark. How few depends on how close you
  * are: a village and its mill are the same place on a world map and different ones
  * once you have come down to them.
@@ -71,6 +104,7 @@ function gather(standing, here, span) {
   const cell = 3 * span;
   const held = new Map();
   for (const place of standing) {
+    if (place.lat === null || place.lon === null) continue;
     const key = `${Math.round(place.lat / cell)}:${Math.round(place.lon / cell)}`;
     if (!held.has(key)) held.set(key, []);
     held.get(key).push(place);
@@ -130,6 +164,17 @@ export default function Globe({ body, here }) {
     () => gather(body?.standing || [], here, view.w / W),
     [body, here, view.w]
   );
+
+  // Ground first, then what runs across it, then what stands on it — so a house
+  // is not painted over by the village holding it.
+  const drawn = useMemo(() => {
+    const order = { region: 0, road: 1, river: 1 };
+    return (body?.standing || [])
+      .filter((place) => place.extent)
+      .map((place) => ({ ...place, d: outline(place.extent) }))
+      .filter((place) => place.d)
+      .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2));
+  }, [body]);
   const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
 
   /**
@@ -314,6 +359,19 @@ export default function Globe({ body, here }) {
             <line x1="0" y1={down(-tropic)} x2={W} y2={down(-tropic)} className="globegrid tropic" />
           </>
         )}
+      </g>
+
+      <g style={{ strokeWidth: near }}>
+        {drawn.map((place) => (
+          <path
+            key={`shape-${place.id}`}
+            d={place.d}
+            className={`globeshape ${place.type || "location"}${place.walked ? " walked" : ""}`}
+            onClick={() => tap(place.id)}
+          >
+            <title>{place.name}</title>
+          </path>
+        ))}
       </g>
 
       <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)}) scale(${near})`}>

@@ -358,7 +358,7 @@ export function system(known: Record<string, Body> = bodies()) {
 }
 
 /** The whole system as plain data, the way `mapping.layout` hands over the map. */
-export function describe(when: When | null = null) {
+export function describe(when: When | null = null, been = new Set<string>()) {
   const known = bodies();
   const out: Record<string, unknown> = {};
   for (const id of Object.keys(known).sort()) {
@@ -374,7 +374,7 @@ export function describe(when: When | null = null) {
       at: when ? at(it, when, known) : null,
       subsolar: when ? subsolar(it, when, known) : null,
       seasons: when ? seasons(it, when, known) : [],
-      standing: when ? standing(it, when, known) : [],
+      standing: when ? standing(it, when, known, been) : [],
     };
   }
   return {
@@ -412,8 +412,11 @@ export type Standing = {
   id: string;
   name: string;
   type: string | null;
-  lat: number;
-  lon: number;
+  parent: string | null;
+  lat: number | null;
+  lon: number | null;
+  extent: string | null;
+  walked: boolean;
   altitude: number | null;
   day: boolean | null;
 };
@@ -427,7 +430,7 @@ export type Standing = {
  * asked whether it is dark where the adventurer is and answer without guessing.
  */
 export function standing(
-  it: Body, when: When, known: Record<string, Body> = bodies()
+  it: Body, when: When, known: Record<string, Body> = bodies(), been = new Set<string>()
 ): Standing[] {
   const rows = db.rows(
     `WITH RECURSIVE under(id) AS (
@@ -435,24 +438,26 @@ export function standing(
        UNION
        SELECT p.id FROM place p JOIN under u ON p.parent = u.id
      )
-     SELECT p.id, e.name, p.type, p.lat, p.lon
+     SELECT p.id, e.name, e.extent, p.type, p.parent, p.lat, p.lon
        FROM place p JOIN entity e ON e.id = p.id
       WHERE p.id IN (SELECT id FROM under)
         AND p.id <> ?
-        AND p.lat IS NOT NULL AND p.lon IS NOT NULL
       ORDER BY lower(e.name)`,
     [it.id, it.id]
   );
   return rows.map((r) => {
-    const lat = Number(r.lat);
-    const lon = Number(r.lon);
-    const high = altitude(it, when, lat, lon, known);
+    const lat = r.lat === null || r.lat === undefined ? null : Number(r.lat);
+    const lon = r.lon === null || r.lon === undefined ? null : Number(r.lon);
+    const high = lat !== null && lon !== null ? altitude(it, when, lat, lon, known) : null;
     return {
       id: String(r.id),
       name: String(r.name),
       type: r.type ?? null,
+      parent: r.parent ?? null,
       lat,
       lon,
+      extent: r.extent ?? null,
+      walked: been.has(String(r.id)),
       altitude: high === null ? null : Number(high.toFixed(3)),
       day: high === null ? null : high > REFRACTION,
     };
