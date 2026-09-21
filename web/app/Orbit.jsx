@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Cap, Empty, Note, openDossier } from "./ui";
+import Globe from "./Globe";
+import { Btn, Cap, Empty, Note, openDossier } from "./ui";
 
 /**
  * The system, drawn from the system.
@@ -40,8 +41,9 @@ function ring(body, scale) {
 
 const spot = (at, scale) => ({ x: MIDDLE + at.x * scale, y: MIDDLE - at.y * scale });
 
-export default function Orbit() {
+export default function Orbit({ focus = null }) {
   const [sky, setSky] = useState(null);
+  const [picked, setPicked] = useState(null);
 
   useEffect(() => {
     let live = true;
@@ -53,6 +55,12 @@ export default function Orbit() {
       live = false;
     };
   }, []);
+
+  // A body asked for from somewhere else — its own entry, most likely — is the
+  // one being looked at, as long as this system actually holds it.
+  useEffect(() => {
+    if (focus?.id && sky?.bodies?.[focus.id]) setPicked(focus.id);
+  }, [focus, sky]);
 
   const plan = useMemo(() => {
     if (!sky?.bodies) return null;
@@ -73,6 +81,29 @@ export default function Orbit() {
   }
 
 
+  const ground = picked ? sky.bodies[picked] : null;
+  if (ground?.standing) {
+    return (
+      <div className="orbit">
+        <Cap>
+          <button className="orbitwhere" onClick={() => setPicked(null)}>
+            {sky.system?.name || "the system"}
+          </button>
+          {" · "}
+          <button className="orbitwhere on" onClick={() => openDossier(ground.id)}>
+            {ground.name}
+          </button>
+        </Cap>
+        <div className="globebox">
+          <Globe body={ground} here={sky.here} />
+        </div>
+        <div className="pills">
+          <Btn onClick={() => setPicked(null)}>back to the system</Btn>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="orbit">
       {sky.system && (
@@ -90,7 +121,7 @@ export default function Orbit() {
 
 
           {plan.middles.map((body) => (
-            <g key={body.id} className="orbitbody middle" onClick={() => openDossier(body.id)}>
+            <g key={body.id} className="orbitbody middle" onClick={() => setPicked(body.id)}>
               <circle cx={MIDDLE} cy={MIDDLE} r={14} />
               <text x={MIDDLE} y={MIDDLE + 36} textAnchor="middle">
                 {body.name}
@@ -101,7 +132,7 @@ export default function Orbit() {
           {plan.moving.map((body) => {
             const at = spot(body.at, plan.scale);
             return (
-              <g key={body.id} className="orbitbody" onClick={() => openDossier(body.id)}>
+              <g key={body.id} className="orbitbody" onClick={() => setPicked(body.id)}>
                 <line x1={MIDDLE} y1={MIDDLE} x2={at.x} y2={at.y} className="orbitreach" />
                 <circle cx={at.x} cy={at.y} r={9} />
                 <text x={at.x} y={at.y - 18} textAnchor="middle">

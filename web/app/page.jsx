@@ -545,6 +545,7 @@ export default function Page() {
   const [settings, setSettings] = useState(false);
   const [reading, setReading] = useState(null);
   const [mapAt, setMapAt] = useState(null);
+  const [skyAt, setSkyAt] = useState(null);
   const [walker, setWalker] = useState(WALKERS[0]);
   const [face, setFace] = useState("content");
   const keyboard = useKeyboardAvoid();
@@ -637,13 +638,29 @@ export default function Page() {
       url.searchParams.set("map", e.detail?.id || "");
       window.history.replaceState(null, "", url);
     };
+    // A world is not shown the way a village is: it has no inside to draw boxes
+    // of, it has a surface. That asks for the sky rather than the places.
+    const onSky = (e) => {
+      const id = e.detail?.id;
+      if (!id) return;
+      setDossier(null);
+      setQuest(null);
+      setReading(null);
+      setTab("map");
+      setSub((current) => ({ ...current, map: "sky" }));
+      setSkyAt({ id, asked: Date.now() });
+    };
     window.addEventListener("bota:map", onMap);
+    window.addEventListener("bota:sky", onSky);
     const asked = new URLSearchParams(window.location.search).get("map");
     if (asked) {
       show(asked);
       wasBlocked.current = true;
     }
-    return () => window.removeEventListener("bota:map", onMap);
+    return () => {
+      window.removeEventListener("bota:map", onMap);
+      window.removeEventListener("bota:sky", onSky);
+    };
   }, []);
 
   useEffect(() => {
@@ -1064,7 +1081,7 @@ export default function Page() {
           {tab === "map" && sub.map === "places" && (
             <Map where={status.where} focus={mapAt} />
           )}
-          {tab === "map" && sub.map === "sky" && <Orbit />}
+          {tab === "map" && sub.map === "sky" && <Orbit focus={skyAt} />}
           {tab === "me" && sub.me === "equipped" && <Doll inventory={inventory || []} />}
           {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "stats" && (

@@ -374,6 +374,7 @@ export function describe(when: When | null = null) {
       at: when ? at(it, when, known) : null,
       subsolar: when ? subsolar(it, when, known) : null,
       seasons: when ? seasons(it, when, known) : [],
+      standing: when ? standing(it, when, known) : [],
     };
   }
   return {
@@ -405,4 +406,55 @@ export function seed(): string[] {
   });
   if (written.length) reread();
   return written;
+}
+
+export type Standing = {
+  id: string;
+  name: string;
+  type: string | null;
+  lat: number;
+  lon: number;
+  altitude: number | null;
+  day: boolean | null;
+};
+
+/**
+ * Everywhere on a body that anybody has fixed a position for, however deep it
+ * sits, and whether the primary is above the horizon there right now.
+ *
+ * This is the whole point of writing a tilt down. Until something stands at a
+ * latitude, a day/night line is a drawing; once something does, the world can be
+ * asked whether it is dark where the adventurer is and answer without guessing.
+ */
+export function standing(
+  it: Body, when: When, known: Record<string, Body> = bodies()
+): Standing[] {
+  const rows = db.rows(
+    `WITH RECURSIVE under(id) AS (
+       SELECT ?
+       UNION
+       SELECT p.id FROM place p JOIN under u ON p.parent = u.id
+     )
+     SELECT p.id, e.name, p.type, p.lat, p.lon
+       FROM place p JOIN entity e ON e.id = p.id
+      WHERE p.id IN (SELECT id FROM under)
+        AND p.id <> ?
+        AND p.lat IS NOT NULL AND p.lon IS NOT NULL
+      ORDER BY lower(e.name)`,
+    [it.id, it.id]
+  );
+  return rows.map((r) => {
+    const lat = Number(r.lat);
+    const lon = Number(r.lon);
+    const high = altitude(it, when, lat, lon, known);
+    return {
+      id: String(r.id),
+      name: String(r.name),
+      type: r.type ?? null,
+      lat,
+      lon,
+      altitude: high === null ? null : Number(high.toFixed(3)),
+      day: high === null ? null : high > REFRACTION,
+    };
+  });
 }

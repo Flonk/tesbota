@@ -111,6 +111,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         mark.at = worldclock.date({ ...when, day: mark.day });
       }
     }
+    // Where the adventurer is standing, so a map of a world can say so.
+    (said as any).here = held?.location ?? null;
     if (flags.has("--json")) return say(said);
 
     const hours = (seconds: number | null) =>
