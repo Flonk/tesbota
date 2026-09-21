@@ -43,10 +43,11 @@ Every place sits inside exactly one parent, written as a row of its own — no p
 
     INSERT INTO place (id, parent, type) VALUES ('the-aler-bridge', 'alheim', 'location');
 
-`type` says what sort of place it is, and there are six:
+`type` says what sort of place it is, and there are seven:
 
-- `location` — somewhere you can stand: a town, a house, a road, a bridge.
+- `location` — somewhere you can stand: a town, a house, a bridge.
 - `region` — an expanse with places inside it: a forest, a marsh, a plain.
+- `road` — a way somebody made, and the run of it.
 - `river` — running water, and the length of it.
 - `celestial-body` — a world, a moon, a sun.
 - `celestial-system` — bodies bound to each other, and the space between them.
@@ -65,7 +66,18 @@ Distance may be vague — "a short walk", "half a day". A number belongs there o
     UPDATE entity SET extent = '{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[0,0]]]}'
      WHERE id = 'alheim-forest';
 
-`place.lat` and `place.lon` are where on its world a place actually stands, in degrees. Write them only where the place is fixed enough to have a position somebody could survey — a town, a bridge, a mill. A road or a region is a sprawl, not a point, and wants `extent` instead. They are what says whether the sun is up there, so a wrong one is a night that happens at the wrong time.
+## Where a place is
+
+Every place on a world carries both: `extent`, the shape of it, and `place.lat`/`place.lon`, the one point it is named at. There is one map and it is drawn from these, so a place with neither cannot be shown at all.
+
+`extent` is GeoJSON in degrees, `[lon, lat]` the way GeoJSON writes a point. A `Polygon` for anything with ground — a village, a forest, a marsh, a building's footprint. A `LineString` for a road or a river, which are runs rather than areas:
+
+    UPDATE entity SET extent = '{"type":"LineString","coordinates":[[11.9,55.55],[11.98,55.55]]}'
+     WHERE id = 'the-road';
+
+`lat`/`lon` is where its name sits and where somebody stands in it — inside its own shape, always. It is also what says whether the sun is up there, so a wrong one is a night that happens at the wrong time.
+
+Write what the record supports and no more. A village whose edge nobody walked still has a rough outline; a marsh known only from books has one too, and it is a guess, which is honest. What you may not do is invent a precision nobody wrote: a building's footprint belongs to a building somebody has described, not to every house in a town.
 
 ## The sky
 

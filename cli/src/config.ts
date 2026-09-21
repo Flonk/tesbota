@@ -262,8 +262,9 @@ export const APPAREL_ICON: Record<string, string> = {
 };
 
 export const PLACE_TYPES: ReadonlyArray<readonly [string, string, string]> = [
-  ["location", "somewhere you can stand: a town, a house, a road, a bridge", "pin"],
+  ["location", "somewhere you can stand: a town, a house, a bridge", "pin"],
   ["region", "an expanse with places inside it: a forest, a marsh, a plain", "map"],
+  ["road", "a way somebody made, and the run of it", "map"],
   ["river", "running water, and the length of it", "river"],
   ["celestial-body", "a world, a moon, a sun", "world"],
   ["celestial-system", "bodies bound to each other, and the space between them", "orbit"],

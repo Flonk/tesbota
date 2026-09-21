@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS place (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm')),
+  type   TEXT CHECK (type IN ('location','region','road','river','celestial-body','celestial-system','realm')),
   lat    REAL,
   lon    REAL
 );
@@ -228,17 +228,30 @@ export function connect(readonly = false): DatabaseSync {
   return db;
 }
 
-const RESORT_PLACE = `
+/**
+ * A `type` is a CHECK and sqlite cannot alter one, so widening the list means
+ * building the table again. Whatever a place already carries comes across with
+ * it — which is why this is written rather than declared: an older file may not
+ * have a position to bring.
+ */
+const resortPlace = (has: Set<string>) => {
+  const held = ["lat", "lon"].filter((c) => has.has(c));
+  const also = held.length ? ", " + held.join(", ") : "";
+  return `
 CREATE TABLE place_sorted (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm'))
+  type   TEXT CHECK (type IN ('location','region','road','river','celestial-body','celestial-system','realm')),
+  lat    REAL,
+  lon    REAL
 );
-INSERT INTO place_sorted (id, parent, type) SELECT id, parent, type FROM place;
+INSERT INTO place_sorted (id, parent, type${also})
+  SELECT id, parent, type${also} FROM place;
 DROP TABLE place;
 ALTER TABLE place_sorted RENAME TO place;
 CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
 `;
+};
 
 const WIDEN_KINDS = `
 DROP VIEW IF EXISTS writing;
@@ -321,15 +334,15 @@ export function setup(): string {
     }
 
     const placeSql = sqlOf(db, "place");
-    if (!placeSql.includes("'river'") && placeSql.includes("type")) {
+    if (!placeSql.includes("'road'") && placeSql.includes("type")) {
       db.exec("PRAGMA foreign_keys = OFF");
-      db.exec(RESORT_PLACE);
+      db.exec(resortPlace(columnsOf(db, "place")));
       db.exec("PRAGMA foreign_keys = ON");
     }
     if (!columnsOf(db, "place").has("type")) {
       db.exec(
         "ALTER TABLE place ADD COLUMN type TEXT " +
-          "CHECK (type IN ('location','region','river','celestial-body','celestial-system','realm'))"
+          "CHECK (type IN ('location','region','road','river','celestial-body','celestial-system','realm'))"
       );
     }
     const stood = columnsOf(db, "place");
