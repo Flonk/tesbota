@@ -164,6 +164,33 @@ function ways(): Wrong[] {
   return wrong;
 }
 
+/**
+ * A place nobody has put anywhere.
+ *
+ * There is one map now and it draws what the record positions, so a place with
+ * neither a point nor a shape is not drawn faintly or placed by guesswork — it is
+ * not on the map at all. That is honest, and it is worth saying out loud, because
+ * the thing it means is that nobody has finished writing the place.
+ */
+function unplaced(): Wrong[] {
+  let lost: Array<Record<string, any>>;
+  try {
+    lost = db.rows(
+      `SELECT p.id, p.type FROM place p JOIN entity e ON e.id = p.id
+        WHERE p.lat IS NULL AND e.extent IS NULL
+          AND coalesce(p.type, '') NOT IN (?, ?, ?)
+        ORDER BY p.id`,
+      ["celestial-body", "celestial-system", "realm"]
+    );
+  } catch {
+    return [];
+  }
+  return lost.map((r) => ({
+    what: "unplaced",
+    said: `${r.id} is a ${r.type ?? "place"} with no position and no shape — the map cannot draw it`,
+  }));
+}
+
 /** The one command every layer above the explorer reads the world with. */
 function reader(): Wrong[] {
   return sqlite3()
@@ -176,6 +203,7 @@ export function check(): Wrong[] {
     ...reader(),
     ...calendar(),
     ...ways(),
+    ...unplaced(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
     ...handlers(),

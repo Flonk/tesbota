@@ -44,6 +44,20 @@ const straight = (lon) => ((lon + 180) / 360) * W;
 
 const hold = (n, low, high) => Math.max(low, Math.min(high, n));
 
+/** What a drawn path takes up, read back off the path itself. */
+function bounds(d) {
+  const numbers = d.match(/-?\d+(?:\.\d+)?/g);
+  if (!numbers || numbers.length < 2) return null;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (let n = 0; n + 1 < numbers.length; n += 2) {
+    const x = Number(numbers[n]);
+    const y = Number(numbers[n + 1]);
+    minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+  }
+  return { minX, maxX, minY, maxY };
+}
+
 /**
  * The day/night line: for every meridian, the latitude at which the primary sits
  * exactly on the horizon. It is one curve because a sphere lit from one side has
@@ -128,7 +142,7 @@ function gather(standing, here, span) {
 
 const FIT = { x: 0, y: 0, w: W, h: H };
 
-export default function Globe({ body, here }) {
+export default function Globe({ body, here, focus = null }) {
   const [view, setView] = useState(FIT);
   const [pane, setPane] = useState({ w: 0, h: 0 });
   const svg = useRef(null);
@@ -214,6 +228,25 @@ export default function Globe({ body, here }) {
     const cy = hold(want.y + h / 2, seen.h / 2, H - seen.h / 2);
     return { w, h, x: cx - w / 2, y: cy - h / 2 };
   }, []);
+
+/** Put a shape in the window, with room around it. */
+  const frame = useCallback((place) => {
+    const d = place.extent && outline(place.extent);
+    const box = d ? bounds(d) : null;
+    const wide = box ? Math.max(box.maxX - box.minX, (box.maxY - box.minY) * (W / H)) * 3 : W / 400;
+    const x = box ? (box.minX + box.maxX) / 2 : across(place.lon);
+    const y = box ? (box.minY + box.maxY) / 2 : down(place.lat);
+    const w = hold(wide, W / CLOSEST, W);
+    return { x: x - w / 2, y: y - (w * H) / W / 2, w, h: (w * H) / W };
+  }, []);
+
+  // Asked for from outside: come down to it.
+  useEffect(() => {
+    if (!focus?.id) return;
+    const place = (body?.standing || []).find((p) => p.id === focus.id);
+    if (!place || (place.lat === null && !place.extent)) return;
+    setView(settle(frame(place)));
+  }, [focus?.id, focus?.asked, body, frame, settle]);
 
   const zoomAt = useCallback(
     (clientX, clientY, factor) => {

@@ -13,7 +13,6 @@ import Settings from "./Settings";
 import Steer from "./Steer";
 import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
-import Map from "./Map";
 import Orbit from "./Orbit";
 import Machine from "./Machine";
 import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Tabs, Tag } from "./ui";
@@ -496,10 +495,6 @@ const LAYER_ICON = {
 };
 
 const SUBS = {
-  map: [
-    { id: "places", label: "places", icon: "pin" },
-    { id: "sky", label: "sky", icon: "pulse" },
-  ],
   chat: [
     { id: "talk", label: "lore master", icon: "pen" },
     { id: "gm", label: "game master", icon: "dice" },
@@ -533,7 +528,7 @@ export default function Page() {
   const [tab, setTab] = useState("chat");
   const [dossier, setDossier] = useState(null);
   const [sub, setSub] = useState({
-    chat: "talk", map: "places", me: "equipped", library: "places", dev: "states",
+    chat: "talk", me: "equipped", library: "places", dev: "states",
   });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
@@ -545,7 +540,6 @@ export default function Page() {
   const [settings, setSettings] = useState(false);
   const [reading, setReading] = useState(null);
   const [mapAt, setMapAt] = useState(null);
-  const [skyAt, setSkyAt] = useState(null);
   const [walker, setWalker] = useState(WALKERS[0]);
   const [face, setFace] = useState("content");
   const keyboard = useKeyboardAvoid();
@@ -623,6 +617,9 @@ export default function Page() {
     return () => window.removeEventListener("bota:open", open);
   }, []);
 
+  // There is one map: the world itself. Asking to be shown a place asks the map
+  // to come down to it, and asking to be shown a world asks for its surface —
+  // which is the same request at two scales rather than two different maps.
   useEffect(() => {
     const show = (id) => {
       if (!id) return;
@@ -638,29 +635,13 @@ export default function Page() {
       url.searchParams.set("map", e.detail?.id || "");
       window.history.replaceState(null, "", url);
     };
-    // A world is not shown the way a village is: it has no inside to draw boxes
-    // of, it has a surface. That asks for the sky rather than the places.
-    const onSky = (e) => {
-      const id = e.detail?.id;
-      if (!id) return;
-      setDossier(null);
-      setQuest(null);
-      setReading(null);
-      setTab("map");
-      setSub((current) => ({ ...current, map: "sky" }));
-      setSkyAt({ id, asked: Date.now() });
-    };
     window.addEventListener("bota:map", onMap);
-    window.addEventListener("bota:sky", onSky);
     const asked = new URLSearchParams(window.location.search).get("map");
     if (asked) {
       show(asked);
       wasBlocked.current = true;
     }
-    return () => {
-      window.removeEventListener("bota:map", onMap);
-      window.removeEventListener("bota:sky", onSky);
-    };
+    return () => window.removeEventListener("bota:map", onMap);
   }, []);
 
   useEffect(() => {
@@ -1076,10 +1057,7 @@ export default function Page() {
               onNote={(text) => post("/api/note", { text }, "note")}
             />
           )}
-          {tab === "map" && sub.map === "places" && (
-            <Map where={status.where} focus={mapAt} />
-          )}
-          {tab === "map" && sub.map === "sky" && <Orbit focus={skyAt} />}
+          {tab === "map" && <Orbit focus={mapAt} />}
           {tab === "me" && sub.me === "equipped" && <Doll inventory={inventory || []} />}
           {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "stats" && (

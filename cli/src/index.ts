@@ -234,8 +234,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     }
   },
 
-  map({ flags }) {
-    if (flags.has("--json")) return say(mapping.layout());
+  /** What is written where, as a tree, for reading in a terminal. */
+  map() {
     say(canon.mermaid());
   },
 

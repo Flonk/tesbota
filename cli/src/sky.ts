@@ -4,7 +4,7 @@
  * The world writes down what a body *is* — how heavy, how wide, how far out it
  * keeps, how far over it leans, how fast it turns. It does not write down how long
  * a year is, because a year is not a fact about a world, it is a consequence of
- * one. Same posture as `mapping.ts`: bearings and distances are recorded and the
+ * one. Same posture the map itself takes: what was measured is recorded and the
  * coordinates are solved, so there is never a stored number that can disagree with
  * the numbers it came from.
  *
@@ -357,7 +357,7 @@ export function system(known: Record<string, Body> = bodies()) {
   return found ? { id: String(found.id), name: String(found.name) } : null;
 }
 
-/** The whole system as plain data, the way `mapping.layout` hands over the map. */
+/** The whole system as plain data, which is what the map draws. */
 export function describe(when: When | null = null, been = new Set<string>()) {
   const known = bodies();
   const out: Record<string, unknown> = {};

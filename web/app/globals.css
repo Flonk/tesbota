@@ -466,52 +466,12 @@ textarea {
 
 .bdate { color: var(--place); }
 
-.map {
-  flex: 1 1 auto; min-width: 0; min-height: 14rem;
-  display: flex; flex-direction: column; align-items: stretch;
-  position: relative; background: #000; overflow: hidden;
-}
+/* The one map wears this bar, and the sky diagram above it does too. */
 .maptrail {
   flex: 0 0 auto; display: flex; align-items: center; gap: .5rem;
   padding: .45rem .8rem; border-bottom: 1px solid var(--line);
   background: var(--panel); overflow-x: auto; white-space: nowrap;
 }
-.mapsvg { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; display: block; touch-action: none; cursor: grab; }
-.mapsvg:active { cursor: grabbing; }
-.mapkeys {
-  position: absolute; right: .6rem; bottom: .6rem; z-index: 2;
-  display: flex; gap: .25rem;
-}
-.mkey {
-  background: rgba(0, 0, 0, .55); border: 1px solid var(--line); border-radius: 2px;
-  color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
-  padding: .1rem .35rem; cursor: pointer;
-}
-.mkey:hover { color: var(--gold); border-color: var(--gold); }
-.mkey:disabled { opacity: .35; cursor: default; }
-
-.mregion { fill: #14120d; stroke: var(--line); stroke-width: 1; }
-.mregion.named { stroke-dasharray: 4 3; fill: none; }
-.mregion.recorded { opacity: .7; }
-.mregion.here { stroke: var(--gold); }
-.mregionname { fill: var(--dim); letter-spacing: .12em; text-transform: uppercase; }
-.mroad line { stroke: #3a3527; stroke-width: 1.5; }
-.mroad .mreach { stroke: transparent; stroke-width: 14; }
-.mroad:hover line { stroke: var(--place); }
-.mroad:hover .mreach { stroke: transparent; }
-.mdist { fill: var(--dim); text-anchor: middle; opacity: .75; }
-.mplace { cursor: pointer; }
-.mregion { cursor: pointer; }
-.mplace circle { fill: var(--place); stroke: none; }
-.mplace:hover circle { fill: var(--gold); }
-.mplace.named circle { fill: none; stroke: var(--dim); stroke-width: 1.2; stroke-dasharray: 3 2.5; }
-.mplace.recorded circle { fill: #4a5763; }
-.mplace .mextent { fill: rgba(125, 147, 166, .18); stroke: var(--place); stroke-width: 1; }
-.mplace .mhere { fill: none; stroke: var(--gold); stroke-width: 1.2; }
-.mplace.here circle { fill: var(--gold); }
-.mname { fill: var(--ink); text-anchor: middle; }
-.mplace.named .mname { fill: var(--dim); }
-.mplace.recorded .mname { fill: #8f8676; }
 
 .lore .cap { color: var(--warn); }
 .lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }
@@ -815,21 +775,6 @@ textarea.prompt:focus { outline: none; }
 
 .dmap { display: inline-flex; align-items: center; gap: .35rem; margin-top: .5rem; }
 
-.mapnote {
-  flex: 0 0 auto; display: flex; align-items: center; gap: .6rem;
-  padding: .4rem .8rem; border-bottom: 1px solid var(--line);
-  background: var(--panel); color: var(--warn);
-  font: var(--mono); letter-spacing: .04em;
-}
-.mapnote span { flex: 1 1 auto; min-width: 0; }
-.mhush {
-  flex: 0 0 auto; background: none; border: 0; color: var(--dim);
-  font-size: 1rem; line-height: 1; cursor: pointer; padding: 0 .2rem;
-}
-.mapnote .dlink { flex: 0 0 auto; white-space: nowrap; }
-
-
-.icon { flex: 0 0 auto; vertical-align: -.125em; }
 .mark {
   display: inline-flex; align-items: center; gap: var(--gap, .4rem);
   min-width: 0; vertical-align: middle;

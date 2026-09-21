@@ -430,10 +430,6 @@ export function openDossier(id, fragment = null) {
   if (id) window.dispatchEvent(new CustomEvent("bota:open", { detail: { id: String(id), fragment } }));
 }
 
-export function openSky(id) {
-  if (id) window.dispatchEvent(new CustomEvent("bota:sky", { detail: { id: String(id) } }));
-}
-
 export function openMap(id) {
   if (id) window.dispatchEvent(new CustomEvent("bota:map", { detail: { id: String(id) } }));
 }

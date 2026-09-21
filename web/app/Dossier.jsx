@@ -2,7 +2,7 @@
 
 import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
 import { useEffect, useState } from "react";
-import { Crumb, Empty, Mark, openDossier, openMap, openSky, Overlay, Pill, Prose, Stub, Table, Tag } from "./ui";
+import { Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Stub, Table, Tag } from "./ui";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -485,15 +485,11 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.kind === "people" && <Traits person={thing.person} />}
 
-            {thing.kind === "places" && thing.place?.type === "celestial-body" && (
-              <button className="dlink dmap" onClick={() => openSky(thing.id)}>
-                <Mark name="map" gap=".35rem">show its surface</Mark>
-              </button>
-            )}
-
-            {thing.kind === "places" && thing.place?.type !== "celestial-body" && (
+            {thing.kind === "places" && (
               <button className="dlink dmap" onClick={() => openMap(thing.id)}>
-                <Mark name="map" gap=".35rem">show it on the map</Mark>
+                <Mark name="map" gap=".35rem">
+                  {thing.place?.type === "celestial-body" ? "show its surface" : "show it on the map"}
+                </Mark>
               </button>
             )}
 

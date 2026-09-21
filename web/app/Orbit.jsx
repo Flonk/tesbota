@@ -56,11 +56,21 @@ export default function Orbit({ focus = null }) {
     };
   }, []);
 
-  // A body asked for from somewhere else — its own entry, most likely — is the
-  // one being looked at, as long as this system actually holds it.
-  useEffect(() => {
-    if (focus?.id && sky?.bodies?.[focus.id]) setPicked(focus.id);
+  // Something asked for from somewhere else — an entry, most likely. A world is
+  // the world being looked at; anything standing on one asks for the world that
+  // holds it, and the map goes down to it from there.
+  const holder = useMemo(() => {
+    if (!focus?.id || !sky?.bodies) return null;
+    if (sky.bodies[focus.id]) return focus.id;
+    for (const body of Object.values(sky.bodies)) {
+      if ((body.standing || []).some((place) => place.id === focus.id)) return body.id;
+    }
+    return null;
   }, [focus, sky]);
+
+  useEffect(() => {
+    if (holder) setPicked(holder);
+  }, [holder, focus?.asked]);
 
   const plan = useMemo(() => {
     if (!sky?.bodies) return null;
@@ -101,7 +111,11 @@ export default function Orbit({ focus = null }) {
     return (
       <div className="orbit">
         <Crumb className="maptrail" where={trail} onPick={step} />
-        <Globe body={ground} here={sky.here} />
+        <Globe
+          body={ground}
+          here={sky.here}
+          focus={focus?.id === ground.id ? null : focus}
+        />
       </div>
     );
   }
