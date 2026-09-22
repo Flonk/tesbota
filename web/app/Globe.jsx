@@ -420,11 +420,14 @@ export default function Globe({
       if (back?.error) setWrong(back.error);
       else {
         // Whatever the new shape now holds, or has let go of, it says so.
-        const shifted = [
-          ...(back?.carried || []).map((id) => ({ id, carried: true })),
-          ...(back?.moved || []),
-        ];
+        const carried = back?.carried || [];
+        const shifted = [...carried.map((id) => ({ id })), ...(back?.moved || [])];
         setMoved(shifted.length ? shifted : null);
+        // Asking for the subplaces and getting none is worth saying: it means
+        // nothing was standing on that ground, not that the asking was ignored.
+        if (!carried.length && bringing && carry) {
+          setWrong("nothing was standing inside it, so nothing came along");
+        }
         setChosen(null);
         setDraft(null);
         setCarry(null);
@@ -576,6 +579,9 @@ export default function Globe({
     }
     if (grab.current?.moved || touches.current.pinched) return;
     if (!editing) return openDossier(id);
+    // Tapping what is already in hand would start it again and lose the corners
+    // moved, the ground carried, all of it.
+    if (id === chosen) return;
     const place = (body?.standing || []).find((p) => p.id === id);
     if (place) take(place);
   }
@@ -806,7 +812,11 @@ export default function Globe({
       )}
     </svg>
 
-    {editing && wrong && <div className="globewrong">{wrong}</div>}
+    {editing && wrong && (
+      <div className="globewrong" onClick={() => setWrong(null)}>
+        {wrong}
+      </div>
+    )}
 
     {editing && !wrong && shifted && (
       <div className="globemoved" onClick={() => setMoved(null)}>
