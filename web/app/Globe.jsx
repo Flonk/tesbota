@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { openDossier } from "./ui";
-import { added, dropped, extentOf, moved, opened, reshape, runsOf, straighten } from "./shaping";
+import {
+  added, carried, covers, dropped, extentOf, moved, opened, reshape, runsOf, straighten,
+} from "./shaping";
 import { Tabs } from "./ui";
 
 /**
@@ -198,6 +200,8 @@ export default function Globe({
   // How far the whole shape has been carried, and whether what stood on it comes.
   const [carry, setCarry] = useState(null);
   const [bringing, setBringing] = useState(true);
+  // How far the hand has got this drag, before it has let go.
+  const [towed, setTowed] = useState(null);
   const shoving = useRef(null);
   const svg = useRef(null);
   const grab = useRef(null);
@@ -237,10 +241,41 @@ export default function Globe({
   }, [body?.id]);
 
   const sun = body?.subsolar || null;
-  const marks = useMemo(
-    () => gather(body?.standing || [], here, view.w / W),
-    [body, here, view.w]
+  /**
+   * What would be carried if this ground were moved — worked out from the shape as
+   * written, the same way the record will work it out when it is asked to save.
+   * Holding it here is what lets the map show a village moving with its houses
+   * rather than showing the ground slide out from under them.
+   */
+  const riders = useMemo(() => {
+    const ground = (body?.standing || []).find((p) => p.id === chosen);
+    const rings = ground?.extent ? runsOf(ground.extent) : null;
+    if (!rings?.shut) return new Set();
+    return new Set(
+      (body?.standing || [])
+        .filter(
+          (p) => p.id !== chosen && p.lat !== null && p.lon !== null &&
+            covers(rings.runs, [p.lon, p.lat])
+        )
+        .map((p) => p.id)
+    );
+  }, [body, chosen]);
+
+  const sum = (a, b) => ({ lon: (a?.lon || 0) + (b?.lon || 0), lat: (a?.lat || 0) + (b?.lat || 0) });
+  const total = carry || towed ? sum(carry, towed) : null;
+  const towing = bringing && total && riders.size ? total : null;
+  const rides = useCallback(
+    (id) => (towing && riders.has(id) ? towing : null),
+    [towing, riders]
   );
+
+  const marks = useMemo(() => {
+    const standing = (body?.standing || []).map((place) => {
+      const by = rides(place.id);
+      return by ? { ...place, lat: place.lat + by.lat, lon: place.lon + by.lon } : place;
+    });
+    return gather(standing, here, view.w / W);
+  }, [body, here, view.w, rides]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
@@ -248,11 +283,24 @@ export default function Globe({
     const order = { region: 0, road: 1, river: 1 };
     return (body?.standing || [])
       .filter((place) => place.extent && place.id !== chosen)
-      .map((place) => ({ ...place, d: outline(place.extent) }))
+      .map((place) => {
+        const by = rides(place.id);
+        const read = by && runsOf(place.extent);
+        const shape = read
+          ? JSON.stringify({
+              type: read.shut ? "Polygon" : "LineString",
+              coordinates: read.shut
+                ? carried(read.runs, by)
+                : carried(read.runs, by)[0],
+            })
+          : place.extent;
+        return { ...place, d: outline(shape) };
+      })
       .filter((place) => place.d)
       .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2));
-  }, [body, chosen]);
+  }, [body, chosen, rides]);
   const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
+
 
   /**
    * What the middle of the picture is standing on: the smallest written shape that
@@ -393,6 +441,7 @@ export default function Globe({
     setChosen(place.id);
     setDraft(read || { shut: place.type !== "road" && place.type !== "river", runs: [[]] });
     setCarry(null);
+    setTowed(null);
     setWrong(null);
   }, []);
 
@@ -431,6 +480,7 @@ export default function Globe({
         setChosen(null);
         setDraft(null);
         setCarry(null);
+        setTowed(null);
         if (onSaved) onSaved();
       }
     } catch (err) {
@@ -500,6 +550,9 @@ export default function Globe({
       setDraft((now) =>
         now && { ...now, runs: shove.runs.map((run) => run.map(([x, y]) => [x + by.lon, y + by.lat])) }
       );
+      // The ground and what stands on it move together while the hand is still
+      // down, not only once it has let go.
+      setTowed(by);
       shove.by = by;
       return;
     }
@@ -537,6 +590,7 @@ export default function Globe({
     if (shoving.current) {
       const by = shoving.current.by;
       shoving.current = null;
+      setTowed(null);
       if (by && (by.lon || by.lat)) {
         setCarry((was) => ({ lon: (was?.lon || 0) + by.lon, lat: (was?.lat || 0) + by.lat }));
       }

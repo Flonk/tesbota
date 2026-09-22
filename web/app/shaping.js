@@ -193,3 +193,20 @@ export function reshape(run, stroke, room = LOOSE) {
   const took = ways.reduce((big, way) => (area(way) > area(big) ? way : big));
   return [...took, took[0]];
 }
+
+/** Whether a shape's rings cover a point, counting crossings over all of them. */
+export function covers(runs, [x, y]) {
+  let inside = false;
+  for (const run of runs) {
+    for (let i = 0, j = run.length - 1; i < run.length; j = i++) {
+      const [xi, yi] = run[i];
+      const [xj, yj] = run[j];
+      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/** The same shape, every point of it moved by the same amount. */
+export const carried = (runs, by) =>
+  runs.map((run) => run.map(([x, y]) => [x + by.lon, y + by.lat]));
