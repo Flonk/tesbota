@@ -852,7 +852,6 @@ export default function Globe({
       onPointerCancel={lift}
     >
       <rect x="0" y="0" width={W} height={H} className="globeday" />
-      <path d={dark} className="globenight" />
 
       <g style={{ strokeWidth: near }}>
         {lines.map((line, n) =>
@@ -885,6 +884,10 @@ export default function Globe({
           </path>
         ))}
       </g>
+
+      {/* Over the ground, not under it. Night that only darkens the sea leaves a
+          continent lit at midnight, which is not a map of anything. */}
+      <path d={dark} className="globenight" />
 
       <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)}) scale(${near})`}>
         <circle r="7" />

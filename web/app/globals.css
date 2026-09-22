@@ -931,7 +931,10 @@ textarea.prompt:focus { outline: none; }
 /* A world is sea until somebody draws land on it. This is the floor of the map:
    everything below the shapes, and what shows wherever nothing has been written. */
 .globeday { fill: var(--sea); }
-.globenight { fill: color-mix(in srgb, #000 78%, transparent); }
+/* Night is a deep blue laid over the world, not black. Painting it black takes
+   the sea with it, and half the map stops being a map — the night side of a world
+   is still a world, and you can still see where its water is. */
+.globenight { fill: rgba(2, 8, 18, .55); }
 .globegrid { stroke: color-mix(in srgb, var(--line) 70%, transparent); }
 .globegrid.equator { stroke: var(--line); }
 .globegrid.tropic { stroke: color-mix(in srgb, var(--warn) 45%, transparent);
