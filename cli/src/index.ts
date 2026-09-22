@@ -234,6 +234,13 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     }
   },
 
+  /** Set a place's shape. The map writes through here and nowhere else. */
+  shape({ rest, flags }) {
+    const [id, ...drawn] = rest;
+    const said = flags.has("--clear") ? null : drawn.join(" ");
+    return say(actions.shape(id, said));
+  },
+
   /** What is written where, as a tree, for reading in a terminal. */
   map() {
     say(canon.mermaid());

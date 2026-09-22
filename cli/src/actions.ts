@@ -9,6 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import * as canon from "./canon.ts";
+import * as db from "./db.ts";
 import * as driver from "./driver.ts";
 import * as prompts from "./prompts.ts";
 import { ask } from "./agent.ts";
@@ -210,4 +211,72 @@ export async function step() {
       turn: campaign.current_turn,
     };
   }
+}
+
+/**
+ * Set the shape of a place.
+ *
+ * The one way the map itself writes to the record. It checks the shape rather
+ * than trusting it: a polygon that does not close, a point outside the world, a
+ * run of one point — none of those are a place, and a map that saved them would
+ * be quietly unreadable afterwards.
+ */
+export function shape(id: string, extent: unknown) {
+  const ident = String(id || "").trim().toLowerCase();
+  if (!ident) return { error: "no place named" };
+
+  const there = db.row("SELECT kind FROM entity WHERE id = ?", [ident]);
+  if (!there) return { error: `no such place: ${ident}` };
+  if (there.kind !== "places") return { error: `${ident} is not a place` };
+
+  if (extent === null || extent === "") {
+    db.writing((con) => con.prepare("UPDATE entity SET extent = NULL WHERE id = ?").run(ident));
+    return { ok: true, id: ident, extent: null };
+  }
+
+  let drawn: any;
+  try {
+    drawn = typeof extent === "string" ? JSON.parse(extent) : extent;
+  } catch {
+    return { error: "that is not json" };
+  }
+
+  const KINDS = ["LineString", "Polygon", "MultiPolygon"];
+  if (!drawn || !KINDS.includes(drawn.type)) {
+    return { error: `a shape is one of ${KINDS.join(", ")}` };
+  }
+
+  const runs: number[][][] = [];
+  const walk = (node: any) => {
+    if (!Array.isArray(node)) return;
+    if (node.length && Array.isArray(node[0]) && typeof node[0][0] === "number") {
+      runs.push(node);
+      return;
+    }
+    for (const child of node) walk(child);
+  };
+  walk(drawn.coordinates);
+  if (!runs.length) return { error: "that shape has no points in it" };
+
+  const shut = drawn.type !== "LineString";
+  for (const run of runs) {
+    if (run.length < (shut ? 4 : 2)) {
+      return { error: shut ? "a ring needs three corners and a close" : "a run needs two points" };
+    }
+    for (const point of run) {
+      const [lon, lat] = point;
+      if (!Number.isFinite(lon) || !Number.isFinite(lat)) return { error: "a point is not a number" };
+      if (lon < -180 || lon > 180 || lat < -90 || lat > 90) {
+        return { error: `${lon}, ${lat} is off the world` };
+      }
+    }
+    if (shut) {
+      const [first, last] = [run[0], run[run.length - 1]];
+      if (first[0] !== last[0] || first[1] !== last[1]) return { error: "a ring has to close" };
+    }
+  }
+
+  const said = JSON.stringify(drawn);
+  db.writing((con) => con.prepare("UPDATE entity SET extent = ? WHERE id = ?").run(said, ident));
+  return { ok: true, id: ident, extent: said, points: runs.reduce((n, r) => n + r.length, 0) };
 }

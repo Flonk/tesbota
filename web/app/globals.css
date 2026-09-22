@@ -908,7 +908,7 @@ textarea.prompt:focus { outline: none; }
 /* A world flattened. Mercator cannot reach a pole, so the picture stops at 85°
    and the dark cap runs off the top or the bottom of it. */
 .globesvg { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; display: block;
-            touch-action: none; cursor: grab; }
+            touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
 .globesvg:active { cursor: grabbing; }
 .globeday { fill: color-mix(in srgb, var(--place) 26%, var(--panel)); }
 .globenight { fill: color-mix(in srgb, #000 78%, transparent); }
@@ -936,6 +936,44 @@ textarea.prompt:focus { outline: none; }
                     stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .globeshape.walked { stroke: var(--gold); }
 .globeshape:hover { filter: brightness(1.5); }
+
+/* Reshaping. The corners of what is being worked on, the ghosts between them,
+   and what the hand is drawing before it has been thinned. */
+.globeshape.drafting { fill: color-mix(in srgb, var(--gold) 16%, transparent);
+                       stroke: var(--gold); stroke-width: 2; }
+.globeshape.drafting.road { fill: none; }
+.globecorner { fill: var(--gold); stroke: var(--bg); stroke-width: 1.5;
+               vector-effect: non-scaling-stroke; cursor: grab; }
+.globecorner:hover { fill: var(--bright); }
+.globeghost { fill: none; stroke: var(--gold); stroke-width: 1.2;
+              vector-effect: non-scaling-stroke; cursor: copy; opacity: .55; }
+.globeghost:hover { fill: var(--gold); opacity: 1; }
+.globepen { fill: none; stroke: var(--bright); stroke-linecap: round;
+            stroke-linejoin: round; opacity: .85; }
+
+.globetools {
+  position: absolute; left: .5rem; right: .5rem; bottom: .5rem; z-index: 3;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem;
+  background: rgba(0, 0, 0, .68); border: 1px solid var(--line); border-radius: 2px;
+  padding: .3rem .4rem;
+}
+.gname { font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
+         color: var(--ink); margin-right: auto; padding: 0 .2rem; }
+.gname.dim { color: var(--dim); }
+.gtool {
+  background: none; border: 1px solid var(--line); border-radius: 2px; cursor: pointer;
+  color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  padding: .15rem .4rem;
+}
+.gtool:hover { color: var(--gold); border-color: var(--gold); }
+.gtool.on { color: var(--gold); border-color: var(--gold); }
+.gtool.keep { color: var(--good); border-color: color-mix(in srgb, var(--good) 60%, var(--line)); }
+.gtool:disabled { opacity: .4; cursor: default; }
+.globewrong {
+  position: absolute; left: .5rem; right: .5rem; bottom: 2.6rem; z-index: 3;
+  background: rgba(0, 0, 0, .8); border: 1px solid var(--bad); border-radius: 2px;
+  color: var(--bad); padding: .3rem .5rem; font-size: .85rem;
+}
 
 /* The adventurer. The one mark on this map that is a person and not a place. */
 .globewalker circle { fill: var(--bad); stroke: var(--bg); stroke-width: 1.5; }

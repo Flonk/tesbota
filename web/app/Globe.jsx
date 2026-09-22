@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { openDossier } from "./ui";
+import { added, dropped, extentOf, moved, runsOf, straighten } from "./shaping";
 
 /**
  * A world, flattened, with the line between its day and its night drawn on it.
@@ -50,6 +51,11 @@ const across = (lon) => ((wrapped(lon) + 180) / 360) * W;
 const straight = (lon) => ((lon + 180) / 360) * W;
 
 const hold = (n, low, high) => Math.max(low, Math.min(high, n));
+
+// The projection read backwards. Looking at a map never needs this; putting a
+// finger on one and saying "there" does.
+const lonOf = (x) => wrapped((x / W) * 360 - 180);
+const latOf = (y) => 2 * (Math.atan(Math.exp(TALL * (1 - (2 * y) / H))) / RAD - 45);
 
 /** Whether a drawn shape covers a point — even-odd, over every ring it has. */
 function holds(d, x, y) {
@@ -166,9 +172,24 @@ function gather(standing, here, span) {
 
 const FIT = { x: 0, y: 0, w: W, h: H };
 
-export default function Globe({ body, here, focus = null, onCentre = null }) {
+export default function Globe({
+  body,
+  here,
+  focus = null,
+  onCentre = null,
+  editing = false,
+  onSaved = null,
+}) {
   const [view, setView] = useState(FIT);
   const [pane, setPane] = useState({ w: 0, h: 0 });
+  // What is being reshaped, and the shape as it stands before it is written down.
+  const [chosen, setChosen] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [tool, setTool] = useState("pick");
+  const [pen, setPen] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [wrong, setWrong] = useState(null);
+  const dragging = useRef(null);
   const svg = useRef(null);
   const grab = useRef(null);
   const held = useRef(FIT);
@@ -182,6 +203,14 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
   useEffect(() => {
     setView(FIT);
   }, [body?.id]);
+
+  useEffect(() => {
+    setChosen(null);
+    setDraft(null);
+    setPen(null);
+    setTool("pick");
+    setWrong(null);
+  }, [editing, body?.id]);
 
   // How big the picture is on the screen, which is what a pin has to be measured
   // against. Against the map, a pin would be three pixels across on a phone.
@@ -208,11 +237,11 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
   const drawn = useMemo(() => {
     const order = { region: 0, road: 1, river: 1 };
     return (body?.standing || [])
-      .filter((place) => place.extent)
+      .filter((place) => place.extent && place.id !== chosen)
       .map((place) => ({ ...place, d: outline(place.extent) }))
       .filter((place) => place.d)
       .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2));
-  }, [body]);
+  }, [body, chosen]);
   const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
 
   /**
@@ -334,6 +363,62 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
     return () => el.removeEventListener("wheel", wheel);
   }, [zoomAt]);
 
+  /** Where a finger is on the world, rather than on the screen. */
+  const degrees = useCallback(
+    (clientX, clientY) => {
+      const f = framed();
+      if (!f) return null;
+      const now = held.current;
+      return [
+        lonOf(now.x + (clientX - f.ox) / f.k),
+        latOf(now.y + (clientY - f.oy) / f.k),
+      ];
+    },
+    [framed]
+  );
+
+  /** Take up a shape to work on, as it is written. */
+  const take = useCallback((place) => {
+    const read = place.extent ? runsOf(place.extent) : null;
+    setChosen(place.id);
+    setDraft(read || { shut: place.type !== "road" && place.type !== "river", runs: [[]] });
+    setWrong(null);
+  }, []);
+
+  const alter = useCallback((run, at, how) => {
+    setDraft((now) => {
+      if (!now) return now;
+      const runs = now.runs.map((r, n) => (n === run ? how(r) : r));
+      return { ...now, runs };
+    });
+  }, []);
+
+  async function keep() {
+    if (!chosen || !draft) return;
+    const extent = extentOf(draft);
+    if (!extent) return setWrong("there is not enough of a shape there to write down");
+    setSaving(true);
+    setWrong(null);
+    try {
+      const res = await fetch("/api/shape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: chosen, extent }),
+      });
+      const said = await res.json().catch(() => null);
+      if (said?.error) setWrong(said.error);
+      else {
+        setChosen(null);
+        setDraft(null);
+        if (onSaved) onSaved();
+      }
+    } catch (err) {
+      setWrong(String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function seat(x, y, moved) {
     grab.current = { from: { ...held.current }, x, y, moved };
   }
@@ -341,6 +426,20 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
   function press(e) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
+
+    // A corner under the finger is what the finger has hold of, not the map.
+    const corner = e.target?.closest?.("[data-corner]");
+    if (editing && corner) {
+      const [run, at] = corner.dataset.corner.split(":").map(Number);
+      dragging.current = { run, at, moved: false };
+      return;
+    }
+    if (editing && tool === "draw" && chosen) {
+      const point = degrees(e.clientX, e.clientY);
+      if (point) setPen([point]);
+      return;
+    }
+
     touches.current.at[e.pointerId] = { x: e.clientX, y: e.clientY };
     const on = Object.keys(touches.current.at).length;
     if (on === 1) seat(e.clientX, e.clientY, false);
@@ -352,6 +451,20 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
   }
 
   function move(e) {
+    const held_corner = dragging.current;
+    if (held_corner) {
+      const point = degrees(e.clientX, e.clientY);
+      if (!point) return;
+      held_corner.moved = true;
+      alter(held_corner.run, held_corner.at, (run) => moved(run, held_corner.at, point));
+      return;
+    }
+    if (pen) {
+      const point = degrees(e.clientX, e.clientY);
+      if (point) setPen((run) => [...run, point]);
+      return;
+    }
+
     const finger = touches.current.at[e.pointerId];
     if (!finger) return;
     finger.x = e.clientX;
@@ -377,6 +490,18 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
   }
 
   function lift(e) {
+    if (dragging.current) {
+      dragging.current = null;
+      return;
+    }
+    if (pen) {
+      // What the hand did, thinned to the corners that carry it.
+      const room = (view.w / W) * 2.2;
+      const said = straighten(pen, room, draft?.shut ?? null);
+      setPen(null);
+      if (said) setDraft({ shut: said.shut, runs: [said.points] });
+      return;
+    }
     delete touches.current.at[e.pointerId];
     const left = Object.values(touches.current.at);
     touches.current.span = 0;
@@ -386,7 +511,9 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
 
   function tap(id) {
     if (grab.current?.moved || touches.current.pinched) return;
-    openDossier(id);
+    if (!editing) return openDossier(id);
+    const place = (body?.standing || []).find((p) => p.id === id);
+    if (place) take(place);
   }
 
   if (!sun) return null;
@@ -420,7 +547,10 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
   for (let lon = -180; lon < 180; lon += 30) lines.push({ lon });
   for (let lat = -60; lat <= 60; lat += 30) lines.push({ lat });
 
+  const taken = chosen && (body.standing || []).find((p) => p.id === chosen);
+
   return (
+    <>
     <svg
       ref={svg}
       viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
@@ -484,6 +614,66 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
         </g>
       )}
 
+      {draft && (
+        <g className="globedraft">
+          {draft.runs.map((run, r) => (
+            <path
+              key={`draft-${r}`}
+              className={`globeshape ${draft.shut ? "location" : "road"} drafting`}
+              d={
+                run.length
+                  ? "M " +
+                    run.map(([lon, lat]) => `${across(lon)} ${down(lat)}`).join(" L ") +
+                    (draft.shut ? " Z" : "")
+                  : ""
+              }
+            />
+          ))}
+
+          {/* A ghost between every pair of corners: press one and it becomes a
+              corner of its own. */}
+          {draft.runs.map((run, r) =>
+            run.map((point, n) => {
+              const next = run[(n + 1) % run.length];
+              if (!next || (!draft.shut && n === run.length - 1)) return null;
+              const mid = [(point[0] + next[0]) / 2, (point[1] + next[1]) / 2];
+              return (
+                <circle
+                  key={`ghost-${r}-${n}`}
+                  className="globeghost"
+                  cx={across(mid[0])}
+                  cy={down(mid[1])}
+                  r={4 * near}
+                  onClick={() => alter(r, n, (held) => added(held, n + 1, mid))}
+                />
+              );
+            })
+          )}
+
+          {draft.runs.map((run, r) =>
+            run.map((point, n) => (
+              <circle
+                key={`corner-${r}-${n}`}
+                className="globecorner"
+                data-corner={`${r}:${n}`}
+                cx={across(point[0])}
+                cy={down(point[1])}
+                r={6 * near}
+                onDoubleClick={() => alter(r, n, (held) => dropped(held, n))}
+              />
+            ))
+          )}
+        </g>
+      )}
+
+      {pen && pen.length > 1 && (
+        <path
+          className="globepen"
+          style={{ strokeWidth: 2 * near }}
+          d={"M " + pen.map(([lon, lat]) => `${across(lon)} ${down(lat)}`).join(" L ")}
+        />
+      )}
+
       {marks.map((mark) => (
         <g
           key={mark.id}
@@ -507,5 +697,38 @@ export default function Globe({ body, here, focus = null, onCentre = null }) {
         </g>
       ))}
     </svg>
+
+    {editing && (
+      <div className="globetools">
+        {taken ? (
+          <>
+            <span className="gname">{taken.name}</span>
+            <button
+              className={`gtool${tool === "pick" ? " on" : ""}`}
+              onClick={() => setTool("pick")}
+            >
+              corners
+            </button>
+            <button
+              className={`gtool${tool === "draw" ? " on" : ""}`}
+              onClick={() => setTool("draw")}
+            >
+              draw
+            </button>
+            <button className="gtool" onClick={() => take(taken)} disabled={saving}>
+              revert
+            </button>
+            <button className="gtool keep" onClick={keep} disabled={saving}>
+              {saving ? "…" : "save"}
+            </button>
+          </>
+        ) : (
+          <span className="gname dim">tap a shape to take it up</span>
+        )}
+      </div>
+    )}
+
+    {editing && wrong && <div className="globewrong">{wrong}</div>}
+    </>
   );
 }

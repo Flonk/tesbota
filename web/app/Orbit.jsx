@@ -45,17 +45,20 @@ export default function Orbit({ focus = null }) {
   const [sky, setSky] = useState(null);
   const [picked, setPicked] = useState(null);
   const [over, setOver] = useState(null);
+  const [editing, setEditing] = useState(false);
+
+  const read = useCallback(
+    () =>
+      fetch("/api/sky", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : { error: "the sky could not be read" }))
+        .then(setSky)
+        .catch(() => setSky({ error: "the sky could not be read" })),
+    []
+  );
 
   useEffect(() => {
-    let live = true;
-    fetch("/api/sky", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : { error: "the sky could not be read" }))
-      .then((s) => live && setSky(s))
-      .catch(() => live && setSky({ error: "the sky could not be read" }));
-    return () => {
-      live = false;
-    };
-  }, []);
+    read();
+  }, [read]);
 
   // Something asked for from somewhere else — an entry, most likely. A world is
   // the world being looked at; anything standing on one asks for the world that
@@ -126,12 +129,26 @@ export default function Orbit({ focus = null }) {
   if (ground?.standing) {
     return (
       <div className="orbit">
-        <Crumb className="maptrail" where={trail} onPick={step} />
+        <Crumb
+          className="maptrail"
+          where={trail}
+          onPick={step}
+          lead={
+            <button
+              className={`gtool${editing ? " on" : ""}`}
+              onClick={() => setEditing((was) => !was)}
+            >
+              {editing ? "done" : "shape"}
+            </button>
+          }
+        />
         <Globe
           body={ground}
           here={sky.here}
           focus={focus?.id === ground.id ? null : focus}
           onCentre={setOver}
+          editing={editing}
+          onSaved={read}
         />
       </div>
     );
