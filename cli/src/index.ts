@@ -238,7 +238,14 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   shape({ rest, flags }) {
     const [id, ...drawn] = rest;
     const said = flags.has("--clear") ? null : drawn.join(" ");
-    return say(actions.shape(id, said));
+    // `--carry=<lon>,<lat>`: bring whatever stood on this ground along with it.
+    const by = [...flags].find((f) => f.startsWith("--carry="))?.slice(8);
+    let carry: actions.Carry = null;
+    if (by) {
+      const [lon, lat] = by.split(",").map(Number);
+      if (Number.isFinite(lon) && Number.isFinite(lat)) carry = { lon, lat };
+    }
+    return say(actions.shape(id, said, carry));
   },
 
   /** What is written where, as a tree, for reading in a terminal. */

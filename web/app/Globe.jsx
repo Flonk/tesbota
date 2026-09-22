@@ -195,6 +195,10 @@ export default function Globe({
   // A corner taken away is gone by the time the click lands, so the click lands on
   // whatever was underneath it — which was reading as "take that up instead".
   const swallow = useRef(false);
+  // How far the whole shape has been carried, and whether what stood on it comes.
+  const [carry, setCarry] = useState(null);
+  const [bringing, setBringing] = useState(true);
+  const shoving = useRef(null);
   const svg = useRef(null);
   const grab = useRef(null);
   const held = useRef(FIT);
@@ -213,6 +217,7 @@ export default function Globe({
     setChosen(null);
     setDraft(null);
     setPen(null);
+    setCarry(null);
     setTool("pick");
     setWrong(null);
   }, [editing, body?.id]);
@@ -387,6 +392,7 @@ export default function Globe({
     const read = place.extent ? runsOf(place.extent) : null;
     setChosen(place.id);
     setDraft(read || { shut: place.type !== "road" && place.type !== "river", runs: [[]] });
+    setCarry(null);
     setWrong(null);
   }, []);
 
@@ -408,16 +414,20 @@ export default function Globe({
       const res = await fetch("/api/shape", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: chosen, extent }),
+        body: JSON.stringify({ id: chosen, extent, carry: bringing ? carry : null }),
       });
       const back = await res.json().catch(() => null);
       if (back?.error) setWrong(back.error);
       else {
         // Whatever the new shape now holds, or has let go of, it says so.
-        const shifted = back?.moved || [];
+        const shifted = [
+          ...(back?.carried || []).map((id) => ({ id, carried: true })),
+          ...(back?.moved || []),
+        ];
         setMoved(shifted.length ? shifted : null);
         setChosen(null);
         setDraft(null);
+        setCarry(null);
         if (onSaved) onSaved();
       }
     } catch (err) {
@@ -449,6 +459,11 @@ export default function Globe({
       dragging.current = { run, at, moved: false };
       return;
     }
+    if (editing && tool === "shove" && draft) {
+      const point = degrees(e.clientX, e.clientY);
+      if (point) shoving.current = { from: point, runs: draft.runs };
+      return;
+    }
     if (editing && tool === "draw" && chosen) {
       const point = degrees(e.clientX, e.clientY);
       if (point) setPen([point]);
@@ -472,6 +487,17 @@ export default function Globe({
       if (!point) return;
       held_corner.moved = true;
       alter(held_corner.run, held_corner.at, (run) => moved(run, held_corner.at, point));
+      return;
+    }
+    const shove = shoving.current;
+    if (shove) {
+      const point = degrees(e.clientX, e.clientY);
+      if (!point) return;
+      const by = { lon: point[0] - shove.from[0], lat: point[1] - shove.from[1] };
+      setDraft((now) =>
+        now && { ...now, runs: shove.runs.map((run) => run.map(([x, y]) => [x + by.lon, y + by.lat])) }
+      );
+      shove.by = by;
       return;
     }
     if (pen) {
@@ -505,6 +531,14 @@ export default function Globe({
   }
 
   function lift(e) {
+    if (shoving.current) {
+      const by = shoving.current.by;
+      shoving.current = null;
+      if (by && (by.lon || by.lat)) {
+        setCarry((was) => ({ lon: (was?.lon || 0) + by.lon, lat: (was?.lat || 0) + by.lat }));
+      }
+      return;
+    }
     if (dragging.current) {
       dragging.current = null;
       return;
@@ -742,10 +776,20 @@ export default function Globe({
               items={[
                 { id: "pick", label: "corners", icon: "pin" },
                 { id: "draw", label: "draw", icon: "pen" },
+                { id: "shove", label: "move", icon: "map" },
                 { id: "erase", label: "erase", icon: "silence" },
               ]}
             />
             <span className="gname">{taken.name}</span>
+            {tool === "shove" && (
+              <button
+                className={`gtool${bringing ? " on" : ""}`}
+                onClick={() => setBringing((was) => !was)}
+                title="whether what stands on this ground is carried with it"
+              >
+                {bringing ? "with what is on it" : "the ground only"}
+              </button>
+            )}
             <button className="gtool" onClick={() => take(taken)} disabled={saving}>
               revert
             </button>

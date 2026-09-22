@@ -946,6 +946,7 @@ textarea.prompt:focus { outline: none; }
                vector-effect: non-scaling-stroke; cursor: grab; }
 .globecorner:hover { fill: var(--bright); }
 .globecorner.cutting { fill: var(--bad); cursor: crosshair; }
+.globeshape.drafting.shoving { cursor: move; }
 .globeghost { fill: none; stroke: var(--gold); stroke-width: 1.2;
               vector-effect: non-scaling-stroke; cursor: copy; opacity: .55; }
 .globeghost:hover { fill: var(--gold); opacity: 1; }

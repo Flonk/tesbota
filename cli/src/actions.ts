@@ -221,7 +221,28 @@ export async function step() {
  * run of one point — none of those are a place, and a map that saved them would
  * be quietly unreadable afterwards.
  */
-export function shape(id: string, extent: unknown) {
+export type Carry = { lon: number; lat: number } | null;
+
+/** Every coordinate in a shape, moved by the same amount. */
+function dragged(extent: string | null, by: { lon: number; lat: number }): string | null {
+  let drawn: any;
+  try {
+    drawn = JSON.parse(String(extent));
+  } catch {
+    return null;
+  }
+  const walk = (node: any): any => {
+    if (!Array.isArray(node)) return node;
+    if (node.length === 2 && typeof node[0] === "number" && typeof node[1] === "number") {
+      return [node[0] + by.lon, node[1] + by.lat];
+    }
+    return node.map(walk);
+  };
+  drawn.coordinates = walk(drawn.coordinates);
+  return JSON.stringify(drawn);
+}
+
+export function shape(id: string, extent: unknown, carry: Carry = null) {
   const ident = String(id || "").trim().toLowerCase();
   if (!ident) return { error: "no place named" };
 
@@ -277,7 +298,37 @@ export function shape(id: string, extent: unknown) {
   }
 
   const said = JSON.stringify(drawn);
+  const before = db.value<string>("SELECT extent FROM entity WHERE id = ?", [ident]);
   db.writing((con) => con.prepare("UPDATE entity SET extent = ? WHERE id = ?").run(said, ident));
+
+  // Ground picked up and set down elsewhere takes what stood on it. What counts
+  // as standing on it is judged against where it was, not where it now is —
+  // otherwise a shape moved clear of its own village would carry nothing.
+  const carried: string[] = [];
+  if (carry && (carry.lon || carry.lat)) {
+    const held = ringsOf(before ?? null);
+    if (held.length) {
+      const inside = db
+        .rows(
+          `SELECT p.id, p.lat, p.lon, e.extent FROM place p JOIN entity e ON e.id = p.id
+            WHERE p.id <> ? AND p.lat IS NOT NULL AND p.lon IS NOT NULL`,
+          [ident]
+        )
+        .filter((r) => covers(held, Number(r.lon), Number(r.lat)));
+      db.writing((con) => {
+        for (const r of inside) {
+          con
+            .prepare("UPDATE place SET lat = ?, lon = ? WHERE id = ?")
+            .run(Number(r.lat) + carry.lat, Number(r.lon) + carry.lon, r.id);
+          const shifted = r.extent ? dragged(String(r.extent), carry) : null;
+          if (shifted) {
+            con.prepare("UPDATE entity SET extent = ? WHERE id = ?").run(shifted, r.id);
+          }
+          carried.push(String(r.id));
+        }
+      });
+    }
+  }
 
   // A shape that moved may now hold things it did not, or have let things go.
   const world = worldOf(ident);
@@ -286,6 +337,7 @@ export function shape(id: string, extent: unknown) {
   return {
     ok: true, id: ident, extent: said,
     points: runs.reduce((n, r) => n + r.length, 0),
+    carried,
     moved,
   };
 }
