@@ -256,6 +256,11 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     return say(actions.makePlace(name, type, on));
   },
 
+  /** Take a place out. Its places come up a level unless `--deep` takes them too. */
+  unplace({ rest, flags }) {
+    return say(actions.unmakePlace(rest[0], flags.has("--deep")));
+  },
+
   /** What is written where, as a tree, for reading in a terminal. */
   map() {
     say(canon.mermaid());
@@ -334,6 +339,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
 const MAKES = "init";
 const NEEDS_NOBODY = new Set([
   "machine", "check", "prompts", "library", "map", "traits", "sky", "place", "shape",
+  "unplace",
 ]);
 
 async function main() {

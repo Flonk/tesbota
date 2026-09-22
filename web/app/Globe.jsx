@@ -205,6 +205,8 @@ export default function Globe({
   // Writing down a place that does not exist yet, before there is a shape for it.
   const [naming, setNaming] = useState(null);
   const [fresh, setFresh] = useState(null);
+  // Taking a place out, and whether what is in it goes too.
+  const [asking, setAsking] = useState(null);
   const shoving = useRef(null);
   const svg = useRef(null);
   const grab = useRef(null);
@@ -489,6 +491,49 @@ export default function Globe({
     }
   }
 
+  /** Everything nested inside a place, by what says it is inside what. */
+  const nested = useCallback(
+    (id) => {
+      const inside = [];
+      const walk = (at) => {
+        for (const place of body?.standing || []) {
+          if (place.parent !== at || inside.includes(place.id)) continue;
+          inside.push(place.id);
+          walk(place.id);
+        }
+      };
+      walk(id);
+      return inside;
+    },
+    [body]
+  );
+
+  async function remove() {
+    if (!asking) return;
+    setSaving(true);
+    setWrong(null);
+    try {
+      const res = await fetch("/api/place", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: asking.id, deep: asking.deep }),
+      });
+      const back = await res.json().catch(() => null);
+      if (back?.error) return setWrong(back.error);
+      setAsking(null);
+      setChosen(null);
+      setDraft(null);
+      setFresh(null);
+      setCarry(null);
+      setTowed(null);
+      if (onSaved) onSaved();
+    } catch (err) {
+      setWrong(String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function keep() {
     if (!chosen || !draft) return;
     const extent = extentOf(draft);
@@ -742,6 +787,13 @@ export default function Globe({
                 include subplaces
               </button>
             )}
+            <button
+              className="gtool"
+              onClick={() => setAsking({ id: taken.id, name: taken.name, deep: false })}
+              disabled={saving}
+            >
+              remove
+            </button>
             <button className="gtool" onClick={() => take(taken)} disabled={saving}>
               revert
             </button>
@@ -937,6 +989,46 @@ export default function Globe({
         />
       )}
     </svg>
+
+    {asking && (() => {
+      const inside = nested(asking.id);
+      const going = asking.deep ? inside.length + 1 : 1;
+      const up = (body?.standing || []).find((p) => p.id === asking.id)?.parent;
+      const upName =
+        (body?.standing || []).find((p) => p.id === up)?.name || body?.name || "the world";
+      return (
+        <div className="globeask" onClick={() => !saving && setAsking(null)}>
+          <div className="asked" onClick={(e) => e.stopPropagation()}>
+            <p className="askwhat">Remove {asking.name}?</p>
+            {inside.length > 0 ? (
+              <>
+                <button
+                  className={`gtool${asking.deep ? " on" : ""}`}
+                  onClick={() => setAsking({ ...asking, deep: !asking.deep })}
+                >
+                  include subplaces
+                </button>
+                <p className="askwhy">
+                  {asking.deep
+                    ? `The ${inside.length} places inside it go too.`
+                    : `The ${inside.length} places inside it move up to ${upName}.`}
+                </p>
+              </>
+            ) : (
+              <p className="askwhy">Nothing is inside it.</p>
+            )}
+            <div className="askdo">
+              <button className="gtool" onClick={() => setAsking(null)} disabled={saving}>
+                cancel
+              </button>
+              <button className="gtool gone" onClick={remove} disabled={saving}>
+                {saving ? "…" : `remove ${going} ${going === 1 ? "place" : "places"}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    })()}
 
     {editing && wrong && (
       <div className="globewrong" onClick={() => setWrong(null)}>

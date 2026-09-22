@@ -1010,6 +1010,25 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
   background: rgba(0, 0, 0, .8); border: 1px solid var(--line); border-radius: 2px;
   color: var(--dim); padding: .3rem .5rem; font-size: .85rem;
 }
+/* Asking before taking something out of the record. */
+.globeask {
+  position: absolute; inset: 0; z-index: 5; display: flex;
+  align-items: center; justify-content: center; padding: 1rem;
+  background: rgba(0, 0, 0, .6);
+}
+.asked {
+  max-width: 22rem; display: flex; flex-direction: column; gap: .5rem;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
+  padding: .9rem 1rem;
+}
+.askwhat { margin: 0; color: var(--ink); font-size: 1rem; }
+.askwhy { margin: 0; color: var(--dim); font-size: .85rem; }
+.askdo { display: flex; gap: .4rem; justify-content: flex-end; margin-top: .3rem; }
+.asked .gtool { align-self: flex-start; }
+.asked .askdo .gtool { align-self: auto; }
+.gtool.gone { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 60%, var(--line)); }
+.gtool.gone:hover { color: var(--bad); border-color: var(--bad); }
+
 .globewrong {
   position: absolute; left: .5rem; right: .5rem; bottom: .5rem; z-index: 3;
   background: rgba(0, 0, 0, .8); border: 1px solid var(--bad); border-radius: 2px;

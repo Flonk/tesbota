@@ -14,7 +14,7 @@ import * as driver from "./driver.ts";
 import * as prompts from "./prompts.ts";
 import { ask } from "./agent.ts";
 import { sqliteGate } from "./gate.ts";
-import { MODELS, MYSTERY, STATE, WRITE_TOOLS } from "./config.ts";
+import { MODELS, MYSTERY, PROFILES, roomOf, STATE, WRITE_TOOLS } from "./config.ts";
 import { edgeFrom, type StateName } from "./machine.ts";
 import type { TurnT } from "./schema.ts";
 import {
@@ -515,4 +515,87 @@ export function makePlace(name: string, type: string, on: string) {
     con.prepare("INSERT INTO place (id, parent, type) VALUES (?,?,?)").run(ident, holder, type);
   });
   return { ok: true, id: ident, name: said, type, on: holder };
+}
+
+/**
+ * Everywhere anybody is standing, across every life being walked.
+ *
+ * One world, more than one adventurer in it. Asking only the profile that happens
+ * to be running would let a map open as one walker strike the ground out from
+ * under another.
+ */
+function trodden(): Set<string> {
+  const feet = new Set<string>();
+  for (const profile of PROFILES) {
+    let held: any;
+    try {
+      held = JSON.parse(fs.readFileSync(path.join(roomOf(profile), "campaign.json"), "utf8"));
+    } catch {
+      continue;
+    }
+    for (const step of [held.location, ...((held.location_path as any[]) || [])]) {
+      const ident = step && typeof step === "object" ? step.id : step;
+      if (ident) feet.add(String(ident));
+    }
+  }
+  return feet;
+}
+
+/**
+ * Take a place out of the record.
+ *
+ * What was inside it has to go somewhere. By default it goes up: a mill whose
+ * village is struck out is still a mill, and still on the plain the village stood
+ * on. Say `deep` and the whole nest goes with it, which is the other thing a
+ * person can mean and never the thing they mean by accident.
+ *
+ * The heavens are not deleted from here — a world with no world is not a shorter
+ * record, it is a broken one — and neither is the ground somebody is standing on.
+ */
+export function unmakePlace(id: string, deep = false) {
+  const ident = String(id || "").trim().toLowerCase();
+  const there = db.row("SELECT type, parent FROM place WHERE id = ?", [ident]);
+  if (!there) return { error: `no such place: ${ident}` };
+  if (["celestial-body", "celestial-system", "realm"].includes(String(there.type))) {
+    return { error: `${ident} is a ${there.type}, and the sky is not edited from the map` };
+  }
+
+  const standing = trodden();
+
+  const kin: string[] = [];
+  if (deep) {
+    const walk = (at: string) => {
+      for (const r of db.rows("SELECT id FROM place WHERE parent = ?", [at])) {
+        const child = String(r.id);
+        if (kin.includes(child)) continue;
+        kin.push(child);
+        walk(child);
+      }
+    };
+    walk(ident);
+  }
+
+  const going = [ident, ...kin];
+  const under = going.filter((p) => standing.has(p));
+  if (under.length) {
+    return { error: `the adventurer is standing in ${under.join(", ")}` };
+  }
+
+  db.writing((con) => {
+    if (!deep) {
+      con.prepare("UPDATE place SET parent = ? WHERE parent = ?").run(there.parent ?? null, ident);
+    }
+    for (const gone of going) {
+      con.prepare("DELETE FROM way WHERE src = ? OR dst = ?").run(gone, gone);
+      con.prepare("DELETE FROM holding WHERE holder = ?").run(gone);
+      con.prepare("DELETE FROM place WHERE id = ?").run(gone);
+      con.prepare("DELETE FROM entity WHERE id = ?").run(gone);
+    }
+  });
+
+  // Whatever was handed up is placed again by what it is drawn as, not by where
+  // the row it used to sit under happened to be.
+  const world = there.parent ? worldOf(String(there.parent)) : null;
+  const moved = world ? restack(world) : [];
+  return { ok: true, id: ident, removed: going, deep, moved };
 }
