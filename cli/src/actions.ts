@@ -278,5 +278,149 @@ export function shape(id: string, extent: unknown) {
 
   const said = JSON.stringify(drawn);
   db.writing((con) => con.prepare("UPDATE entity SET extent = ? WHERE id = ?").run(said, ident));
-  return { ok: true, id: ident, extent: said, points: runs.reduce((n, r) => n + r.length, 0) };
+
+  // A shape that moved may now hold things it did not, or have let things go.
+  const world = worldOf(ident);
+  const moved = world ? restack(world) : [];
+
+  return {
+    ok: true, id: ident, extent: said,
+    points: runs.reduce((n, r) => n + r.length, 0),
+    moved,
+  };
+}
+
+const ringsOf = (extent: string | null): number[][][] => {
+  let drawn: any;
+  try {
+    drawn = JSON.parse(String(extent));
+  } catch {
+    return [];
+  }
+  if (drawn?.type !== "Polygon" && drawn?.type !== "MultiPolygon") return [];
+  const rings: number[][][] = [];
+  const walk = (node: any) => {
+    if (!Array.isArray(node)) return;
+    if (node.length && Array.isArray(node[0]) && typeof node[0][0] === "number") {
+      rings.push(node);
+      return;
+    }
+    for (const child of node) walk(child);
+  };
+  walk(drawn.coordinates);
+  return rings;
+};
+
+const covers = (rings: number[][][], lon: number, lat: number) => {
+  let inside = false;
+  for (const ring of rings) {
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      if (yi > lat !== yj > lat && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+  }
+  return inside;
+};
+
+const spread = (rings: number[][][]) => {
+  let total = 0;
+  for (const ring of rings) {
+    let sum = 0;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      sum += ring[j][0] * ring[i][1] - ring[i][0] * ring[j][1];
+    }
+    total += Math.abs(sum / 2);
+  }
+  return total;
+};
+
+/**
+ * Put every place back inside whatever is actually drawn around it.
+ *
+ * What holds what stops being something anybody types and becomes something the
+ * shapes say: a place belongs to the smallest ground that covers the point it is
+ * named at. Draw a wall round a village and the houses inside it are its houses;
+ * pull the wall in until a mill is outside and the mill belongs to the plain
+ * again — both fall out of the one rule rather than being two cases.
+ *
+ * A place with nothing drawn around it falls back to the world it is on, because
+ * everything on a world is at least on the world.
+ */
+export function restack(ground: string) {
+  const all = db.rows(
+    `WITH RECURSIVE under(id) AS (
+       SELECT ?
+       UNION
+       SELECT p.id FROM place p JOIN under u ON p.parent = u.id
+     )
+     SELECT p.id, p.parent, p.type, p.lat, p.lon, e.extent
+       FROM place p JOIN entity e ON e.id = p.id
+      WHERE p.id IN (SELECT id FROM under) AND p.id <> ?`,
+    [ground, ground]
+  );
+
+  const held = all.map((r) => ({
+    id: String(r.id),
+    parent: r.parent ?? null,
+    type: r.type ?? null,
+    lat: r.lat === null || r.lat === undefined ? null : Number(r.lat),
+    lon: r.lon === null || r.lon === undefined ? null : Number(r.lon),
+    rings: ringsOf(r.extent ?? null),
+  }));
+  const by = new Map(held.map((p) => [p.id, p]));
+
+  const moved: Array<{ id: string; from: string | null; to: string }> = [];
+  const wanted = new Map<string, string>();
+
+  for (const place of held) {
+    if (place.lat === null || place.lon === null) continue;
+    let best: { id: string; size: number } | null = null;
+    for (const other of held) {
+      if (other.id === place.id || !other.rings.length) continue;
+      if (!covers(other.rings, place.lon, place.lat)) continue;
+      const size = spread(other.rings);
+      if (!best || size < best.size) best = { id: other.id, size };
+    }
+    wanted.set(place.id, best?.id ?? ground);
+  }
+
+  // A shape drawn inside a shape it already holds would make a ring of parents,
+  // and a world where everywhere is inside everywhere is nowhere at all.
+  const loops = (id: string, parent: string) => {
+    const seen = new Set([id]);
+    let at: string | null = parent;
+    for (let n = 0; at && n < 64; n++) {
+      if (seen.has(at)) return true;
+      seen.add(at);
+      at = wanted.get(at) ?? by.get(at)?.parent ?? null;
+    }
+    return false;
+  };
+
+  db.writing((con) => {
+    for (const [id, parent] of wanted) {
+      const place = by.get(id)!;
+      if (place.parent === parent || loops(id, parent)) continue;
+      con.prepare("UPDATE place SET parent = ? WHERE id = ?").run(parent, id);
+      moved.push({ id, from: place.parent, to: parent });
+    }
+  });
+  return moved;
+}
+
+/** The world a place is on, however deep it sits. */
+export function worldOf(id: string): string | null {
+  const found = db.row(
+    `WITH RECURSIVE up(id, depth) AS (
+       SELECT ?, 0
+       UNION
+       SELECT p.parent, up.depth + 1 FROM place p JOIN up ON p.id = up.id
+        WHERE up.depth < 32 AND p.parent IS NOT NULL
+     )
+     SELECT up.id FROM up JOIN place p ON p.id = up.id
+      WHERE p.type = 'celestial-body' ORDER BY up.depth LIMIT 1`,
+    [id]
+  );
+  return found ? String(found.id) : null;
 }

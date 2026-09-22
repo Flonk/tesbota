@@ -189,6 +189,7 @@ export default function Globe({
   const [pen, setPen] = useState(null);
   const [saving, setSaving] = useState(false);
   const [wrong, setWrong] = useState(null);
+  const [shifted, setMoved] = useState(null);
   const dragging = useRef(null);
   const svg = useRef(null);
   const grab = useRef(null);
@@ -405,9 +406,12 @@ export default function Globe({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: chosen, extent }),
       });
-      const said = await res.json().catch(() => null);
-      if (said?.error) setWrong(said.error);
+      const back = await res.json().catch(() => null);
+      if (back?.error) setWrong(back.error);
       else {
+        // Whatever the new shape now holds, or has let go of, it says so.
+        const shifted = back?.moved || [];
+        setMoved(shifted.length ? shifted : null);
         setChosen(null);
         setDraft(null);
         if (onSaved) onSaved();
@@ -729,6 +733,14 @@ export default function Globe({
     )}
 
     {editing && wrong && <div className="globewrong">{wrong}</div>}
+
+    {editing && !wrong && shifted && (
+      <div className="globemoved" onClick={() => setMoved(null)}>
+        {shifted.length} {shifted.length === 1 ? "place" : "places"} changed hands:{" "}
+        {shifted.slice(0, 4).map((m) => m.id.replace(/-/g, " ")).join(", ")}
+        {shifted.length > 4 ? " …" : ""}
+      </div>
+    )}
     </>
   );
 }

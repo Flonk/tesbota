@@ -969,6 +969,11 @@ textarea.prompt:focus { outline: none; }
 .gtool.on { color: var(--gold); border-color: var(--gold); }
 .gtool.keep { color: var(--good); border-color: color-mix(in srgb, var(--good) 60%, var(--line)); }
 .gtool:disabled { opacity: .4; cursor: default; }
+.globemoved {
+  position: absolute; left: .5rem; right: .5rem; bottom: 2.6rem; z-index: 3; cursor: pointer;
+  background: rgba(0, 0, 0, .8); border: 1px solid var(--line); border-radius: 2px;
+  color: var(--dim); padding: .3rem .5rem; font-size: .85rem;
+}
 .globewrong {
   position: absolute; left: .5rem; right: .5rem; bottom: 2.6rem; z-index: 3;
   background: rgba(0, 0, 0, .8); border: 1px solid var(--bad); border-radius: 2px;
