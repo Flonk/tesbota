@@ -945,22 +945,27 @@ textarea.prompt:focus { outline: none; }
 .globecorner { fill: var(--gold); stroke: var(--bg); stroke-width: 1.5;
                vector-effect: non-scaling-stroke; cursor: grab; }
 .globecorner:hover { fill: var(--bright); }
+.globecorner.cutting { fill: var(--bad); cursor: crosshair; }
 .globeghost { fill: none; stroke: var(--gold); stroke-width: 1.2;
               vector-effect: non-scaling-stroke; cursor: copy; opacity: .55; }
 .globeghost:hover { fill: var(--gold); opacity: 1; }
 .globepen { fill: none; stroke: var(--bright); stroke-linecap: round;
             stroke-linejoin: round; opacity: .85; }
 
+/* The shaping bar sits under the map the way every other bar in here sits under
+   what it belongs to, rather than floating over it. */
 .globetools {
-  position: absolute; left: .5rem; right: .5rem; bottom: .5rem; z-index: 3;
-  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem;
-  background: rgba(0, 0, 0, .68); border: 1px solid var(--line); border-radius: 2px;
-  padding: .3rem .4rem;
+  flex: 0 0 auto; display: flex; align-items: stretch; gap: .3rem;
+  border-top: 1px solid var(--line); background: var(--panel);
+  padding-right: .4rem;
 }
+.globetools .tabs.tools { flex: 0 0 auto; border-bottom: 0; }
 .gname { font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
-         color: var(--ink); margin-right: auto; padding: 0 .2rem; }
+         color: var(--ink); margin-right: auto; padding: 0 .5rem;
+         display: flex; align-items: center; }
 .gname.dim { color: var(--dim); }
 .gtool {
+  align-self: center;
   background: none; border: 1px solid var(--line); border-radius: 2px; cursor: pointer;
   color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
   padding: .15rem .4rem;
@@ -970,12 +975,12 @@ textarea.prompt:focus { outline: none; }
 .gtool.keep { color: var(--good); border-color: color-mix(in srgb, var(--good) 60%, var(--line)); }
 .gtool:disabled { opacity: .4; cursor: default; }
 .globemoved {
-  position: absolute; left: .5rem; right: .5rem; bottom: 2.6rem; z-index: 3; cursor: pointer;
+  position: absolute; left: .5rem; right: .5rem; bottom: 3.2rem; z-index: 3; cursor: pointer;
   background: rgba(0, 0, 0, .8); border: 1px solid var(--line); border-radius: 2px;
   color: var(--dim); padding: .3rem .5rem; font-size: .85rem;
 }
 .globewrong {
-  position: absolute; left: .5rem; right: .5rem; bottom: 2.6rem; z-index: 3;
+  position: absolute; left: .5rem; right: .5rem; bottom: 3.2rem; z-index: 3;
   background: rgba(0, 0, 0, .8); border: 1px solid var(--bad); border-radius: 2px;
   color: var(--bad); padding: .3rem .5rem; font-size: .85rem;
 }

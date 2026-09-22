@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { openDossier } from "./ui";
-import { added, dropped, extentOf, moved, runsOf, straighten } from "./shaping";
+import { added, dropped, extentOf, moved, opened, reshape, runsOf, straighten } from "./shaping";
+import { Tabs } from "./ui";
 
 /**
  * A world, flattened, with the line between its day and its night drawn on it.
@@ -435,6 +436,10 @@ export default function Globe({
     const corner = e.target?.closest?.("[data-corner]");
     if (editing && corner) {
       const [run, at] = corner.dataset.corner.split(":").map(Number);
+      if (tool === "erase") {
+        alter(run, at, (held) => (held.length > 3 ? dropped(held, at) : held));
+        return;
+      }
       dragging.current = { run, at, moved: false };
       return;
     }
@@ -499,10 +504,21 @@ export default function Globe({
       return;
     }
     if (pen) {
-      // What the hand did, thinned to the corners that carry it.
-      const room = (view.w / W) * 2.2;
-      const said = straighten(pen, room, draft?.shut ?? null);
+      // What the hand did, thinned to the corners that carry it — and worked into
+      // the shape that is already there rather than put in its place.
+      const room = ((view.w / Math.max(1, pane.w)) / W) * 360 * 3;
       setPen(null);
+      // Degrees to a pixel, which is what a hand's wobble is worth here.
+      const ring = draft?.shut && draft.runs[0] ? opened(draft.runs[0]) : null;
+      if (ring && ring.length >= 3) {
+        // A stroke over a shape alters it or does nothing. It never stands in for
+        // it: one ambiguous scribble should not throw a drawn boundary away.
+        const altered = reshape(draft.runs[0], pen, room);
+        if (altered) setDraft({ shut: true, runs: [altered] });
+        else setWrong("that stroke did not say where it met the shape");
+        return;
+      }
+      const said = straighten(pen, room, draft?.shut ?? null);
       if (said) setDraft({ shut: said.shut, runs: [said.points] });
       return;
     }
@@ -658,7 +674,7 @@ export default function Globe({
             run.map((point, n) => (
               <circle
                 key={`corner-${r}-${n}`}
-                className="globecorner"
+                className={`globecorner${tool === "erase" ? " cutting" : ""}`}
                 data-corner={`${r}:${n}`}
                 cx={across(point[0])}
                 cy={down(point[1])}
@@ -706,19 +722,17 @@ export default function Globe({
       <div className="globetools">
         {taken ? (
           <>
+            <Tabs
+              className="tools"
+              value={tool}
+              onChange={setTool}
+              items={[
+                { id: "pick", label: "corners", icon: "pin" },
+                { id: "draw", label: "draw", icon: "pen" },
+                { id: "erase", label: "erase", icon: "silence" },
+              ]}
+            />
             <span className="gname">{taken.name}</span>
-            <button
-              className={`gtool${tool === "pick" ? " on" : ""}`}
-              onClick={() => setTool("pick")}
-            >
-              corners
-            </button>
-            <button
-              className={`gtool${tool === "draw" ? " on" : ""}`}
-              onClick={() => setTool("draw")}
-            >
-              draw
-            </button>
             <button className="gtool" onClick={() => take(taken)} disabled={saving}>
               revert
             </button>
