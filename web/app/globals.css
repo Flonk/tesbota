@@ -13,6 +13,7 @@
   --bad: #b5573f;
   --myth: #9b7bc4;
   --hush: #6f9c95;
+  --sea: #16293a;
   --mono: 10px/1.6 ui-monospace, SFMono-Regular, monospace;
 }
 
@@ -927,7 +928,9 @@ textarea.prompt:focus { outline: none; }
 .globesvg { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; display: block;
             touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
 .globesvg:active { cursor: grabbing; }
-.globeday { fill: color-mix(in srgb, var(--place) 26%, var(--panel)); }
+/* A world is sea until somebody draws land on it. This is the floor of the map:
+   everything below the shapes, and what shows wherever nothing has been written. */
+.globeday { fill: var(--sea); }
 .globenight { fill: color-mix(in srgb, #000 78%, transparent); }
 .globegrid { stroke: color-mix(in srgb, var(--line) 70%, transparent); }
 .globegrid.equator { stroke: var(--line); }
@@ -941,8 +944,8 @@ textarea.prompt:focus { outline: none; }
    anywhere the adventurer has actually stood is said a little louder than
    somewhere only ever read about. */
 .globeshape { cursor: pointer; vector-effect: non-scaling-stroke; }
-.globeshape.region { fill: color-mix(in srgb, var(--good) 14%, transparent);
-                     stroke: color-mix(in srgb, var(--good) 45%, transparent); }
+.globeshape.region { fill: color-mix(in srgb, var(--good) 30%, #2a2a20);
+                     stroke: color-mix(in srgb, var(--good) 55%, transparent); }
 /* Ground is held lightly so that ground inside ground still reads: a village is
    an outline, and the houses on its street are outlines within it. */
 .globeshape.location { fill: color-mix(in srgb, var(--ink) 15%, transparent);
