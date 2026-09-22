@@ -83,14 +83,18 @@ export default function Orbit({ focus = null }) {
   }, [holder, focus?.asked]);
 
   useEffect(() => {
-    if (landed.current || focus?.id || !sky?.here || !sky?.bodies) return;
-    const home = Object.values(sky.bodies).find((b) =>
-      (b.standing || []).some((p) => p.id === sky.here)
-    );
-    if (!home) return;
+    if (landed.current || focus?.id || !sky?.bodies) return;
+    // Whoever is walking, if anybody is — and the world they are on. A life that
+    // has not begun has nobody standing anywhere, and a map of the system is not
+    // what anybody opened the map for: show the world itself, whole.
+    const under = sky.here
+      ? Object.values(sky.bodies).find((b) => (b.standing || []).some((p) => p.id === sky.here))
+      : null;
+    const ground = under || (sky.home && sky.bodies[sky.home]) || null;
+    if (!ground) return;
     landed.current = true;
-    setPicked(home.id);
-    setWent({ id: sky.here, asked: Date.now() });
+    setPicked(ground.id);
+    if (under) setWent({ id: sky.here, asked: Date.now() });
   }, [sky, focus?.id]);
 
   const plan = useMemo(() => {
