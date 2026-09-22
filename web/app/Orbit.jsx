@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Globe from "./Globe";
+import Icon from "./icons";
 import { Crumb, Empty, Note, openDossier } from "./ui";
 
 /**
@@ -129,19 +130,17 @@ export default function Orbit({ focus = null }) {
   if (ground?.standing) {
     return (
       <div className="orbit">
-        <Crumb
-          className="maptrail"
-          where={trail}
-          onPick={step}
-          lead={
-            <button
-              className={`gtool${editing ? " on" : ""}`}
-              onClick={() => setEditing((was) => !was)}
-            >
-              {editing ? "done" : "shape"}
-            </button>
-          }
-        />
+        <div className="maprow">
+          <Crumb className="maptrail" where={trail} onPick={step} />
+          <button
+            className={`crumbtool${editing ? " on" : ""}`}
+            onClick={() => setEditing((was) => !was)}
+            title={editing ? "stop reshaping" : "reshape what is drawn"}
+            aria-label="reshape"
+          >
+            <Icon name="pen" size={14} />
+          </button>
+        </div>
         <Globe
           body={ground}
           here={sky.here}

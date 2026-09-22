@@ -615,6 +615,47 @@ export default function Globe({
 
   return (
     <>
+    {editing && (
+      <Tabs
+        className="sub tools"
+        value={tool}
+        onChange={setTool}
+        items={[
+          { id: "pick", label: "corners", icon: "pin" },
+          { id: "draw", label: "draw", icon: "pen" },
+          { id: "shove", label: "move", icon: "map" },
+          { id: "erase", label: "erase", icon: "silence" },
+        ]}
+      />
+    )}
+
+    {editing && (
+      <div className="shapebar">
+        {taken ? (
+          <>
+            <span className="gname">{taken.name}</span>
+            {tool === "shove" && (
+              <button
+                className={`gtool${bringing ? " on" : ""}`}
+                onClick={() => setBringing((was) => !was)}
+                title="move everything standing on this ground along with it"
+              >
+                include subplaces
+              </button>
+            )}
+            <button className="gtool" onClick={() => take(taken)} disabled={saving}>
+              revert
+            </button>
+            <button className="gtool keep" onClick={keep} disabled={saving}>
+              {saving ? "…" : "save"}
+            </button>
+          </>
+        ) : (
+          <span className="gname dim">tap a shape to take it up</span>
+        )}
+      </div>
+    )}
+
     <svg
       ref={svg}
       viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
@@ -764,44 +805,6 @@ export default function Globe({
         />
       )}
     </svg>
-
-    {editing && (
-      <div className="globetools">
-        {taken ? (
-          <>
-            <Tabs
-              className="tools"
-              value={tool}
-              onChange={setTool}
-              items={[
-                { id: "pick", label: "corners", icon: "pin" },
-                { id: "draw", label: "draw", icon: "pen" },
-                { id: "shove", label: "move", icon: "map" },
-                { id: "erase", label: "erase", icon: "silence" },
-              ]}
-            />
-            <span className="gname">{taken.name}</span>
-            {tool === "shove" && (
-              <button
-                className={`gtool${bringing ? " on" : ""}`}
-                onClick={() => setBringing((was) => !was)}
-                title="whether what stands on this ground is carried with it"
-              >
-                {bringing ? "with what is on it" : "the ground only"}
-              </button>
-            )}
-            <button className="gtool" onClick={() => take(taken)} disabled={saving}>
-              revert
-            </button>
-            <button className="gtool keep" onClick={keep} disabled={saving}>
-              {saving ? "…" : "save"}
-            </button>
-          </>
-        ) : (
-          <span className="gname dim">tap a shape to take it up</span>
-        )}
-      </div>
-    )}
 
     {editing && wrong && <div className="globewrong">{wrong}</div>}
 

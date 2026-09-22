@@ -466,12 +466,28 @@ textarea {
 
 .bdate { color: var(--place); }
 
-/* The one map wears this bar, and the sky diagram above it does too. */
-.maptrail {
-  flex: 0 0 auto; display: flex; align-items: center; gap: .5rem;
-  padding: .45rem .8rem; border-bottom: 1px solid var(--line);
-  background: var(--panel); overflow-x: auto; white-space: nowrap;
+/* The row the trail sits in is a bar like the others — same height, same rule
+   underneath. What sits in it is the trail itself, which looks the way a trail
+   looks everywhere else in here and is not restyled to pass as tabs. */
+.maprow {
+  flex: 0 0 auto; display: flex; align-items: stretch; min-width: 0;
+  border-bottom: 1px solid var(--line);
 }
+.maptrail {
+  flex: 1 1 auto; min-width: 0; display: flex; align-items: center;
+  margin: 0; padding: .4rem .8rem;
+  overflow-x: auto; scrollbar-width: none; white-space: nowrap;
+}
+.maptrail::-webkit-scrollbar { display: none; }
+
+/* The pencil that turns reshaping on, at the far end of the trail. */
+.crumbtool {
+  flex: 0 0 auto; display: inline-flex; align-items: center;
+  background: none; border: 0; border-left: 1px solid var(--line); cursor: pointer;
+  color: var(--dim); padding: 0 .8rem;
+}
+.crumbtool:hover { color: var(--ink); }
+.crumbtool.on { color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, transparent); }
 
 .lore .cap { color: var(--warn); }
 .lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }
@@ -953,16 +969,17 @@ textarea.prompt:focus { outline: none; }
 .globepen { fill: none; stroke: var(--bright); stroke-linecap: round;
             stroke-linejoin: round; opacity: .85; }
 
-/* The shaping bar sits under the map the way every other bar in here sits under
-   what it belongs to, rather than floating over it. */
-.globetools {
-  flex: 0 0 auto; display: flex; align-items: stretch; gap: .3rem;
-  border-top: 1px solid var(--line); background: var(--panel);
-  padding-right: .4rem;
+/* Reshaping adds two rows under the trail, the way a tab adds a row of subtabs:
+   which tool is in hand, then what that tool is working on. */
+.tabs.sub.tools { flex: 0 0 auto; }
+.shapebar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: .35rem;
+  padding: .3rem .8rem; border-bottom: 1px solid var(--line);
+  overflow-x: auto; scrollbar-width: none; white-space: nowrap;
 }
-.globetools .tabs.tools { flex: 0 0 auto; border-bottom: 0; }
-.gname { font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
-         color: var(--ink); margin-right: auto; padding: 0 .5rem;
+.shapebar::-webkit-scrollbar { display: none; }
+.gname { font: var(--mono); letter-spacing: .12em; text-transform: uppercase;
+         color: var(--ink); margin-right: auto; padding: 0 .15rem;
          display: flex; align-items: center; }
 .gname.dim { color: var(--dim); }
 .gtool {
@@ -976,12 +993,12 @@ textarea.prompt:focus { outline: none; }
 .gtool.keep { color: var(--good); border-color: color-mix(in srgb, var(--good) 60%, var(--line)); }
 .gtool:disabled { opacity: .4; cursor: default; }
 .globemoved {
-  position: absolute; left: .5rem; right: .5rem; bottom: 3.2rem; z-index: 3; cursor: pointer;
+  position: absolute; left: .5rem; right: .5rem; bottom: .5rem; z-index: 3; cursor: pointer;
   background: rgba(0, 0, 0, .8); border: 1px solid var(--line); border-radius: 2px;
   color: var(--dim); padding: .3rem .5rem; font-size: .85rem;
 }
 .globewrong {
-  position: absolute; left: .5rem; right: .5rem; bottom: 3.2rem; z-index: 3;
+  position: absolute; left: .5rem; right: .5rem; bottom: .5rem; z-index: 3;
   background: rgba(0, 0, 0, .8); border: 1px solid var(--bad); border-radius: 2px;
   color: var(--bad); padding: .3rem .5rem; font-size: .85rem;
 }
