@@ -21,9 +21,16 @@ const H = 900;
 const LIMIT = 85;
 const RAD = Math.PI / 180;
 // A village street is nine hundred metres on a world six thousand kilometres
-// across. Coming close enough to tell an inn from a sawmill is four figures of
-// zoom, not two.
-const CLOSEST = 60000;
+// across, and a mill on it is eighteen. Coming close enough for a building to be
+// the thing you are looking at is six figures of zoom, not two.
+const CLOSEST = 250000;
+
+/**
+ * How much of the picture a place has to fill before the map will say that is
+ * what you are looking at. Below this it is ground you happen to be over rather
+ * than somewhere you came to see.
+ */
+const ENOUGH = 0.15;
 
 /** Mercator stretches toward the poles without bound, so it is cut at 85°. */
 const TALL = Math.log(Math.tan((45 + LIMIT / 2) * RAD));
@@ -43,6 +50,23 @@ const across = (lon) => ((wrapped(lon) + 180) / 360) * W;
 const straight = (lon) => ((lon + 180) / 360) * W;
 
 const hold = (n, low, high) => Math.max(low, Math.min(high, n));
+
+/** Whether a drawn shape covers a point — even-odd, over every ring it has. */
+function holds(d, x, y) {
+  let inside = false;
+  for (const run of d.split("M ").slice(1)) {
+    const numbers = run.match(/-?\d+(?:\.\d+)?/g);
+    if (!numbers) continue;
+    const ring = [];
+    for (let n = 0; n + 1 < numbers.length; n += 2) ring.push([+numbers[n], +numbers[n + 1]]);
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+  }
+  return inside;
+}
 
 /** What a drawn path takes up, read back off the path itself. */
 function bounds(d) {
@@ -142,7 +166,7 @@ function gather(standing, here, span) {
 
 const FIT = { x: 0, y: 0, w: W, h: H };
 
-export default function Globe({ body, here, focus = null }) {
+export default function Globe({ body, here, focus = null, onCentre = null }) {
   const [view, setView] = useState(FIT);
   const [pane, setPane] = useState({ w: 0, h: 0 });
   const svg = useRef(null);
@@ -190,6 +214,42 @@ export default function Globe({ body, here, focus = null }) {
       .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2));
   }, [body]);
   const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
+
+  /**
+   * What the middle of the picture is standing on: the smallest written shape that
+   * both covers it and is big enough on the screen to be the thing you are looking
+   * at. Roads and rivers are runs rather than ground, so you are never on one.
+   */
+  const centred = useMemo(() => {
+    const x = view.x + view.w / 2;
+    const y = view.y + view.h / 2;
+    let best = null;
+    for (const place of drawn) {
+      if (place.type === "road" || place.type === "river") continue;
+      const box = bounds(place.d);
+      if (!box) continue;
+      const fills = Math.max(
+        (box.maxX - box.minX) / view.w,
+        (box.maxY - box.minY) / view.h
+      );
+      if (fills < ENOUGH) continue;
+      if (!holds(place.d, x, y)) continue;
+      const size = (box.maxX - box.minX) * (box.maxY - box.minY);
+      if (!best || size < best.size) best = { id: place.id, size };
+    }
+    return best?.id ?? null;
+  }, [drawn, view]);
+
+  useEffect(() => {
+    if (onCentre) onCentre(centred);
+  }, [centred, onCentre]);
+
+  // Where the adventurer is standing, which is the one thing on this map that is
+  // not a place.
+  const walker = useMemo(() => {
+    const at = (body?.standing || []).find((p) => p.id === here);
+    return at && at.lat !== null && at.lon !== null ? at : null;
+  }, [body, here]);
 
   /**
    * Where the picture actually sits on the screen, so a finger can be put on it.
@@ -412,6 +472,17 @@ export default function Globe({ body, here, focus = null }) {
         <circle r="13" className="globeglow" />
         <title>the sun stands straight over here</title>
       </g>
+
+      {walker && (
+        <g
+          className="globewalker"
+          transform={`translate(${across(walker.lon)} ${down(walker.lat)}) scale(${near})`}
+        >
+          <circle r="11" className="globehalo" />
+          <circle r="4.5" />
+          <title>you are here</title>
+        </g>
+      )}
 
       {marks.map((mark) => (
         <g

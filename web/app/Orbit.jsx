@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Globe from "./Globe";
 import { Crumb, Empty, Note, openDossier } from "./ui";
 
@@ -44,6 +44,7 @@ const spot = (at, scale) => ({ x: MIDDLE + at.x * scale, y: MIDDLE - at.y * scal
 export default function Orbit({ focus = null }) {
   const [sky, setSky] = useState(null);
   const [picked, setPicked] = useState(null);
+  const [over, setOver] = useState(null);
 
   useEffect(() => {
     let live = true;
@@ -96,14 +97,29 @@ export default function Orbit({ focus = null }) {
   // The trail is the same bar the places map wears, but its steps are views: the
   // system you can go back to, and the world you are standing over. The one you
   // are already on opens its record instead.
+  // Below the world, the trail is whatever the middle of the map is standing on,
+  // read upward through what holds it. Panning across a border rewrites it, the
+  // way walking across one would.
+  const under = [];
+  if (ground) {
+    const all = new Map((ground.standing || []).map((p) => [p.id, p]));
+    let at = all.get(over);
+    while (at && under.length < 8) {
+      under.unshift({ id: at.id, name: at.name });
+      at = at.parent ? all.get(at.parent) : null;
+    }
+  }
+
   const trail = [
     sky.system && { id: sky.system.id, name: sky.system.name },
     ground && { id: ground.id, name: ground.name },
+    ...under,
   ].filter(Boolean);
 
   const step = (id) => {
-    if (ground && id === ground.id) return openDossier(id);
     if (sky.system && id === sky.system.id) return ground ? setPicked(null) : openDossier(id);
+    if (ground && id === ground.id) return openDossier(id);
+    if (under.some((p) => p.id === id)) return openDossier(id);
     setPicked(id);
   };
 
@@ -115,6 +131,7 @@ export default function Orbit({ focus = null }) {
           body={ground}
           here={sky.here}
           focus={focus?.id === ground.id ? null : focus}
+          onCentre={setOver}
         />
       </div>
     );

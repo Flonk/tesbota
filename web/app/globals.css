@@ -937,6 +937,10 @@ textarea.prompt:focus { outline: none; }
 .globeshape.walked { stroke: var(--gold); }
 .globeshape:hover { filter: brightness(1.5); }
 
+/* The adventurer. The one mark on this map that is a person and not a place. */
+.globewalker circle { fill: var(--bad); stroke: var(--bg); stroke-width: 1.5; }
+.globewalker .globehalo { fill: color-mix(in srgb, var(--bad) 28%, transparent); stroke: none; }
+
 .globemark { cursor: pointer; }
 .globemark circle { fill: var(--dim); stroke: var(--bg); stroke-width: 1.5; }
 .globemark.lit circle { fill: var(--ink); }
