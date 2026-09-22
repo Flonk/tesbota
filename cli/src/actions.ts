@@ -400,16 +400,16 @@ const spread = (rings: number[][][]) => {
  * everything on a world is at least on the world.
  */
 export function restack(ground: string) {
+  // Everything not of the heavens, whether or not it can still be walked down to
+  // from the world. A place whose parent has been taken out of the record is
+  // reachable from nowhere and would otherwise simply stop existing — and since
+  // where a place belongs is decided by its shape, it can be put back.
   const all = db.rows(
-    `WITH RECURSIVE under(id) AS (
-       SELECT ?
-       UNION
-       SELECT p.id FROM place p JOIN under u ON p.parent = u.id
-     )
-     SELECT p.id, p.parent, p.type, p.lat, p.lon, e.extent
+    `SELECT p.id, p.parent, p.type, p.lat, p.lon, e.extent
        FROM place p JOIN entity e ON e.id = p.id
-      WHERE p.id IN (SELECT id FROM under) AND p.id <> ?`,
-    [ground, ground]
+      WHERE p.id <> ?
+        AND coalesce(p.type, '') NOT IN ('celestial-body', 'celestial-system', 'realm')`,
+    [ground]
   );
 
   const held = all.map((r) => ({

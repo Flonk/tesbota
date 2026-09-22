@@ -165,6 +165,31 @@ function ways(): Wrong[] {
 }
 
 /**
+ * A place whose parent is not in the record.
+ *
+ * Nothing can be walked down to from a world it has lost its footing in, so an
+ * orphan does not appear on the map at all — it is not wrong on the screen, it
+ * is missing from it, which is far worse to notice.
+ */
+function orphans(): Wrong[] {
+  let lost: Array<Record<string, any>>;
+  try {
+    lost = db.rows(
+      `SELECT p.id, p.parent FROM place p
+        WHERE p.parent IS NOT NULL
+          AND NOT EXISTS (SELECT 1 FROM place q WHERE q.id = p.parent)
+        ORDER BY p.id`
+    );
+  } catch {
+    return [];
+  }
+  return lost.map((r) => ({
+    what: "orphan",
+    said: `${r.id} sits inside ${r.parent}, which is not a place — nothing can reach it`,
+  }));
+}
+
+/**
  * A place nobody has put anywhere.
  *
  * There is one map now and it draws what the record positions, so a place with
@@ -203,6 +228,7 @@ export function check(): Wrong[] {
     ...reader(),
     ...calendar(),
     ...ways(),
+    ...orphans(),
     ...unplaced(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
