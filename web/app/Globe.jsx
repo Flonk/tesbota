@@ -192,6 +192,9 @@ export default function Globe({
   const [wrong, setWrong] = useState(null);
   const [shifted, setMoved] = useState(null);
   const dragging = useRef(null);
+  // A corner taken away is gone by the time the click lands, so the click lands on
+  // whatever was underneath it — which was reading as "take that up instead".
+  const swallow = useRef(false);
   const svg = useRef(null);
   const grab = useRef(null);
   const held = useRef(FIT);
@@ -433,10 +436,13 @@ export default function Globe({
     e.currentTarget.setPointerCapture(e.pointerId);
 
     // A corner under the finger is what the finger has hold of, not the map.
+    if (editing && e.target?.classList?.contains("globeghost")) return;
     const corner = e.target?.closest?.("[data-corner]");
     if (editing && corner) {
       const [run, at] = corner.dataset.corner.split(":").map(Number);
       if (tool === "erase") {
+        e.stopPropagation();
+        swallow.current = true;
         alter(run, at, (held) => (held.length > 3 ? dropped(held, at) : held));
         return;
       }
@@ -530,6 +536,10 @@ export default function Globe({
   }
 
   function tap(id) {
+    if (swallow.current) {
+      swallow.current = false;
+      return;
+    }
     if (grab.current?.moved || touches.current.pinched) return;
     if (!editing) return openDossier(id);
     const place = (body?.standing || []).find((p) => p.id === id);
@@ -634,6 +644,32 @@ export default function Globe({
         </g>
       )}
 
+      {marks.map((mark) => (
+        <g
+          key={mark.id}
+          className={`globemark${mark.here ? " here" : ""}${mark.day ? " lit" : ""}`}
+          transform={`translate(${across(mark.lon)} ${down(mark.lat)}) scale(${near})`}
+          onClick={() => tap(mark.id)}
+        >
+          <circle r="5" />
+          {named.has(mark.id) && (
+            <text y="-11" textAnchor="middle">
+              {mark.name}
+              {mark.more > 0 ? ` +${mark.more}` : ""}
+            </text>
+          )}
+          <title>
+            {mark.all.map((p) => p.name).join(", ")} —{" "}
+            {mark.day
+              ? `the sun stands ${mark.altitude.toFixed(1)}° up`
+              : `the sun is ${Math.abs(mark.altitude).toFixed(1)}° down`}
+          </title>
+        </g>
+      ))}
+
+      {/* Last, so a corner is never hidden under the name of something else —
+          a label that swallows the handle you are reaching for is a handle that
+          does not work. */}
       {draft && (
         <g className="globedraft">
           {draft.runs.map((run, r) => (
@@ -693,29 +729,6 @@ export default function Globe({
           d={"M " + pen.map(([lon, lat]) => `${across(lon)} ${down(lat)}`).join(" L ")}
         />
       )}
-
-      {marks.map((mark) => (
-        <g
-          key={mark.id}
-          className={`globemark${mark.here ? " here" : ""}${mark.day ? " lit" : ""}`}
-          transform={`translate(${across(mark.lon)} ${down(mark.lat)}) scale(${near})`}
-          onClick={() => tap(mark.id)}
-        >
-          <circle r="5" />
-          {named.has(mark.id) && (
-            <text y="-11" textAnchor="middle">
-              {mark.name}
-              {mark.more > 0 ? ` +${mark.more}` : ""}
-            </text>
-          )}
-          <title>
-            {mark.all.map((p) => p.name).join(", ")} —{" "}
-            {mark.day
-              ? `the sun stands ${mark.altitude.toFixed(1)}° up`
-              : `the sun is ${Math.abs(mark.altitude).toFixed(1)}° down`}
-          </title>
-        </g>
-      ))}
     </svg>
 
     {editing && (
