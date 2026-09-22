@@ -162,7 +162,7 @@ export async function snapshot(profile = PROFILES[0]) {
       ? { turn: current.turn_id, text: current.gap || "" }
       : null;
 
-  return { status, slides, gap, chat, talk: sitting.log || [], vitals, skills, inventory, load, quests, names: names(), job: await job(), note: campaign.note || null };
+  return { status, slides, gap, chat, talk: sitting.log || [], vitals, skills, inventory, load, quests, names: names(), job: await job(), note: campaign.note || null, written: await written() };
 }
 
 function alive(pid) {
@@ -635,6 +635,34 @@ export async function skyLayout(profile = PROFILES[0]) {
   } catch (err) {
     return { error: String(err.stderr || err.message || err).trim().slice(-400) };
   }
+}
+
+// When the page itself last changed. Next talks to the browser over a websocket
+// to hot-swap code, and that does not survive the tunnel — so a tab left open on
+// a phone goes on running whatever javascript it loaded, against a server that has
+// moved on, and the bug it shows is a bug nobody can find. This lets it notice.
+const PAGES = path.join(ROOT, "web", "app");
+
+export async function written() {
+  let newest = 0;
+  const look = async (where) => {
+    let found;
+    try {
+      found = await fs.readdir(where, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of found) {
+      const at = path.join(where, entry.name);
+      if (entry.isDirectory()) await look(at);
+      else if (/\.(jsx?|css)$/.test(entry.name)) {
+        const { mtimeMs } = await fs.stat(at).catch(() => ({ mtimeMs: 0 }));
+        if (mtimeMs > newest) newest = mtimeMs;
+      }
+    }
+  };
+  await look(PAGES);
+  return Math.round(newest);
 }
 
 export async function job() {

@@ -558,6 +558,12 @@ export default function Page() {
   // must not decide the world is idle while one of them is still out.
   const flight = useRef(0);
 
+  // The page this tab is running was built at some moment; the server knows when
+  // the page was last written. If the second is later than the first, this tab is
+  // running code that no longer exists and will behave in ways nobody can explain.
+  const loaded = useRef(null);
+  const [stale, setStale] = useState(false);
+
   const busy = pending || (data?.job?.running ? data.job.label || "step" : null);
 
   const load = useCallback(async () => {
@@ -577,6 +583,13 @@ export default function Page() {
 
   useEffect(() => {
     if (data?.names) knowNames(data.names);
+  }, [data]);
+
+  useEffect(() => {
+    const when = data?.written;
+    if (!when) return;
+    if (loaded.current === null) loaded.current = when;
+    else if (when > loaded.current) setStale(true);
   }, [data]);
 
   useEffect(() => {
@@ -860,6 +873,12 @@ export default function Page() {
           : undefined
       }
     >
+      {stale && (
+        <button className="stale" onClick={() => window.location.reload()}>
+          this page has been rewritten since you opened it — tap to load it
+        </button>
+      )}
+
       <Brand
         status={status}
         busy={busy}

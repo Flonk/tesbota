@@ -1141,3 +1141,12 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 .mgo { font: var(--mono); font-size: .92em; letter-spacing: .04em; color: var(--place); }
 .mwhen { line-height: 1.35; }
 .medges li.live .mon, .medges li.live .mgo { color: var(--gold); }
+
+/* Shown only when the tab is running code the server has since replaced. */
+.stale {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 40; cursor: pointer;
+  background: var(--gold); color: #1a1408; border: 0;
+  font: var(--mono); letter-spacing: .08em; text-transform: uppercase;
+  padding: .45rem .8rem; text-align: center;
+}
+.stale:hover { filter: brightness(1.08); }
