@@ -83,7 +83,10 @@ export default function Orbit({ focus = null }) {
   }, [holder, focus?.asked]);
 
   useEffect(() => {
-    if (landed.current || focus?.id || !sky?.bodies) return;
+    // A place asked for that the world no longer holds — a link kept in the url
+    // past the place it named — must not leave the map showing the sky instead.
+    // If nothing answered to it, land the way an unasked map lands.
+    if (landed.current || holder || !sky?.bodies) return;
     // Whoever is walking, if anybody is — and the world they are on. A life that
     // has not begun has nobody standing anywhere, and a map of the system is not
     // what anybody opened the map for: show the world itself, whole.
@@ -95,7 +98,7 @@ export default function Orbit({ focus = null }) {
     landed.current = true;
     setPicked(ground.id);
     if (under) setWent({ id: sky.here, asked: Date.now() });
-  }, [sky, focus?.id]);
+  }, [sky, holder]);
 
   const plan = useMemo(() => {
     if (!sky?.bodies) return null;
@@ -164,7 +167,11 @@ export default function Orbit({ focus = null }) {
         <Globe
           body={ground}
           here={sky.here}
-          focus={focus?.id === ground.id ? null : focus || went}
+          focus={
+            // A focus nothing answered to is no focus at all, and the map falls
+            // back to wherever it would have landed on its own.
+            holder ? (focus?.id === ground.id ? null : focus) : went
+          }
           onCentre={setOver}
           editing={editing}
           onSaved={read}
