@@ -556,7 +556,7 @@ export default function Globe({
         // Asking for the subplaces and getting none is worth saying: it means
         // nothing was standing on that ground, not that the asking was ignored.
         if (!carried.length && bringing && carry) {
-          setWrong("nothing was standing inside it, so nothing came along");
+          setWrong("nothing inside it to move");
         }
         setChosen(null);
         setDraft(null);
@@ -694,7 +694,7 @@ export default function Globe({
         // it: one ambiguous scribble should not throw a drawn boundary away.
         const altered = reshape(draft.runs[0], pen, room);
         if (altered) setDraft({ shut: true, runs: [altered] });
-        else setWrong("that stroke did not say where it met the shape");
+        else setWrong("stroke does not meet the shape");
         return;
       }
       const said = straighten(pen, room, draft?.shut ?? null);
@@ -807,7 +807,7 @@ export default function Globe({
               className="gname gtype"
               autoFocus
               value={naming.name}
-              placeholder="what is it called"
+              placeholder="name"
               onChange={(e) => setNaming({ ...naming, name: e.target.value })}
               onKeyDown={(e) => e.key === "Enter" && found()}
             />
@@ -823,15 +823,15 @@ export default function Globe({
               ))}
             </select>
             <button className="gtool" onClick={() => setNaming(null)} disabled={saving}>
-              never mind
+              cancel
             </button>
             <button className="gtool keep" onClick={found} disabled={saving || !naming.name.trim()}>
-              {saving ? "…" : "draw it"}
+              {saving ? "…" : "create"}
             </button>
           </>
         ) : (
           <>
-            <span className="gname dim">tap a shape to take it up</span>
+            <span className="gname dim">select a shape</span>
             <button className="gtool" onClick={() => setNaming({ name: "", type: "region" })}>
               new place
             </button>
@@ -892,7 +892,7 @@ export default function Globe({
       <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)}) scale(${near})`}>
         <circle r="7" />
         <circle r="13" className="globeglow" />
-        <title>the sun stands straight over here</title>
+        <title>subsolar point</title>
       </g>
 
       {walker && (
@@ -1013,12 +1013,12 @@ export default function Globe({
                 </button>
                 <p className="askwhy">
                   {asking.deep
-                    ? `The ${inside.length} places inside it go too.`
-                    : `The ${inside.length} places inside it move up to ${upName}.`}
+                    ? `${inside.length} subplaces deleted too.`
+                    : `${inside.length} subplaces move to ${upName}.`}
                 </p>
               </>
             ) : (
-              <p className="askwhy">Nothing is inside it.</p>
+              <p className="askwhy">Nothing inside it.</p>
             )}
             <div className="askdo">
               <button className="gtool" onClick={() => setAsking(null)} disabled={saving}>
@@ -1041,8 +1041,7 @@ export default function Globe({
 
     {editing && !wrong && shifted && (
       <div className="globemoved" onClick={() => setMoved(null)}>
-        {shifted.length} {shifted.length === 1 ? "place" : "places"} changed hands:{" "}
-        {shifted.slice(0, 4).map((m) => m.id.replace(/-/g, " ")).join(", ")}
+        moved {shifted.length}: {shifted.slice(0, 4).map((m) => m.id).join(", ")}
         {shifted.length > 4 ? " …" : ""}
       </div>
     )}

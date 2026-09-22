@@ -875,7 +875,7 @@ export default function Page() {
     >
       {stale && (
         <button className="stale" onClick={() => window.location.reload()}>
-          this page has been rewritten since you opened it — tap to load it
+          new version — tap to reload
         </button>
       )}
 

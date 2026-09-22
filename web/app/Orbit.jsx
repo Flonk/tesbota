@@ -112,10 +112,10 @@ export default function Orbit({ focus = null }) {
     return { middles, moving, scale: (MIDDLE * EDGE) / widest };
   }, [sky]);
 
-  if (!sky) return <Empty>solving the sky…</Empty>;
+  if (!sky) return <Empty>loading…</Empty>;
   if (sky.error) return <Note tone="warn">{sky.error}</Note>;
   if (!plan || (!plan.moving.length && !plan.middles.length)) {
-    return <Empty>nobody has written the sky down yet</Empty>;
+    return <Empty>no bodies</Empty>;
   }
 
 
