@@ -12,6 +12,7 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     passage(book_id, ord, text)                        a book's text, one paragraph a row
     place(id, parent, type, lat, lon)                  every place sits inside one
                                                        type: location | region | road | river |
+                                                       water |
                                                        celestial-body | celestial-system | realm
                                                        lat/lon in degrees: the one point it is
                                                        named at, inside its own extent

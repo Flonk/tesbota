@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Globe from "./Globe";
 import Icon from "./icons";
 import { Crumb, Empty, Note, openDossier } from "./ui";
@@ -47,6 +47,11 @@ export default function Orbit({ focus = null }) {
   const [picked, setPicked] = useState(null);
   const [over, setOver] = useState(null);
   const [editing, setEditing] = useState(false);
+  // Opening the map with nothing particular asked for should show you where the
+  // adventurer is, which is the only reason anybody opens a map of a world they
+  // are walking. Once only: after that the map stays where it has been put.
+  const [went, setWent] = useState(null);
+  const landed = useRef(false);
 
   const read = useCallback(
     () =>
@@ -76,6 +81,17 @@ export default function Orbit({ focus = null }) {
   useEffect(() => {
     if (holder) setPicked(holder);
   }, [holder, focus?.asked]);
+
+  useEffect(() => {
+    if (landed.current || focus?.id || !sky?.here || !sky?.bodies) return;
+    const home = Object.values(sky.bodies).find((b) =>
+      (b.standing || []).some((p) => p.id === sky.here)
+    );
+    if (!home) return;
+    landed.current = true;
+    setPicked(home.id);
+    setWent({ id: sky.here, asked: Date.now() });
+  }, [sky, focus?.id]);
 
   const plan = useMemo(() => {
     if (!sky?.bodies) return null;
@@ -115,16 +131,16 @@ export default function Orbit({ focus = null }) {
   }
 
   const trail = [
-    sky.system && { id: sky.system.id, name: sky.system.name },
+    ...(ground?.above || (sky.system ? [sky.system] : [])),
     ground && { id: ground.id, name: ground.name },
     ...under,
   ].filter(Boolean);
 
   const step = (id) => {
-    if (sky.system && id === sky.system.id) return ground ? setPicked(null) : openDossier(id);
-    if (ground && id === ground.id) return openDossier(id);
-    if (under.some((p) => p.id === id)) return openDossier(id);
-    setPicked(id);
+    if (sky.bodies[id] && id !== ground?.id) return setPicked(id);
+    // Anything above the world is a step back out to the system it is drawn in.
+    if (ground && (ground.above || []).some((p) => p.id === id)) return setPicked(null);
+    return openDossier(id);
   };
 
   if (ground?.standing) {
@@ -144,7 +160,7 @@ export default function Orbit({ focus = null }) {
         <Globe
           body={ground}
           here={sky.here}
-          focus={focus?.id === ground.id ? null : focus}
+          focus={focus?.id === ground.id ? null : focus || went}
           onCentre={setOver}
           editing={editing}
           onSaved={read}

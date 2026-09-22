@@ -202,6 +202,9 @@ export default function Globe({
   const [bringing, setBringing] = useState(true);
   // How far the hand has got this drag, before it has let go.
   const [towed, setTowed] = useState(null);
+  // Writing down a place that does not exist yet, before there is a shape for it.
+  const [naming, setNaming] = useState(null);
+  const [fresh, setFresh] = useState(null);
   const shoving = useRef(null);
   const svg = useRef(null);
   const grab = useRef(null);
@@ -280,7 +283,7 @@ export default function Globe({
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
   const drawn = useMemo(() => {
-    const order = { region: 0, road: 1, river: 1 };
+    const order = { water: 0, region: 1, road: 2, river: 2 };
     return (body?.standing || [])
       .filter((place) => place.extent && place.id !== chosen)
       .map((place) => {
@@ -438,6 +441,7 @@ export default function Globe({
   /** Take up a shape to work on, as it is written. */
   const take = useCallback((place) => {
     const read = place.extent ? runsOf(place.extent) : null;
+    setFresh(null);
     setChosen(place.id);
     setDraft(read || { shut: place.type !== "road" && place.type !== "river", runs: [[]] });
     setCarry(null);
@@ -452,6 +456,38 @@ export default function Globe({
       return { ...now, runs };
     });
   }, []);
+
+  /**
+   * Put down a place nobody has written, then take it straight up to be drawn.
+   * It is hung on the world for now; where it really belongs is settled the
+   * moment its shape is saved, by what the shape turns out to be inside.
+   */
+  async function found() {
+    const said = (naming?.name || "").trim();
+    if (!said) return;
+    setSaving(true);
+    setWrong(null);
+    try {
+      const res = await fetch("/api/place", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: said, type: naming.type, on: body.id }),
+      });
+      const back = await res.json().catch(() => null);
+      if (back?.error) return setWrong(back.error);
+      setNaming(null);
+      setFresh({ id: back.id, name: back.name });
+      setChosen(back.id);
+      setDraft({ shut: naming.type !== "road" && naming.type !== "river", runs: [[]] });
+      setCarry(null);
+      setTool("draw");
+      if (onSaved) onSaved();
+    } catch (err) {
+      setWrong(String(err));
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function keep() {
     if (!chosen || !draft) return;
@@ -479,6 +515,7 @@ export default function Globe({
         }
         setChosen(null);
         setDraft(null);
+        setFresh(null);
         setCarry(null);
         setTowed(null);
         if (onSaved) onSaved();
@@ -606,7 +643,7 @@ export default function Globe({
       const room = ((view.w / Math.max(1, pane.w)) / W) * 360 * 3;
       setPen(null);
       // Degrees to a pixel, which is what a hand's wobble is worth here.
-      const ring = draft?.shut && draft.runs[0] ? opened(draft.runs[0]) : null;
+      const ring = draft?.shut && draft.runs[0]?.length >= 3 ? opened(draft.runs[0]) : null;
       if (ring && ring.length >= 3) {
         // A stroke over a shape alters it or does nothing. It never stands in for
         // it: one ambiguous scribble should not throw a drawn boundary away.
@@ -671,7 +708,9 @@ export default function Globe({
   for (let lon = -180; lon < 180; lon += 30) lines.push({ lon });
   for (let lat = -60; lat <= 60; lat += 30) lines.push({ lat });
 
-  const taken = chosen && (body.standing || []).find((p) => p.id === chosen);
+  const taken =
+    (chosen && (body.standing || []).find((p) => p.id === chosen)) ||
+    (chosen && fresh?.id === chosen ? fresh : null);
 
   return (
     <>
@@ -710,8 +749,41 @@ export default function Globe({
               {saving ? "…" : "save"}
             </button>
           </>
+        ) : naming ? (
+          <>
+            <input
+              className="gname gtype"
+              autoFocus
+              value={naming.name}
+              placeholder="what is it called"
+              onChange={(e) => setNaming({ ...naming, name: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && found()}
+            />
+            <select
+              className="gtool"
+              value={naming.type}
+              onChange={(e) => setNaming({ ...naming, type: e.target.value })}
+            >
+              {["region", "water", "location", "road", "river"].map((kind) => (
+                <option key={kind} value={kind}>
+                  {kind}
+                </option>
+              ))}
+            </select>
+            <button className="gtool" onClick={() => setNaming(null)} disabled={saving}>
+              never mind
+            </button>
+            <button className="gtool keep" onClick={found} disabled={saving || !naming.name.trim()}>
+              {saving ? "…" : "draw it"}
+            </button>
+          </>
         ) : (
-          <span className="gname dim">tap a shape to take it up</span>
+          <>
+            <span className="gname dim">tap a shape to take it up</span>
+            <button className="gtool" onClick={() => setNaming({ name: "", type: "region" })}>
+              new place
+            </button>
+          </>
         )}
       </div>
     )}

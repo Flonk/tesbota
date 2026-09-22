@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS place (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','road','river','celestial-body','celestial-system','realm')),
+  type   TEXT CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm')),
   lat    REAL,
   lon    REAL
 );
@@ -241,7 +241,7 @@ const resortPlace = (has: Set<string>) => {
 CREATE TABLE place_sorted (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','road','river','celestial-body','celestial-system','realm')),
+  type   TEXT CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm')),
   lat    REAL,
   lon    REAL
 );
@@ -334,7 +334,7 @@ export function setup(): string {
     }
 
     const placeSql = sqlOf(db, "place");
-    if (!placeSql.includes("'road'") && placeSql.includes("type")) {
+    if (!placeSql.includes("'water'") && placeSql.includes("type")) {
       db.exec("PRAGMA foreign_keys = OFF");
       db.exec(resortPlace(columnsOf(db, "place")));
       db.exec("PRAGMA foreign_keys = ON");
@@ -342,7 +342,7 @@ export function setup(): string {
     if (!columnsOf(db, "place").has("type")) {
       db.exec(
         "ALTER TABLE place ADD COLUMN type TEXT " +
-          "CHECK (type IN ('location','region','road','river','celestial-body','celestial-system','realm'))"
+          "CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm'))"
       );
     }
     const stood = columnsOf(db, "place");

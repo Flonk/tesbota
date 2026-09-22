@@ -476,3 +476,43 @@ export function worldOf(id: string): string | null {
   );
   return found ? String(found.id) : null;
 }
+
+const KINDS_OF_PLACE = [
+  "location", "region", "road", "river", "water",
+  "celestial-body", "celestial-system", "realm",
+];
+
+/**
+ * Write down a place that did not exist, with nothing said about it but its name
+ * and what sort of thing it is.
+ *
+ * It is put on whatever holds it for now; where it actually belongs is settled by
+ * `restack` the moment somebody draws it, because what holds what is a question
+ * the shapes answer.
+ */
+export function makePlace(name: string, type: string, on: string) {
+  const said = String(name || "").trim();
+  if (!said) return { error: "a place needs a name" };
+  if (!KINDS_OF_PLACE.includes(type)) {
+    return { error: `a place is one of ${KINDS_OF_PLACE.join(", ")}` };
+  }
+  const holder = String(on || "").trim().toLowerCase();
+  if (!db.row("SELECT 1 FROM place WHERE id = ?", [holder])) {
+    return { error: `nothing called ${holder} to put it in` };
+  }
+
+  let ident = canon.slug(said);
+  if (!ident) return { error: "that name makes no id" };
+  if (db.row("SELECT 1 FROM entity WHERE id = ?", [ident])) {
+    let n = 2;
+    while (db.row("SELECT 1 FROM entity WHERE id = ?", [`${ident}-${n}`])) n += 1;
+    ident = `${ident}-${n}`;
+  }
+
+  db.writing((con) => {
+    con.prepare("INSERT INTO entity (id, kind, name, about) VALUES (?,?,?,?)")
+      .run(ident, "places", said, "$BOTA");
+    con.prepare("INSERT INTO place (id, parent, type) VALUES (?,?,?)").run(ident, holder, type);
+  });
+  return { ok: true, id: ident, name: said, type, on: holder };
+}

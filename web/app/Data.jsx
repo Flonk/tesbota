@@ -15,7 +15,7 @@ export const ICON = {
 };
 
 export const PLACE_ICON = {
-  location: "pin", region: "map", road: "map", river: "river",
+  location: "pin", region: "map", road: "map", river: "river", water: "river",
   "celestial-body": "world", "celestial-system": "orbit", realm: "realm",
 };
 

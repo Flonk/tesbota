@@ -266,6 +266,7 @@ export const PLACE_TYPES: ReadonlyArray<readonly [string, string, string]> = [
   ["region", "an expanse with places inside it: a forest, a marsh, a plain", "map"],
   ["road", "a way somebody made, and the run of it", "map"],
   ["river", "running water, and the length of it", "river"],
+  ["water", "water with a shore: a sea, a lake, a bay", "river"],
   ["celestial-body", "a world, a moon, a sun", "world"],
   ["celestial-system", "bodies bound to each other, and the space between them", "orbit"],
   ["realm", "a universe, and everything any of this hangs inside", "realm"],

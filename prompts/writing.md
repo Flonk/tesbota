@@ -43,12 +43,13 @@ Every place sits inside exactly one parent, written as a row of its own — no p
 
     INSERT INTO place (id, parent, type) VALUES ('the-aler-bridge', 'alheim', 'location');
 
-`type` says what sort of place it is, and there are seven:
+`type` says what sort of place it is, and there are eight:
 
 - `location` — somewhere you can stand: a town, a house, a bridge.
 - `region` — an expanse with places inside it: a forest, a marsh, a plain.
 - `road` — a way somebody made, and the run of it.
-- `river` — running water, and the length of it.
+- `river` — running water, and the length of it, drawn as a run.
+- `water` — water with a shore: a sea, a lake, a bay, drawn as ground.
 - `celestial-body` — a world, a moon, a sun.
 - `celestial-system` — bodies bound to each other, and the space between them.
 - `realm` — a universe, and everything any of this hangs inside.

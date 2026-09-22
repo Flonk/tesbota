@@ -357,6 +357,24 @@ export function system(known: Record<string, Body> = bodies()) {
   return found ? { id: String(found.id), name: String(found.name) } : null;
 }
 
+/**
+ * Everything a body sits inside, outermost first. A world is not simply in its
+ * system: it is in its own reach, and that is in the system.
+ */
+export function above(id: string) {
+  const chain = db.rows(
+    `WITH RECURSIVE up(id, depth) AS (
+       SELECT (SELECT parent FROM place WHERE id = ?), 0
+       UNION
+       SELECT p.parent, up.depth + 1 FROM place p JOIN up ON p.id = up.id
+        WHERE up.depth < 32 AND p.parent IS NOT NULL
+     )
+     SELECT up.id, e.name FROM up JOIN entity e ON e.id = up.id ORDER BY up.depth DESC`,
+    [id]
+  );
+  return chain.map((r) => ({ id: String(r.id), name: String(r.name) }));
+}
+
 /** The whole system as plain data, which is what the map draws. */
 export function describe(when: When | null = null, been = new Set<string>()) {
   const known = bodies();
@@ -375,6 +393,7 @@ export function describe(when: When | null = null, been = new Set<string>()) {
       subsolar: when ? subsolar(it, when, known) : null,
       seasons: when ? seasons(it, when, known) : [],
       standing: when ? standing(it, when, known, been) : [],
+      above: above(it.id),
     };
   }
   return {

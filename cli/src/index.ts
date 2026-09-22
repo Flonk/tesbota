@@ -248,6 +248,14 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     return say(actions.shape(id, said, carry));
   },
 
+  /** Put down a place that did not exist. The map draws it afterwards. */
+  place({ rest, flags }) {
+    const name = rest.join(" ");
+    const type = [...flags].find((f) => f.startsWith("--type="))?.slice(7) || "region";
+    const on = [...flags].find((f) => f.startsWith("--on="))?.slice(5) || "";
+    return say(actions.makePlace(name, type, on));
+  },
+
   /** What is written where, as a tree, for reading in a terminal. */
   map() {
     say(canon.mermaid());
@@ -324,7 +332,9 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
  * an empty profile used to do.
  */
 const MAKES = "init";
-const NEEDS_NOBODY = new Set(["machine", "check", "prompts", "library", "map", "traits", "sky"]);
+const NEEDS_NOBODY = new Set([
+  "machine", "check", "prompts", "library", "map", "traits", "sky", "place", "shape",
+]);
 
 async function main() {
   // Before anything is asked of an agent, make sure the one command it reads the
