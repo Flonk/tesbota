@@ -915,6 +915,8 @@ textarea.prompt:focus { outline: none; }
 .globesvg { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; display: block;
             touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
 .globesvg:active { cursor: grabbing; }
+.globesvg:not(.editing) .globeshape { cursor: inherit; }
+.globesvg:not(.editing) .globeshape:hover { filter: none; }
 .globesvg.editing .globeshape,
 .globesvg.editing .globemark { cursor: default; }
 .globesvg.select .drafting { cursor: move; }

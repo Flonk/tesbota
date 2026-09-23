@@ -729,7 +729,7 @@ export default function Globe({
       else {
         const mark = el.closest?.("[data-place]");
         if (mark && mark.dataset.place === chosen && draft) hits.push({ draft: true });
-        else if (mark) hits.push({ place: mark.dataset.place });
+        else if (mark) hits.push({ place: mark.dataset.place, pin: mark.tagName === "g" });
       }
     }
     return hits;
@@ -746,7 +746,8 @@ export default function Globe({
       }
     }
     if (!editing) {
-      if (places[0]) openDossier(places[0]);
+      const pin = hits.find((hit) => hit.pin);
+      if (pin) openDossier(pin.place);
       return;
     }
     if (places[0]) return choose(places[0]);
