@@ -276,21 +276,26 @@ export function Act({ on, className = "", ...rest }) {
   return <button className={`gtool${on ? " on" : ""} ${className}`.trim()} {...rest} />;
 }
 
-export function Palette({ items, value, onChange, className = "" }) {
+export function Palette({ items, value, onChange, across = false, className = "" }) {
   return (
-    <div className={`palette ${className}`.trim()} role="toolbar">
-      {items.map((t) => (
-        <button
-          key={t.id}
-          className={`tab${value === t.id ? " on" : ""}`}
-          title={t.key ? `${t.label} (${t.key.toUpperCase()})` : t.label}
-          aria-label={t.label}
-          aria-pressed={value === t.id}
-          onClick={() => onChange(t.id)}
-        >
-          <Icon name={t.icon} size={15} />
-        </button>
-      ))}
+    <div className={`palette${across ? " across" : ""} ${className}`.trim()} role="toolbar">
+      {items.map((t) => {
+        const on = t.on ?? (value !== undefined && value === t.id);
+        const hint = t.hint || t.key?.toUpperCase();
+        return (
+          <button
+            key={t.id}
+            className={`tab${on ? " on" : ""}${t.tone ? ` ${t.tone}` : ""}`}
+            title={hint ? `${t.label} (${hint})` : t.label}
+            aria-label={t.label}
+            aria-pressed={t.onClick && t.on === undefined ? undefined : on}
+            disabled={t.off || undefined}
+            onClick={() => (t.onClick ? t.onClick() : onChange(t.id))}
+          >
+            <Icon name={t.icon} size={15} />
+          </button>
+        );
+      })}
     </div>
   );
 }

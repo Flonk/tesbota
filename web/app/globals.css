@@ -988,6 +988,9 @@ textarea.prompt:focus { outline: none; }
 }
 .palette .tab { width: var(--bar-h); height: var(--bar-h); padding: 0; justify-content: center; border: 0; }
 .palette .tab.on { background: color-mix(in srgb, var(--gold) 12%, var(--panel)); }
+.palette.across { left: auto; right: var(--bar-x); flex-direction: row; }
+.palette .tab.keep:not(:disabled) { color: var(--good); }
+.palette .tab.gone:not(:disabled):hover { color: var(--bad); }
 
 .gname { font: var(--mono); letter-spacing: var(--track); text-transform: uppercase;
          color: var(--ink); margin-right: auto; flex: 0 0 auto;

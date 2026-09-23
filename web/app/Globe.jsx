@@ -1068,36 +1068,8 @@ export default function Globe({
               {taken.name}
               {dirty && <span className="gdirty" title="unsaved changes">•</span>}
             </span>
-            {riders.size > 0 && (
-              <Act on={bringing} onClick={() => setBringing((was) => !was)}
-                title="move what stands on this place along with it"
-              >
-                {`carry ${riders.size} subplaces`}
-              </Act>
-            )}
-            <Act onClick={undo} disabled={!past.length || saving} title="undo (ctrl z)">
-              undo
-            </Act>
-            <Act onClick={redo} disabled={!future.length || saving} title="redo (ctrl shift z)">
-              redo
-            </Act>
-            {dirty && (
-              <Act onClick={revert} disabled={saving} title="drop every unsaved change">
-                revert
-              </Act>
-            )}
-            {chosen !== UNWRITTEN && (
-              <Act onClick={() => setAsking({ id: taken.id, name: taken.name, deep: false })}
-                disabled={saving}
-              >
-                remove
-              </Act>
-            )}
-            <Act className="keep" onClick={keep} disabled={saving || !dirty} title="save (enter)">
-              {saving ? "…" : "save"}
-            </Act>
-            <Act onClick={release} disabled={saving} title="deselect (esc)">
-              deselect
+            <Act onClick={() => setNaming({ name: "", type: "region" })} disabled={saving}>
+              new place
             </Act>
           </>
         ) : naming ? (
@@ -1304,6 +1276,32 @@ export default function Globe({
     </svg>
 
     {editing && <Palette items={TOOLS} value={tool} onChange={setTool} />}
+
+    {editing && taken && (
+      <Palette
+        across
+        items={[
+          ...(riders.size > 0
+            ? [{
+                id: "carry", icon: "stack", on: bringing,
+                label: `carry ${riders.size} subplaces`,
+                onClick: () => setBringing((was) => !was),
+              }]
+            : []),
+          { id: "undo", icon: "undo", label: "undo", hint: "ctrl Z", off: !past.length || saving, onClick: undo },
+          { id: "redo", icon: "redo", label: "redo", hint: "ctrl shift Z", off: !future.length || saving, onClick: redo },
+          { id: "revert", icon: "revert", label: "revert", off: !dirty || saving, onClick: revert },
+          ...(chosen !== UNWRITTEN
+            ? [{
+                id: "remove", icon: "trash", label: "remove", tone: "gone", off: saving,
+                onClick: () => setAsking({ id: taken.id, name: taken.name, deep: false }),
+              }]
+            : []),
+          { id: "deselect", icon: "cross", label: "deselect", hint: "esc", off: saving, onClick: release },
+          { id: "save", icon: "check", label: "save", hint: "enter", tone: "keep", off: !dirty || saving, onClick: keep },
+        ]}
+      />
+    )}
 
     {editing && asking && (() => {
       const inside = nested(asking.id);

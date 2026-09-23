@@ -29,7 +29,7 @@ how two bars stop agreeing, and it is how this went wrong the first time.
 | what | when |
 | --- | --- |
 | `<Tabs>` | a bar whose items **pick** which thing you are looking at |
-| `<Palette>` | a column of tools floating over the canvas they work on, square buttons the height of a bar |
+| `<Palette>` | icon buttons floating over the canvas they work on, square and the height of a bar: a column of tools that pick (`value`), or with `across` a row of actions that do (an `onClick` per item) |
 | `<Row>` | a bar of anything else |
 | `<Act>` | a button inside a bar that **does** something |
 | `<Btn>` | a button outside a bar |
