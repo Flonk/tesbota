@@ -32,7 +32,9 @@ export type Body = {
   name: string;
   /** what sort of place it is — `celestial-body`, `celestial-system` */
   type: string | null;
-  /** what it goes round, or null for the thing everything else goes round */
+  /** the system it sits in, or null for the outermost */
+  parent: string | null;
+  /** what it goes round: always the middle of the system it sits in */
   around: string | null;
   /** semi-major axis, metres */
   semiMajor: number | null;
@@ -41,7 +43,7 @@ export type Body = {
   longitude: number;
   /** longitude of periapsis, degrees */
   periapsis: number;
-  /** kilograms */
+  /** kilograms — for a system, what it weighs over and above what is in it */
   mass: number | null;
   /** equatorial radius, metres */
   radius: number | null;
@@ -51,29 +53,43 @@ export type Body = {
   tilt: number;
   /** sidereal rotation, seconds */
   rotation: number | null;
-  /** which meridian faced the primary when the era began, degrees */
+  /** which meridian faced its star when the era began, degrees */
   meridian: number;
 };
 
 const RAD = Math.PI / 180;
 const DEG = 180 / Math.PI;
 
+/** Heavy enough to burn hydrogen, and so to be what lights the worlds around it. */
+export const STAR_MASS = 1.5e29;
+
 export const wrap360 = (deg: number) => ((deg % 360) + 360) % 360;
 export const wrap180 = (deg: number) => wrap360(deg + 180) - 180;
 
+const CELESTIAL = ["celestial-body", "celestial-system"];
+
 export function bodies(): Record<string, Body> {
   const out: Record<string, Body> = {};
-  for (const r of db.rows(
-    `SELECT o.*, e.name, p.type FROM orbit o
-        JOIN entity e ON e.id = o.id
-        LEFT JOIN place p ON p.id = o.id
-       ORDER BY o.id`
-  )) {
+  const rows = db.rows(
+    `SELECT e.id, e.name, p.type, p.parent,
+            o.semi_major, o.eccentricity, o.longitude, o.periapsis, o.mass, o.radius,
+            o.oblateness, o.tilt, o.rotation, o.meridian
+       FROM entity e
+       LEFT JOIN place p ON p.id = e.id
+       LEFT JOIN orbit o ON o.id = e.id
+      WHERE p.type IN (?, ?) OR o.id IS NOT NULL
+      ORDER BY e.id`,
+    CELESTIAL
+  );
+  const ids = new Set(rows.map((r) => String(r.id)));
+  for (const r of rows) {
+    const parent = r.parent && ids.has(String(r.parent)) ? String(r.parent) : null;
     out[String(r.id)] = {
       id: String(r.id),
       name: String(r.name),
       type: r.type ?? null,
-      around: r.around ?? null,
+      parent,
+      around: parent,
       semiMajor: r.semi_major ?? null,
       eccentricity: Number(r.eccentricity ?? 0),
       longitude: Number(r.longitude ?? 0),
@@ -91,36 +107,104 @@ export function bodies(): Record<string, Body> {
 
 export const body = (id: string): Body | null => bodies()[id] ?? null;
 
+const inside = (it: Body, known: Record<string, Body>) =>
+  Object.values(known).filter((other) => other.parent === it.id);
+
 /**
- * How long it takes to go round once, in seconds. Kepler's third, with both masses
- * in it — the primary dominates, but the term is real and costs nothing.
+ * What a thing weighs, all in. A body is its own mass; a system is everything in
+ * it, and whatever it was written down as weighing besides — the gas, the dust,
+ * the dark that nobody can see and everything can feel.
+ */
+export function weight(it: Body, known: Record<string, Body> = bodies(), seen = new Set<string>()): number {
+  if (seen.has(it.id)) return 0;
+  seen.add(it.id);
+  const own = Number(it.mass ?? 0);
+  return own + inside(it, known).reduce((sum, child) => sum + weight(child, known, seen), 0);
+}
+
+/**
+ * How long it takes to go round the middle of its system once, in seconds.
+ * Kepler's third, with everything the system holds pulling.
  */
 export function period(it: Body, known: Record<string, Body> = bodies()): number | null {
-  if (!it.semiMajor || !it.around) return null;
-  const primary = known[it.around];
-  const mass = (primary?.mass ?? 0) + (it.mass ?? 0);
+  if (!it.semiMajor || !it.parent) return null;
+  const held = known[it.parent];
+  const mass = held ? weight(held, known) : 0;
   if (!mass) return null;
   return 2 * Math.PI * Math.sqrt(it.semiMajor ** 3 / (G * mass));
 }
 
+const chain = (it: Body, known: Record<string, Body>) => {
+  const up: Body[] = [];
+  for (let at: Body | undefined = it; at && up.length < 64; at = at.parent ? known[at.parent] : undefined) {
+    up.push(at);
+  }
+  return up;
+};
+
+const shines = (it: Body) => it.type !== "celestial-system" && Number(it.mass ?? 0) >= STAR_MASS;
+
+/**
+ * What lights a body: the nearest star, looking outward one system at a time and
+ * never inside the body's own branch. A world takes its sun from the system its own
+ * system sits in; a moon from the same one, a step further out.
+ */
+const kept_star = new WeakMap<Record<string, Body>, Map<string, Body | null>>();
+
+export function star(it: Body, known: Record<string, Body> = bodies()): Body | null {
+  let seen = kept_star.get(known);
+  if (!seen) kept_star.set(known, (seen = new Map()));
+  if (!seen.has(it.id)) seen.set(it.id, starOf(it, known));
+  return seen.get(it.id)!;
+}
+
+function starOf(it: Body, known: Record<string, Body>): Body | null {
+  const up = chain(it, known);
+  for (let n = 1; n < up.length; n++) {
+    const branch = up[n - 1];
+    const lit: Body[] = [];
+    const look = (at: Body) => {
+      if (at.id === branch.id) return;
+      if (shines(at)) lit.push(at);
+      for (const child of inside(at, known)) look(child);
+    };
+    for (const child of inside(up[n], known)) look(child);
+    if (lit.length) return lit.reduce((a, b) => (Number(b.mass) > Number(a.mass) ? b : a));
+  }
+  return null;
+}
+
+/** Of everything a body sits inside, the one that goes round its star. */
+function circler(it: Body, known: Record<string, Body>): Body | null {
+  const sun = star(it, known);
+  if (!sun) return null;
+  return chain(it, known).find((at) => at.parent === sun.parent) ?? null;
+}
+
+/** How long a body's year is: however long whatever carries it takes to go round its star. */
+export function year(it: Body, known: Record<string, Body> = bodies()): number | null {
+  const going = circler(it, known);
+  return going ? period(going, known) : null;
+}
+
 /**
  * The day you would actually live through, in seconds. A prograde spin comes back
- * round to face the primary one turn later than it comes back round to face the
- * stars — exactly one turn's worth over a whole orbit.
+ * round to face the star one turn later than it comes back round to face the
+ * others — exactly one turn's worth over a whole year.
  */
 export function solarDay(it: Body, known: Record<string, Body> = bodies()): number | null {
   const sidereal = it.rotation;
-  const year = period(it, known);
+  const long = year(it, known);
   if (!sidereal) return null;
-  if (!year || year === sidereal) return sidereal;
-  return (sidereal * year) / (year - sidereal);
+  if (!long || long === sidereal) return sidereal;
+  return (sidereal * long) / (long - sidereal);
 }
 
 /** How many of its own days a body's year runs to. */
 export function daysPerYear(it: Body, known: Record<string, Body> = bodies()): number | null {
-  const year = period(it, known);
+  const long = year(it, known);
   const day = solarDay(it, known);
-  return year && day ? year / day : null;
+  return long && day ? long / day : null;
 }
 
 /**
@@ -149,11 +233,13 @@ export function trueAnomaly(meanDeg: number, e: number): number {
 export type When = { year?: number; day?: number; minute?: number; [k: string]: unknown };
 
 /**
- * Seconds since the era began. The calendar divides a day into 1440 minutes
- * whatever the day lasts, so a minute is a fraction of the body's day and not a
- * fixed sixty seconds.
+ * Seconds since the era began. Dates are kept on the home world: the calendar
+ * divides its day into 1440 minutes whatever the day lasts, so a minute is a
+ * fraction of that world's day and not a fixed sixty seconds.
  */
-export function elapsed(it: Body, when: When, known: Record<string, Body> = bodies()): number | null {
+export function elapsed(when: When, known: Record<string, Body> = bodies()): number | null {
+  const it = home(known);
+  if (!it) return null;
   const day = solarDay(it, known);
   const perYear = daysPerYear(it, known);
   if (!day || !perYear) return null;
@@ -164,21 +250,10 @@ export function elapsed(it: Body, when: When, known: Record<string, Body> = bodi
   return days * day;
 }
 
-/** How far round its orbit it has got, as an angle from the equinox. */
-export function seasonAngle(
-  it: Body, when: When, known: Record<string, Body> = bodies()
-): number | null {
-  const year = period(it, known);
-  const since = elapsed(it, when, known);
-  if (!year || since === null) return null;
-  const mean = it.longitude + 360 * (since / year);
-  return wrap360(trueAnomaly(mean - it.periapsis, it.eccentricity) + it.periapsis);
-}
-
 /**
  * Where on its orbit a body stands when it is that far round, in metres from the
- * primary. The primary sits at a focus and not at the middle, which is the whole
- * difference an eccentricity makes and the reason this is not a circle.
+ * middle of its system. The middle sits at a focus and not at the centre of the
+ * ellipse, which is the whole difference an eccentricity makes.
  */
 export function atLongitude(it: Body, deg: number): { x: number; y: number; r: number } | null {
   if (!it.semiMajor) return null;
@@ -188,40 +263,85 @@ export function atLongitude(it: Body, deg: number): { x: number; y: number; r: n
   return { x: r * Math.cos(deg * RAD), y: r * Math.sin(deg * RAD), r };
 }
 
-/** Where it actually is, now. */
+/**
+ * Where it is in its own system, now. Something with an orbit and nothing to pull
+ * it round stays where it was put; something with no orbit sits at the middle.
+ */
 export function at(it: Body, when: When, known: Record<string, Body> = bodies()) {
-  const angle = seasonAngle(it, when, known);
-  if (angle === null) return null;
+  if (!it.semiMajor) return null;
+  const long = period(it, known);
+  const since = elapsed(when, known);
+  const mean = long && since !== null ? it.longitude + 360 * (since / long) : it.longitude;
+  const angle = long ? wrap360(trueAnomaly(mean - it.periapsis, it.eccentricity) + it.periapsis) : wrap360(it.longitude);
   const spot = atLongitude(it, angle);
   return spot && { ...spot, angle };
 }
 
 /**
- * The four days the tilt turns on: the two the primary stands furthest from the
+ * Where it is inside one of the systems it sits in, adding up every system between.
+ * Only ever as far out as it has to go: a galaxy's worth of metres added to a
+ * world's would leave nothing of the world's in the sum.
+ */
+function placed(it: Body, when: When, known: Record<string, Body>, within: string | null = null) {
+  let x = 0;
+  let y = 0;
+  for (const step of chain(it, known)) {
+    if (step.id === within) break;
+    const spot = at(step, when, known);
+    if (spot) {
+      x += spot.x;
+      y += spot.y;
+    }
+  }
+  return { x, y };
+}
+
+/** How far round its star a body has got, as an angle from the equinox. */
+export function seasonAngle(
+  it: Body, when: When, known: Record<string, Body> = bodies()
+): number | null {
+  const sun = star(it, known);
+  if (!sun || elapsed(when, known) === null) return null;
+  const mine = new Set(chain(it, known).map((step) => step.id));
+  const shared = chain(sun, known).find((step) => mine.has(step.id))?.id ?? null;
+  const from = placed(sun, when, known, shared);
+  const to = placed(it, when, known, shared);
+  if (from.x === to.x && from.y === to.y) return null;
+  return wrap360(Math.atan2(to.y - from.y, to.x - from.x) * DEG);
+}
+
+/**
+ * The four days the tilt turns on: the two the star stands furthest from the
  * equator, and the two it crosses it. They are found by walking the year rather
  * than by formula, because the year is however many days it is.
  */
 export function seasons(it: Body, when: When, known: Record<string, Body> = bodies()) {
-  const year = Math.round(daysPerYear(it, known) ?? 0);
-  if (!year || !it.tilt) return [];
+  const keeper = home(known);
+  const day = keeper ? solarDay(keeper, known) : null;
+  const long = year(it, known);
+  const count = day && long ? Math.round(long / day) : 0;
+  if (!count || !it.tilt) return [];
   const lat: number[] = [];
-  for (let day = 1; day <= year; day++) {
-    const spot = subsolar(it, { ...when, day, minute: MINUTES_PER_DAY / 2 }, known);
+  for (let n = 1; n <= count; n++) {
+    const spot = subsolar(it, { ...when, day: n, minute: MINUTES_PER_DAY / 2 }, known);
     lat.push(spot ? spot.lat : 0);
   }
+  const low = Math.min(...lat);
+  const high = Math.max(...lat);
+  const last = (want: number) => {
+    let at = 0;
+    lat.forEach((l, n) => {
+      if (Math.abs(l - want) < 1e-9) at = n;
+    });
+    return at + 1;
+  };
   const found: Array<{ name: string; says: string; day: number; lat: number }> = [
-    {
-      name: "winter-solstice", says: "winter solstice",
-      day: lat.indexOf(Math.min(...lat)) + 1, lat: Math.min(...lat),
-    },
-    {
-      name: "summer-solstice", says: "summer solstice",
-      day: lat.indexOf(Math.max(...lat)) + 1, lat: Math.max(...lat),
-    },
+    { name: "winter-solstice", says: "winter solstice", day: last(low), lat: low },
+    { name: "summer-solstice", says: "summer solstice", day: last(high), lat: high },
   ];
-  for (let n = 0; n < year; n++) {
+  for (let n = 0; n < count; n++) {
     const here = lat[n];
-    const next = lat[(n + 1) % year];
+    const next = lat[(n + 1) % count];
     if (here <= 0 && next > 0) {
       found.push({ name: "vernal-equinox", says: "vernal equinox", day: n + 2, lat: next });
     }
@@ -238,8 +358,9 @@ export function seasons(it: Body, when: When, known: Record<string, Body> = bodi
 }
 
 /**
- * The point the primary stands straight over. Its latitude is the season; its
- * longitude is the hour, because the clock is the prime meridian's solar time.
+ * The point the star stands straight over. Its latitude is the season; its
+ * longitude is the hour — on the home world the clock is the prime meridian's
+ * solar time, and anywhere else it is however far round that world has turned.
  */
 export function subsolar(
   it: Body, when: When, known: Record<string, Body> = bodies()
@@ -247,11 +368,19 @@ export function subsolar(
   const angle = seasonAngle(it, when, known);
   if (angle === null) return null;
   const lat = Math.asin(Math.sin(it.tilt * RAD) * Math.sin(angle * RAD)) * DEG;
-  const lon = wrap180(180 - 360 * (Number(when.minute ?? 0) / MINUTES_PER_DAY) + it.meridian);
+  let turned: number;
+  if (home(known)?.id === it.id) {
+    turned = Number(when.minute ?? 0) / MINUTES_PER_DAY;
+  } else {
+    const day = solarDay(it, known);
+    const since = elapsed(when, known);
+    turned = day && since !== null ? since / day - Math.floor(since / day) : 0;
+  }
+  const lon = wrap180(180 - 360 * turned + it.meridian);
   return { lat, lon };
 }
 
-/** How high the primary stands over a place, in degrees. Negative is below. */
+/** How high the star stands over a place, in degrees. Negative is below. */
 export function altitude(
   it: Body, when: When, lat: number, lon: number, known: Record<string, Body> = bodies()
 ): number | null {
@@ -272,7 +401,7 @@ export function sunUp(
 }
 
 /**
- * How much of the day the primary is above the horizon, in minutes. A latitude the
+ * How much of the day the star is above the horizon, in minutes. A latitude the
  * season has tipped fully into the light or fully out of it gets the whole day or
  * none of it, which is what a pole is.
  */
@@ -304,14 +433,38 @@ export function terminator(
   return Math.atan(-Math.cos(wrap180(lon - at.lon) * RAD) / tan) * DEG;
 }
 
+const kept_home = new WeakMap<Record<string, Body>, Body | null>();
+
 /**
- * The body the calendar is kept on: whatever turns, and is gone round by anything
- * at all. A world with none falls back on the constants, which is how a fresh
- * profile keeps a calendar before anybody has written the sky down.
+ * The body the calendar is kept on: a world that turns and has a star to turn
+ * under, and of those the one the most places stand on. A world with none falls
+ * back on the constants, which is how a fresh profile keeps a calendar before
+ * anybody has written the sky down.
  */
 export function home(known: Record<string, Body> = bodies()): Body | null {
-  const turning = Object.values(known).filter((it) => it.rotation && it.semiMajor && it.around);
-  return turning.find((it) => !known[it.around!]?.around) ?? turning[0] ?? null;
+  if (kept_home.has(known)) return kept_home.get(known)!;
+  const turning = Object.values(known).filter(
+    (it) => it.type !== "celestial-system" && it.rotation && star(it, known) && year(it, known)
+  );
+  const held = (it: Body) =>
+    Number(
+      db.value(
+        `WITH RECURSIVE under(id) AS (
+           SELECT ?
+           UNION
+           SELECT p.id FROM place p JOIN under u ON p.parent = u.id
+         )
+         SELECT count(*) FROM under`,
+        [it.id],
+        0
+      ) ?? 0
+    );
+  const found =
+    turning
+      .map((it) => ({ it, held: held(it) }))
+      .sort((a, b) => b.held - a.held || Number(b.it.mass ?? 0) - Number(a.it.mass ?? 0))[0]?.it ?? null;
+  kept_home.set(known, found);
+  return found;
 }
 
 let kept: { days: number } | null | undefined;
@@ -337,22 +490,14 @@ export const reread = () => {
 };
 
 /**
- * The space these bodies are in. It has no orbit row — a system is not a body —
- * so it is found the other way round: whatever holds the thing everything else
- * goes round.
+ * The outermost system: the one the home world sits in, however deep, or failing
+ * that the first one that sits in nothing.
  */
 export function system(known: Record<string, Body> = bodies()) {
-  const middle = Object.values(known).find((it) => !it.around);
-  if (!middle) return null;
-  const found = db.row(
-    `SELECT e.id, e.name
-       FROM place held
-       JOIN place holder ON holder.id = held.parent
-       JOIN entity e ON e.id = holder.id
-      WHERE held.id = ? AND holder.type = 'celestial-system'`,
-    [middle.id]
-  );
-  return found ? { id: String(found.id), name: String(found.name) } : null;
+  const start = home(known) ?? Object.values(known).find((it) => !it.parent) ?? null;
+  if (!start) return null;
+  const top = chain(start, known).at(-1)!;
+  return { id: top.id, name: top.name };
 }
 
 /**
@@ -373,24 +518,31 @@ export function above(id: string) {
   return chain.map((r) => ({ id: String(r.id), name: String(r.name) }));
 }
 
-/** The whole system as plain data, which is what the map draws. */
+/**
+ * The whole sky as plain data, which is what the map draws: every body and every
+ * system, each placed in the one it sits in.
+ */
 export function describe(when: When | null = null, been = new Set<string>()) {
   const known = bodies();
   const out: Record<string, unknown> = {};
   for (const id of Object.keys(known).sort()) {
     const it = known[id];
-    const year = period(it, known);
-    const day = solarDay(it, known);
+    const lit = star(it, known);
+    const world = it.type !== "celestial-system";
     out[id] = {
       ...it,
-      period: year,
-      solar_day: day,
-      days_per_year: daysPerYear(it, known),
-      moves: !!year,
+      mass: it.type === "celestial-system" ? weight(it, known) || null : it.mass,
+      inside: inside(it, known).map((child) => child.id),
+      star: lit?.id ?? null,
+      period: period(it, known),
+      year: world ? year(it, known) : null,
+      solar_day: world ? solarDay(it, known) : null,
+      days_per_year: world ? daysPerYear(it, known) : null,
+      moves: !!period(it, known),
       at: when ? at(it, when, known) : null,
-      subsolar: when ? subsolar(it, when, known) : null,
-      seasons: when ? seasons(it, when, known) : [],
-      standing: when ? standing(it, when, known, been) : [],
+      subsolar: when && world ? subsolar(it, when, known) : null,
+      seasons: when && world ? seasons(it, when, known) : [],
+      standing: when && world ? standing(it, when, known, been) : [],
       above: above(it.id),
     };
   }
@@ -440,7 +592,7 @@ export type Standing = {
 
 /**
  * Everywhere on a body that anybody has fixed a position for, however deep it
- * sits, and whether the primary is above the horizon there right now.
+ * sits, and whether the star is above the horizon there right now.
  *
  * This is the whole point of writing a tilt down. Until something stands at a
  * latitude, a day/night line is a drawing; once something does, the world can be

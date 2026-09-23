@@ -81,7 +81,11 @@ export default function Orbit({ focus = null }) {
   }, [focus, sky]);
 
   useEffect(() => {
-    if (holder) setPicked(holder);
+    if (!holder) return;
+    if (sky?.bodies?.[holder]?.type === "celestial-system") {
+      setFrame(holder);
+      setPicked(null);
+    } else setPicked(holder);
   }, [holder, focus?.asked]);
 
   useEffect(() => {
@@ -102,37 +106,31 @@ export default function Orbit({ focus = null }) {
     if (under) setWent({ id: sky.here, asked: Date.now() });
   }, [sky, holder]);
 
+  // A system is drawn as what it holds, each thing where it stands in it: the
+  // bodies, and the systems inside it as single points you can go into. Whatever
+  // has no orbit of its own sits at the middle.
   const plan = useMemo(() => {
     if (!sky?.bodies) return null;
-    // A system is the space the bodies are in, not a thing sitting in the middle
-    // of it. What sits in the middle is whatever everything else goes round.
-    const all = Object.values(sky.bodies).filter((b) => b.type !== "celestial-system");
-    const systemOf = (b) => b?.above?.[b.above.length - 1]?.id ?? sky.system?.id ?? null;
-    const shown = frame || sky.system?.id || null;
-    const middle =
-      all.find((b) => systemOf(b) === shown && (!b.around || systemOf(sky.bodies[b.around]) !== shown)) ||
-      all.find((b) => !b.around) ||
-      null;
-    const moving = all.filter((b) => b.at && b.semiMajor && b.around === middle?.id);
-    const middles = middle ? [middle] : [];
-    const above = middle?.above || (sky.system ? [sky.system] : []);
-    const into = (b) => {
-      const own = systemOf(b);
-      return own && own !== shown ? own : null;
-    };
-    if (!moving.length) return { middles, moving: [], scale: 1, above, into };
+    const shown = sky.bodies[frame] || sky.bodies[sky.system?.id] || null;
+    if (!shown) return null;
+    const held = (shown.inside || []).map((id) => sky.bodies[id]).filter(Boolean);
+    const moving = held.filter((b) => b.at && b.semiMajor);
+    const middles = held.filter((b) => !(b.at && b.semiMajor));
+    const above = [...(shown.above || []), { id: shown.id, name: shown.name }];
+    if (!moving.length) return { shown, middles, moving: [], scale: 1, above };
     const widest = Math.max(...moving.map((b) => b.semiMajor * (1 + b.eccentricity)));
-    return { middles, moving, scale: (MIDDLE * EDGE) / widest, above, into };
+    return { shown, middles, moving, scale: (MIDDLE * EDGE) / widest, above };
   }, [sky, frame]);
+
+  const open = (b) => (b.type === "celestial-system" ? setFrame(b.id) : setPicked(b.id));
 
   if (!sky) return <Empty>loading…</Empty>;
   if (sky.error) return <Note tone="warn">{sky.error}</Note>;
-  if (!plan || (!plan.moving.length && !plan.middles.length)) {
-    return <Empty>no bodies</Empty>;
-  }
+  if (!plan) return <Empty>no bodies</Empty>;
 
 
-  const ground = picked ? sky.bodies[picked] : null;
+  const ground =
+    picked && sky.bodies[picked]?.type !== "celestial-system" ? sky.bodies[picked] : null;
 
   // The trail is the same bar the places map wears, but its steps are views: the
   // system you can go back to, and the world you are standing over. The one you
@@ -157,9 +155,17 @@ export default function Orbit({ focus = null }) {
   ].filter(Boolean);
 
   const step = (id) => {
+    if (sky.bodies[id]?.type === "celestial-system" && id !== plan.shown.id) {
+      setFrame(id);
+      return setPicked(null);
+    }
     if (sky.bodies[id] && id !== ground?.id) return setPicked(id);
     // Anything above the world is a step back out to the system it is drawn in.
     const outward = ground ? ground.above || [] : plan.above.slice(0, -1);
+    if (sky.bodies[id]?.type === "celestial-system" && id !== plan.shown.id) {
+      setFrame(id);
+      return setPicked(null);
+    }
     if (outward.some((p) => p.id === id)) {
       setFrame(id);
       return setPicked(null);
@@ -213,10 +219,20 @@ export default function Orbit({ focus = null }) {
             <path key={`ring-${body.id}`} d={ring(body, plan.scale)} className="orbitring" />
           ))}
 
-          {plan.middles.map((body) => (
-            <g key={body.id} className="orbitbody middle" onClick={() => setPicked(body.id)}>
+          {!plan.middles.length && (
+            <g className="orbitcentre">
+              <path d={`M ${MIDDLE - 8} ${MIDDLE} H ${MIDDLE + 8} M ${MIDDLE} ${MIDDLE - 8} V ${MIDDLE + 8}`} />
+            </g>
+          )}
+
+          {plan.middles.map((body, n) => (
+            <g
+              key={body.id}
+              className={`orbitbody middle${body.type === "celestial-system" ? " system" : ""}`}
+              onClick={() => open(body)}
+            >
               <circle cx={MIDDLE} cy={MIDDLE} r={14} />
-              <text x={MIDDLE} y={MIDDLE + 36} textAnchor="middle">
+              <text x={MIDDLE} y={MIDDLE + 36 + n * 18} textAnchor="middle">
                 {body.name}
               </text>
             </g>
@@ -227,8 +243,8 @@ export default function Orbit({ focus = null }) {
             return (
               <g
                 key={body.id}
-                className="orbitbody"
-                onClick={() => (plan.into(body) ? setFrame(plan.into(body)) : setPicked(body.id))}
+                className={`orbitbody${body.type === "celestial-system" ? " system" : ""}`}
+                onClick={() => open(body)}
               >
                 <line x1={MIDDLE} y1={MIDDLE} x2={at.x} y2={at.y} className="orbitreach" />
                 <circle cx={at.x} cy={at.y} r={9} />

@@ -1069,6 +1069,7 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 .orbitreach { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 4; }
 
 .orbitbody { cursor: pointer; }
+.orbitcentre path { stroke: var(--dim); stroke-width: 1.5; }
 .orbitbody circle { fill: var(--place); stroke: var(--bg); stroke-width: 2; }
 .orbitbody.middle circle { fill: var(--gold); }
 .orbitbody text { fill: var(--dim); font: var(--mono); font-size: 26px;
@@ -1076,6 +1077,7 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 .orbitbody:hover circle { filter: brightness(1.4); }
 .orbitbody.on circle { stroke: var(--gold); }
 .orbitbody.on text { fill: var(--ink); }
+.orbitbody.system circle { fill: var(--bg); stroke: var(--place); stroke-width: 3; }
 
 
 

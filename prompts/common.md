@@ -16,10 +16,12 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
                                                        celestial-body | celestial-system | realm
                                                        lat/lon in degrees: the one point it is
                                                        named at, inside its own extent
-    orbit(id, around, semi_major, eccentricity,        what a celestial body is: metres,
-          longitude, periapsis, mass, radius,          kilograms, degrees, seconds. How long
-          oblateness, tilt, rotation, meridian)        its year and its day are follow from
-                                                       these and are never written down
+    orbit(id, semi_major, eccentricity,                what a celestial body or system is, and
+          longitude, periapsis, mass, radius,          how it goes round the middle of the
+          oblateness, tilt, rotation, meridian)        system it sits in: metres, kilograms,
+                                                       degrees, seconds. How long its year and
+                                                       its day are follow from these and are
+                                                       never written down
     way(src, dst, bearing, distance)                   what leads where
     item(id, type, weight, worth, owed_by, rarity, slot)
                                                        weight in stone, for one of them

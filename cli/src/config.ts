@@ -185,19 +185,21 @@ export const WORLD_START = { era: 4, year: 202, day: 1, minute: 13 * 60 + 4 };
  * set down in a book still reads the same after the sky is solved rather than
  * declared. `tesbota check` will not let that drift.
  *
- * A system is not a body and carries nothing: the mass is on the star, and terra
- * goes round the star.
+ * Everything goes round the middle of the system it sits in. Terra does not go
+ * round Sol: Terra SOI does, round the middle of the Solar System, and Terra sits
+ * at the middle of its own reach with whatever goes round it.
  */
 export const WORLD_SKY = {
   sol: { mass: 1.98892e30, radius: 6.957e8, rotation: 2192832 },
-  terra: {
-    around: "sol",
+  "terra-soi": {
     semi_major: 107993108578,
     eccentricity: 0.0167,
     // Midwinter falls in the middle of Deepfrost and midsummer in the middle of
     // Highsun, which is what the month names have been claiming all along.
     longitude: 204.107142857143,
     periapsis: 270,
+  },
+  terra: {
     mass: 5.972e24,
     radius: 6371000,
     oblateness: 0.0033528,

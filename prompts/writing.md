@@ -82,24 +82,25 @@ Write what the record supports and no more. A village whose edge nobody walked s
 
 ## The sky
 
-A world is a `place` like any other, with `type` `celestial-body`, and what it *is* goes in an `orbit` row:
+The sky is places inside places, like the ground is. A `celestial-system` holds bodies and other systems — a star system holds its star and the reach of each world, a world's reach holds the world and its moons, a cluster holds star systems. Everything goes round the middle of the system it sits in, and the middle is where the weight of that system is, so nothing names what it goes round: `place.parent` already says.
 
-    INSERT INTO orbit (id, around, semi_major, eccentricity, mass, radius, tilt, rotation)
-    VALUES ('the-lesser-moon', 'terra', 384400000, 0.055, 7.3e22, 1737000, 6.7, 2360592);
+What a body *is*, and how anything moves, goes in an `orbit` row:
 
-- `around` — the id of what it goes round.
-- `semi_major` — the middle of its orbit, in metres. `eccentricity` is how far from a circle, 0 to just under 1.
-- `mass` in kilograms, `radius` in metres across the equator.
+    INSERT INTO orbit (id, semi_major, eccentricity, mass, radius, tilt, rotation)
+    VALUES ('the-lesser-moon', 384400000, 0.055, 7.3e22, 1737000, 6.7, 2360592);
+
+- `semi_major` — the middle of its orbit round the middle of its system, in metres. `eccentricity` is how far from a circle, 0 to just under 1. Leave both out and it sits at the middle, the way a star sits in its system and a world in its own reach.
+- `mass` in kilograms, `radius` in metres across the equator. A system weighs whatever is in it; give a system a `mass` only for what it holds that is not written down as a body — gas, dust, the dark.
 - `tilt` — how far over its axis leans, in degrees. This is the one that makes seasons; a world with no tilt has twelve hours of light everywhere, forever.
 - `oblateness` — how far from a sphere the spin has pulled it, `(equatorial − polar) / equatorial`. It changes nothing anybody standing on it would notice.
 - `rotation` — one turn against the stars, in seconds. Not one day: the day is longer, and the difference is solved.
-- `longitude` and `periapsis` say where it was when the era began, in degrees, and `meridian` which face was turned toward its primary.
+- `longitude` and `periapsis` say where it was when the era began, in degrees, and `meridian` which face was turned toward its star.
 
-There is no column for how long a year is, how long a day is, or how many days are in a year, and there will not be. All three follow from the mass it goes round and the distance it keeps, and are worked out fresh every time anybody asks — so a body you move has a different year the moment you move it, and nothing is left behind saying otherwise.
+A world's sun is the nearest body heavy enough to burn — past about 1.5e29 kg — looking outward from the world one system at a time. A moon's sun is its world's. A world's year is however long its reach takes to go round that star.
 
-Which means: **do not move terra.** Its year is the calendar every date in every book is written in. Eight months of twenty-eight days have to come to exactly one orbit, and `tesbota check` refuses a world where they do not.
+There is no column for how long a year is, how long a day is, or how many days are in a year, and there will not be. All three follow from the masses and the distances, and are worked out fresh every time anybody asks — so a body you move has a different year the moment you move it, and nothing is left behind saying otherwise.
 
-A `celestial-system` is a container and never gets an `orbit` row of its own — the mass belongs on the star at the middle of it, and everything else goes round the star.
+Which means: **do not move terra-soi.** Its orbit is terra's year, and terra's year is the calendar every date in every book is written in. Eight months of twenty-eight days have to come to exactly one orbit, and `tesbota check` refuses a world where they do not.
 
 What a place or a person keeps is written in the same breath as they are:
 
