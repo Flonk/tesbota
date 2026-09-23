@@ -45,6 +45,7 @@ const spot = (at, scale) => ({ x: MIDDLE + at.x * scale, y: MIDDLE - at.y * scal
 export default function Orbit({ focus = null }) {
   const [sky, setSky] = useState(null);
   const [picked, setPicked] = useState(null);
+  const [frame, setFrame] = useState(null);
   const [over, setOver] = useState(null);
   const [editing, setEditing] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
@@ -106,12 +107,19 @@ export default function Orbit({ focus = null }) {
     // A system is the space the bodies are in, not a thing sitting in the middle
     // of it. What sits in the middle is whatever everything else goes round.
     const all = Object.values(sky.bodies).filter((b) => b.type !== "celestial-system");
-    const moving = all.filter((b) => b.at && b.semiMajor);
-    const middles = all.filter((b) => !(b.at && b.semiMajor));
-    if (!moving.length) return { middles, moving: [], scale: 1 };
+    const systemOf = (b) => b?.above?.[b.above.length - 1]?.id ?? sky.system?.id ?? null;
+    const shown = frame || sky.system?.id || null;
+    const middle =
+      all.find((b) => systemOf(b) === shown && (!b.around || systemOf(sky.bodies[b.around]) !== shown)) ||
+      all.find((b) => !b.around) ||
+      null;
+    const moving = all.filter((b) => b.at && b.semiMajor && b.around === middle?.id);
+    const middles = middle ? [middle] : [];
+    const above = middle?.above || (sky.system ? [sky.system] : []);
+    if (!moving.length) return { middles, moving: [], scale: 1, above };
     const widest = Math.max(...moving.map((b) => b.semiMajor * (1 + b.eccentricity)));
-    return { middles, moving, scale: (MIDDLE * EDGE) / widest };
-  }, [sky]);
+    return { middles, moving, scale: (MIDDLE * EDGE) / widest, above };
+  }, [sky, frame]);
 
   if (!sky) return <Empty>loading…</Empty>;
   if (sky.error) return <Note tone="warn">{sky.error}</Note>;
@@ -139,7 +147,7 @@ export default function Orbit({ focus = null }) {
   }
 
   const trail = [
-    ...(ground?.above || (sky.system ? [sky.system] : [])),
+    ...(ground?.above || plan.above),
     ground && { id: ground.id, name: ground.name },
     ...under,
   ].filter(Boolean);
@@ -147,7 +155,11 @@ export default function Orbit({ focus = null }) {
   const step = (id) => {
     if (sky.bodies[id] && id !== ground?.id) return setPicked(id);
     // Anything above the world is a step back out to the system it is drawn in.
-    if (ground && (ground.above || []).some((p) => p.id === id)) return setPicked(null);
+    const outward = ground ? ground.above || [] : plan.above.slice(0, -1);
+    if (outward.some((p) => p.id === id)) {
+      setFrame(id);
+      return setPicked(null);
+    }
     return openDossier(id);
   };
 
@@ -187,7 +199,9 @@ export default function Orbit({ focus = null }) {
 
   return (
     <div className="orbit">
-      <Crumb className="maptrail" where={trail} onPick={step} />
+      <Row pad={false} middled={false} className="maprow">
+        <Crumb className="maptrail" where={trail} onPick={step} />
+      </Row>
       <div className="orbitpane">
         <div className="orbitbox">
           <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="orbitsvg" role="img">

@@ -310,10 +310,8 @@ export function terminator(
  * profile keeps a calendar before anybody has written the sky down.
  */
 export function home(known: Record<string, Body> = bodies()): Body | null {
-  for (const it of Object.values(known)) {
-    if (it.rotation && it.semiMajor && it.around) return it;
-  }
-  return null;
+  const turning = Object.values(known).filter((it) => it.rotation && it.semiMajor && it.around);
+  return turning.find((it) => !known[it.around!]?.around) ?? turning[0] ?? null;
 }
 
 let kept: { days: number } | null | undefined;
