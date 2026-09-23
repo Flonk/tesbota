@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Globe from "./Globe";
 import Icon from "./icons";
-import { Crumb, Empty, Note, openDossier } from "./ui";
+import { Crumb, Empty, Note, openDossier, Row } from "./ui";
 
 /**
  * The system, drawn from the system.
@@ -153,7 +153,7 @@ export default function Orbit({ focus = null }) {
   if (ground?.standing) {
     return (
       <div className="orbit">
-        <div className="maprow">
+        <Row pad={false} className="maprow">
           <Crumb className="maptrail" where={trail} onPick={step} />
           <button
             className={`crumbtool${editing ? " on" : ""}`}
@@ -163,7 +163,7 @@ export default function Orbit({ focus = null }) {
           >
             <Icon name="pen" size={14} />
           </button>
-        </div>
+        </Row>
         <Globe
           body={ground}
           here={sky.here}

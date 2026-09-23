@@ -250,9 +250,35 @@ export function Composer({
   );
 }
 
-export function Tabs({ items, value, onChange, className = "" }) {
+/**
+  * A bar: one row of controls under a heading or above a panel.
+  *
+  * Every such row in this app is one of these, so they are all the same height
+  * with the same air at the sides and the same rule underneath. Nothing that sits
+  * in a bar sets its own padding — if a row needs to be taller, `--bar-h` moves
+  * every row at once, which is the only way they stay agreeing with each other.
+  */
+export function Row({
+  as: Tag = "div", pad = true, ruled = true, middled = true, className = "", children, ...rest
+}) {
+  const look = [
+    "row",
+    pad && "pad",
+    ruled && "ruled",
+    middled && "middled",
+    className,
+  ].filter(Boolean).join(" ");
+  return <Tag className={look} {...rest}>{children}</Tag>;
+}
+
+/** A button that lives in a bar and does something, as against a tab that picks. */
+export function Act({ on, className = "", ...rest }) {
+  return <button className={`gtool${on ? " on" : ""} ${className}`.trim()} {...rest} />;
+}
+
+export function Tabs({ items, value, onChange, sub = false, className = "" }) {
   return (
-    <div className={`tabs ${className}`.trim()}>
+    <div className={`tabs${sub ? " sub pad ruled" : ""} ${className}`.trim()}>
       {items.map((t) => (
         <button
           key={t.id}

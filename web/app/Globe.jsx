@@ -5,7 +5,7 @@ import { openDossier } from "./ui";
 import {
   added, carried, covers, dropped, extentOf, moved, opened, reshape, runsOf, straighten,
 } from "./shaping";
-import { Tabs } from "./ui";
+import { Act, Row, Tabs } from "./ui";
 
 /**
  * A world, flattened, with the line between its day and its night drawn on it.
@@ -761,7 +761,8 @@ export default function Globe({
     <>
     {editing && (
       <Tabs
-        className="sub tools"
+        sub
+        className="tools"
         value={tool}
         onChange={setTool}
         items={[
@@ -774,32 +775,28 @@ export default function Globe({
     )}
 
     {editing && (
-      <div className="shapebar">
+      <Row className="shapebar">
         {taken ? (
           <>
             <span className="gname">{taken.name}</span>
             {tool === "shove" && (
-              <button
-                className={`gtool${bringing ? " on" : ""}`}
-                onClick={() => setBringing((was) => !was)}
+              <Act on={bringing} onClick={() => setBringing((was) => !was)}
                 title="move everything standing on this ground along with it"
               >
                 include subplaces
-              </button>
+              </Act>
             )}
-            <button
-              className="gtool"
-              onClick={() => setAsking({ id: taken.id, name: taken.name, deep: false })}
+            <Act onClick={() => setAsking({ id: taken.id, name: taken.name, deep: false })}
               disabled={saving}
             >
               remove
-            </button>
-            <button className="gtool" onClick={() => take(taken)} disabled={saving}>
+            </Act>
+            <Act onClick={() => take(taken)} disabled={saving}>
               revert
-            </button>
-            <button className="gtool keep" onClick={keep} disabled={saving}>
+            </Act>
+            <Act className="keep" onClick={keep} disabled={saving}>
               {saving ? "…" : "save"}
-            </button>
+            </Act>
           </>
         ) : naming ? (
           <>
@@ -822,22 +819,22 @@ export default function Globe({
                 </option>
               ))}
             </select>
-            <button className="gtool" onClick={() => setNaming(null)} disabled={saving}>
+            <Act onClick={() => setNaming(null)} disabled={saving}>
               cancel
-            </button>
-            <button className="gtool keep" onClick={found} disabled={saving || !naming.name.trim()}>
+            </Act>
+            <Act className="keep" onClick={found} disabled={saving || !naming.name.trim()}>
               {saving ? "…" : "create"}
-            </button>
+            </Act>
           </>
         ) : (
           <>
             <span className="gname dim">select a shape</span>
-            <button className="gtool" onClick={() => setNaming({ name: "", type: "region" })}>
+            <Act onClick={() => setNaming({ name: "", type: "region" })}>
               new place
-            </button>
+            </Act>
           </>
         )}
-      </div>
+      </Row>
     )}
 
     <svg
@@ -1005,12 +1002,10 @@ export default function Globe({
             <p className="askwhat">Remove {asking.name}?</p>
             {inside.length > 0 ? (
               <>
-                <button
-                  className={`gtool${asking.deep ? " on" : ""}`}
-                  onClick={() => setAsking({ ...asking, deep: !asking.deep })}
+                <Act on={asking.deep} onClick={() => setAsking({ ...asking, deep: !asking.deep })}
                 >
                   include subplaces
-                </button>
+                </Act>
                 <p className="askwhy">
                   {asking.deep
                     ? `${inside.length} subplaces deleted too.`
@@ -1021,12 +1016,12 @@ export default function Globe({
               <p className="askwhy">Nothing inside it.</p>
             )}
             <div className="askdo">
-              <button className="gtool" onClick={() => setAsking(null)} disabled={saving}>
+              <Act onClick={() => setAsking(null)} disabled={saving}>
                 cancel
-              </button>
-              <button className="gtool gone" onClick={remove} disabled={saving}>
+              </Act>
+              <Act className="gone" onClick={remove} disabled={saving}>
                 {saving ? "…" : `remove ${going} ${going === 1 ? "place" : "places"}`}
-              </button>
+              </Act>
             </div>
           </div>
         </div>

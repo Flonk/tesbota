@@ -15,7 +15,7 @@ import Talk from "./Talk";
 import { useKeyboardAvoid } from "./keyboard";
 import Orbit from "./Orbit";
 import Machine from "./Machine";
-import { Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Tabs, Tag } from "./ui";
+import { Act, Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Row, Tabs, Tag } from "./ui";
 
 const PHASE = {
   explorer: "deciding",
@@ -60,25 +60,26 @@ const WALKERS = ["corda", "debug"];
 
 function Brand({ status, busy, walker, onWalker, onSettings }) {
   return (
-    <header className="brand">
+    <Row as="header" ruled={false} className="brand">
       <span className="word">BOTA</span>
       <span className="walkers">
         {WALKERS.map((id) => (
-          <button
+          <Act
             key={id}
-            className={`walker${walker === id ? " on" : ""}`}
+            on={walker === id}
+            className="walker"
             onClick={() => onWalker(id)}
             title={id === "corda" ? "the adventurer" : "a second walker, for trying things"}
           >
             {id === walker && status.who ? given(status.who) : id}
-          </button>
+          </Act>
         ))}
       </span>
       <span className="mood">{mood(status, busy)}</span>
       <button className="cog" onClick={onSettings} title="settings" aria-label="settings">
         <Icon name="settings" size={15} />
       </button>
-    </header>
+    </Row>
   );
 }
 
@@ -935,7 +936,8 @@ export default function Page() {
         className={`band tabsband${keyboard.collapse === "tabs" ? " folded" : ""}`}
         inert={keyboard.collapse === "tabs" || undefined}
       >
-        <div
+        <Row
+          middled={false}
           className="tabbar"
           onPointerDown={grabBar}
           onClickCapture={clickBar}
@@ -966,11 +968,11 @@ export default function Page() {
               »
             </Btn>
           </div>
-        </div>
+        </Row>
 
         {SUBS[tab] && (
           <Tabs
-            className="sub"
+            sub
             items={SUBS[tab].map((option) => ({
               ...option,
               count: option.id === "quests" ? open : counts[option.id],
@@ -983,7 +985,8 @@ export default function Page() {
 
         {tab === "library" && sub.library === "data" && (
           <Tabs
-            className="sub reading"
+            sub
+            className="reading"
             items={[
               { id: "lists", label: "lists", icon: "list" },
               { id: "prompts", label: "prompts", icon: "pen" },
@@ -995,7 +998,7 @@ export default function Page() {
 
         {tab === "library" && sub.library === "data" && (
           <Tabs
-            className="sub"
+            sub
             items={
               sheaf === "lists"
                 ? [
@@ -1019,7 +1022,7 @@ export default function Page() {
 
         {tab === "library" && sub.library === "data" && sheaf === "prompts" && (
           <Tabs
-            className="sub"
+            sub
             items={[
               { id: "save", label: "save", icon: "pen", off: draft === null },
               { id: "abort", label: "abort", icon: "cross", off: draft === null },
@@ -1033,7 +1036,8 @@ export default function Page() {
 
         {reading === "books" && (
           <Tabs
-            className="sub reading"
+            sub
+            className="reading"
             items={[
               { id: "content", label: "content", icon: "lines" },
               { id: "meta", label: "meta", icon: "info" },

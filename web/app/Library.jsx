@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PLACE_ICON, rare, tone } from "./Data";
-import { Btn, Empty, Mark, Note, Prose, Stub, Table, Tabs } from "./ui";
+import { Btn, Empty, Mark, Note, Prose, Row, Stub, Table, Tabs } from "./ui";
 
 const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
 const COUNT = (n) => (n ? String(n) : "");
@@ -379,7 +379,8 @@ export default function Library({
     <div className="lib">
       {hits === null && kind === "people" && (
         <Tabs
-          className="sub folk"
+          sub
+          className="folk"
           items={FOLK.map((f) => ({
             ...f,
             count: (world?.people || []).filter((r) => (f.id === "mob" ? r.mob : !r.mob)).length,
@@ -389,7 +390,7 @@ export default function Library({
         />
       )}
 
-      <form className="seek" onSubmit={search}>
+      <Row as="form" middled={false} className="seek" onSubmit={search}>
         <Mark className="glass" name="search" />
         <input
           ref={box}
@@ -406,7 +407,7 @@ export default function Library({
             back to {kind}
           </Btn>
         )}
-      </form>
+      </Row>
 
       <div className="libbody">
       {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={onOpen} />}
