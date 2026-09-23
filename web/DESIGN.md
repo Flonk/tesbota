@@ -62,8 +62,10 @@ does, and anything new in it should keep working that way:
 | draw | P | a stroke from outline to outline reshapes it | same |
 | erase | E | click a corner to take it out | click selects, drag pans |
 
-Clicking empty ground, Esc or `deselect` lets go. Clicking the selection again
-reaches through to what stands on it. Space or the middle button pans in any
+With something selected, a click anywhere outside it only lets go — it never
+picks the thing clicked, because at any zoom everything is some place and there
+would be no empty ground left to click. Esc and `deselect` let go too. Clicking
+inside the selection reaches through to what stands on it. Space or the middle button pans in any
 tool. Ctrl Z and Ctrl Shift Z undo and redo, Enter saves, and Delete takes out
 the corner last picked. Unsaved work is never dropped: letting go, choosing
 another place or turning the pen off with changes pending says so instead.

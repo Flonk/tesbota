@@ -750,9 +750,9 @@ export default function Globe({
       if (pin) openDossier(pin.place);
       return;
     }
-    if (places[0]) return choose(places[0]);
-    if (through) return;
-    release();
+    if (through) return places[0] && choose(places[0]);
+    if (chosen) return release();
+    if (places[0]) choose(places[0]);
   }
 
   const fence = (runs) => {
