@@ -47,6 +47,7 @@ export default function Orbit({ focus = null }) {
   const [picked, setPicked] = useState(null);
   const [over, setOver] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [unsaved, setUnsaved] = useState(false);
   // Opening the map with nothing particular asked for should show you where the
   // adventurer is, which is the only reason anybody opens a map of a world they
   // are walking. Once only: after that the map stays where it has been put.
@@ -153,11 +154,14 @@ export default function Orbit({ focus = null }) {
   if (ground?.standing) {
     return (
       <div className="orbit">
-        <Row pad={false} className="maprow">
+        <Row pad={false} middled={false} className="maprow">
           <Crumb className="maptrail" where={trail} onPick={step} />
           <button
             className={`crumbtool${editing ? " on" : ""}`}
-            onClick={() => setEditing((was) => !was)}
+            onClick={() => {
+              if (editing && unsaved && !window.confirm("discard unsaved changes?")) return;
+              setEditing((was) => !was);
+            }}
             title={editing ? "stop reshaping" : "reshape what is drawn"}
             aria-label="reshape"
           >
@@ -175,6 +179,7 @@ export default function Orbit({ focus = null }) {
           onCentre={setOver}
           editing={editing}
           onSaved={read}
+          onDirty={setUnsaved}
         />
       </div>
     );

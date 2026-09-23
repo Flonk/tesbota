@@ -911,16 +911,23 @@ textarea.prompt:focus { outline: none; }
 
 /* A world flattened. Mercator cannot reach a pole, so the picture stops at 85°
    and the dark cap runs off the top or the bottom of it. */
+.globepane { flex: 1 1 auto; min-width: 0; min-height: 0; position: relative; display: flex; }
 .globesvg { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; display: block;
             touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
 .globesvg:active { cursor: grabbing; }
+.globesvg.editing .globeshape,
+.globesvg.editing .globemark { cursor: default; }
+.globesvg.select .drafting { cursor: move; }
+.globesvg.draw { cursor: crosshair; }
+.globesvg.draw .globeshape, .globesvg.draw .drafting { cursor: crosshair; }
+.globesvg.panning, .globesvg.panning * { cursor: grab !important; }
 /* A world is sea until somebody draws land on it. This is the floor of the map:
    everything below the shapes, and what shows wherever nothing has been written. */
 .globeday { fill: var(--sea); }
 /* Night is a deep blue laid over the world, not black. Painting it black takes
    the sea with it, and half the map stops being a map — the night side of a world
    is still a world, and you can still see where its water is. */
-.globenight { fill: rgba(2, 8, 18, .55); }
+.globenight { fill: rgba(2, 8, 18, .55); pointer-events: none; }
 .globegrid { stroke: color-mix(in srgb, var(--line) 70%, transparent); }
 .globegrid.equator { stroke: var(--line); }
 .globegrid.tropic { stroke: color-mix(in srgb, var(--warn) 45%, transparent);
@@ -959,20 +966,32 @@ textarea.prompt:focus { outline: none; }
                vector-effect: non-scaling-stroke; cursor: grab; }
 .globecorner:hover { fill: var(--bright); }
 .globecorner.cutting { fill: var(--bad); cursor: crosshair; }
-.globeshape.drafting.shoving { cursor: move; }
-.globeghost { fill: none; stroke: var(--gold); stroke-width: 1.2;
+.globecorner.passive { pointer-events: none; }
+.globecorner.picked { fill: var(--bright); stroke: var(--gold); }
+.globeghost { fill: none; stroke: var(--gold); stroke-width: 1.2; pointer-events: all;
               vector-effect: non-scaling-stroke; cursor: copy; opacity: .55; }
+.globehit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke;
+            vector-effect: non-scaling-stroke; stroke-linecap: round; }
 .globeghost:hover { fill: var(--gold); opacity: 1; }
 .globepen { fill: none; stroke: var(--bright); stroke-linecap: round;
             stroke-linejoin: round; opacity: .85; }
 
-/* Reshaping adds two rows under the trail, the way a tab adds a row of subtabs:
-   which tool is in hand, then what that tool is working on. */
+/* A column of tools laid over what they work on, the way a drawing program keeps
+   its tools beside the canvas rather than in a row above it. Each is a square the
+   height of a bar. */
+.palette {
+  position: absolute; left: var(--bar-x); top: var(--bar-x); z-index: 2;
+  display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
+}
+.palette .tab { width: var(--bar-h); height: var(--bar-h); padding: 0; justify-content: center; border: 0; }
+.palette .tab.on { background: color-mix(in srgb, var(--gold) 12%, var(--panel)); }
 
 .gname { font: var(--mono); letter-spacing: var(--track); text-transform: uppercase;
          color: var(--ink); margin-right: auto; flex: 0 0 auto;
          display: flex; align-items: center; }
 .gname.dim { color: var(--dim); }
+.gdirty { color: var(--gold); margin-left: .4rem; }
 /* A button in a bar. Not a tab — tabs are the whole height of the bar and say
    which of several things you are looking at; this does something. */
 .gtool {
@@ -1011,6 +1030,7 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 }
 .askwhat { margin: 0; color: var(--ink); font-size: 1rem; }
 .askwhy { margin: 0; color: var(--dim); font-size: .85rem; }
+.askwhy.bad { color: var(--bad); }
 .askdo { display: flex; gap: .4rem; justify-content: flex-end; margin-top: .3rem; }
 .asked .gtool { align-self: flex-start; }
 .asked .askdo .gtool { align-self: auto; }
@@ -1035,6 +1055,7 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
                   letter-spacing: .06em; paint-order: stroke; stroke: var(--bg);
                   stroke-width: 3; }
 .globemark.here text { fill: var(--gold); }
+.globemark.chosen circle { fill: var(--gold); }
 .globemark:hover circle { filter: brightness(1.4); }
 .orbitsvg { display: block; width: 100%; height: auto; overflow: visible; }
 

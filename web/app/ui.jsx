@@ -276,6 +276,25 @@ export function Act({ on, className = "", ...rest }) {
   return <button className={`gtool${on ? " on" : ""} ${className}`.trim()} {...rest} />;
 }
 
+export function Palette({ items, value, onChange, className = "" }) {
+  return (
+    <div className={`palette ${className}`.trim()} role="toolbar">
+      {items.map((t) => (
+        <button
+          key={t.id}
+          className={`tab${value === t.id ? " on" : ""}`}
+          title={t.key ? `${t.label} (${t.key.toUpperCase()})` : t.label}
+          aria-label={t.label}
+          aria-pressed={value === t.id}
+          onClick={() => onChange(t.id)}
+        >
+          <Icon name={t.icon} size={15} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Tabs({ items, value, onChange, sub = false, className = "" }) {
   return (
     <div className={`tabs${sub ? " sub pad ruled" : ""} ${className}`.trim()}>
