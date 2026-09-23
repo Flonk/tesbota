@@ -116,9 +116,13 @@ export default function Orbit({ focus = null }) {
     const moving = all.filter((b) => b.at && b.semiMajor && b.around === middle?.id);
     const middles = middle ? [middle] : [];
     const above = middle?.above || (sky.system ? [sky.system] : []);
-    if (!moving.length) return { middles, moving: [], scale: 1, above };
+    const into = (b) => {
+      const own = systemOf(b);
+      return own && own !== shown ? own : null;
+    };
+    if (!moving.length) return { middles, moving: [], scale: 1, above, into };
     const widest = Math.max(...moving.map((b) => b.semiMajor * (1 + b.eccentricity)));
-    return { middles, moving, scale: (MIDDLE * EDGE) / widest, above };
+    return { middles, moving, scale: (MIDDLE * EDGE) / widest, above, into };
   }, [sky, frame]);
 
   if (!sky) return <Empty>loading…</Empty>;
@@ -221,7 +225,11 @@ export default function Orbit({ focus = null }) {
           {plan.moving.map((body) => {
             const at = spot(body.at, plan.scale);
             return (
-              <g key={body.id} className="orbitbody" onClick={() => setPicked(body.id)}>
+              <g
+                key={body.id}
+                className="orbitbody"
+                onClick={() => (plan.into(body) ? setFrame(plan.into(body)) : setPicked(body.id))}
+              >
                 <line x1={MIDDLE} y1={MIDDLE} x2={at.x} y2={at.y} className="orbitreach" />
                 <circle cx={at.x} cy={at.y} r={9} />
                 <text x={at.x} y={at.y - 18} textAnchor="middle">
