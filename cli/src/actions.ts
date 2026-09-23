@@ -305,8 +305,15 @@ export function shape(id: string, extent: unknown, carry: Carry = null) {
   // as standing on it is judged against where it was, not where it now is —
   // otherwise a shape moved clear of its own village would carry nothing.
   const carried: string[] = [];
+  const world = worldOf(ident);
   if (carry && (carry.lon || carry.lat)) {
     const held = ringsOf(before ?? null);
+    const above = new Set<string>();
+    for (
+      let at = db.value<string>("SELECT parent FROM place WHERE id = ?", [ident]);
+      at && !above.has(at);
+      at = db.value<string>("SELECT parent FROM place WHERE id = ?", [at])
+    ) above.add(at);
     if (held.length) {
       const inside = db
         .rows(
@@ -314,7 +321,8 @@ export function shape(id: string, extent: unknown, carry: Carry = null) {
             WHERE p.id <> ? AND p.lat IS NOT NULL AND p.lon IS NOT NULL`,
           [ident]
         )
-        .filter((r) => covers(held, Number(r.lon), Number(r.lat)));
+        .filter((r) => covers(held, Number(r.lon), Number(r.lat)))
+        .filter((r) => !above.has(String(r.id)) && (!world || worldOf(String(r.id)) === world));
       db.writing((con) => {
         for (const r of inside) {
           con
@@ -331,7 +339,6 @@ export function shape(id: string, extent: unknown, carry: Carry = null) {
   }
 
   // A shape that moved may now hold things it did not, or have let things go.
-  const world = worldOf(ident);
   const moved = world ? restack(world) : [];
 
   return {
@@ -387,6 +394,22 @@ const spread = (rings: number[][][]) => {
   return total;
 };
 
+const within = (rings: number[][][]): [number, number] | null => {
+  const ring = rings[0];
+  if (!ring || ring.length < 3) return null;
+  let x = 0, y = 0;
+  for (const [lon, lat] of ring) { x += lon; y += lat; }
+  const middle: [number, number] = [x / ring.length, y / ring.length];
+  if (covers(rings, middle[0], middle[1])) return middle;
+  for (let i = 0; i < ring.length; i++) {
+    for (let j = i + 2; j < ring.length; j++) {
+      const mid: [number, number] = [(ring[i][0] + ring[j][0]) / 2, (ring[i][1] + ring[j][1]) / 2];
+      if (covers(rings, mid[0], mid[1])) return mid;
+    }
+  }
+  return null;
+};
+
 /**
  * Put every place back inside whatever is actually drawn around it.
  *
@@ -405,11 +428,17 @@ export function restack(ground: string) {
   // reachable from nowhere and would otherwise simply stop existing — and since
   // where a place belongs is decided by its shape, it can be put back.
   const all = db.rows(
-    `SELECT p.id, p.parent, p.type, p.lat, p.lon, e.extent
+    `WITH RECURSIVE elsewhere(id) AS (
+       SELECT id FROM place WHERE type = 'celestial-body' AND id <> ?
+       UNION
+       SELECT p.id FROM place p JOIN elsewhere w ON p.parent = w.id
+     )
+     SELECT p.id, p.parent, p.type, p.lat, p.lon, e.extent
        FROM place p JOIN entity e ON e.id = p.id
       WHERE p.id <> ?
+        AND p.id NOT IN (SELECT id FROM elsewhere)
         AND coalesce(p.type, '') NOT IN ('celestial-body', 'celestial-system', 'realm')`,
-    [ground]
+    [ground, ground]
   );
 
   const held = all.map((r) => ({
@@ -426,11 +455,16 @@ export function restack(ground: string) {
   const wanted = new Map<string, string>();
 
   for (const place of held) {
-    if (place.lat === null || place.lon === null) continue;
+    const pin = place.lat !== null && place.lon !== null
+      ? [place.lon, place.lat]
+      : place.rings.length ? within(place.rings) : null;
+    if (!pin) continue;
+    const own = place.rings.length ? spread(place.rings) : 0;
     let best: { id: string; size: number } | null = null;
     for (const other of held) {
       if (other.id === place.id || !other.rings.length) continue;
-      if (!covers(other.rings, place.lon, place.lat)) continue;
+      if (!covers(other.rings, pin[0], pin[1])) continue;
+      if (own && spread(other.rings) <= own) continue;
       const size = spread(other.rings);
       if (!best || size < best.size) best = { id: other.id, size };
     }
