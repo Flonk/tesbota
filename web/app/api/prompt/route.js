@@ -5,7 +5,7 @@ import { ROOT } from "../../../lib/store";
 
 export const dynamic = "force-dynamic";
 
-const PROMPTS = path.join(ROOT, "tesbota", "prompts");
+const PROMPTS = path.join(ROOT, "prompts");
 
 export async function POST(request) {
   const { id, text } = await request.json();

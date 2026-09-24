@@ -509,9 +509,11 @@ const SUBS = {
   ],
   library: [
     ...KINDS.map((id) => ({ id, label: id, icon: ICONS[id] })),
+  ],
+  dev: [
+    { id: "states", label: "states", icon: "pulse" },
     { id: "data", label: "data", icon: "db" },
   ],
-  dev: [{ id: "states", label: "states", icon: "pulse" }],
 };
 
 const TABS = [
@@ -602,12 +604,12 @@ export default function Page() {
   }, [sheaf]);
 
   useEffect(() => {
-    if (tab !== "library" || sub.library !== "data" || catalogue) return;
+    if (tab !== "dev" || sub.dev !== "data" || catalogue) return;
     fetch("/api/data", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { error: "the machine did not answer" }))
       .then(setCatalogue)
       .catch(() => setCatalogue({ error: "the machine did not answer" }));
-  }, [tab, sub.library, catalogue]);
+  }, [tab, sub.dev, catalogue]);
 
   useEffect(() => {
     const asked = document.cookie.match(/(?:^|;\s*)tesbota_who=([^;]*)/);
@@ -983,7 +985,7 @@ export default function Page() {
           />
         )}
 
-        {tab === "library" && sub.library === "data" && (
+        {tab === "dev" && sub.dev === "data" && (
           <Tabs
             sub
             className="reading"
@@ -996,7 +998,7 @@ export default function Page() {
           />
         )}
 
-        {tab === "library" && sub.library === "data" && (
+        {tab === "dev" && sub.dev === "data" && (
           <Tabs
             sub
             items={
@@ -1020,7 +1022,7 @@ export default function Page() {
           />
         )}
 
-        {tab === "library" && sub.library === "data" && sheaf === "prompts" && (
+        {tab === "dev" && sub.dev === "data" && sheaf === "prompts" && (
           <Tabs
             sub
             items={[
@@ -1050,10 +1052,10 @@ export default function Page() {
         <div className="tabbody">
           <div
             className={`tabpanel${
-              tab === "chat" || tab === "map" || (tab === "library" && sub.library !== "data")
+              tab === "chat" || tab === "map" || tab === "library"
                 ? " flush"
                 : ""
-            }${tab === "library" && sub.library === "data" && sheaf === "prompts" ? " edit" : ""}`}
+            }${tab === "dev" && sub.dev === "data" && sheaf === "prompts" ? " edit" : ""}`}
           >
           {tab === "chat" && sub.chat === "talk" && (
             <Talk
@@ -1092,7 +1094,7 @@ export default function Page() {
               onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
             />
           )}
-          {tab === "library" && sub.library === "data" && (
+          {tab === "dev" && sub.dev === "data" && (
             <Data
               catalogue={catalogue}
               at={datum}
@@ -1102,7 +1104,7 @@ export default function Page() {
             />
           )}
           {tab === "dev" && sub.dev === "states" && <Machine status={status} />}
-          {tab === "library" && sub.library !== "data" && (
+          {tab === "library" && (
             <Library
               dossier={dossier}
               onOpen={openDossier}

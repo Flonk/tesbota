@@ -339,6 +339,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       })),
       mobs: canon.mobs(),
       machine: machine.describe(),
+      prompts: prompts.catalogue(),
     };
     if (flags.has("--json")) return say(payload);
     say(JSON.stringify(payload, null, 2));
