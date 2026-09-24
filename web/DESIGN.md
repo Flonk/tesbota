@@ -62,7 +62,7 @@ does, and anything new in it should keep working that way:
 | draw | P | a stroke from outline to outline reshapes it | same |
 | erase | E | click a corner to take it out | click selects, drag pans |
 
-With something selected, a click anywhere outside it only lets go — it never
+With corners, draw or erase in hand, the shape being worked on stays selected whatever is clicked: letting go is Esc, `deselect`, or the select tool. With the select tool, a click anywhere outside the selection only lets go — it never
 picks the thing clicked, because at any zoom everything is some place and there
 would be no empty ground left to click. Esc and `deselect` let go too. Clicking
 inside the selection reaches through to what stands on it. Space or the middle button pans in any

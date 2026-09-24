@@ -859,6 +859,7 @@ export default function Globe({
       if (pin) openDossier(pin.place);
       return;
     }
+    if (chosen && tool !== "select") return;
     if (through) return places[0] && choose(places[0]);
     if (chosen) return release();
     if (places[0]) choose(places[0]);
