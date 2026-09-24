@@ -58,6 +58,11 @@ body {
 .tint-epic { color: var(--gold); }
 .tint-legendary { color: var(--myth); }
 .tint-unique { color: var(--bad); }
+.ecell.ename.tint-uncommon { color: var(--good); }
+.ecell.ename.tint-rare { color: var(--place); }
+.ecell.ename.tint-epic { color: var(--gold); }
+.ecell.ename.tint-legendary { color: var(--myth); }
+.ecell.ename.tint-unique { color: var(--bad); }
 .swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; background: currentColor; }
 
 /* ---- primitives ---- */

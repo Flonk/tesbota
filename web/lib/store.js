@@ -261,7 +261,8 @@ const ROWS = `
          (SELECT coalesce(le.name, replace(pr.lives, '-', ' ')) FROM person pr
             LEFT JOIN entity le ON le.id = pr.lives WHERE pr.id = e.id) AS livesName,
          (SELECT h.holder FROM holding h WHERE h.item = e.id LIMIT 1) AS holder,
-         (SELECT it.rarity FROM item it WHERE it.id = e.id) AS rarity,
+         coalesce((SELECT it.rarity FROM item it WHERE it.id = e.id),
+                  (SELECT bk.rarity FROM book bk WHERE bk.id = e.id)) AS rarity,
          (EXISTS (SELECT 1 FROM writing w WHERE w.entity = e.id AND w.body LIKE '%$BOTA%')
           OR EXISTS (SELECT 1 FROM person pr WHERE pr.id = e.id
                        AND (pr.work LIKE '%$BOTA%' OR pr.lives LIKE '%$BOTA%'
