@@ -74,7 +74,7 @@ Every place on a world carries both: `extent`, the shape of it, and `place.lat`/
 `extent` is GeoJSON in degrees, `[lon, lat]` the way GeoJSON writes a point. A `Polygon` for anything with ground — a village, a forest, a marsh, a building's footprint. A `LineString` for a road or a river, which are runs rather than areas:
 
     UPDATE entity SET extent = '{"type":"LineString","coordinates":[[11.9,55.55],[11.98,55.55]]}'
-     WHERE id = 'the-road';
+     WHERE id = 'flotburg-trail';
 
 A road or a river says how wide it is in `place.width`, in metres — a cart track is three, a river a mill stands on thirty. One number for the whole run.
 

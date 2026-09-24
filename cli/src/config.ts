@@ -149,9 +149,9 @@ export const OPENING = {
     "and the road runs away from you in two directions. " +
     "You should probably keep walking.",
   claims: [
-    { id: "o1", text: "A road runs through wet grass.", entity: "the-road", kind: "places" },
-    { id: "o2", text: "Fog stands close around the road on every side, hiding what lies beyond.", entity: "the-road", kind: "places" },
-    { id: "o3", text: "The road runs away in two directions.", entity: "the-road", kind: "places" },
+    { id: "o1", text: "A road runs through wet grass.", entity: "flotburg-trail", kind: "places" },
+    { id: "o2", text: "Fog stands close around the road on every side, hiding what lies beyond.", entity: "flotburg-trail", kind: "places" },
+    { id: "o3", text: "The road runs away in two directions.", entity: "flotburg-trail", kind: "places" },
   ],
   travel: null,
   minutes: 0,

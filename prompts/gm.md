@@ -31,7 +31,7 @@ Reply with a single fenced json block and nothing else:
 }
 ```
 
-- `location` — the smallest place containing them, every turn, even unchanged. It is the id of a place the world already keeps, and `SELECT id, name FROM place JOIN entity USING (id)` is the list. Describing where they are instead of naming it invents a second place for somewhere that already has one — the road they woke on is `the-road`, not `wet grass road`. Somewhere genuinely new is ruled on like anything else you assert.
+- `location` — the smallest place containing them, every turn, even unchanged. It is the id of a place the world already keeps, and `SELECT id, name FROM place JOIN entity USING (id)` is the list. Describing where they are instead of naming it invents a second place for somewhere that already has one — the trail they woke on is `flotburg-trail`, not `wet grass road`. Somewhere genuinely new is ruled on like anything else you assert.
 
 # Action
 

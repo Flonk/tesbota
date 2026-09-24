@@ -18,6 +18,7 @@ import * as sheet from "./sheet.ts";
 import * as sky from "./sky.ts";
 import * as editing from "./edit/index.ts";
 import * as ground from "./ground.ts";
+import { rename } from "./rename.ts";
 import { reachable } from "./sqlite.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
@@ -265,6 +266,12 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     const [from, to] = rest.length > 1 ? [rest[0], rest[1]] : [null, rest[0]];
     const found = ground.route(from, to);
     return say(flags.has("--json") ? found : ground.tellRoute(found));
+  },
+
+  /** Give a thing a new id, and its name with it: `tesbota rename <old> <new> [--name="New Name"]`. */
+  rename({ rest, flags }) {
+    const named = [...flags].find((f) => f.startsWith("--name="))?.slice(7) ?? null;
+    return say(rename(rest[0], rest[1], named));
   },
 
   /** Change one thing in the record. `tesbota edit <id> '<patch json>'`, see web/EDITING.md. */
