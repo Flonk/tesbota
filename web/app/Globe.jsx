@@ -142,31 +142,80 @@ function outline(extent) {
     .join(" ");
 }
 
+/** How many pixels across a place has to be on screen before it opens into what it holds. */
+const OPEN = 360;
+
+/** How close two pins may come on the screen, in pixels, before they are one mark. */
+const TOUCH = 22;
+
 /**
- * Everything within a few degrees is one mark. How few depends on how close you
- * are: a village and its mill are the same place on a world map and different ones
- * once you have come down to them.
+ * Which places get a pin at this distance. A place too small on the screen to be
+ * looked into is one pin, standing for itself and everything inside it; one big
+ * enough opens, loses its pin, and what it holds is asked the same question. So a
+ * world map says the plains, and coming down to the plains it says the villages.
  */
-function gather(standing, here, span) {
-  const cell = 3 * span;
-  const held = new Map();
+function resolve(standing, sizes, scale) {
+  const known = new Map(standing.map((p) => [p.id, p]));
+  const under = new Map();
   for (const place of standing) {
-    if (place.lat === null || place.lon === null) continue;
-    const key = `${Math.round(place.lat / cell)}:${Math.round(place.lon / cell)}`;
-    if (!held.has(key)) held.set(key, []);
-    held.get(key).push(place);
+    const up = known.has(place.parent) ? place.parent : null;
+    if (!under.has(up)) under.set(up, []);
+    under.get(up).push(place);
   }
-  return [...held.values()].map((all) => {
-    const standing_here = all.find((p) => p.id === here);
-    const said = standing_here || all[0];
+  const all_of = (place, seen = new Set()) => {
+    if (seen.has(place.id)) return [];
+    seen.add(place.id);
+    return [place, ...(under.get(place.id) || []).flatMap((kid) => all_of(kid, seen))];
+  };
+  const pins = [];
+  const visit = (place, seen) => {
+    if (seen.has(place.id)) return;
+    seen.add(place.id);
+    const box = sizes.get(place.id);
+    const wide = box ? Math.max(box.maxX - box.minX, box.maxY - box.minY) * scale : 0;
+    if (wide >= OPEN) {
+      for (const kid of under.get(place.id) || []) visit(kid, seen);
+      return;
+    }
+    const at = place.lat !== null && place.lon !== null
+      ? { lat: place.lat, lon: place.lon }
+      : box ? { lat: latOf((box.minY + box.maxY) / 2), lon: lonOf((box.minX + box.maxX) / 2) } : null;
+    if (at) pins.push({ place, ...at, all: all_of(place), wide });
+  };
+  const seen = new Set();
+  for (const top of under.get(null) || []) visit(top, seen);
+  return pins;
+}
+
+/**
+ * Pins that would sit on top of each other are one mark. The biggest place among
+ * them names it, unless the adventurer is standing in one of them.
+ */
+function gather(pins, here, scale) {
+  const weight = (pin) => (pin.place.type === "road" || pin.place.type === "river" ? -1 : pin.wide);
+  const groups = [];
+  for (const pin of [...pins].sort((a, b) => weight(b) - weight(a) || b.all.length - a.all.length)) {
+    const x = across(pin.lon) * scale;
+    const y = down(pin.lat) * scale;
+    const near = groups.find((g) => Math.hypot(g.x - x, g.y - y) < TOUCH);
+    if (near) near.pins.push(pin);
+    else groups.push({ x, y, pins: [pin] });
+  }
+  const held = new Map(groups.map((g, n) => [n, g.pins]));
+  return [...held.values()].map((group) => {
+    const all = group.flatMap((pin) => pin.all);
+    const holding = group.find((pin) => pin.all.some((p) => p.id === here));
+    const said = holding || group.reduce((a, b) =>
+      weight(b) > weight(a) || (weight(b) === weight(a) && b.all.length > a.all.length) ? b : a
+    );
     return {
-      id: said.id,
-      name: said.name,
-      lat: all.reduce((s, p) => s + p.lat, 0) / all.length,
-      lon: all.reduce((s, p) => s + p.lon, 0) / all.length,
-      day: said.day,
-      altitude: said.altitude,
-      here: !!standing_here,
+      id: said.place.id,
+      name: said.place.name,
+      lat: said.lat,
+      lon: said.lon,
+      day: said.place.day,
+      altitude: said.place.altitude,
+      here: !!holding,
       more: all.length - 1,
       all,
     };
@@ -361,8 +410,15 @@ export default function Globe({
       const by = rides(place.id);
       return by ? { ...place, lat: place.lat + by.lat, lon: place.lon + by.lon } : place;
     });
-    return gather(moving, here, view.w / W);
-  }, [standing, here, view.w, rides]);
+    const sizes = new Map();
+    for (const place of moving) {
+      const d = place.extent && outline(place.extent);
+      const box = d && bounds(d);
+      if (box) sizes.set(place.id, box);
+    }
+    const scale = pane.w && pane.h ? Math.max(pane.w / view.w, pane.h / view.h) : W / view.w;
+    return gather(resolve(moving, sizes, scale), here, scale);
+  }, [standing, here, view.w, pane, rides]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
@@ -1267,7 +1323,6 @@ export default function Globe({
           {named.has(mark.id) && (
             <text y="-11" textAnchor="middle">
               {mark.name}
-              {mark.more > 0 ? ` +${mark.more}` : ""}
             </text>
           )}
           <title>
