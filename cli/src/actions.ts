@@ -420,6 +420,19 @@ const spread = (rings: number[][][]) => {
   return total;
 };
 
+const middleOf = (extent: string | null): [number, number] | null => {
+  let drawn: any;
+  try {
+    drawn = JSON.parse(String(extent));
+  } catch {
+    return null;
+  }
+  const run = drawn?.type === "LineString" ? drawn.coordinates : null;
+  if (!Array.isArray(run) || !run.length) return null;
+  const [lon, lat] = run[Math.floor((run.length - 1) / 2)];
+  return Number.isFinite(lon) && Number.isFinite(lat) ? [lon, lat] : null;
+};
+
 const within = (rings: number[][][]): [number, number] | null => {
   const ring = rings[0];
   if (!ring || ring.length < 3) return null;
@@ -474,6 +487,7 @@ export function restack(ground: string) {
     lat: r.lat === null || r.lat === undefined ? null : Number(r.lat),
     lon: r.lon === null || r.lon === undefined ? null : Number(r.lon),
     rings: ringsOf(r.extent ?? null),
+    middle: middleOf(r.extent ?? null),
   }));
   const by = new Map(held.map((p) => [p.id, p]));
 
@@ -483,7 +497,7 @@ export function restack(ground: string) {
   for (const place of held) {
     const pin = place.lat !== null && place.lon !== null
       ? [place.lon, place.lat]
-      : place.rings.length ? within(place.rings) : null;
+      : place.rings.length ? within(place.rings) : place.middle;
     if (!pin) continue;
     const own = place.rings.length ? spread(place.rings) : 0;
     let best: { id: string; size: number } | null = null;

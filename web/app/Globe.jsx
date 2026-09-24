@@ -432,7 +432,7 @@ export default function Globe({
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
   const drawn = useMemo(() => {
-    const order = { water: 0, region: 1, road: 2, river: 2 };
+    const order = { water: 0, region: 1, location: 2, road: 3, river: 3 };
     return standing
       .filter((place) => place.extent && place.id !== chosen)
       .map((place) => {
