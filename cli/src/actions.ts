@@ -242,7 +242,9 @@ function dragged(extent: string | null, by: { lon: number; lat: number }): strin
   return JSON.stringify(drawn);
 }
 
-export function shape(id: string, extent: unknown, carry: Carry = null, width: number | null | undefined = undefined) {
+export function shape(
+  id: string, extent: unknown, carry: Carry = null, width: number | null | undefined = undefined, alone = false
+) {
   const ident = String(id || "").trim().toLowerCase();
   if (!ident) return { error: "no place named" };
 
@@ -315,7 +317,22 @@ export function shape(id: string, extent: unknown, carry: Carry = null, width: n
   // otherwise a shape moved clear of its own village would carry nothing.
   const carried: string[] = [];
   const world = worldOf(ident);
-  if (carry && (carry.lon || carry.lat)) {
+  const pin = db.row("SELECT lat, lon FROM place WHERE id = ?", [ident]);
+  let lat = pin?.lat === null || pin?.lat === undefined ? null : Number(pin.lat);
+  let lon = pin?.lon === null || pin?.lon === undefined ? null : Number(pin.lon);
+  if (carry && (carry.lon || carry.lat) && lat !== null && lon !== null) {
+    lat += carry.lat;
+    lon += carry.lon;
+  }
+  const rings = shut ? ringsOf(said) : [];
+  if (rings.length && lat !== null && lon !== null && !covers(rings, lon, lat)) {
+    const inside = within(rings);
+    if (inside) [lon, lat] = inside;
+  }
+  if (lat !== null && lon !== null && (lat !== Number(pin?.lat) || lon !== Number(pin?.lon))) {
+    db.writing((con) => con.prepare("UPDATE place SET lat = ?, lon = ? WHERE id = ?").run(lat, lon, ident));
+  }
+  if (carry && (carry.lon || carry.lat) && !alone) {
     const held = ringsOf(before ?? null);
     const above = new Set<string>();
     for (

@@ -408,8 +408,10 @@ export default function Globe({
 
   const marks = useMemo(() => {
     const moving = standing.map((place) => {
-      const by = rides(place.id);
-      return by ? { ...place, lat: place.lat + by.lat, lon: place.lon + by.lon } : place;
+      const by = rides(place.id) || (place.id === chosen ? total : null);
+      return by && place.lat !== null && place.lon !== null
+        ? { ...place, lat: place.lat + by.lat, lon: place.lon + by.lon }
+        : place;
     });
     const sizes = new Map();
     for (const place of moving) {
@@ -419,7 +421,7 @@ export default function Globe({
     }
     const scale = pane.w && pane.h ? Math.max(pane.w / view.w, pane.h / view.h) : W / view.w;
     return gather(resolve(moving, sizes, scale), here, scale);
-  }, [standing, here, view.w, pane, rides]);
+  }, [standing, here, view.w, pane, rides, chosen, total?.lon, total?.lat]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
@@ -795,7 +797,7 @@ export default function Globe({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id, extent, carry: bringing ? carry : null,
+          id, extent, carry, alone: !bringing,
           ...(draft.shut ? {} : { width: draft.width ?? null }),
         }),
       });
@@ -1180,12 +1182,24 @@ export default function Globe({
     place.width && perPixel ? Math.max(least, place.width / perPixel) : undefined;
 
   const grid = (() => {
-    if (!shown.grid || !ruler) return null;
-    const s = ruler.px * near;
+    if (!shown.grid || !body.radius || !pane.w || !pane.h) return null;
+    const k = Math.max(pane.w / view.w, pane.h / view.h);
+    const top = latOf(view.y);
+    const bottom = latOf(view.y + view.h);
+    const steady = Math.max(-80, Math.min(80, Math.round((top + bottom) / 2 / 5) * 5));
+    const round = 2 * Math.PI * body.radius;
+    const perPixel = (round * Math.cos(steady * RAD)) / (W * k);
+    const most = perPixel * 110;
+    const ten = 10 ** Math.floor(Math.log10(most));
+    const length = [5, 2, 1].map((n) => n * ten).find((n) => n <= most) ?? ten;
+    const tall = (length / round) * 360;
+    const wide = tall / Math.cos(steady * RAD);
+    const west = unwrapped(view.x);
+    const east = unwrapped(view.x + view.w);
     const xs = [];
     const ys = [];
-    for (let x = Math.floor(view.x / s) * s; x <= view.x + view.w; x += s) xs.push(x);
-    for (let y = Math.floor(view.y / s) * s; y <= view.y + view.h; y += s) ys.push(y);
+    for (let lon = Math.floor(west / wide) * wide; lon <= east && xs.length < 400; lon += wide) xs.push(straight(lon));
+    for (let lat = Math.floor(bottom / tall) * tall; lat <= top && ys.length < 400; lat += tall) ys.push(down(lat));
     return { xs, ys };
   })();
 

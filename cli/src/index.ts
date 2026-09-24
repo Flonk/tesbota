@@ -247,7 +247,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     }
     const wide = [...flags].find((f) => f.startsWith("--width="))?.slice(8);
     const width = wide === undefined ? undefined : wide === "" ? null : Number(wide);
-    return say(actions.shape(id, said, carry, width));
+    return say(actions.shape(id, said, carry, width, flags.has("--alone")));
   },
 
   /** Put down a place that did not exist. The map draws it afterwards. */
