@@ -275,6 +275,9 @@ export const Turn = z.object({
   /** where the road is taking them, and how much of it is left */
   destination: z.string().nullish(),
   leagues_left: z.number().default(0),
+  /** the way the map says they are going, and how much of it this stretch covers */
+  path: z.array(z.tuple([z.number(), z.number()])).nullish(),
+  reach: z.number().nullish(),
   /** the lore master's sitting, archived onto the turn that needed it */
   lore: z.array(z.unknown()).default([]),
   lore_gap: z.string().nullish(),

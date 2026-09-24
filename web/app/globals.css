@@ -954,6 +954,11 @@ textarea.prompt:focus { outline: none; }
   box-shadow: 0 1px 0 var(--bg);
 }
 .globemoon { pointer-events: none; }
+.globetrip { pointer-events: none; }
+.globetrip path { fill: none; stroke-linecap: round; }
+.globetrip .behind { stroke: color-mix(in srgb, var(--bad) 45%, transparent); }
+.globetrip .ahead { stroke: var(--bad); animation: march 1.2s linear infinite; }
+@keyframes march { to { stroke-dashoffset: var(--march); } }
 .globewords { pointer-events: none; }
 .globeline text { font: var(--mono); letter-spacing: var(--track); }
 .globeline.road text { fill: var(--bg); }

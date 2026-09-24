@@ -268,10 +268,12 @@ export default function Globe({
   editing = false,
   onSaved = null,
   onDirty = null,
+  journey = null,
 }) {
   const [view, setView] = useState(FIT);
   const [coarse, setCoarse] = useState(false);
   const [shown, setShown] = useState({ bodies: true, night: true, grid: false });
+  const [clock, setClock] = useState(() => Date.now());
   const [pane, setPane] = useState({ w: 0, h: 0 });
   // What is being reshaped, and the shape as it stands before it is written down.
   const [chosen, setChosen] = useState(null);
@@ -315,6 +317,12 @@ export default function Globe({
   useEffect(() => {
     setPicked(null);
   }, [tool, chosen]);
+
+  useEffect(() => {
+    if (!journey?.path?.length) return;
+    const beat = setInterval(() => setClock(Date.now()), 1000);
+    return () => clearInterval(beat);
+  }, [journey]);
 
   useEffect(() => {
     try {
@@ -1268,6 +1276,30 @@ export default function Globe({
   const handles = editing && draft && (tool === "corners" || tool === "erase");
   const ax = (lon) => across(lon) - ox;
   const ay = (lat) => down(lat) - oy;
+
+  // A journey under way: the road behind, the road ahead, and how far along it
+  // they are by now — worked out from when they set out and when they will stop.
+  const trip = (() => {
+    if (!journey?.path || journey.path.length < 2) return null;
+    const pts = journey.path.map(([lon, lat]) => [straight(lon) - ox, down(lat) - oy]);
+    const upto = [0];
+    for (let n = 1; n < pts.length; n++) upto.push(upto[n - 1] + Math.hypot(pts[n][0] - pts[n - 1][0], pts[n][1] - pts[n - 1][1]));
+    const long = upto[upto.length - 1];
+    const from = Date.parse(journey.from);
+    const until = Date.parse(journey.until);
+    const done = until > from ? Math.max(0, Math.min(1, (clock - from) / (until - from))) : 1;
+    const want = long * done * (journey.reach ?? 1);
+    let n = 1;
+    while (n < pts.length - 1 && upto[n] < want) n++;
+    const t = upto[n] > upto[n - 1] ? (want - upto[n - 1]) / (upto[n] - upto[n - 1]) : 0;
+    const at = [pts[n - 1][0] + (pts[n][0] - pts[n - 1][0]) * t, pts[n - 1][1] + (pts[n][1] - pts[n - 1][1]) * t];
+    const line = (list) => "M " + list.map(([x, y]) => `${x} ${y}`).join(" L ");
+    return {
+      behind: line([...pts.slice(0, n), at]),
+      ahead: line([at, ...pts.slice(n)]),
+      at,
+    };
+  })();
   const traced = (run) =>
     run.length
       ? "M " + run.map(([lon, lat]) => `${ax(lon)} ${ay(lat)}`).join(" L ") + (draft.shut ? " Z" : "")
@@ -1512,10 +1544,21 @@ export default function Globe({
         );
       })}
 
-      {walker && (
+      {trip && (
+        <g className="globetrip">
+          <path className="behind" d={trip.behind} style={{ strokeWidth: 3 * near, strokeDasharray: `0 ${9 * near}` }} />
+          <path
+            className="ahead"
+            d={trip.ahead}
+            style={{ strokeWidth: 5 * near, strokeDasharray: `0 ${14 * near}`, "--march": `${-28 * near}` }}
+          />
+        </g>
+      )}
+
+      {(walker || trip) && (
         <g
           className="globewalker"
-          transform={`translate(${ax(walker.lon)} ${ay(walker.lat)}) scale(${near})`}
+          transform={`translate(${trip ? trip.at[0] : ax(walker.lon)} ${trip ? trip.at[1] : ay(walker.lat)}) scale(${near})`}
         >
           <circle r="11" className="globehalo" />
           <circle r="4.5" />

@@ -440,7 +440,10 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
       return { by: "across", name: "", metres: Math.round(l.metres), said: `go ${spoken(l.metres)} ${way} across country` };
     });
   const total = said.reduce((n, l) => n + l.metres, 0);
+  const path: Pt[] = [nodes[start], ...steps.map((s) => nodes[s.to])]
+    .filter((p, n, all) => n === 0 || p[0] !== all[n - 1][0] || p[1] !== all[n - 1][1]);
   return {
+    path,
     from: a.said,
     to: b.said,
     to_id: b.spot?.id ?? null,

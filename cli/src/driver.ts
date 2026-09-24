@@ -13,6 +13,7 @@ import * as canon from "./canon.ts";
 import * as chronicle from "./chronicle.ts";
 import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
+import * as ground from "./ground.ts";
 import { AgentError, STEPS } from "./steps.ts";
 import { edgeFrom, STATES, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
@@ -104,10 +105,19 @@ export function walk(
   const [minutes, left, cut] = travel.leg(
     campaign.clock as any, leagues, rng, travel.drag(sheet.load(campaign))
   );
+  let path: Array<[number, number]> | null = null;
+  if (destination) {
+    try {
+      const found = ground.route(campaign.location ?? null, destination);
+      if (!("error" in found)) path = found.path;
+    } catch {}
+  }
   return newTurn(campaign, "clock", {
     wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock as any, minutes))),
     destination,
     leagues_left: cut ? left : 0,
+    path,
+    reach: cut && leagues ? Number(((leagues - left) / leagues).toFixed(4)) : 1,
   });
 }
 

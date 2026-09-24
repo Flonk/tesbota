@@ -118,6 +118,16 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     }
     // Where the adventurer is standing, so a map of a world can say so.
     (said as any).here = held?.location ?? null;
+    // A journey under way, so the map can draw the road ahead and where on it they are.
+    try {
+      const turn = held?.current_turn ? loadTurn(held.current_turn) : null;
+      if (turn && turn.state === "clock" && turn.path?.length && turn.wake_at) {
+        (said as any).journey = {
+          path: turn.path, from: turn.created, until: turn.wake_at,
+          reach: turn.reach ?? 1, destination: turn.destination ?? null,
+        };
+      }
+    } catch {}
     if (flags.has("--json")) return say(said);
 
     const hours = (seconds: number | null) =>

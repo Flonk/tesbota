@@ -68,6 +68,12 @@ export default function Orbit({ focus = null }) {
     read();
   }, [read]);
 
+  useEffect(() => {
+    if (editing) return;
+    const again = setInterval(read, 30000);
+    return () => clearInterval(again);
+  }, [read, editing]);
+
   // Something asked for from somewhere else — an entry, most likely. A world is
   // the world being looked at; anything standing on one asks for the world that
   // holds it, and the map goes down to it from there.
@@ -206,6 +212,7 @@ export default function Orbit({ focus = null }) {
           editing={editing}
           onSaved={read}
           onDirty={setUnsaved}
+          journey={sky.journey || null}
         />
       </div>
     );
