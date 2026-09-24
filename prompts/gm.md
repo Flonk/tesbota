@@ -95,7 +95,9 @@ You do not roll it and you never write it. The explorer will be asked, round by 
 
 # Travel
 
-`{"destination": "kebab-id", "leagues": <number>}` when they commit to a journey. A journey that was interrupted comes back as a shorter one: commit what is left of it the same way.
+Before you describe where they are or what they can see, run `tesbota around`: it says what they are standing inside, what is near, how far and which way. Before you send them anywhere, run `tesbota route <destination>`: it walks the roads and says how far it really is. Never guess a distance or a direction the map can answer.
+
+`{"destination": "kebab-id", "leagues": <number>}` when they commit to a journey — the leagues `tesbota route` gave you. A journey that was interrupted comes back as a shorter one: commit what is left of it the same way.
 
 # Quests
 

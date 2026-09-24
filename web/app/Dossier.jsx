@@ -88,12 +88,8 @@ const LIVES = {
 };
 
 const EXITS = {
-  cols: "minmax(9rem, 2fr) 7rem minmax(6rem, 1.4fr)",
-  fields: [
-    { key: "name", label: "ways out", strong: true, cell: (r) => r.name },
-    { key: "bearing", label: "bearing", dim: true, cell: (r) => (r.bearing ? <Prose as="span" text={r.bearing} /> : <Stub />) },
-    { key: "distance", label: "how far", dim: true, cell: (r) => (r.distance ? <Prose as="span" text={r.distance} /> : <Stub />) },
-  ],
+  cols: "minmax(9rem, 1fr)",
+  fields: [{ key: "name", label: "doors", strong: true, cell: (r) => r.name }],
 };
 
 const KEEPS = {
@@ -646,13 +642,12 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                 <Table rarity={unrated} {...LIVES} rows={thing.lives} onOpen={openDossier} />
             )}
 
-            {thing.kind === "places" && (
+            {thing.kind === "places" && (thing.exits || []).length > 0 && (
                 <Table
                   rarity={unrated}
                   {...EXITS}
                   rows={thing.exits}
                   onOpen={openDossier}
-                  empty="no way out of it is written down"
                 />
             )}
 

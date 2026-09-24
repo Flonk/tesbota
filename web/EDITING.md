@@ -17,7 +17,7 @@ list section replaces the whole list.
 | `person` | `{ work, lives, born, died, traits }` | `person` |
 | `body` | `{ health, damage, dc, bonus, defense, skill }` or `null` to take the fight stats away | `body` |
 | `place` | `{ type, parent, lat, lon, width }` | `place` |
-| `ways` | `[{ dst, bearing, distance }]` — every way out of the place | `way` where `src` is the place |
+| `ways` | `[{ dst }]` — the doors out of the place, into what the map cannot show | `way` where `src` is the place |
 | `orbit` | `{ semi_major, eccentricity, longitude, periapsis, mass, radius, oblateness, tilt, rotation, meridian }` | `orbit` |
 | `item` | `{ type, slot, rarity, weight, worth, owed_by }` | `item` |
 | `effects` | `[{ stat, amount }]` | `effect` for the item |

@@ -23,7 +23,8 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
                                                        degrees, seconds. How long its year and
                                                        its day are follow from these and are
                                                        never written down
-    way(src, dst, bearing, distance)                   what leads where
+    way(src, dst)                                      a door: the way into somewhere the map
+                                                       cannot show, like a building's inside
     item(id, type, weight, worth, owed_by, rarity, slot)
                                                        weight in stone, for one of them
                                                        slot: helmet | chest | legs | feet |
@@ -55,3 +56,12 @@ Every other author may be wrong, and they disagree constantly.
 Everything has an address, and prose is full of them, wrapped so the sentence still reads: [the mill](bota://places/alheim-mill), bota://books/petra-volls-route-notes#p2 for a passage.
 
 Follow a name through the writing with `WHERE body LIKE '%/petra-voll%'`, and the fts5 table with `snippet()` when you are hunting rather than looking up.
+
+Where things are is read off the map, never out of a table:
+
+    tesbota around                  what is around the explorer: what they stand inside,
+                                    what is near, how far and which way
+    tesbota around <place | lat,lon> [--within=metres]
+    tesbota route <to>              how to get there from the explorer, by road where a
+    tesbota route <from> <to>       road goes and across country where none does, in
+                                    metres and leagues

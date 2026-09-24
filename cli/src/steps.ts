@@ -267,7 +267,7 @@ export const stepAnswer: Step = async ({ campaign, turn }) => {
     {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
-      permission: sqliteGate(),
+      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
       session: (campaign.sessions as any).gm,
       model: MODELS.gm,
     }
@@ -344,7 +344,7 @@ export const stepPropose: Step = async ({ campaign, turn }, rng = random) => {
     {
       system: prompts.GM_PROPOSE_SYSTEM(),
       tools: READ_TOOLS,
-      permission: sqliteGate(),
+      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
       session: null,
       model: MODELS.gm,
     }
@@ -357,7 +357,7 @@ export const stepPropose: Step = async ({ campaign, turn }, rng = random) => {
     const [reply] = await ask(prompts.lore1Query(question), {
       system: prompts.LORE1_QUERY_SYSTEM(),
       tools: READ_TOOLS,
-      permission: sqliteGate(),
+      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
       session: null,
       model: MODELS.lore1,
     });
@@ -433,7 +433,7 @@ export const stepGm: Step = async ({ campaign, turn }) => {
     {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota kill", "tesbota traits"] }),
+      permission: sqliteGate({ also: ["tesbota kill", "tesbota traits", "tesbota around", "tesbota route"] }),
       session: (campaign.sessions as any).gm,
       model: MODELS.gm,
     }
@@ -545,7 +545,7 @@ export async function ruleRecord(
   const [text] = await ask(prompts.lore2Turn(narration, facts, unknown), {
     system: prompts.LORE2_SYSTEM(),
     tools: READ_TOOLS,
-    permission: sqliteGate(),
+    permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
     session: null,
     model: MODELS.lore2,
   });
@@ -1047,7 +1047,7 @@ export const stepBlows: Step = async ({ campaign, turn }) => {
     {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota kill", "tesbota traits"] }),
+      permission: sqliteGate({ also: ["tesbota kill", "tesbota traits", "tesbota around", "tesbota route"] }),
       session: (campaign.sessions as any).gm,
       model: MODELS.gm,
     }
@@ -1136,7 +1136,7 @@ export async function scriptFor(quest: any, campaign: CampaignT): Promise<string
     const [text] = await ask(prompts.questmasterTurn(quest, campaign.location_path as any[]), {
       system: prompts.QUESTMASTER_SYSTEM(),
       tools: READ_TOOLS,
-      permission: sqliteGate(),
+      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
       session: null,
       model: MODELS.questmaster,
     });

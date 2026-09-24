@@ -56,13 +56,13 @@ Every place sits inside exactly one parent, written as a row of its own — no p
 
 Pick by what the place is, not by how big it is or what happens to sit in it: a village with a hundred houses written down is still a `location`, and an empty moor nobody has built on is still a `region`.
 
-If you do not know what contains a new place, you do not yet know enough to write it; find out or leave the place unwritten. What leads where is the `way` table, with a bearing and a distance — `about` is for what a place is like, never for what it connects to:
+If you do not know what contains a new place, you do not yet know enough to write it; find out or leave the place unwritten. Where things lie and how to get between them is never written down: it is read off the map, from each place's pin and shape, by `tesbota around` and `tesbota route`. The only thing the map cannot show is a door — the way into a building's inside, a cellar, a place that is not on the ground at all — and that is the `way` table, one row each way through it:
 
-    INSERT INTO way (src, dst, bearing, distance) VALUES
-      ('the-road', 'alheim', 'west', '5 km'),
-      ('the-road', 'the-aler-bridge', 'north', 'a few minutes on foot');
+    INSERT INTO way (src, dst) VALUES
+      ('the-alheim-inn', 'the-alheim-inn-cellar'),
+      ('the-alheim-inn-cellar', 'the-alheim-inn');
 
-Distance may be vague — "a short walk", "half a day". A number belongs there only where somebody in this world measured it, and then say who measured it in the book that carries it. `extent` is the same rule in GeoJSON, for the few places a document actually surveyed:
+`about` is for what a place is like, never for what it connects to. `extent` is GeoJSON, for the places a document actually surveyed:
 
     UPDATE entity SET extent = '{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[0,0]]]}'
      WHERE id = 'alheim-forest';

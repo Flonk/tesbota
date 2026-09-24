@@ -19,18 +19,14 @@ const ORBIT = [
   ["meridian", "meridian (°)"],
 ];
 
-const WAYS = [
-  { key: "dst", label: "to", pick: "places" },
-  { key: "bearing", label: "bearing" },
-  { key: "distance", label: "how far" },
-];
+const WAYS = [{ key: "dst", label: "leads into", pick: "places" }];
 
 export default function PlacesEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "place", thing.place);
   const [orbit, putOrbit] = reader(draft, change, "orbit", thing.orbit);
   const type = get("type");
   const ways =
-    draft.ways ?? (thing.exits || []).map((w) => ({ dst: w.id, bearing: w.bearing ?? "", distance: w.distance ?? "" }));
+    draft.ways ?? (thing.exits || []).map((w) => ({ dst: w.id }));
   return (
     <>
       <div className="efields">
@@ -52,11 +48,12 @@ export default function PlacesEdit({ thing, draft, change }) {
         </Group>
       )}
       <Many
-        label="ways out"
+        label="doors"
         rows={ways}
         onChange={(rows) => change("ways", rows)}
         columns={WAYS}
-        blank={{ dst: null, bearing: "", distance: "" }}
+        blank={{ dst: null }}
+        empty="no doors"
       />
       <Tags thing={thing} draft={draft} change={change} />
     </>

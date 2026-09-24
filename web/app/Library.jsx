@@ -68,7 +68,7 @@ function placeShape(toggle) {
     cols: "minmax(9rem, 3fr) 3.6rem 3rem",
     fields: [
       { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle) },
-      { key: "exits", label: "ways out", num: true, cell: (r) => COUNT(r.exits) },
+      { key: "exits", label: "doors", num: true, cell: (r) => COUNT(r.exits) },
       { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
     ],
   };
@@ -188,7 +188,7 @@ function editShape(kind, ed, toggle) {
         { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle, name(r)) },
         { key: "type", label: "type", dim: true, cell: choice("place", "type", PLACE_TYPES) },
         { key: "parent", label: "in", dim: true, cell: pick("place", "parent", "places") },
-        { key: "exits", label: "ways out", num: true, cell: (r) => COUNT(r.exits) },
+        { key: "exits", label: "doors", num: true, cell: (r) => COUNT(r.exits) },
         { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
         dot,
       ],

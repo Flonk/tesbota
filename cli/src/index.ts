@@ -17,6 +17,7 @@ import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
 import * as sky from "./sky.ts";
 import * as editing from "./edit/index.ts";
+import * as ground from "./ground.ts";
 import { reachable } from "./sqlite.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
@@ -251,6 +252,21 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     return say(actions.shape(id, said, carry, width, flags.has("--alone")));
   },
 
+  /** What is around the explorer, or around a place or a point: `tesbota around [place | lat,lon] [--within=metres]`. */
+  around({ rest, flags }) {
+    const within = Number([...flags].find((f) => f.startsWith("--within="))?.slice(9)) || 3000;
+    const found = ground.around(rest.join(" ") || null, within);
+    return say(flags.has("--json") ? found : ground.tellAround(found));
+  },
+
+  /** How to get somewhere: `tesbota route <to>` from the explorer, or `tesbota route <from> <to>`. */
+  route({ rest, flags }) {
+    if (!rest.length) return say({ error: "route to where?" });
+    const [from, to] = rest.length > 1 ? [rest[0], rest[1]] : [null, rest[0]];
+    const found = ground.route(from, to);
+    return say(flags.has("--json") ? found : ground.tellRoute(found));
+  },
+
   /** Change one thing in the record. `tesbota edit <id> '<patch json>'`, see web/EDITING.md. */
   edit({ rest }) {
     const [id, ...said] = rest;
@@ -355,7 +371,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
 const MAKES = "init";
 const NEEDS_NOBODY = new Set([
   "machine", "check", "prompts", "library", "map", "traits", "sky", "place", "shape",
-  "unplace", "edit",
+  "unplace", "edit", "around", "route",
 ]);
 
 async function main() {
