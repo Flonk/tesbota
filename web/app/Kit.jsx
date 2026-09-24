@@ -1,7 +1,7 @@
 "use client";
 
 import { does, face, lit, tone } from "./Data";
-import { Mark, openDossier, Table } from "./ui";
+import { Mark, openDossier, rated, Table } from "./ui";
 
 const RINGS = 4;
 
@@ -13,7 +13,7 @@ const CARRYING = {
     { key: "name", label: "carrying", strong: true,
       cell: (r) => (
         <Mark name={face(r)} tone={lit(r)}>
-          <span className={tone(r.rarity)}>{r.name}</span>
+          {r.name}
         </Mark>
       ) },
     { key: "does", label: "what it does", dim: true, cell: (r) => does(r) },
@@ -66,5 +66,5 @@ export function Doll({ inventory = [] }) {
 }
 
 export default function Kit({ inventory = [] }) {
-  return <Table {...CARRYING} rows={inventory} onOpen={openDossier} empty="it carries nothing" />;
+  return <Table rarity={rated} {...CARRYING} rows={inventory} onOpen={openDossier} empty="it carries nothing" />;
 }

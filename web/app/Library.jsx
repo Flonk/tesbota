@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PLACE_ICON, rare, tone } from "./Data";
+import { PLACE_ICON, rare } from "./Data";
 import Icon from "./icons";
 import { Field, forget, Pick } from "./edit/fields";
-import { Act, Btn, Empty, Mark, Note, Prose, Row, Stub, Table, Tabs } from "./ui";
+import { Act, Btn, Empty, Mark, Note, Prose, rated, Row, Stub, Table, Tabs } from "./ui";
 
 const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
 const RARITIES = ORDER.filter(Boolean).reverse();
@@ -141,7 +141,7 @@ const COLUMNS = {
     cols: "minmax(8rem, 2fr) minmax(6rem, 1.4fr) 5rem",
     fields: [
       { key: "name", strong: true, label: "item",
-        cell: (r) => <span className={tone(r.rarity)}>{r.name}</span> },
+        cell: (r) => r.name },
       { key: "holder", label: "held by", cell: (r) => holderOf(r), dim: true },
       { key: "mentions", label: "mentioned", cell: (r) => COUNT(r.mentions), num: true },
     ],
@@ -634,6 +634,7 @@ export default function Library({
       {hits === null && reading && <Empty>reading the shelves…</Empty>}
       {hits === null && !reading && (
         <Table
+          rarity={rated}
           cols={shape.cols}
           fields={shape.fields}
           rows={rows}

@@ -319,10 +319,18 @@ export function Tabs({ items, value, onChange, sub = false, className = "" }) {
   );
 }
 
+/** For a table whose rows carry a rarity: colour each by its own. */
+export const rated = (row) => row?.rarity ?? null;
+/** For a table whose rows have no rarity to speak of. Saying so is still required. */
+export const unrated = () => null;
+
+const tint = (rarity) => (rarity && rarity !== "common" ? `tint-${rarity}` : "");
+
 export function Table({
   cols,
   fields,
   rows,
+  rarity,
   sort,
   onSort,
   selected,
@@ -330,6 +338,9 @@ export function Table({
   rowClass,
   empty = "nothing",
 }) {
+  if (typeof rarity !== "function") {
+    throw new Error("Table needs rarity={(row) => rarity}: pass rated, unrated, or your own");
+  }
   const heads = fields.some((f) => f.label);
   if (!rows.length && !heads) return <Empty>{empty}</Empty>;
   return (
@@ -372,7 +383,7 @@ export function Table({
               <span
                 key={f.key}
                 className={`ecell${f.num ? " num" : ""}${f.dim ? " dim" : ""}${
-                  f.strong ? " ename" : ""
+                  f.strong ? ` ename ${tint(rarity(r))}` : ""
                 }`}
               >
                 {f.cell(r)}

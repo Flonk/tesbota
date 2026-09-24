@@ -1,7 +1,7 @@
 "use client";
 
 import { shortDate, timeOf } from "./clock";
-import { Cap, Crumb, Empty, openDossier, Overlay, Prose, Table, Tag } from "./ui";
+import { Cap, Crumb, Empty, openDossier, Overlay, Prose, Table, Tag, unrated } from "./ui";
 
 const WORDS = { done: "done", failed: "failed", abandoned: "let go" };
 const TONE = { done: "good", failed: "warn", abandoned: "dim" };
@@ -108,10 +108,10 @@ export default function Quests({ quests = [], onOpen }) {
   return (
     <div>
       <Cap>ongoing</Cap>
-      <Table {...COLUMNS} rows={active} onOpen={onOpen} empty="nothing has been taken on" />
+      <Table rarity={unrated} {...COLUMNS} rows={active} onOpen={onOpen} empty="nothing has been taken on" />
 
       <Cap>finished</Cap>
-      <Table {...FINISHED} rows={past} onOpen={onOpen} empty="nothing has been finished yet" />
+      <Table rarity={unrated} {...FINISHED} rows={past} onOpen={onOpen} empty="nothing has been finished yet" />
     </div>
   );
 }

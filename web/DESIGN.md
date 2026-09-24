@@ -76,6 +76,14 @@ Selection is decided on release, from what is under the pointer
 (`data-place`, `data-draft`, `data-corner`, `data-ghost`), never from `click`
 events — the svg holds pointer capture, so a click only ever reaches the svg.
 
+## Tables
+
+Every `<Table>` says how its rows are coloured, with `rarity={(row) => rarity}`.
+Pass `rated` when the rows carry a `rarity`, `unrated` when they have none, or a
+function of your own. The table tints the name cell itself — a cell never tints
+its own text. Leaving `rarity` out is not a default: the table throws, so a new
+table cannot forget.
+
 ## Words
 
 Controls say what they do, in as few words as possible: `name`, `cancel`,

@@ -2,7 +2,7 @@
 
 import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
 import { useCallback, useEffect, useState } from "react";
-import { Act, Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Row, Stub, Table, Tag } from "./ui";
+import { Act, Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, rated, Row, Stub, Table, Tag, unrated } from "./ui";
 import Icon from "./icons";
 import { EDITORS, merged } from "./edit";
 import { Field, forget } from "./edit/fields";
@@ -211,7 +211,7 @@ function Stats({ item }) {
       .map((k) => ({ id: k, stat: k.replace("_", " "), value: <Prose as="span" text={String(item[k])} /> })),
   ];
   if (!rows.length) return <Empty>nothing is written about what it does</Empty>;
-  return <Table {...STATS} rows={rows} />;
+  return <Table rarity={unrated} {...STATS} rows={rows} />;
 }
 
 function Body({ body }) {
@@ -230,7 +230,7 @@ function Body({ body }) {
     body.skill && { id: "skill", stat: "fights with", value: <Prose as="span" text={body.skill} /> },
   ].filter(Boolean);
   if (!rows.length) return null;
-  return <Table {...FIGHTS} rows={rows} />;
+  return <Table rarity={unrated} {...FIGHTS} rows={rows} />;
 }
 
 const AU = 1.495978707e11;
@@ -298,7 +298,7 @@ function Sky({ sky, where }) {
   ].filter(Boolean);
   if (!rows.length) return null;
   const overhead = sky?.semiMajor != null || sky?.mass != null;
-  return <Table {...sky_of(overhead ? "in the sky" : "where it is")} rows={rows} />;
+  return <Table rarity={unrated} {...sky_of(overhead ? "in the sky" : "where it is")} rows={rows} />;
 }
 
 function Who({ person }) {
@@ -600,6 +600,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.kind === "aspects" && (
               <Table
+                rarity={unrated}
                 {...MARKS}
                 rows={(thing.marks || []).map((m) => ({ ...m, id: m.entity }))}
                 onOpen={openDossier}
@@ -623,6 +624,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.kind === "people" && (
                 <Table
+                  rarity={rated}
                   {...WROTE}
                   rows={thing.wrote}
                   onOpen={openDossier}
@@ -632,6 +634,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.kind === "places" && (
                 <Table
+                  rarity={unrated}
                   {...CONTAINS}
                   rows={thing.contains}
                   onOpen={openDossier}
@@ -640,11 +643,12 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
             )}
 
             {thing.kind === "places" && (thing.lives || []).length > 0 && (
-                <Table {...LIVES} rows={thing.lives} onOpen={openDossier} />
+                <Table rarity={unrated} {...LIVES} rows={thing.lives} onOpen={openDossier} />
             )}
 
             {thing.kind === "places" && (
                 <Table
+                  rarity={unrated}
                   {...EXITS}
                   rows={thing.exits}
                   onOpen={openDossier}
@@ -654,6 +658,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.kind === "people" && !settled(thing.person?.died) && (
               <Table
+                rarity={rated}
                 {...KEEPS}
                 rows={thing.holdings}
                 onOpen={openDossier}
@@ -663,6 +668,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.heldBy.length > 0 && (
               <Table
+                rarity={unrated}
                 {...HELD_BY}
                 rows={thing.heldBy.map((h) => ({
                   ...h,

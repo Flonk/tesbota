@@ -1,6 +1,6 @@
 "use client";
 
-import { Empty, Mark, openDossier, Table } from "./ui";
+import { Empty, Mark, openDossier, rated, Table, unrated } from "./ui";
 
 const NAMES = {
   cols: "minmax(6rem, 1fr) minmax(5rem, 1.4fr)",
@@ -70,7 +70,7 @@ const KIT = {
     { key: "name", label: "they start with", strong: true,
       cell: (r) => (
         <Mark name={face(r)} tone={lit(r)}>
-          <span className={tone(r.rarity)}>{r.name}</span>
+          {r.name}
         </Mark>
       ) },
     { key: "effect", label: "what it does", cell: (r) => r.effect || "" },
@@ -104,6 +104,7 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
     }));
     return (
       <Table
+        rarity={unrated}
         {...NAMES}
         rows={rows}
         rowClass={(r) => (r.taken ? "untrained" : "")}
@@ -114,7 +115,7 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
 
   if (at === "places") {
     const rows = (catalogue.places || []).map((r) => ({ ...r, id: r.type }));
-    return <Table {...PLACES} rows={rows} empty="no sorts of place yet" />;
+    return <Table rarity={unrated} {...PLACES} rows={rows} empty="no sorts of place yet" />;
   }
 
   if (at === "items") {
@@ -132,12 +133,13 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
         });
       }
     }
-    return <Table {...ITEMS} rows={rows} rowClass={(r) => (r.under ? "under" : "")} empty="no kinds of thing yet" />;
+    return <Table rarity={unrated} {...ITEMS} rows={rows} rowClass={(r) => (r.under ? "under" : "")} empty="no kinds of thing yet" />;
   }
 
   if (at === "kit") {
     return (
       <Table
+        rarity={rated}
         {...KIT}
         rows={catalogue.kit || []}
         onOpen={openDossier}
@@ -148,12 +150,12 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
 
   if (at === "rarity") {
     const rows = (catalogue.rarity || []).map((r) => ({ ...r, id: r.rarity }));
-    return <Table {...RARITY} rows={rows} empty="no ladder" />;
+    return <Table rarity={rated} {...RARITY} rows={rows} empty="no ladder" />;
   }
 
   if (at === "personality") {
     const rows = (catalogue.personality || []).map((r) => ({ ...r, id: r.trait }));
-    return <Table {...TRAITS} rows={rows} empty="nobody is anybody yet" />;
+    return <Table rarity={rated} {...TRAITS} rows={rows} empty="nobody is anybody yet" />;
   }
 
   if (!prompt) return <Empty>nothing under that name</Empty>;

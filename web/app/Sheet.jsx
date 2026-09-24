@@ -1,6 +1,6 @@
 "use client";
 
-import { Table } from "./ui";
+import { Table, unrated } from "./ui";
 
 const SKILL_ABILITY = {
   acrobatics: "dex",
@@ -91,14 +91,15 @@ export default function Sheet({ vitals, skills, load }) {
     <div className="sheet">
       <div className="pair">
         <Table
+          rarity={unrated}
           {...CONDITION}
           rows={[...condition, ...carrying]}
           rowClass={(r) => (r.over ? "heavy" : "")}
         />
-        <Table {...ABILITY} rows={scores} />
+        <Table rarity={unrated} {...ABILITY} rows={scores} />
       </div>
 
-      <Table {...SKILLS} rows={trained} rowClass={(r) => (r.trained ? "trained" : "untrained")} />
+      <Table rarity={unrated} {...SKILLS} rows={trained} rowClass={(r) => (r.trained ? "trained" : "untrained")} />
     </div>
   );
 }
