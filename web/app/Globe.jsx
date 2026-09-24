@@ -96,27 +96,29 @@ function bounds(d) {
  * exactly on the horizon. It is one curve because a sphere lit from one side has
  * one, and the dark half is whichever pole is leaning away.
  */
-function night(subsolar) {
+const HOME = { x: 0, y: 0 };
+
+function night(subsolar, o = HOME) {
   const tilt = Math.tan(subsolar.lat * RAD) || 1e-9;
   const edge = [];
   for (let lon = -180; lon <= 180; lon += 1) {
     const hour = (lon - subsolar.lon) * RAD;
     const lat = Math.atan(-Math.cos(hour) / tilt) / RAD;
-    edge.push([straight(lon), down(lat)]);
+    edge.push([straight(lon) - o.x, down(lat) - o.y]);
   }
   const drawn = edge.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L ");
   // The dark half is closed off along whichever edge of the picture is the pole
   // leaning away from the primary. No line is drawn along the curve itself: the sun
   // does not set at an edge, and an edge is what a stroke would draw.
-  const pole = subsolar.lat >= 0 ? H : 0;
-  return `M ${drawn} L ${W} ${pole} L 0 ${pole} Z`;
+  const pole = (subsolar.lat >= 0 ? H : 0) - o.y;
+  return `M ${drawn} L ${W - o.x} ${pole} L ${-o.x} ${pole} Z`;
 }
 
 /**
  * A shape, in the picture's own units. Roads and rivers are runs and are drawn as
  * one; everything else has ground and is drawn closed.
  */
-function outline(extent) {
+function outline(extent, o = null) {
   let drawn;
   try {
     drawn = JSON.parse(extent);
@@ -136,7 +138,11 @@ function outline(extent) {
     .map(
       (run) =>
         "M " +
-        run.map(([lon, lat]) => `${across(lon).toFixed(5)} ${down(lat).toFixed(5)}`).join(" L ") +
+        run
+          .map(([lon, lat]) =>
+            o ? `${across(lon) - o.x} ${down(lat) - o.y}` : `${across(lon).toFixed(5)} ${down(lat).toFixed(5)}`
+          )
+          .join(" L ") +
         (shut ? " Z" : "")
     )
     .join(" ");
@@ -154,7 +160,7 @@ const TOUCH = 22;
  * enough opens, loses its pin, and what it holds is asked the same question. So a
  * world map says the plains, and coming down to the plains it says the villages.
  */
-function resolve(standing, sizes, scale) {
+function resolve(standing, sizes, scale, open = null) {
   const known = new Map(standing.map((p) => [p.id, p]));
   const under = new Map();
   for (const place of standing) {
@@ -173,7 +179,7 @@ function resolve(standing, sizes, scale) {
     seen.add(place.id);
     const box = sizes.get(place.id);
     const wide = box ? Math.max(box.maxX - box.minX, box.maxY - box.minY) * scale : 0;
-    if (wide >= OPEN) {
+    if (wide >= OPEN || place.id === open) {
       for (const kid of under.get(place.id) || []) visit(kid, seen);
       return;
     }
@@ -420,7 +426,7 @@ export default function Globe({
       if (box) sizes.set(place.id, box);
     }
     const scale = pane.w && pane.h ? Math.max(pane.w / view.w, pane.h / view.h) : W / view.w;
-    return gather(resolve(moving, sizes, scale), here, scale);
+    return gather(resolve(moving, sizes, scale, chosen), here, scale);
   }, [standing, here, view.w, pane, rides, chosen, total?.lon, total?.lat]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
@@ -437,12 +443,27 @@ export default function Globe({
           : place.extent;
         let depth = 0;
         for (let at = byId.get(place.parent); at && depth < 6; at = byId.get(at.parent)) depth += 1;
-        return { ...place, d: outline(shape), depth };
+        return { ...place, shape, d: outline(shape), depth };
       })
       .filter((place) => place.d)
       .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2) || a.depth - b.depth);
   }, [standing, byId, chosen, rides]);
-  const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
+  // Where the picture is measured from. A browser draws in single precision, and
+  // six figures of zoom on a number near 800 leaves nothing of it below the pixel:
+  // lines vanish, corners jitter, circles go square. So everything drawn is
+  // measured from a point near the middle of the view, which only moves when the
+  // view has moved a whole screen away from it.
+  const origin = useMemo(() => {
+    const q = view.w;
+    return { x: Math.round((view.x + view.w / 2) / q) * q, y: Math.round((view.y + view.h / 2) / q) * q };
+  }, [view.x, view.y, view.w, view.h]);
+  const ox = origin.x;
+  const oy = origin.y;
+  const local = useMemo(
+    () => new Map(drawn.map((place) => [place.id, outline(place.shape, { x: ox, y: oy })])),
+    [drawn, ox, oy]
+  );
+  const dark = useMemo(() => (sun ? night(sun, { x: ox, y: oy }) : null), [sun, ox, oy]);
 
   /**
    * What the middle of the picture is standing on: the smallest written shape that
@@ -1204,9 +1225,11 @@ export default function Globe({
   })();
 
   const handles = editing && draft && (tool === "corners" || tool === "erase");
+  const ax = (lon) => across(lon) - ox;
+  const ay = (lat) => down(lat) - oy;
   const traced = (run) =>
     run.length
-      ? "M " + run.map(([lon, lat]) => `${across(lon)} ${down(lat)}`).join(" L ") + (draft.shut ? " Z" : "")
+      ? "M " + run.map(([lon, lat]) => `${ax(lon)} ${ay(lat)}`).join(" L ") + (draft.shut ? " Z" : "")
       : "";
 
   return (
@@ -1283,7 +1306,8 @@ export default function Globe({
     <div className="globepane">
     <svg
       ref={svg}
-      viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
+      viewBox={`${view.x - ox} ${view.y - oy} ${view.w} ${view.h}`}
+      data-origin={`${ox} ${oy}`}
       className={`globesvg${editing ? ` editing ${tool}` : ""}${spaced ? " panning" : ""}`}
       preserveAspectRatio="xMidYMid slice"
       role="img"
@@ -1292,23 +1316,23 @@ export default function Globe({
       onPointerUp={lift}
       onPointerCancel={lift}
     >
-      <rect x="0" y="0" width={W} height={H} className="globeday" />
+      <rect x={-ox} y={-oy} width={W} height={H} className="globeday" />
 
       <g style={{ strokeWidth: near }}>
         {lines.map((line, n) =>
           line.lon !== undefined ? (
-            <line key={`m${n}`} x1={across(line.lon)} y1="0" x2={across(line.lon)} y2={H}
+            <line key={`m${n}`} x1={ax(line.lon)} y1={-oy} x2={ax(line.lon)} y2={H - oy}
                   className="globegrid" />
           ) : (
-            <line key={`p${n}`} x1="0" y1={down(line.lat)} x2={W} y2={down(line.lat)}
+            <line key={`p${n}`} x1={-ox} y1={ay(line.lat)} x2={W - ox} y2={ay(line.lat)}
                   className="globegrid" />
           )
         )}
-        <line x1="0" y1={down(0)} x2={W} y2={down(0)} className="globegrid equator" />
+        <line x1={-ox} y1={ay(0)} x2={W - ox} y2={ay(0)} className="globegrid equator" />
         {!!tropic && (
           <>
-            <line x1="0" y1={down(tropic)} x2={W} y2={down(tropic)} className="globegrid tropic" />
-            <line x1="0" y1={down(-tropic)} x2={W} y2={down(-tropic)} className="globegrid tropic" />
+            <line x1={-ox} y1={ay(tropic)} x2={W - ox} y2={ay(tropic)} className="globegrid tropic" />
+            <line x1={-ox} y1={ay(-tropic)} x2={W - ox} y2={ay(-tropic)} className="globegrid tropic" />
           </>
         )}
       </g>
@@ -1317,7 +1341,7 @@ export default function Globe({
         {drawn.map((place) => (
           <path
             key={`shape-${place.id}`}
-            d={place.d}
+            d={local.get(place.id)}
             data-place={place.id}
             className={`globeshape ${place.type || "location"}${place.walked ? " walked" : ""}`}
             style={{ "--depth": Math.min(place.depth, 4), strokeWidth: thick(place, 2.5) }}
@@ -1328,17 +1352,17 @@ export default function Globe({
         {drawn
           .filter((place) => place.type === "road" || place.type === "river")
           .map((place) => (
-            <path key={`hit-${place.id}`} d={place.d} data-place={place.id} className="globehit" />
+            <path key={`hit-${place.id}`} d={local.get(place.id)} data-place={place.id} className="globehit" />
           ))}
       </g>
 
       {grid && (
         <g className="globeruled">
           {grid.xs.map((x) => (
-            <line key={`gx${x}`} x1={x} y1={view.y} x2={x} y2={view.y + view.h} />
+            <line key={`gx${x}`} x1={x - ox} y1={view.y - oy} x2={x - ox} y2={view.y + view.h - oy} />
           ))}
           {grid.ys.map((y) => (
-            <line key={`gy${y}`} x1={view.x} y1={y} x2={view.x + view.w} y2={y} />
+            <line key={`gy${y}`} x1={view.x - ox} y1={y - oy} x2={view.x + view.w - ox} y2={y - oy} />
           ))}
         </g>
       )}
@@ -1348,7 +1372,7 @@ export default function Globe({
       {shown.night && <path d={dark} className="globenight" />}
 
       {shown.bodies && (
-        <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)}) scale(${near})`}>
+        <g className="globesun" transform={`translate(${ax(sun.lon)} ${ay(sun.lat)}) scale(${near})`}>
           <circle r="7" />
           <circle r="13" className="globeglow" />
           <title>subsolar point</title>
@@ -1382,7 +1406,7 @@ export default function Globe({
           <g
             key={`over-${other.id}`}
             className="globemoon"
-            transform={`translate(${across(other.lon)} ${down(other.lat)}) scale(${near})`}
+            transform={`translate(${ax(other.lon)} ${ay(other.lat)}) scale(${near})`}
           >
             <defs>
               <radialGradient id={`lit-${other.id}`} cx={lit.x} cy={lit.y} fx={lit.x} fy={lit.y} r="0.75">
@@ -1400,7 +1424,7 @@ export default function Globe({
       {walker && (
         <g
           className="globewalker"
-          transform={`translate(${across(walker.lon)} ${down(walker.lat)}) scale(${near})`}
+          transform={`translate(${ax(walker.lon)} ${ay(walker.lat)}) scale(${near})`}
         >
           <circle r="11" className="globehalo" />
           <circle r="4.5" />
@@ -1415,7 +1439,7 @@ export default function Globe({
           className={`globemark${mark.here ? " here" : ""}${mark.day ? " lit" : ""}${
             mark.id === chosen ? " chosen" : ""
           }`}
-          transform={`translate(${across(mark.lon)} ${down(mark.lat)}) scale(${near})`}
+          transform={`translate(${ax(mark.lon)} ${ay(mark.lat)}) scale(${near})`}
         >
           <circle r="5" />
           {named.has(mark.id) && (
@@ -1447,8 +1471,8 @@ export default function Globe({
                   key={`ghost-${r}-${n}`}
                   className="globeghost"
                   data-ghost={`${r}:${n}`}
-                  cx={across(mid[0])}
-                  cy={down(mid[1])}
+                  cx={ax(mid[0])}
+                  cy={ay(mid[1])}
                   r={(coarse ? 8 : 4) * near}
                 />
               );
@@ -1463,12 +1487,12 @@ export default function Globe({
                   <circle
                     className="globeghost"
                     data-ghost={`${r}:${end}`}
-                    cx={across(point[0])}
-                    cy={down(point[1])}
+                    cx={ax(point[0])}
+                    cy={ay(point[1])}
                     r={(coarse ? 9 : 6) * near}
                   />
                   <path
-                    d={`M ${across(point[0]) - 3 * near} ${down(point[1])} h ${6 * near} M ${across(point[0])} ${down(point[1]) - 3 * near} v ${6 * near}`}
+                    d={`M ${ax(point[0]) - 3 * near} ${ay(point[1])} h ${6 * near} M ${ax(point[0])} ${ay(point[1]) - 3 * near} v ${6 * near}`}
                     style={{ strokeWidth: 1.3 * near }}
                   />
                 </g>
@@ -1484,8 +1508,8 @@ export default function Globe({
                   handles ? "" : " passive"
                 }${picked && picked.run === r && picked.at === n ? " picked" : ""}`}
                 data-corner={handles ? `${r}:${n}` : undefined}
-                cx={across(point[0])}
-                cy={down(point[1])}
+                cx={ax(point[0])}
+                cy={ay(point[1])}
                 r={(handles ? (coarse ? 10 : 6) : 3) * near}
               />
             ))
@@ -1497,7 +1521,7 @@ export default function Globe({
         <path
           className="globepen"
           style={{ strokeWidth: 2 * near }}
-          d={"M " + pen.map(([lon, lat]) => `${across(lon)} ${down(lat)}`).join(" L ")}
+          d={"M " + pen.map(([lon, lat]) => `${ax(lon)} ${ay(lat)}`).join(" L ")}
         />
       )}
     </svg>
