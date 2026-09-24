@@ -58,7 +58,7 @@ does, and anything new in it should keep working that way:
 | tool | key | press on the selection | press elsewhere |
 | --- | --- | --- | --- |
 | select | V | drag moves it, and what stands on it | click selects, drag pans |
-| corners | A | drag a corner; drag or click a ghost to add one | click selects, drag pans |
+| corners | A | drag a corner; drag or click a ghost to add one; drag the + past either end of a line to carry it on | click selects, drag pans |
 | draw | P | a stroke from outline to outline reshapes it | same |
 | erase | E | click a corner to take it out | click selects, drag pans |
 
@@ -69,6 +69,8 @@ inside the selection reaches through to what stands on it. Space or the middle b
 tool. Ctrl Z and Ctrl Shift Z undo and redo, Enter saves, and Delete takes out
 the corner last picked. Unsaved work is never dropped: letting go, choosing
 another place or turning the pen off with changes pending says so instead.
+
+A selected road or river shows its width in metres in the bar; it saves with the shape. It is drawn at that width once zoomed in far enough for it to be wider than the line.
 
 Selection is decided on release, from what is under the pointer
 (`data-place`, `data-draft`, `data-corner`, `data-ghost`), never from `click`

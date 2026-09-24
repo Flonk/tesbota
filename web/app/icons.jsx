@@ -199,6 +199,7 @@ const GLYPHS = {
     </>
   ),
   cross: <path d="M6 6l12 12M18 6L6 18" />,
+  grid: <path d="M4 9h16M4 15h16M9 4v16M15 4v16" />,
   phase: (
     <>
       <circle cx="12" cy="12" r="8.5" />

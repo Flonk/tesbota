@@ -242,7 +242,7 @@ function dragged(extent: string | null, by: { lon: number; lat: number }): strin
   return JSON.stringify(drawn);
 }
 
-export function shape(id: string, extent: unknown, carry: Carry = null) {
+export function shape(id: string, extent: unknown, carry: Carry = null, width: number | null | undefined = undefined) {
   const ident = String(id || "").trim().toLowerCase();
   if (!ident) return { error: "no place named" };
 
@@ -250,6 +250,15 @@ export function shape(id: string, extent: unknown, carry: Carry = null) {
   if (!there) return { error: `no such place: ${ident}` };
   if (there.kind !== "places") return { error: `${ident} is not a place` };
 
+  if (width !== undefined) {
+    if (width !== null && !(Number.isFinite(width) && width > 0)) return { error: "a width is a number of metres" };
+    const kind = db.value<string>("SELECT type FROM place WHERE id = ?", [ident]);
+    if (width !== null && kind !== "road" && kind !== "river") return { error: "only a road or a river has a width" };
+    db.writing((con) => con.prepare("UPDATE place SET width = ? WHERE id = ?").run(width, ident));
+    if (extent === undefined) return { ok: true, id: ident, width };
+  }
+
+  if (extent === undefined) return { error: "no shape given" };
   if (extent === null || extent === "") {
     db.writing((con) => con.prepare("UPDATE entity SET extent = NULL WHERE id = ?").run(ident));
     return { ok: true, id: ident, extent: null };

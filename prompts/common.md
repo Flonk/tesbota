@@ -10,12 +10,13 @@ The world is a SQLite database at canon.db, and querying it is the only way you 
     book(id, author, author_id, written, rarity)       author_id when the author has a row
     person(id, lives, work, born, died)
     passage(book_id, ord, text)                        a book's text, one paragraph a row
-    place(id, parent, type, lat, lon)                  every place sits inside one
+    place(id, parent, type, lat, lon, width)           every place sits inside one
                                                        type: location | region | road | river |
                                                        water |
                                                        celestial-body | celestial-system | realm
                                                        lat/lon in degrees: the one point it is
                                                        named at, inside its own extent
+                                                       width: a road or river, in metres
     orbit(id, semi_major, eccentricity,                what a celestial body or system is, and
           longitude, periapsis, mass, radius,          how it goes round the middle of the
           oblateness, tilt, rotation, meridian)        system it sits in: metres, kilograms,

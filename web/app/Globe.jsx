@@ -241,6 +241,7 @@ const HINT = {
 const VIEWS = [
   { id: "bodies", label: "celestial bodies", icon: "orbit" },
   { id: "night", label: "terminator", icon: "phase" },
+  { id: "grid", label: "grid", icon: "grid" },
 ];
 
 const SHOWN = "tesbota.map.shown";
@@ -264,7 +265,7 @@ export default function Globe({
 }) {
   const [view, setView] = useState(FIT);
   const [coarse, setCoarse] = useState(false);
-  const [shown, setShown] = useState({ bodies: true, night: true });
+  const [shown, setShown] = useState({ bodies: true, night: true, grid: false });
   const [pane, setPane] = useState({ w: 0, h: 0 });
   // What is being reshaped, and the shape as it stands before it is written down.
   const [chosen, setChosen] = useState(null);
@@ -563,6 +564,25 @@ export default function Globe({
     return () => el.removeEventListener("wheel", wheel);
   }, [zoomAt]);
 
+  /**
+   * Where a new corner goes when a ghost is taken hold of: halfway along its edge,
+   * or for the + past either end of a line, a little way on in the direction the
+   * line was already going.
+   */
+  function grown(run, at) {
+    if (at !== "start" && at !== "end") {
+      const next = run[(at + 1) % run.length];
+      return [at + 1, [(run[at][0] + next[0]) / 2, (run[at][1] + next[1]) / 2]];
+    }
+    const [last, before] = at === "end" ? [run[run.length - 1], run[run.length - 2]] : [run[0], run[1]];
+    const a = onto_map(last);
+    const b = onto_map(before);
+    const long = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1;
+    const reach = 26 * (pane.w && pane.h ? Math.min(view.w / pane.w, view.h / pane.h) : view.w / W);
+    const out = off_map([a[0] + ((a[0] - b[0]) / long) * reach, a[1] + ((a[1] - b[1]) / long) * reach]);
+    return [at === "end" ? run.length : 0, out];
+  }
+
   /** Where a finger is on the world, rather than on the screen. */
   const spot = useCallback(
     (clientX, clientY) => {
@@ -590,10 +610,11 @@ export default function Globe({
     const read = place.extent ? runsOf(place.extent) : null;
     const shut = place.type !== "road" && place.type !== "river";
     setChosen(place.id);
+    const width = shut ? null : place.width ?? null;
     setDraft(
       read
-        ? { ...read, runs: read.shut ? read.runs.map(opened) : read.runs }
-        : { shut, runs: [[]], groups: [0] }
+        ? { ...read, runs: read.shut ? read.runs.map(opened) : read.runs, width }
+        : { shut, runs: [[]], groups: [0], width }
     );
     setCarry(null);
     setTowed(null);
@@ -773,7 +794,10 @@ export default function Globe({
       const res = await fetch("/api/shape", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, extent, carry: bringing ? carry : null }),
+        body: JSON.stringify({
+          id, extent, carry: bringing ? carry : null,
+          ...(draft.shut ? {} : { width: draft.width ?? null }),
+        }),
       });
       const back = await res.json().catch(() => null);
       if (back?.error) {
@@ -806,7 +830,10 @@ export default function Globe({
       if (!svg.current?.contains(el)) continue;
       const d = el.dataset || {};
       if (d.corner) hits.push({ corner: d.corner.split(":").map(Number) });
-      else if (d.ghost) hits.push({ ghost: d.ghost.split(":").map(Number) });
+      else if (d.ghost) {
+        const [run, at] = d.ghost.split(":");
+        hits.push({ ghost: [Number(run), at === "start" || at === "end" ? at : Number(at)] });
+      }
       else if (d.draft !== undefined) hits.push({ draft: true });
       else {
         const mark = el.closest?.("[data-place]");
@@ -957,11 +984,10 @@ export default function Globe({
       if (g.kind === "ghost") {
         const now = live.current.draft;
         const run = now.runs[g.run];
-        const next = run[(g.at + 1) % run.length];
-        const mid = [(run[g.at][0] + next[0]) / 2, (run[g.at][1] + next[1]) / 2];
-        setDraft({ ...now, runs: now.runs.map((r, n) => (n === g.run ? added(r, g.at + 1, mid) : r)) });
+        const [at, point] = grown(run, g.at);
+        setDraft({ ...now, runs: now.runs.map((r, n) => (n === g.run ? added(r, at, point) : r)) });
         g.kind = "corner";
-        g.at += 1;
+        g.at = at;
         setPicked({ run: g.run, at: g.at });
       }
     }
@@ -1015,10 +1041,9 @@ export default function Globe({
       if (g.kind === "ghost") {
         const now = live.current.draft;
         const run = now.runs[g.run];
-        const next = run[(g.at + 1) % run.length];
-        const mid = [(run[g.at][0] + next[0]) / 2, (run[g.at][1] + next[1]) / 2];
-        step({ ...now, runs: now.runs.map((r, n) => (n === g.run ? added(r, g.at + 1, mid) : r)) });
-        setPicked({ run: g.run, at: g.at + 1 });
+        const [at, point] = grown(run, g.at);
+        step({ ...now, runs: now.runs.map((r, n) => (n === g.run ? added(r, at, point) : r)) });
+        setPicked({ run: g.run, at });
         return;
       }
       if (g.kind === "stroke") setPen(null);
@@ -1145,9 +1170,24 @@ export default function Globe({
     const length = [5, 2, 1].map((n) => n * ten).find((n) => n <= most) ?? ten;
     return {
       px: length / perPixel,
+      perPixel,
       said: length >= 1000 ? `${(length / 1000).toLocaleString()} km` : `${length} m`,
     };
   })();
+  const perPixel = ruler ? ruler.perPixel : null;
+  const thick = (place, least) =>
+    place.width && perPixel ? Math.max(least, place.width / perPixel) : undefined;
+
+  const grid = (() => {
+    if (!shown.grid || !ruler) return null;
+    const s = ruler.px * near;
+    const xs = [];
+    const ys = [];
+    for (let x = Math.floor(view.x / s) * s; x <= view.x + view.w; x += s) xs.push(x);
+    for (let y = Math.floor(view.y / s) * s; y <= view.y + view.h; y += s) ys.push(y);
+    return { xs, ys };
+  })();
+
   const handles = editing && draft && (tool === "corners" || tool === "erase");
   const traced = (run) =>
     run.length
@@ -1164,6 +1204,23 @@ export default function Globe({
               {taken.name}
               {dirty && <span className="gdirty" title="unsaved changes">•</span>}
             </span>
+            {draft && !draft.shut && (
+              <label className="gwidth" title="width in metres">
+                <input
+                  className="gtype"
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="width"
+                  value={draft.width ?? ""}
+                  onChange={(e) => {
+                    const said = e.target.value === "" ? null : Number(e.target.value);
+                    step({ ...live.current.draft, width: said && said > 0 ? said : null });
+                  }}
+                />
+                m
+              </label>
+            )}
             <Act onClick={() => setNaming({ name: "", type: "region" })} disabled={saving}>
               new place
             </Act>
@@ -1248,7 +1305,7 @@ export default function Globe({
             d={place.d}
             data-place={place.id}
             className={`globeshape ${place.type || "location"}${place.walked ? " walked" : ""}`}
-            style={{ "--depth": Math.min(place.depth, 4) }}
+            style={{ "--depth": Math.min(place.depth, 4), strokeWidth: thick(place, 2.5) }}
           >
             <title>{place.name}</title>
           </path>
@@ -1259,6 +1316,17 @@ export default function Globe({
             <path key={`hit-${place.id}`} d={place.d} data-place={place.id} className="globehit" />
           ))}
       </g>
+
+      {grid && (
+        <g className="globeruled" style={{ strokeWidth: near }}>
+          {grid.xs.map((x) => (
+            <line key={`gx${x}`} x1={x} y1={view.y} x2={x} y2={view.y + view.h} />
+          ))}
+          {grid.ys.map((y) => (
+            <line key={`gy${y}`} x1={view.x} y1={y} x2={view.x + view.w} y2={y} />
+          ))}
+        </g>
+      )}
 
       {/* Over the ground, not under it. Night that only darkens the sea leaves a
           continent lit at midnight, which is not a map of anything. */}
@@ -1279,6 +1347,7 @@ export default function Globe({
               key={`draft-${r}`}
               data-draft=""
               className={`globeshape ${draft.shut ? "location" : "road"} drafting`}
+              style={{ strokeWidth: draft.shut ? undefined : thick(draft, 2) }}
               fillRule="evenodd"
               d={traced(run)}
             />
@@ -1367,6 +1436,27 @@ export default function Globe({
                   cy={down(mid[1])}
                   r={(coarse ? 8 : 4) * near}
                 />
+              );
+            })
+          )}
+
+          {tool === "corners" && !draft.shut && draft.runs.map((run, r) =>
+            run.length >= 2 && ["start", "end"].map((end) => {
+              const [, point] = grown(run, end);
+              return (
+                <g key={`tip-${r}-${end}`} className="globetip">
+                  <circle
+                    className="globeghost"
+                    data-ghost={`${r}:${end}`}
+                    cx={across(point[0])}
+                    cy={down(point[1])}
+                    r={(coarse ? 9 : 6) * near}
+                  />
+                  <path
+                    d={`M ${across(point[0]) - 3 * near} ${down(point[1])} h ${6 * near} M ${across(point[0])} ${down(point[1]) - 3 * near} v ${6 * near}`}
+                    style={{ strokeWidth: 1.3 * near }}
+                  />
+                </g>
               );
             })
           )}

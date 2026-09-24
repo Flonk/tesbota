@@ -621,6 +621,7 @@ export type Standing = {
   lat: number | null;
   lon: number | null;
   extent: string | null;
+  width: number | null;
   walked: boolean;
   altitude: number | null;
   day: boolean | null;
@@ -643,7 +644,7 @@ export function standing(
        UNION
        SELECT p.id FROM place p JOIN under u ON p.parent = u.id
      )
-     SELECT p.id, e.name, e.extent, p.type, p.parent, p.lat, p.lon
+     SELECT p.id, e.name, e.extent, p.type, p.parent, p.lat, p.lon, p.width
        FROM place p JOIN entity e ON e.id = p.id
       WHERE p.id IN (SELECT id FROM under)
         AND p.id <> ?
@@ -662,6 +663,7 @@ export function standing(
       lat,
       lon,
       extent: r.extent ?? null,
+      width: r.width === null || r.width === undefined ? null : Number(r.width),
       walked: been.has(String(r.id)),
       altitude: high === null ? null : Number(high.toFixed(3)),
       day: high === null ? null : high > REFRACTION,

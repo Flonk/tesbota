@@ -54,7 +54,8 @@ CREATE TABLE IF NOT EXISTS place (
   parent TEXT,
   type   TEXT CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm')),
   lat    REAL,
-  lon    REAL
+  lon    REAL,
+  width  REAL
 );
 CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
 
@@ -235,7 +236,7 @@ export function connect(readonly = false): DatabaseSync {
  * have a position to bring.
  */
 const resortPlace = (has: Set<string>) => {
-  const held = ["lat", "lon"].filter((c) => has.has(c));
+  const held = ["lat", "lon", "width"].filter((c) => has.has(c));
   const also = held.length ? ", " + held.join(", ") : "";
   return `
 CREATE TABLE place_sorted (
@@ -243,7 +244,8 @@ CREATE TABLE place_sorted (
   parent TEXT,
   type   TEXT CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm')),
   lat    REAL,
-  lon    REAL
+  lon    REAL,
+  width  REAL
 );
 INSERT INTO place_sorted (id, parent, type${also})
   SELECT id, parent, type${also} FROM place;
@@ -346,7 +348,7 @@ export function setup(): string {
       );
     }
     const stood = columnsOf(db, "place");
-    for (const where of ["lat", "lon"]) {
+    for (const where of ["lat", "lon", "width"]) {
       if (!stood.has(where)) db.exec(`ALTER TABLE place ADD COLUMN ${where} REAL`);
     }
 

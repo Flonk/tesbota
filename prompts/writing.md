@@ -76,6 +76,8 @@ Every place on a world carries both: `extent`, the shape of it, and `place.lat`/
     UPDATE entity SET extent = '{"type":"LineString","coordinates":[[11.9,55.55],[11.98,55.55]]}'
      WHERE id = 'the-road';
 
+A road or a river says how wide it is in `place.width`, in metres — a cart track is three, a river a mill stands on thirty. One number for the whole run.
+
 `lat`/`lon` is where its name sits and where somebody stands in it — inside its own shape, always. It is also what says whether the sun is up there, so a wrong one is a night that happens at the wrong time.
 
 Write what the record supports and no more. A village whose edge nobody walked still has a rough outline; a marsh known only from books has one too, and it is a guess, which is honest. What you may not do is invent a precision nobody wrote: a building's footprint belongs to a building somebody has described, not to every house in a town.

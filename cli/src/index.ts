@@ -237,7 +237,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   /** Set a place's shape. The map writes through here and nowhere else. */
   shape({ rest, flags }) {
     const [id, ...drawn] = rest;
-    const said = flags.has("--clear") ? null : drawn.join(" ");
+    const said = flags.has("--clear") ? null : drawn.length ? drawn.join(" ") : undefined;
     // `--carry=<lon>,<lat>`: bring whatever stood on this ground along with it.
     const by = [...flags].find((f) => f.startsWith("--carry="))?.slice(8);
     let carry: actions.Carry = null;
@@ -245,7 +245,9 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       const [lon, lat] = by.split(",").map(Number);
       if (Number.isFinite(lon) && Number.isFinite(lat)) carry = { lon, lat };
     }
-    return say(actions.shape(id, said, carry));
+    const wide = [...flags].find((f) => f.startsWith("--width="))?.slice(8);
+    const width = wide === undefined ? undefined : wide === "" ? null : Number(wide);
+    return say(actions.shape(id, said, carry, width));
   },
 
   /** Put down a place that did not exist. The map draws it afterwards. */
