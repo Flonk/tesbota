@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 export const CANON = path.join(ROOT, "canon");
-export const CANON_DB = path.join(ROOT, "canon.db");
+export const CANON_DB = process.env.TESBOTA_CANON || path.join(ROOT, "canon.db");
 
 export const PROFILES = ["corda", "debug"] as const;
 export type Profile = (typeof PROFILES)[number];

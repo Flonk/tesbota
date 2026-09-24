@@ -1191,3 +1191,34 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
   padding: .45rem .8rem; text-align: center;
 }
 .stale:hover { filter: brightness(1.08); }
+
+/* ---- editing the record ---- */
+/* Every input anywhere in an edit is one of these, so no two fields disagree. */
+.einput {
+  width: 100%; min-width: 0;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 2px;
+  color: var(--ink); font: var(--mono); font-size: 12px; letter-spacing: .02em;
+  padding: var(--bar-y) calc(var(--bar-x) * .6);
+}
+.einput:focus { outline: none; border-color: var(--gold); }
+.einput.bad { border-color: var(--bad); }
+.einput::placeholder { color: var(--faint); }
+textarea.einput.etext { font: inherit; font-size: 1rem; line-height: 1.5; resize: vertical; }
+select.einput { appearance: none; }
+input.einput.ename { font: inherit; font-size: inherit; padding: 0 .3rem; }
+.dbody.editing { display: flex; flex-direction: column; gap: .9rem; }
+.dbody.editing .dsec { margin: 0; }
+.dbody.editing .efields { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: .6rem .8rem; }
+.efield { display: flex; flex-direction: column; gap: .25rem; min-width: 0; }
+.efield.wide { grid-column: 1 / -1; }
+.emany { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .4rem; }
+.emany .erow { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)) auto; gap: .4rem; align-items: center; }
+.emany .erow.ehead .cap { margin: 0; }
+.echips { align-items: center; }
+.echip { display: inline-flex; align-items: center; gap: .3rem; }
+.echip button { background: none; border: 0; color: var(--dim); cursor: pointer; padding: 0; font: inherit; }
+.echip button:hover { color: var(--bad); }
+.einput.echipin { width: 8rem; flex: 0 0 auto; }
+.row.editbar { margin: -1.1rem -1.2rem .8rem; padding: 0 1.2rem; position: sticky; top: -1.1rem; z-index: 1; background: var(--panel); }
+.dclose.dpen { display: inline-flex; align-items: center; margin-right: .3rem; }
+.dclose.dpen.on { color: var(--gold); }

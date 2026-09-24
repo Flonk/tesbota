@@ -16,6 +16,7 @@ import * as mapping from "./mapping.ts";
 import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
 import * as sky from "./sky.ts";
+import * as editing from "./edit/index.ts";
 import { reachable } from "./sqlite.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
@@ -250,6 +251,18 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     return say(actions.shape(id, said, carry, width, flags.has("--alone")));
   },
 
+  /** Change one thing in the record. `tesbota edit <id> '<patch json>'`, see web/EDITING.md. */
+  edit({ rest }) {
+    const [id, ...said] = rest;
+    let patch: unknown;
+    try {
+      patch = JSON.parse(said.join(" "));
+    } catch {
+      return say({ error: "that patch is not json" });
+    }
+    return say(editing.edit(id, patch));
+  },
+
   /** Put down a place that did not exist. The map draws it afterwards. */
   place({ rest, flags }) {
     const name = rest.join(" ");
@@ -341,7 +354,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
 const MAKES = "init";
 const NEEDS_NOBODY = new Set([
   "machine", "check", "prompts", "library", "map", "traits", "sky", "place", "shape",
-  "unplace",
+  "unplace", "edit",
 ]);
 
 async function main() {

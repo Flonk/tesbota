@@ -393,13 +393,16 @@ export function Toggle({ on, onClick, className = "", children }) {
   );
 }
 
-export function Overlay({ title, tags, face, tone, under, copy, onClose, children }) {
+export function Overlay({ title, tags, face, tone, under, copy, onClose, tools, onEscape, holding, children }) {
   const panel = useRef(null);
   useEffect(() => {
     function key(e) {
-      if (e.key === "Escape") onClose();
+      if (e.key !== "Escape") return;
+      if (onEscape) onEscape();
+      else onClose();
     }
     function away(e) {
+      if (holding) return;
       if (e.target.closest?.(".reading")) return;
       if (panel.current && !panel.current.contains(e.target)) onClose();
     }
@@ -409,7 +412,7 @@ export function Overlay({ title, tags, face, tone, under, copy, onClose, childre
       document.removeEventListener("keydown", key);
       document.removeEventListener("mousedown", away);
     };
-  }, [onClose]);
+  }, [onClose, onEscape, holding]);
 
   return (
     <div className="dossier">
@@ -434,6 +437,7 @@ export function Overlay({ title, tags, face, tone, under, copy, onClose, childre
             </span>
             {under}
           </div>
+          {tools}
           <button className="dclose" onClick={onClose} title="close">
             ×
           </button>

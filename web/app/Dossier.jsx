@@ -1,8 +1,11 @@
 "use client";
 
 import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
-import { useEffect, useState } from "react";
-import { Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Stub, Table, Tag } from "./ui";
+import { useCallback, useEffect, useState } from "react";
+import { Act, Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Row, Stub, Table, Tag } from "./ui";
+import Icon from "./icons";
+import { EDITORS, merged } from "./edit";
+import { Field } from "./edit/fields";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -368,34 +371,126 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
   const fragment = at?.fragment || null;
   const [thing, setThing] = useState(null);
   const [missing, setMissing] = useState(false);
-
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [said, setSaid] = useState(null);
+  const dirty = Object.keys(draft).length > 0;
 
   useEffect(() => {
     onKind?.(thing?.kind || null);
   }, [thing?.kind, onKind]);
 
+  const load = useCallback(
+    (quiet = false) => {
+      if (!id) return () => {};
+      let live = true;
+      if (!quiet) {
+        setThing(null);
+        setMissing(false);
+      }
+      fetch(`/api/entity/${encodeURIComponent(id)}`, { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((t) => live && setThing(t))
+        .catch(() => live && setMissing(true));
+      return () => {
+        live = false;
+      };
+    },
+    [id]
+  );
+
   useEffect(() => {
-    if (!id) return;
-    let live = true;
-    setThing(null);
-    setMissing(false);
-    fetch(`/api/entity/${encodeURIComponent(id)}`, { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((t) => live && setThing(t))
-      .catch(() => live && setMissing(true));
-    return () => {
-      live = false;
+    setEditing(false);
+    setDraft({});
+    setSaid(null);
+    return load();
+  }, [load]);
+
+  const change = useCallback((section, value) => setDraft((was) => merged(was, section, value)), []);
+
+  const cancel = useCallback(() => {
+    if (dirty && !window.confirm("discard changes?")) return;
+    setDraft({});
+    setEditing(false);
+    setSaid(null);
+  }, [dirty]);
+
+  const save = useCallback(async () => {
+    if (!dirty || saving) return;
+    setSaving(true);
+    setSaid(null);
+    try {
+      const res = await fetch("/api/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, patch: draft }),
+      });
+      const back = await res.json().catch(() => null);
+      if (!back || back.error) {
+        setSaid({ tone: "bad", text: back?.error || "the edit was not saved" });
+        return;
+      }
+      setDraft({});
+      setEditing(false);
+      setSaid(back.wrong?.length ? { tone: "warn", text: back.wrong.join(" · ") } : null);
+      load(true);
+    } catch (err) {
+      setSaid({ tone: "bad", text: String(err) });
+    } finally {
+      setSaving(false);
+    }
+  }, [dirty, saving, id, draft, load]);
+
+  useEffect(() => {
+    if (!editing) return;
+    const key = (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        save();
+      }
     };
-  }, [id]);
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [editing, save]);
 
   if (!id) return null;
+
+  const Editor = thing ? EDITORS[thing.kind] : null;
+  const locked = !!thing?.book?.chronicle;
+  const name = draft.entity && "name" in draft.entity ? draft.entity.name : thing?.name;
 
   return (
     <Overlay
       onClose={onClose}
       face={face_of(thing) || "search"}
       tone={thing?.kind === "items" ? tone(thing.item?.rarity) : ""}
-      title={thing?.name || id.replace(/-/g, " ")}
+      title={
+        editing ? (
+          <input
+            className="einput ename"
+            value={name ?? ""}
+            onChange={(e) => change("entity", { name: e.target.value })}
+            aria-label="name"
+          />
+        ) : (
+          thing?.name || id.replace(/-/g, " ")
+        )
+      }
+      tools={
+        thing && !locked ? (
+          <button
+            className={`dclose dpen${editing ? " on" : ""}`}
+            onClick={() => (editing ? cancel() : setEditing(true))}
+            title={editing ? "stop editing" : "edit"}
+            aria-label="edit"
+          >
+            <Icon name="pen" size={15} />
+          </button>
+        ) : null
+      }
+      onEscape={editing ? cancel : null}
+      holding={editing && dirty}
       tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
       copy={thing?.address}
       under={
@@ -406,10 +501,38 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
         ) : null
       }
     >
+        {editing && (
+          <Row className="editbar">
+            <span className="gname dim">
+              editing
+              {dirty && <span className="gdirty" title="unsaved changes">•</span>}
+            </span>
+            <Act onClick={cancel} disabled={saving} title="cancel (esc)">
+              cancel
+            </Act>
+            <Act className="keep" onClick={save} disabled={!dirty || saving} title="save (ctrl enter)">
+              {saving ? "…" : "save"}
+            </Act>
+          </Row>
+        )}
+        {said && <p className={`hint hint-${said.tone}`}>{said.text}</p>}
+
         {missing && <Empty>nothing in the world has this address — it is a dangling link</Empty>}
         {!thing && !missing && <Empty>looking it up…</Empty>}
 
-        {thing && (
+        {thing && editing && (
+          <div className="dbody editing">
+            <Field
+              kind="text"
+              label="about"
+              value={draft.entity && "about" in draft.entity ? draft.entity.about : thing.about}
+              onChange={(v) => change("entity", { about: v })}
+            />
+            {Editor && <Editor thing={thing} draft={draft} change={change} />}
+          </div>
+        )}
+
+        {thing && !editing && (
           <div className="dbody">
             {thing.kind === "books" && face === "content" && (
               <Leaves thing={thing} fragment={fragment} />

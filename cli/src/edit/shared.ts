@@ -1,0 +1,58 @@
+/** What every section needs to say no properly. */
+
+/** An empty string is silence; `$BOTA` and everything else is kept as written. */
+export const said = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim();
+  return text === "" ? null : text;
+};
+
+/** A number, or silence. Anything else is refused. */
+export function number(value: unknown, what: string): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  if (!Number.isFinite(n)) throw new Error(`${what} has to be a number`);
+  return n;
+}
+
+/** A whole number, or silence. */
+export function whole(value: unknown, what: string): number | null {
+  const n = number(value, what);
+  if (n !== null && !Number.isInteger(n)) throw new Error(`${what} has to be a whole number`);
+  return n;
+}
+
+/** An entity that exists, and of the right kind when one is asked for. */
+export function named(con: any, value: unknown, what: string, kind: string | string[] | null = null): string | null {
+  const id = said(value)?.toLowerCase() ?? null;
+  if (id === null || id === "$bota") return id === "$bota" ? "$BOTA" : null;
+  const row = con.prepare("SELECT kind FROM entity WHERE id = ?").get(id) as { kind?: string } | undefined;
+  if (!row) throw new Error(`${what}: nothing in the world is called ${id}`);
+  const kinds = kind === null ? null : Array.isArray(kind) ? kind : [kind];
+  if (kinds && !kinds.includes(String(row.kind))) {
+    throw new Error(`${what}: ${id} is one of the ${row.kind}, not the ${kinds.join(" or ")}`);
+  }
+  return id;
+}
+
+/** One of a fixed list, or silence. */
+export function oneOf(value: unknown, what: string, allowed: readonly string[]): string | null {
+  const text = said(value);
+  if (text === null) return null;
+  if (!allowed.includes(text)) throw new Error(`${what} is one of ${allowed.join(", ")}`);
+  return text;
+}
+
+/** Only the fields a section knows, so a typo is refused rather than ignored. */
+export function fields(value: unknown, what: string, allowed: readonly string[]): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${what} is an object of fields`);
+  const extra = Object.keys(value).filter((k) => !allowed.includes(k));
+  if (extra.length) throw new Error(`${what} has no ${extra.join(", ")}`);
+  return value as Record<string, unknown>;
+}
+
+/** A list, or refused. */
+export function list(value: unknown, what: string): unknown[] {
+  if (!Array.isArray(value)) throw new Error(`${what} is a list`);
+  return value;
+}

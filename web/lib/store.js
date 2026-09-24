@@ -401,7 +401,8 @@ export function entity(id) {
         )
         .all(ident);
       bundle.place =
-        db.prepare(`SELECT type, parent, lat, lon FROM place WHERE id = ?`).get(ident) || null;
+        db.prepare(`SELECT type, parent, lat, lon, width FROM place WHERE id = ?`).get(ident) || null;
+      bundle.orbit = db.prepare(`SELECT * FROM orbit WHERE id = ?`).get(ident) || null;
       bundle.lives = db
         .prepare(
           `SELECT p.id, coalesce(e.name, replace(p.id, '-', ' ')) AS name, p.work
@@ -461,6 +462,7 @@ export function entity(id) {
             godhead: ["the godhead", "the narrator"].includes(
               (book.author || "").trim().toLowerCase()
             ),
+            chronicle: (book.author || "").trim().toLowerCase() === "the narrator",
           }
         : null;
       bundle.passages = db
@@ -510,6 +512,7 @@ export function entity(id) {
     }
 
     if (row.kind === "aspects") {
+      bundle.aspect = db.prepare(`SELECT applies, ability FROM aspect WHERE id = ?`).get(ident) || null;
       bundle.grants = db
         .prepare(
           `SELECT a.*, coalesce(e.name, replace(a.id, '-', ' ')) AS name
