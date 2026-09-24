@@ -948,8 +948,8 @@ textarea.prompt:focus { outline: none; }
    anywhere the adventurer has actually stood is said a little louder than
    somewhere only ever read about. */
 .globeshape { cursor: pointer; vector-effect: non-scaling-stroke; }
-.globeshape.region { fill: color-mix(in srgb, var(--good) 30%, #2a2a20);
-                     stroke: color-mix(in srgb, var(--good) 55%, transparent); }
+.globeshape.region { fill: color-mix(in srgb, var(--good) calc(22% + var(--depth, 0) * 12%), #2a2a20);
+                     stroke: color-mix(in srgb, var(--good) calc(45% + var(--depth, 0) * 15%), transparent); }
 /* Ground is held lightly so that ground inside ground still reads: a village is
    an outline, and the houses on its street are outlines within it. */
 .globeshape.location { fill: color-mix(in srgb, var(--ink) 15%, transparent);

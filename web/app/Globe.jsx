@@ -376,11 +376,13 @@ export default function Globe({
         const shape = read
           ? JSON.stringify(extentOf({ ...read, runs: carried(read.runs, by) }))
           : place.extent;
-        return { ...place, d: outline(shape) };
+        let depth = 0;
+        for (let at = byId.get(place.parent); at && depth < 6; at = byId.get(at.parent)) depth += 1;
+        return { ...place, d: outline(shape), depth };
       })
       .filter((place) => place.d)
-      .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2));
-  }, [standing, chosen, rides]);
+      .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2) || a.depth - b.depth);
+  }, [standing, byId, chosen, rides]);
   const dark = useMemo(() => (sun ? night(sun) : null), [sun]);
 
   /**
@@ -1176,6 +1178,7 @@ export default function Globe({
             d={place.d}
             data-place={place.id}
             className={`globeshape ${place.type || "location"}${place.walked ? " walked" : ""}`}
+            style={{ "--depth": Math.min(place.depth, 4) }}
           >
             <title>{place.name}</title>
           </path>
