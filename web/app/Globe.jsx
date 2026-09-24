@@ -1134,6 +1134,20 @@ export default function Globe({
   for (let lat = -60; lat <= 60; lat += 30) lines.push({ lat });
 
   const nameOf = (id) => byId.get(id)?.name || id;
+
+  const ruler = (() => {
+    if (!body.radius || !pane.w || !pane.h) return null;
+    const k = Math.max(pane.w / view.w, pane.h / view.h);
+    const middle = latOf(view.y + view.h / 2);
+    const perPixel = (2 * Math.PI * body.radius * Math.cos(middle * RAD)) / (W * k);
+    const most = perPixel * 110;
+    const ten = 10 ** Math.floor(Math.log10(most));
+    const length = [5, 2, 1].map((n) => n * ten).find((n) => n <= most) ?? ten;
+    return {
+      px: length / perPixel,
+      said: length >= 1000 ? `${(length / 1000).toLocaleString()} km` : `${length} m`,
+    };
+  })();
   const handles = editing && draft && (tool === "corners" || tool === "erase");
   const traced = (run) =>
     run.length
@@ -1451,6 +1465,13 @@ export default function Globe({
         </div>
       );
     })()}
+
+    {ruler && (
+      <div className="globeruler" aria-hidden="true">
+        <span>{ruler.said}</span>
+        <i style={{ width: `${ruler.px}px` }} />
+      </div>
+    )}
 
     {editing && !asking && wrong && (
       <div className="globewrong" onClick={() => setWrong(null)}>
