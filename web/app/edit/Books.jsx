@@ -1,6 +1,8 @@
 "use client";
 
-import { Act, Row } from "../ui";
+import { useRef, useState } from "react";
+import { Act } from "../ui";
+import Icon from "../icons";
 import { Field, Group, Pick, reader } from "./fields";
 import { Tags } from "./Common";
 
@@ -10,11 +12,38 @@ export default function BooksEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "book", thing.book);
   const texts = draft.passages ?? (thing.passages || []).map((p) => p.text);
   const set = (next) => change("passages", next);
-  const move = (n, by) => {
+  const list = useRef(null);
+  const [held, setHeld] = useState(null);
+  const [asking, setAsking] = useState(null);
+
+  const slot = (y) => {
+    const boxes = [...(list.current?.querySelectorAll(":scope > .epassage") || [])];
+    const at = boxes.findIndex((box) => {
+      const r = box.getBoundingClientRect();
+      return y < r.top + r.height / 2;
+    });
+    return at === -1 ? boxes.length : at;
+  };
+
+  const grab = (n) => (e) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setAsking(null);
+    setHeld({ from: n, to: n });
+  };
+  const drag = (e) => held && setHeld({ ...held, to: slot(e.clientY) });
+  const drop = () => {
+    if (!held) return;
+    const { from, to } = held;
+    setHeld(null);
+    const into = to > from ? to - 1 : to;
+    if (into === from) return;
     const next = [...texts];
-    [next[n], next[n + by]] = [next[n + by], next[n]];
+    const [moving] = next.splice(from, 1);
+    next.splice(into, 0, moving);
     set(next);
   };
+
   return (
     <>
       <div className="efields">
@@ -24,24 +53,41 @@ export default function BooksEdit({ thing, draft, change }) {
         <Field label="rarity" kind="choice" options={RARITIES} value={get("rarity")} onChange={put("rarity")} />
       </div>
       <Group label="text">
-        <div className="emany">
+        <div className="epassages" ref={list}>
           {texts.map((text, n) => (
-            <div key={n}>
-              <Field
-                kind="text"
-                label={String(n + 1)}
-                value={text}
-                onChange={(v) => set(texts.map((t, m) => (m === n ? v : t)))}
-              />
-              <Row pad={false} ruled={false}>
-                <Act onClick={() => move(n, -1)} disabled={n === 0}>
-                  up
-                </Act>
-                <Act onClick={() => move(n, 1)} disabled={n === texts.length - 1}>
-                  down
-                </Act>
-                <Act onClick={() => set(texts.filter((_, m) => m !== n))}>remove</Act>
-              </Row>
+            <div
+              key={n}
+              className={`epassage${held?.from === n ? " lifted" : ""}${
+                held && held.to === n && held.from !== n && held.from !== n - 1 ? " before" : ""
+              }${held && held.to === texts.length && n === texts.length - 1 && held.from !== n ? " after" : ""}`}
+            >
+              <div className="epasshead">
+                <button
+                  className="egrip"
+                  title="drag to move"
+                  aria-label={`move passage ${n + 1}`}
+                  onPointerDown={grab(n)}
+                  onPointerMove={drag}
+                  onPointerUp={drop}
+                  onPointerCancel={() => setHeld(null)}
+                >
+                  <Icon name="grip" size={14} />
+                </button>
+                <span className="cap">{n + 1}</span>
+                {asking === n ? (
+                  <span className="eask">
+                    <Act className="gone" onClick={() => { setAsking(null); set(texts.filter((_, m) => m !== n)); }}>
+                      remove
+                    </Act>
+                    <Act onClick={() => setAsking(null)}>keep</Act>
+                  </span>
+                ) : (
+                  <button className="exout" title="remove passage" aria-label={`remove passage ${n + 1}`} onClick={() => setAsking(n)}>
+                    <Icon name="cross" size={12} />
+                  </button>
+                )}
+              </div>
+              <Field kind="text" value={text} onChange={(v) => set(texts.map((t, m) => (m === n ? v : t)))} />
             </div>
           ))}
         </div>

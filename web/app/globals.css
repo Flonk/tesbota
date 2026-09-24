@@ -1222,3 +1222,19 @@ input.einput.ename { font: inherit; font-size: inherit; padding: 0 .3rem; }
 .row.editbar { margin: -1.1rem -1.2rem .8rem; padding: 0 1.2rem; position: sticky; top: -1.1rem; z-index: 1; background: var(--panel); }
 .dclose.dpen { display: inline-flex; align-items: center; margin-right: .3rem; }
 .dclose.dpen.on { color: var(--gold); }
+.epassages { display: flex; flex-direction: column; gap: .7rem; margin-bottom: .5rem; }
+.epassage { display: flex; flex-direction: column; gap: .25rem; }
+.epassage.lifted { opacity: .45; }
+.epassage.before { box-shadow: 0 -.35rem 0 -.2rem var(--gold); }
+.epassage.after { box-shadow: 0 .35rem 0 -.2rem var(--gold); }
+.epasshead { display: flex; align-items: center; gap: .4rem; min-height: 1.6rem; }
+.epasshead .cap { margin: 0; flex: 1 1 auto; }
+.egrip, .exout {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 0; padding: .2rem; color: var(--dim); cursor: pointer;
+}
+.egrip { cursor: grab; touch-action: none; }
+.egrip:active { cursor: grabbing; }
+.egrip:hover { color: var(--ink); }
+.exout:hover { color: var(--bad); }
+.eask { display: inline-flex; gap: .35rem; }
