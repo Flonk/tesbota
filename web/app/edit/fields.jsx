@@ -24,7 +24,7 @@ export function Field({ label, value, onChange, kind = "line", options = [], pla
         className="einput etext"
         value={shown(value)}
         placeholder={placeholder}
-        rows={Math.max(3, shown(value).split("\n").length + 1)}
+        rows={Math.max(3, shown(value).split("\n").reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 70)), 0) + 1)}
         onChange={(e) => onChange(e.target.value)}
       />
     );
@@ -77,20 +77,38 @@ export function Field({ label, value, onChange, kind = "line", options = [], pla
 }
 
 const known = {};
+const asked = {};
 
-/** Everything of one kind, by name, fetched once and kept. */
+/** Forget every list of names, for after an edit that may have changed one. */
+export function forget() {
+  for (const kind of Object.keys(known)) delete known[kind];
+  for (const kind of Object.keys(asked)) delete asked[kind];
+}
+
+function ask(kind) {
+  if (!asked[kind]) {
+    asked[kind] = fetch(`/api/entities?kind=${encodeURIComponent(kind)}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((got) => (known[kind] = Array.isArray(got) ? got : []))
+      .catch(() => {
+        delete asked[kind];
+        return [];
+      });
+  }
+  return asked[kind];
+}
+
+/** Everything of one kind, by name, fetched once and shared by every field that asks. */
 export function useKind(kind) {
   const [rows, setRows] = useState(known[kind] || null);
   useEffect(() => {
-    if (!kind || known[kind]) return;
+    if (!kind) return;
+    if (known[kind]) {
+      setRows(known[kind]);
+      return;
+    }
     let live = true;
-    fetch(`/api/entities?kind=${encodeURIComponent(kind)}`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((got) => {
-        known[kind] = Array.isArray(got) ? got : [];
-        if (live) setRows(known[kind]);
-      })
-      .catch(() => {});
+    ask(kind).then((got) => live && setRows(got));
     return () => {
       live = false;
     };

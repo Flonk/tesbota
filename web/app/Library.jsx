@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PLACE_ICON, rare, tone } from "./Data";
-import { Btn, Empty, Mark, Note, Prose, Row, Stub, Table, Tabs } from "./ui";
+import Icon from "./icons";
+import { Field, forget, Pick } from "./edit/fields";
+import { Act, Btn, Empty, Mark, Note, Prose, Row, Stub, Table, Tabs } from "./ui";
 
 const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
+const RARITIES = ORDER.filter(Boolean).reverse();
+const PLACE_TYPES = Object.keys(PLACE_ICON).map((t) => [t, t.replace(/-/g, " ")]);
+const NARRATOR = "the narrator";
 const COUNT = (n) => (n ? String(n) : "");
 
 const OPEN = (v) => !String(v || "").trim() || String(v).includes("$BOTA");
@@ -29,7 +34,7 @@ const FOLK = [
 ];
 
 
-function branch(row, toggle) {
+function branch(row, toggle, face = null) {
   return (
     <span className="twig" style={{ "--depth": row.depth }}>
       {row.kids ? (
@@ -46,10 +51,14 @@ function branch(row, toggle) {
       ) : (
         <span className="knot leaf">·</span>
       )}
-      <Mark name={PLACE_ICON[row.type] || "pin"} title={(row.type || "unsorted").replace(/-/g, " ")}>
-        {row.name}
-      </Mark>
-      {row.kids > 0 && !row.open && <span className="folded">{row.kids}</span>}
+      {face || (
+        <>
+          <Mark name={PLACE_ICON[row.type] || "pin"} title={(row.type || "unsorted").replace(/-/g, " ")}>
+            {row.name}
+          </Mark>
+          {row.kids > 0 && !row.open && <span className="folded">{row.kids}</span>}
+        </>
+      )}
     </span>
   );
 }
@@ -154,6 +163,82 @@ const COLUMNS = {
   },
 };
 
+const hold = (node) => <span onClick={(e) => e.stopPropagation()}>{node}</span>;
+
+function editShape(kind, ed, toggle) {
+  const line = (section, key, saved = (r) => r[key]) => (r) =>
+    hold(<Field value={ed.get(r, section, key, saved(r))} onChange={ed.put(r, section, key, saved(r))} />);
+  const choice = (section, key, options) => (r) =>
+    hold(
+      <Field
+        kind="choice"
+        options={options}
+        value={ed.get(r, section, key, r[key])}
+        onChange={ed.put(r, section, key, r[key])}
+      />
+    );
+  const pick = (section, key, of) => (r) =>
+    hold(<Pick kind={of} value={ed.get(r, section, key, r[key])} onChange={ed.put(r, section, key, r[key])} />);
+  const name = line("entity", "name");
+  const dot = { key: "dot", label: "", cell: (r) => ed.mark(r) };
+  const shapes = {
+    places: {
+      cols: "minmax(9rem, 3fr) minmax(6rem, 1.3fr) minmax(6rem, 1.5fr) 3.6rem 3rem 1.2rem",
+      fields: [
+        { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle, name(r)) },
+        { key: "type", label: "type", dim: true, cell: choice("place", "type", PLACE_TYPES) },
+        { key: "parent", label: "in", dim: true, cell: pick("place", "parent", "places") },
+        { key: "exits", label: "ways out", num: true, cell: (r) => COUNT(r.exits) },
+        { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
+        dot,
+      ],
+    },
+    books: {
+      cols: "minmax(12rem, 3fr) minmax(6rem, 1.2fr) 6rem 1.2rem",
+      fields: [
+        { key: "name", label: "book", strong: true, cell: name },
+        { key: "author", label: "author", dim: true,
+          cell: (r) => (chronicle(r) ? r.author : line("book", "author")(r)) },
+        { key: "written", label: "written", dim: true,
+          cell: (r) => (chronicle(r) ? told(r.written) : line("book", "written")(r)) },
+        dot,
+      ],
+    },
+    people: {
+      cols: "minmax(6rem, 2fr) minmax(4.5rem, 1.1fr) minmax(5rem, 1.4fr) 5.5rem 5.5rem 1.2rem",
+      fields: [
+        { key: "name", strong: true, label: "person", cell: name },
+        { key: "work", label: "trade", dim: true, cell: line("person", "work") },
+        { key: "livesName", label: "where", dim: true, cell: pick("person", "lives", "places") },
+        { key: "born", label: "born", dim: true, cell: line("person", "born") },
+        { key: "died", label: "died", dim: true, cell: line("person", "died") },
+        dot,
+      ],
+    },
+    items: {
+      cols: "minmax(8rem, 2fr) minmax(6rem, 1.2fr) minmax(6rem, 1.4fr) 5rem 1.2rem",
+      fields: [
+        { key: "name", strong: true, label: "item", cell: name },
+        { key: "rarity", label: "rarity", dim: true, cell: choice("item", "rarity", RARITIES) },
+        ...COLUMNS.items.fields.slice(1),
+        dot,
+      ],
+    },
+  };
+  if (shapes[kind]) return shapes[kind];
+  const { cols, fields } = COLUMNS[kind];
+  return {
+    cols: `${cols} 1.2rem`,
+    fields: [{ ...fields[0], cell: name }, ...fields.slice(1), dot],
+  };
+}
+
+function chronicle(book) {
+  return String(book.author || "").trim().toLowerCase() === NARRATOR;
+}
+
+const same = (a, b) => (a ?? "") === (b ?? "");
+
 function holderOf(row) {
   if (row.holder) return row.holder.replace(/-/g, " ");
   if (row.parentName) return row.parentName;
@@ -223,10 +308,15 @@ export default function Library({
   const [sort, setSort] = useState({ key: "name", dir: 1 });
   const [folded, setFolded] = useState(() => new Set());
   const [selected, setSelected] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({});
+  const [refused, setRefused] = useState({});
+  const [said, setSaid] = useState([]);
+  const [saving, setSaving] = useState(false);
   const box = useRef(null);
   const order = useRef([]);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let live = true;
     Promise.all([
       fetch("/api/library", { cache: "no-store" }).then((r) => (r.ok ? r.json() : [])),
@@ -247,6 +337,84 @@ export default function Library({
     };
   }, []);
 
+  useEffect(() => load(), [load]);
+
+  const changed = Object.keys(draft).length;
+
+  function cancel() {
+    if (changed && !window.confirm("discard changes?")) return;
+    setDraft({});
+    setRefused({});
+    setEditing(false);
+  }
+
+  async function save() {
+    const ids = Object.keys(draft);
+    if (!ids.length || saving) return;
+    setSaving(true);
+    setSaid([]);
+    const failed = {};
+    const warned = [];
+    const left = { ...draft };
+    for (const id of ids) {
+      try {
+        const res = await fetch("/api/edit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, patch: draft[id] }),
+        });
+        const back = await res.json().catch(() => null);
+        if (!back || back.error) {
+          failed[id] = back?.error || "not saved";
+          continue;
+        }
+        delete left[id];
+        warned.push(...(back.wrong || []));
+      } catch (err) {
+        failed[id] = String(err);
+      }
+    }
+    forget();
+    setDraft(left);
+    setRefused(failed);
+    setSaid([...new Set(warned)]);
+    setSaving(false);
+    if (!Object.keys(failed).length) setEditing(false);
+    load();
+  }
+
+  const ed = {
+    get: (r, section, key, saved) => {
+      const part = draft[r.id]?.[section];
+      return part && key in part ? part[key] : saved;
+    },
+    put: (r, section, key, saved) => (value) => {
+      setRefused((was) => {
+        if (!(r.id in was)) return was;
+        const next = { ...was };
+        delete next[r.id];
+        return next;
+      });
+      setDraft((was) => {
+        const patch = { ...(was[r.id] || {}) };
+        const part = { ...(patch[section] || {}) };
+        if (same(value, saved)) delete part[key];
+        else part[key] = value;
+        if (Object.keys(part).length) patch[section] = part;
+        else delete patch[section];
+        const next = { ...was };
+        if (Object.keys(patch).length) next[r.id] = patch;
+        else delete next[r.id];
+        return next;
+      });
+    },
+    mark: (r) => {
+      if (refused[r.id]) return <span className="hint-bad" title={refused[r.id]}>•</span>;
+      if (draft[r.id]) return <span className="gdirty" title="unsaved changes">•</span>;
+      return "";
+    },
+  };
+
   useEffect(() => {
     function step(by) {
       setSelected((current) => {
@@ -261,6 +429,19 @@ export default function Library({
     function key(e) {
       const el = document.activeElement;
       const typing = /^(INPUT|TEXTAREA)$/.test(el?.tagName || "") || el?.isContentEditable;
+
+      if (editing && !dossier) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          cancel();
+          return;
+        }
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          save();
+          return;
+        }
+      }
 
       if (e.key === "Escape") {
         if (dossier) return;
@@ -373,7 +554,8 @@ export default function Library({
       ? rows.map((r) => r.id)
       : [...named.map((r) => r.id), ...hits.filter((h) => h.entity).map((h) => h.entity)];
 
-  const shape = tree ? placeShape(fold) : COLUMNS[kind];
+  const shape = editing ? editShape(kind, ed, fold) : tree ? placeShape(fold) : COLUMNS[kind];
+  const nameOf = (id) => everything.find((r) => r.id === id)?.name || id;
 
   return (
     <div className="lib">
@@ -407,9 +589,47 @@ export default function Library({
             back to {kind}
           </Btn>
         )}
+        {hits === null && (
+          <button
+            type="button"
+            className={`crumbtool${editing ? " on" : ""}`}
+            onClick={() => {
+              if (editing) return cancel();
+              setSaid([]);
+              setEditing(true);
+            }}
+            title={editing ? "stop editing" : "edit"}
+            aria-label="edit"
+          >
+            <Icon name="pen" size={14} />
+          </button>
+        )}
       </Row>
 
+      {editing && hits === null && (
+        <Row>
+          <span className="gname dim">
+            editing
+            {changed > 0 && <span className="gdirty" title="unsaved changes">•</span>}
+            {changed > 0 && <span className="gdirty">{changed === 1 ? "1 row" : `${changed} rows`}</span>}
+          </span>
+          <Act onClick={cancel} disabled={saving} title="cancel (esc)">
+            cancel
+          </Act>
+          <Act className="keep" onClick={save} disabled={!changed || saving} title="save (ctrl enter)">
+            {saving ? "…" : "save"}
+          </Act>
+        </Row>
+      )}
+
       <div className="libbody">
+      {hits === null &&
+        Object.entries(refused).map(([id, error]) => (
+          <Note key={id} tone="bad">
+            {nameOf(id)}: {error}
+          </Note>
+        ))}
+      {hits === null && said.length > 0 && <Note tone="warn">{said.join(" · ")}</Note>}
       {hits !== null && <Hits named={named} hits={hits} selected={selected} onOpen={onOpen} />}
       {hits === null && reading && <Empty>reading the shelves…</Empty>}
       {hits === null && !reading && (

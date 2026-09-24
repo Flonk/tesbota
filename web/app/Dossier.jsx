@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Act, Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, Row, Stub, Table, Tag } from "./ui";
 import Icon from "./icons";
 import { EDITORS, merged } from "./edit";
-import { Field } from "./edit/fields";
+import { Field, forget } from "./edit/fields";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -431,6 +431,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
         setSaid({ tone: "bad", text: back?.error || "the edit was not saved" });
         return;
       }
+      forget();
       setDraft({});
       setEditing(false);
       setSaid(back.wrong?.length ? { tone: "warn", text: back.wrong.join(" · ") } : null);
