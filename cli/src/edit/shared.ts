@@ -1,9 +1,25 @@
 /** What every section needs to say no properly. */
 
+const KINDS: Record<string, string> = {
+  people: "people", person: "people",
+  places: "places", place: "places",
+  books: "books", book: "books",
+  items: "items", item: "items",
+  aspects: "aspects", aspect: "aspects",
+  abilities: "abilities", ability: "abilities",
+};
+
+/** Addresses written by hand, put the way the record writes them: `bota://aspect/Mob` is `bota://aspects/mob`. */
+export const addresses = (text: string) =>
+  text.replace(/bota:\/\/([A-Za-z]+)\/([A-Za-z0-9][A-Za-z0-9-]*)/g, (whole, kind, id) => {
+    const known = KINDS[kind.toLowerCase()];
+    return known ? `bota://${known}/${id.toLowerCase()}` : whole;
+  });
+
 /** An empty string is silence; `$BOTA` and everything else is kept as written. */
 export const said = (value: unknown): string | null => {
   if (value === null || value === undefined) return null;
-  const text = String(value).trim();
+  const text = addresses(String(value).trim());
   return text === "" ? null : text;
 };
 

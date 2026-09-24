@@ -11,7 +11,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { CANON_DB } from "./config.ts";
 
-export const LINK = /bota:\/\/(people|places|books|items)\/([a-z0-9][a-z0-9-]*)(?:#([pc]\d+))?/g;
+export const LINK = /bota:\/\/(people|places|books|items|aspects|abilities)\/([a-z0-9][a-z0-9-]*)(?:#([pc]\d+))?/g;
 
 export const SCHEMA = `
 CREATE TABLE IF NOT EXISTS entity (

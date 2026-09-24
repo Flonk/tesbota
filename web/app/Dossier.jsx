@@ -91,8 +91,8 @@ const EXITS = {
   cols: "minmax(9rem, 2fr) 7rem minmax(6rem, 1.4fr)",
   fields: [
     { key: "name", label: "ways out", strong: true, cell: (r) => r.name },
-    { key: "bearing", label: "bearing", dim: true, cell: (r) => r.bearing || <Stub /> },
-    { key: "distance", label: "how far", dim: true, cell: (r) => r.distance || <Stub /> },
+    { key: "bearing", label: "bearing", dim: true, cell: (r) => (r.bearing ? <Prose as="span" text={r.bearing} /> : <Stub />) },
+    { key: "distance", label: "how far", dim: true, cell: (r) => (r.distance ? <Prose as="span" text={r.distance} /> : <Stub />) },
   ],
 };
 
@@ -187,7 +187,7 @@ function Wrote({ book }) {
         book.author || <Stub />
       )}
       {", "}
-      {settled(book.written) ? book.written : <Stub />}
+      {settled(book.written) ? <Prose as="span" text={book.written} /> : <Stub />}
       {book.rarity ? <>{", "}{rare(book.rarity)}</> : null}
     </p>
   );
@@ -205,10 +205,10 @@ function Made({ item }) {
 function Stats({ item }) {
   const rows = [
     ...["rarity"].filter((k) => item?.[k]).map((k) => ({ id: k, stat: k, value: rare(item[k]) })),
-    ...(item?.effects || []).map((e) => ({ id: e.stat, stat: e.stat, value: e.amount })),
+    ...(item?.effects || []).map((e) => ({ id: e.stat, stat: e.stat, value: <Prose as="span" text={e.amount} /> })),
     ...["weight", "worth", "owed_by"]
       .filter((k) => item?.[k])
-      .map((k) => ({ id: k, stat: k.replace("_", " "), value: item[k] })),
+      .map((k) => ({ id: k, stat: k.replace("_", " "), value: <Prose as="span" text={String(item[k])} /> })),
   ];
   if (!rows.length) return <Empty>nothing is written about what it does</Empty>;
   return <Table {...STATS} rows={rows} />;
@@ -219,7 +219,7 @@ function Body({ body }) {
   const own = Number(body.defense || 0);
   const rows = [
     body.health && { id: "health", stat: "health", value: body.health },
-    body.damage && { id: "damage", stat: "damage", value: body.damage },
+    body.damage && { id: "damage", stat: "damage", value: <Prose as="span" text={body.damage} /> },
     body.dc && { id: "dc", stat: "hard to hit", value: `dc ${body.dc}` },
     body.bonus ? { id: "bonus", stat: "swings at", value: `${body.bonus > 0 ? "+" : ""}${body.bonus}` } : null,
     (own || worn) && {
@@ -227,7 +227,7 @@ function Body({ body }) {
       stat: "defense",
       value: worn && own ? `${own + worn} (${worn} worn)` : String(own + worn),
     },
-    body.skill && { id: "skill", stat: "fights with", value: body.skill },
+    body.skill && { id: "skill", stat: "fights with", value: <Prose as="span" text={body.skill} /> },
   ].filter(Boolean);
   if (!rows.length) return null;
   return <Table {...FIGHTS} rows={rows} />;

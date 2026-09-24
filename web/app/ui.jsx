@@ -465,7 +465,7 @@ export function Note({ tone = "dim", children }) {
 }
 
 const ADDRESS =
-  /\[([^\]]*)\]\((bota:\/\/[^)\s]+)\)|(bota:\/\/[a-z]+\/[a-z0-9][a-z0-9-]*(?:#[pc]\d+)?)|(<<[^>]*>>)|(\$BOTA)/g;
+  /\[([^\]]*)\]\((bota:\/\/[^)\s]+)\)|(bota:\/\/[A-Za-z]+\/[A-Za-z0-9][A-Za-z0-9-]*(?:#[pc]\d+)?)|(<<[^>]*>>)|(\$BOTA)/g;
 
 let NAMES = null;
 
@@ -473,11 +473,21 @@ export function knowNames(index) {
   NAMES = index || {};
 }
 
+const KINDS = {
+  people: "people", person: "people",
+  places: "places", place: "places",
+  books: "books", book: "books",
+  items: "items", item: "items",
+  aspects: "aspects", aspect: "aspects",
+  abilities: "abilities", ability: "abilities",
+};
+
 export function target(address) {
-  const found = /^bota:\/\/(people|places|books|items)\/([a-z0-9][a-z0-9-]*)(?:#([pc]\d+))?$/.exec(
+  const found = /^bota:\/\/([A-Za-z]+)\/([A-Za-z0-9][A-Za-z0-9-]*)(?:#([pc]\d+))?$/.exec(
     String(address || "")
   );
-  return found ? { kind: found[1], id: found[2], fragment: found[3] || null } : null;
+  const kind = found && KINDS[found[1].toLowerCase()];
+  return kind ? { kind, id: found[2].toLowerCase(), fragment: found[3] || null } : null;
 }
 
 export function openDossier(id, fragment = null) {
@@ -522,7 +532,7 @@ export function Prose({ text, className = "", as: As = "p" }) {
       out.push(raw);
       continue;
     }
-    const label = m[1] || NAMES?.[at.id]?.name || raw;
+    const label = m[1] || NAMES?.[at.id]?.name || at.id.replace(/-/g, " ");
     out.push(<Link key={last} at={at} label={label} raw={raw} />);
   }
   out.push(src.slice(last));
