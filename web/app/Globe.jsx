@@ -341,8 +341,13 @@ export default function Globe({
     return () => query.removeEventListener?.("change", read);
   }, []);
 
-  // A fresh world starts whole again.
+  // A fresh world starts whole again — only when it is a different world, so an
+  // effect run twice does not undo having been asked to come down to somewhere.
+  const shownBody = useRef(null);
   useEffect(() => {
+    if (shownBody.current === body?.id) return;
+    shownBody.current = body?.id;
+    aimed.current = null;
     setView(FIT);
   }, [body?.id]);
 
@@ -569,7 +574,14 @@ export default function Globe({
   }, []);
 
   /** Put a shape in the window, with room around it. */
-  const frame = useCallback((place) => {
+  const frame = useCallback((place, close = false) => {
+    if (close && place.lat !== null && place.lon !== null) {
+      const across_m = 3000 / (111320 * Math.cos(place.lat * RAD));
+      const w = hold((across_m / 360) * W, W / CLOSEST, W);
+      const x = across(place.lon);
+      const y = down(place.lat);
+      return { x: x - w / 2, y: y - (w * H) / W / 2, w, h: (w * H) / W };
+    }
     const d = place.extent && outline(place.extent);
     const box = d ? bounds(d) : null;
     const wide = box ? Math.max(box.maxX - box.minX, (box.maxY - box.minY) * (W / H)) * 3 : W / 400;
@@ -587,7 +599,7 @@ export default function Globe({
     const place = byId.get(focus.id);
     if (!place || (place.lat === null && !place.extent)) return;
     aimed.current = key;
-    setView(settle(frame(place)));
+    setView(settle(frame(place, !!focus.close)));
   }, [focus?.id, focus?.asked, byId, frame, settle]);
 
   const zoomAt = useCallback(

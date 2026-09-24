@@ -646,17 +646,15 @@ export default function Page() {
       setTab("map");
       setMapAt({ id, asked: Date.now() });
     };
-    const onMap = (e) => {
-      show(e.detail?.id);
-      const url = new URL(window.location.href);
-      url.searchParams.set("map", e.detail?.id || "");
-      window.history.replaceState(null, "", url);
-    };
+    const onMap = (e) => show(e.detail?.id);
     window.addEventListener("bota:map", onMap);
-    const asked = new URLSearchParams(window.location.search).get("map");
+    const url = new URL(window.location.href);
+    const asked = url.searchParams.get("map");
     if (asked) {
       show(asked);
       wasBlocked.current = true;
+      url.searchParams.delete("map");
+      window.history.replaceState(null, "", url);
     }
     return () => window.removeEventListener("bota:map", onMap);
   }, []);
@@ -955,7 +953,10 @@ export default function Page() {
               pip: t.id === "chat" && blocked,
             }))}
             value={tab}
-            onChange={setTab}
+            onChange={(next) => {
+              if (next === "map") setMapAt(null);
+              setTab(next);
+            }}
           />
           <span className="grip" />
           <div className="tabright">

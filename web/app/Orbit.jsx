@@ -103,7 +103,7 @@ export default function Orbit({ focus = null }) {
     if (!ground) return;
     landed.current = true;
     setPicked(ground.id);
-    if (under) setWent({ id: sky.here, asked: Date.now() });
+    if (under) setWent({ id: sky.here, asked: Date.now(), close: true });
   }, [sky, holder]);
 
   // A system is drawn as what it holds, each thing where it stands in it: the
