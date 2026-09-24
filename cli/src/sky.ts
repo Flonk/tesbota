@@ -380,6 +380,41 @@ export function subsolar(
   return { lat, lon };
 }
 
+const ascension = (lambda: number, tilt: number) =>
+  Math.atan2(Math.sin(lambda * RAD) * Math.cos(tilt * RAD), Math.cos(lambda * RAD)) * DEG;
+
+/**
+ * The points on a world that the other bodies of its own system stand straight
+ * over — where a moon is overhead, the way the subsolar point is where the star
+ * is. Their longitudes are measured from the star's, by how far round the sky each
+ * sits from it.
+ */
+export function overhead(
+  it: Body, when: When, known: Record<string, Body> = bodies()
+): Array<{ id: string; name: string; lat: number; lon: number }> {
+  const sun = subsolar(it, when, known);
+  const light = seasonAngle(it, when, known);
+  if (!sun || light === null || !it.parent) return [];
+  const here = placed(it, when, known, it.parent);
+  const found: Array<{ id: string; name: string; lat: number; lon: number }> = [];
+  const look = (at: Body) => {
+    for (const other of inside(at, known)) {
+      if (other.id !== it.id && other.type !== "celestial-system") {
+        const there = placed(other, when, known, it.parent);
+        if (there.x !== here.x || there.y !== here.y) {
+          const lambda = wrap360(Math.atan2(here.y - there.y, here.x - there.x) * DEG);
+          const lat = Math.asin(Math.sin(it.tilt * RAD) * Math.sin(lambda * RAD)) * DEG;
+          const lon = wrap180(sun.lon + ascension(lambda, it.tilt) - ascension(light, it.tilt));
+          found.push({ id: other.id, name: other.name, lat, lon });
+        }
+      }
+      look(other);
+    }
+  };
+  look(known[it.parent]);
+  return found;
+}
+
 /** How high the star stands over a place, in degrees. Negative is below. */
 export function altitude(
   it: Body, when: When, lat: number, lon: number, known: Record<string, Body> = bodies()
@@ -541,6 +576,7 @@ export function describe(when: When | null = null, been = new Set<string>()) {
       moves: !!period(it, known),
       at: when ? at(it, when, known) : null,
       subsolar: when && world ? subsolar(it, when, known) : null,
+      overhead: when && world ? overhead(it, when, known) : [],
       seasons: when && world ? seasons(it, when, known) : [],
       standing: when && world ? standing(it, when, known, been) : [],
       above: above(it.id),

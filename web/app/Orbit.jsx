@@ -122,7 +122,11 @@ export default function Orbit({ focus = null }) {
     return { shown, middles, moving, scale: (MIDDLE * EDGE) / widest, above };
   }, [sky, frame]);
 
-  const open = (b) => (b.type === "celestial-system" ? setFrame(b.id) : setPicked(b.id));
+  const empty = (b) => b.type !== "celestial-system" && !(b.standing || []).length;
+  const open = (b) => {
+    if (b.type === "celestial-system") return setFrame(b.id);
+    if (!empty(b)) setPicked(b.id);
+  };
 
   if (!sky) return <Empty>loading…</Empty>;
   if (sky.error) return <Note tone="warn">{sky.error}</Note>;
@@ -228,7 +232,7 @@ export default function Orbit({ focus = null }) {
           {plan.middles.map((body, n) => (
             <g
               key={body.id}
-              className={`orbitbody middle${body.type === "celestial-system" ? " system" : ""}`}
+              className={`orbitbody middle${body.type === "celestial-system" ? " system" : ""}${empty(body) ? " inert" : ""}`}
               onClick={() => open(body)}
             >
               <circle cx={MIDDLE} cy={MIDDLE} r={14} />
@@ -243,7 +247,7 @@ export default function Orbit({ focus = null }) {
             return (
               <g
                 key={body.id}
-                className={`orbitbody${body.type === "celestial-system" ? " system" : ""}`}
+                className={`orbitbody${body.type === "celestial-system" ? " system" : ""}${empty(body) ? " inert" : ""}`}
                 onClick={() => open(body)}
               >
                 <line x1={MIDDLE} y1={MIDDLE} x2={at.x} y2={at.y} className="orbitreach" />

@@ -1190,6 +1190,18 @@ export default function Globe({
         </g>
       )}
 
+      {(body.overhead || []).map((other) => (
+        <g
+          key={`over-${other.id}`}
+          className="globemoon"
+          transform={`translate(${across(other.lon)} ${down(other.lat)}) scale(${near})`}
+        >
+          <circle r="6" />
+          <text y="-10" textAnchor="middle">{other.name}</text>
+          <title>{`${other.name} is overhead here`}</title>
+        </g>
+      ))}
+
       {walker && (
         <g
           className="globewalker"

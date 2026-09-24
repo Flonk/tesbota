@@ -14,6 +14,7 @@
   --myth: #9b7bc4;
   --hush: #6f9c95;
   --sea: #16293a;
+  --moon: #b9c3d6;
   --mono: 10px/1.6 ui-monospace, SFMono-Regular, monospace;
 
   /* Bars. Every row of controls in this app is one of these, and every one of
@@ -937,6 +938,10 @@ textarea.prompt:focus { outline: none; }
 
 .globesun circle { fill: var(--gold); }
 .globesun .globeglow { fill: color-mix(in srgb, var(--gold) 22%, transparent); }
+.globemoon { pointer-events: none; }
+.globemoon circle { fill: var(--moon); stroke: var(--bg); stroke-width: 1.5; }
+.globemoon text { fill: var(--moon); font: var(--mono); font-size: 11px; letter-spacing: .06em;
+                  paint-order: stroke; stroke: var(--bg); stroke-width: 3; }
 
 /* What is written on the ground. Ground is filled, a run is stroked, and
    anywhere the adventurer has actually stood is said a little louder than
@@ -1078,6 +1083,8 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 .orbitbody.on circle { stroke: var(--gold); }
 .orbitbody.on text { fill: var(--ink); }
 .orbitbody.system circle { fill: var(--bg); stroke: var(--place); stroke-width: 3; }
+.orbitbody.inert { cursor: default; }
+.orbitbody.inert:hover circle { filter: none; }
 
 
 
