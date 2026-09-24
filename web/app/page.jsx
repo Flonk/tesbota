@@ -512,7 +512,8 @@ const SUBS = {
   ],
   dev: [
     { id: "states", label: "states", icon: "pulse" },
-    { id: "data", label: "data", icon: "db" },
+    { id: "lists", label: "lists", icon: "list" },
+    { id: "prompts", label: "prompts", icon: "pen" },
   ],
 };
 
@@ -536,7 +537,7 @@ export default function Page() {
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
   const [catalogue, setCatalogue] = useState(null);
-  const [sheaf, setSheaf] = useState("lists");
+  const sheaf = sub.dev === "prompts" ? "prompts" : "lists";
   const [datum, setDatum] = useState("names");
   const [draft, setDraft] = useState(null);
   const pen = useRef(null);
@@ -604,7 +605,7 @@ export default function Page() {
   }, [sheaf]);
 
   useEffect(() => {
-    if (tab !== "dev" || sub.dev !== "data" || catalogue) return;
+    if (tab !== "dev" || (sub.dev !== "lists" && sub.dev !== "prompts") || catalogue) return;
     fetch("/api/data", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { error: "the machine did not answer" }))
       .then(setCatalogue)
@@ -985,20 +986,7 @@ export default function Page() {
           />
         )}
 
-        {tab === "dev" && sub.dev === "data" && (
-          <Tabs
-            sub
-            className="reading"
-            items={[
-              { id: "lists", label: "lists", icon: "list" },
-              { id: "prompts", label: "prompts", icon: "pen" },
-            ]}
-            value={sheaf}
-            onChange={setSheaf}
-          />
-        )}
-
-        {tab === "dev" && sub.dev === "data" && (
+        {tab === "dev" && (sub.dev === "lists" || sub.dev === "prompts") && (
           <Tabs
             sub
             items={
@@ -1022,7 +1010,7 @@ export default function Page() {
           />
         )}
 
-        {tab === "dev" && sub.dev === "data" && sheaf === "prompts" && (
+        {tab === "dev" && sub.dev === "prompts" && (
           <Tabs
             sub
             items={[
@@ -1055,7 +1043,7 @@ export default function Page() {
               tab === "chat" || tab === "map" || tab === "library"
                 ? " flush"
                 : ""
-            }${tab === "dev" && sub.dev === "data" && sheaf === "prompts" ? " edit" : ""}`}
+            }${tab === "dev" && sub.dev === "prompts" ? " edit" : ""}`}
           >
           {tab === "chat" && sub.chat === "talk" && (
             <Talk
@@ -1094,7 +1082,7 @@ export default function Page() {
               onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
             />
           )}
-          {tab === "dev" && sub.dev === "data" && (
+          {tab === "dev" && (sub.dev === "lists" || sub.dev === "prompts") && (
             <Data
               catalogue={catalogue}
               at={datum}
