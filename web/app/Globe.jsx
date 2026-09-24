@@ -465,6 +465,35 @@ export default function Globe({
   );
   const dark = useMemo(() => (sun ? night(sun, { x: ox, y: oy }) : null), [sun, ox, oy]);
 
+  // The runs a name can be written along, and the ground it can be written inside:
+  // each line put the way it reads, left to right, so no name stands on its head.
+  const writable = useMemo(() => {
+    const lines = [];
+    const waters = [];
+    for (const place of drawn) {
+      const read = runsOf(place.shape);
+      if (!read) continue;
+      if (place.type === "road" || place.type === "river") {
+        let run = read.runs[0].map(([lon, lat]) => [across(lon) - ox, down(lat) - oy]);
+        if (run.length < 2) continue;
+        if (run[0][0] > run[run.length - 1][0]) run = [...run].reverse();
+        const upto = [0];
+        for (let n = 1; n < run.length; n++) {
+          upto.push(upto[n - 1] + Math.hypot(run[n][0] - run[n - 1][0], run[n][1] - run[n - 1][1]));
+        }
+        lines.push({ place, run, upto, long: upto[upto.length - 1], d: "M " + run.map(([x, y]) => `${x} ${y}`).join(" L ") });
+      } else if (place.type === "water") {
+        const box = bounds(place.d);
+        if (!box) continue;
+        const at = place.lat !== null && place.lon !== null
+          ? [across(place.lon) - ox, down(place.lat) - oy]
+          : [(box.minX + box.maxX) / 2 - ox, (box.minY + box.maxY) / 2 - oy];
+        waters.push({ place, at, wide: box.maxX - box.minX });
+      }
+    }
+    return { lines, waters };
+  }, [drawn, ox, oy]);
+
   /**
    * What the middle of the picture is standing on: the smallest written shape that
    * both covers it and is big enough on the screen to be the thing you are looking
@@ -1354,6 +1383,56 @@ export default function Globe({
           .map((place) => (
             <path key={`hit-${place.id}`} d={local.get(place.id)} data-place={place.id} className="globehit" />
           ))}
+      </g>
+
+      <g className="globewords">
+        {writable.lines.map(({ place, run, upto, long, d }) => {
+          const px = thick(place, 0) || 0;
+          const size = px * 0.62;
+          const said = size * 0.62 * place.name.length * near;
+          if (px < 11 || said + size * 2 * near > long) return null;
+          const mid = [view.x + view.w / 2 - ox, view.y + view.h / 2 - oy];
+          let best = { gap: Infinity, at: long / 2 };
+          for (let n = 1; n < run.length; n++) {
+            const [ax_, ay_] = run[n - 1];
+            const dx = run[n][0] - ax_;
+            const dy = run[n][1] - ay_;
+            const span = dx * dx + dy * dy;
+            const t = span ? Math.max(0, Math.min(1, ((mid[0] - ax_) * dx + (mid[1] - ay_) * dy) / span)) : 0;
+            const gap = Math.hypot(ax_ + t * dx - mid[0], ay_ + t * dy - mid[1]);
+            if (gap < best.gap) best = { gap, at: upto[n - 1] + t * Math.sqrt(span) };
+          }
+          const every = Math.max(said * 3, 420 * near);
+          const spots = [-2, -1, 0, 1, 2]
+            .map((k) => best.at + k * every)
+            .filter((at) => at - said / 2 > 0 && at + said / 2 < long);
+          return (
+            <g key={`words-${place.id}`} className={`globeline ${place.type}`}>
+              <path id={`words-${place.id}`} d={d} fill="none" stroke="none" />
+              {spots.map((at) => (
+                <text key={at} style={{ fontSize: size * near }} dy={size * near * 0.34}>
+                  <textPath href={`#words-${place.id}`} startOffset={at} textAnchor="middle">
+                    {place.name}
+                  </textPath>
+                </text>
+              ))}
+            </g>
+          );
+        })}
+        {writable.waters.map(({ place, at, wide }) =>
+          wide / near >= 90 + place.name.length * 7 ? (
+            <text
+              key={`words-${place.id}`}
+              className="globewater"
+              x={at[0]}
+              y={at[1]}
+              textAnchor="middle"
+              style={{ fontSize: 13 * near }}
+            >
+              {place.name}
+            </text>
+          ) : null
+        )}
       </g>
 
       {grid && (

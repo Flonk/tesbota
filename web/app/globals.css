@@ -954,6 +954,12 @@ textarea.prompt:focus { outline: none; }
   box-shadow: 0 1px 0 var(--bg);
 }
 .globemoon { pointer-events: none; }
+.globewords { pointer-events: none; }
+.globeline text { font: var(--mono); letter-spacing: var(--track); }
+.globeline.road text { fill: var(--bg); }
+.globeline.river text { fill: var(--bright); font-style: italic; }
+.globewater { fill: color-mix(in srgb, var(--place) 80%, var(--bright)); font-style: italic;
+              letter-spacing: .08em; paint-order: stroke; stroke: color-mix(in srgb, var(--place) 32%, var(--bg)); stroke-width: 0; }
 .globeruled line { stroke: color-mix(in srgb, var(--ink) 16%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; pointer-events: none; }
 .globetip path { stroke: var(--gold); pointer-events: none; }
 .gwidth { display: flex; align-items: center; gap: .3rem; flex: 0 0 auto;
