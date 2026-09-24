@@ -949,7 +949,7 @@ textarea.prompt:focus { outline: none; }
   box-shadow: 0 1px 0 var(--bg);
 }
 .globemoon { pointer-events: none; }
-.globeruled line { stroke: color-mix(in srgb, var(--ink) 16%, transparent); vector-effect: non-scaling-stroke; pointer-events: none; }
+.globeruled line { stroke: color-mix(in srgb, var(--ink) 16%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; pointer-events: none; }
 .globetip path { stroke: var(--gold); pointer-events: none; }
 .gwidth { display: flex; align-items: center; gap: .3rem; flex: 0 0 auto;
           font: var(--mono); letter-spacing: var(--track); color: var(--dim); text-transform: uppercase; }

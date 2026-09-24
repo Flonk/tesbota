@@ -1318,7 +1318,7 @@ export default function Globe({
       </g>
 
       {grid && (
-        <g className="globeruled" style={{ strokeWidth: near }}>
+        <g className="globeruled">
           {grid.xs.map((x) => (
             <line key={`gx${x}`} x1={x} y1={view.y} x2={x} y2={view.y + view.h} />
           ))}
