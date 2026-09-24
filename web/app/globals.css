@@ -939,9 +939,10 @@ textarea.prompt:focus { outline: none; }
 .globesun circle { fill: var(--gold); }
 .globesun .globeglow { fill: color-mix(in srgb, var(--gold) 22%, transparent); }
 .globemoon { pointer-events: none; }
-.globemoon circle { fill: var(--moon); stroke: var(--bg); stroke-width: 1.5; }
-.globemoon text { fill: var(--moon); font: var(--mono); font-size: 11px; letter-spacing: .06em;
-                  paint-order: stroke; stroke: var(--bg); stroke-width: 3; }
+.globemoon circle { stroke: color-mix(in srgb, var(--moon) 45%, var(--bg)); stroke-width: 1; }
+.globemoon .moonlit { stop-color: color-mix(in srgb, var(--moon) 60%, white); }
+.globemoon .moonmid { stop-color: var(--moon); }
+.globemoon .moondark { stop-color: color-mix(in srgb, var(--moon) 25%, var(--bg)); }
 
 /* What is written on the ground. Ground is filled, a run is stroked, and
    anywhere the adventurer has actually stood is said a little louder than
@@ -986,6 +987,11 @@ textarea.prompt:focus { outline: none; }
 /* A column of tools laid over what they work on, the way a drawing program keeps
    its tools beside the canvas rather than in a row above it. Each is a square the
    height of a bar. */
+.palettes {
+  position: absolute; left: var(--bar-x); top: var(--bar-x); z-index: 2;
+  display: flex; flex-direction: column; gap: var(--bar-gap);
+}
+.palettes > .palette { position: static; }
 .palette {
   position: absolute; left: var(--bar-x); top: var(--bar-x); z-index: 2;
   display: flex; flex-direction: column;

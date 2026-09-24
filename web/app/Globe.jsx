@@ -189,6 +189,13 @@ const HINT = {
   erase: "click a place, then click corners to remove them",
 };
 
+const VIEWS = [
+  { id: "bodies", label: "celestial bodies", icon: "orbit" },
+  { id: "night", label: "terminator", icon: "phase" },
+];
+
+const SHOWN = "tesbota.map.shown";
+
 const SLOP = 4;
 const REACH = 16;
 const UNWRITTEN = "\u0000new";
@@ -208,6 +215,7 @@ export default function Globe({
 }) {
   const [view, setView] = useState(FIT);
   const [coarse, setCoarse] = useState(false);
+  const [shown, setShown] = useState({ bodies: true, night: true });
   const [pane, setPane] = useState({ w: 0, h: 0 });
   // What is being reshaped, and the shape as it stands before it is written down.
   const [chosen, setChosen] = useState(null);
@@ -251,6 +259,22 @@ export default function Globe({
   useEffect(() => {
     setPicked(null);
   }, [tool, chosen]);
+
+  useEffect(() => {
+    try {
+      const kept = JSON.parse(window.localStorage.getItem(SHOWN) || "null");
+      if (kept && typeof kept === "object") setShown((was) => ({ ...was, ...kept }));
+    } catch {}
+  }, []);
+
+  const flip = (id) =>
+    setShown((was) => {
+      const next = { ...was, [id]: !was[id] };
+      try {
+        window.localStorage.setItem(SHOWN, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -1165,13 +1189,15 @@ export default function Globe({
 
       {/* Over the ground, not under it. Night that only darkens the sea leaves a
           continent lit at midnight, which is not a map of anything. */}
-      <path d={dark} className="globenight" />
+      {shown.night && <path d={dark} className="globenight" />}
 
-      <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)}) scale(${near})`}>
-        <circle r="7" />
-        <circle r="13" className="globeglow" />
-        <title>subsolar point</title>
-      </g>
+      {shown.bodies && (
+        <g className="globesun" transform={`translate(${across(sun.lon)} ${down(sun.lat)}) scale(${near})`}>
+          <circle r="7" />
+          <circle r="13" className="globeglow" />
+          <title>subsolar point</title>
+        </g>
+      )}
 
       {draft && (
         <g className="globedraft" style={{ strokeWidth: near }}>
@@ -1190,17 +1216,29 @@ export default function Globe({
         </g>
       )}
 
-      {(body.overhead || []).map((other) => (
-        <g
-          key={`over-${other.id}`}
-          className="globemoon"
-          transform={`translate(${across(other.lon)} ${down(other.lat)}) scale(${near})`}
-        >
-          <circle r="6" />
-          <text y="-10" textAnchor="middle">{other.name}</text>
-          <title>{`${other.name} is overhead here`}</title>
-        </g>
-      ))}
+      {shown.bodies && (body.overhead || []).map((other) => {
+        const dx = wrapped(sun.lon - other.lon);
+        const dy = other.lat - sun.lat;
+        const far = Math.hypot(dx, dy) || 1;
+        const lit = { x: 0.5 + (0.32 * dx) / far, y: 0.5 + (0.32 * dy) / far };
+        return (
+          <g
+            key={`over-${other.id}`}
+            className="globemoon"
+            transform={`translate(${across(other.lon)} ${down(other.lat)}) scale(${near})`}
+          >
+            <defs>
+              <radialGradient id={`lit-${other.id}`} cx={lit.x} cy={lit.y} fx={lit.x} fy={lit.y} r="0.75">
+                <stop offset="0" className="moonlit" />
+                <stop offset="0.55" className="moonmid" />
+                <stop offset="1" className="moondark" />
+              </radialGradient>
+            </defs>
+            <circle r="6.5" fill={`url(#lit-${other.id})`} />
+            <title>{`${other.name} is overhead here`}</title>
+          </g>
+        );
+      })}
 
       {walker && (
         <g
@@ -1287,7 +1325,10 @@ export default function Globe({
       )}
     </svg>
 
-    {editing && <Palette items={TOOLS} value={tool} onChange={setTool} />}
+    <div className="palettes">
+      {editing && <Palette items={TOOLS} value={tool} onChange={setTool} />}
+      <Palette items={VIEWS.map((v) => ({ ...v, on: shown[v.id], onClick: () => flip(v.id) }))} />
+    </div>
 
     {editing && taken && (
       <Palette
