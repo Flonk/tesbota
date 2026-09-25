@@ -1,7 +1,33 @@
 "use client";
 
+import { useRef, useState } from "react";
+import { useJSON } from "./http";
 import { face, given, lit, rare } from "./world";
-import { Empty, Mark, openDossier, rated, Table, unrated } from "./ui";
+import { Act, Empty, Mark, openDossier, rated, Row, Table, Tabs, unrated } from "./ui";
+
+const LAYER_ICON = {
+  common: "lines",
+  writing: "pen",
+  explorer: "person",
+  gm: "dice",
+  propose: "dice",
+  lore1: "lines",
+  lore2: "scales",
+  queries: "scales",
+  lore3: "silence",
+  lore4: "pen",
+};
+
+const LISTS = [
+  { id: "names", label: "names", icon: "people" },
+  { id: "personality", label: "personality", icon: "pulse" },
+  { id: "rarity", label: "rarity", icon: "dice" },
+  { id: "places", label: "places", icon: "pin" },
+  { id: "items", label: "items", icon: "box" },
+  { id: "kit", label: "kit", icon: "shirt" },
+];
+
+const drafts = {};
 
 const NAMES = {
   cols: "minmax(6rem, 1fr) minmax(5rem, 1.4fr)",
@@ -59,13 +85,7 @@ const RARITY = {
   ],
 };
 
-export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
-  const prompt = (catalogue?.prompts || []).find((p) => p.id === at);
-  const source = prompt?.source ?? prompt?.text ?? "";
-
-  if (!catalogue) return <Empty>reading the machine…</Empty>;
-  if (catalogue.error) return <Empty>{catalogue.error}</Empty>;
-
+function List({ catalogue, at }) {
   if (at === "names") {
     const { surname, current, pool = [] } = catalogue.names || {};
     const walking = given(current).toLowerCase();
@@ -130,16 +150,78 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
     const rows = (catalogue.personality || []).map((r) => ({ ...r, id: r.trait }));
     return <Table rarity={rated} {...TRAITS} rows={rows} empty="nobody is anybody yet" />;
   }
+}
 
-  if (!prompt) return <Empty>nothing under that name</Empty>;
+export default function Data({ sheaf, onPost }) {
+  const { data: catalogue, error, reload } = useJSON("/api/data");
+  const [pick, setPick] = useState({ lists: "names", prompts: "common" });
+  const [, redraw] = useState(0);
+  const pen = useRef(null);
+  const at = pick[sheaf];
+  const prompt = (catalogue?.prompts || []).find((p) => p.id === at);
+  const draft = drafts[at] ?? null;
+  const text = draft ?? prompt?.source ?? "";
+
+  const write = (id, next) => {
+    if (next === null) delete drafts[id];
+    else drafts[id] = next;
+    redraw((n) => n + 1);
+  };
+
+  const save = async () => {
+    if (draft === null) return;
+    const { ok } = await onPost("/api/prompt", { id: at, text: draft }, "prompt");
+    if (!ok) return;
+    await reload();
+    if (drafts[at] === draft) write(at, null);
+  };
+
+  const link = (line) => {
+    const cut = pen.current ? pen.current.selectionStart : text.length;
+    write(at, `${text.slice(0, cut).replace(/\n*$/, "")}\n\n${line}\n\n${text.slice(cut).replace(/^\n*/, "")}`);
+  };
+
+  let body = null;
+  if (error) body = <Empty>the machine did not answer — {error}</Empty>;
+  else if (!catalogue) body = <Empty>reading the machine…</Empty>;
+  else if (sheaf === "lists") body = <List catalogue={catalogue} at={at} />;
+  else if (!prompt) body = <Empty>nothing under that name</Empty>;
 
   return (
-    <textarea
-      ref={boxRef}
-      className="prompt"
-      value={draft ?? source}
-      spellCheck={false}
-      onChange={(e) => onDraft(e.target.value)}
-    />
+    <div className="lib">
+      <Tabs
+        sub
+        items={
+          sheaf === "lists"
+            ? LISTS
+            : (catalogue?.prompts || []).map((p) => ({ id: p.id, label: p.label, icon: LAYER_ICON[p.id] || "lines" }))
+        }
+        value={at}
+        onChange={(next) => setPick((was) => ({ ...was, [sheaf]: next }))}
+      />
+      {sheaf === "prompts" && (
+        <Row>
+          <Act className="keep" onClick={save} disabled={draft === null}>
+            save
+          </Act>
+          <Act onClick={() => write(at, null)} disabled={draft === null}>
+            abort
+          </Act>
+          <Act onClick={() => link("$COMMON")}>link common</Act>
+          <Act onClick={() => link("$WRITING")}>link writing</Act>
+        </Row>
+      )}
+      {body ? (
+        <div className="libbody">{body}</div>
+      ) : (
+        <textarea
+          ref={pen}
+          className="prompt"
+          value={text}
+          spellCheck={false}
+          onChange={(e) => write(at, e.target.value)}
+        />
+      )}
+    </div>
   );
 }

@@ -99,19 +99,6 @@ function Status({ status }) {
 
 const REMEMBER = "tesbota.sub";
 
-const LAYER_ICON = {
-  common: "lines",
-  writing: "pen",
-  explorer: "person",
-  gm: "dice",
-  propose: "dice",
-  lore1: "lines",
-  lore2: "scales",
-  queries: "scales",
-  lore3: "silence",
-  lore4: "pen",
-};
-
 const SUBS = {
   chat: [
     { id: "talk", label: "lore master", icon: "pen" },
@@ -153,11 +140,6 @@ export default function Page() {
   });
   const [counts, setCounts] = useState({});
   const [quest, setQuest] = useState(null);
-  const [catalogue, setCatalogue] = useState(null);
-  const sheaf = sub.dev === "prompts" ? "prompts" : "lists";
-  const [datum, setDatum] = useState("names");
-  const [draft, setDraft] = useState(null);
-  const pen = useRef(null);
   const [settings, setSettings] = useState(false);
   const [mapAt, setMapAt] = useState(null);
   const [walker, setWalker] = useState(WALKERS[0]);
@@ -211,22 +193,6 @@ export default function Page() {
     if (loaded.current === null) loaded.current = when;
     else if (when > loaded.current) setStale(true);
   }, [data]);
-
-  useEffect(() => {
-    setDraft(null);
-  }, [datum]);
-
-  useEffect(() => {
-    setDatum(sheaf === "lists" ? "names" : "common");
-  }, [sheaf]);
-
-  useEffect(() => {
-    if (tab !== "dev" || (sub.dev !== "lists" && sub.dev !== "prompts") || catalogue) return;
-    fetch("/api/data", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : { error: "the machine did not answer" }))
-      .then(setCatalogue)
-      .catch(() => setCatalogue({ error: "the machine did not answer" }));
-  }, [tab, sub.dev, catalogue]);
 
   useEffect(() => {
     const asked = document.cookie.match(/(?:^|;\s*)tesbota_who=([^;]*)/);
@@ -407,27 +373,6 @@ export default function Page() {
     localStorage.setItem("tesbota.split", "50");
   }
 
-  function editing(what) {
-    const kept = (catalogue?.prompts || []).find((p) => p.id === datum);
-    const text = draft ?? kept?.source ?? "";
-    if (what === "abort") return setDraft(null);
-    if (what === "save") {
-      if (draft === null) return;
-      post("/api/prompt", { id: datum, text }, "prompt").then(({ ok }) => {
-        if (!ok) return;
-        setDraft(null);
-        setCatalogue(null);
-      });
-      return;
-    }
-    const el = pen.current;
-    const cut = el ? el.selectionStart : text.length;
-    const line = what === "common" ? "$COMMON" : "$WRITING";
-    setDraft(
-      `${text.slice(0, cut).replace(/\n*$/, "")}\n\n${line}\n\n${text.slice(cut).replace(/^\n*/, "")}`
-    );
-  }
-
   async function post(path, body, label) {
     setPending(label);
     setError(null);
@@ -585,52 +530,13 @@ export default function Page() {
           />
         )}
 
-        {tab === "dev" && (sub.dev === "lists" || sub.dev === "prompts") && (
-          <Tabs
-            sub
-            items={
-              sheaf === "lists"
-                ? [
-                    { id: "names", label: "names", icon: "people" },
-                    { id: "personality", label: "personality", icon: "pulse" },
-                    { id: "rarity", label: "rarity", icon: "dice" },
-                    { id: "places", label: "places", icon: "pin" },
-                    { id: "items", label: "items", icon: "box" },
-                    { id: "kit", label: "kit", icon: "shirt" },
-                  ]
-                : (catalogue?.prompts || []).map((p) => ({
-                    id: p.id,
-                    label: p.label,
-                    icon: LAYER_ICON[p.id] || "lines",
-                  }))
-            }
-            value={datum}
-            onChange={setDatum}
-          />
-        )}
-
-        {tab === "dev" && sub.dev === "prompts" && (
-          <Tabs
-            sub
-            items={[
-              { id: "save", label: "save", icon: "pen", off: draft === null },
-              { id: "abort", label: "abort", icon: "cross", off: draft === null },
-              { id: "common", label: "link common", icon: "lines" },
-              { id: "writing", label: "link writing", icon: "book" },
-            ]}
-            value={null}
-            onChange={(what) => editing(what)}
-          />
-        )}
-
-
         <div className="tabbody">
           <div
             className={`tabpanel${
-              tab === "chat" || tab === "map" || tab === "library"
+              tab === "chat" || tab === "map" || tab === "library" || (tab === "dev" && sub.dev !== "states")
                 ? " flush"
                 : ""
-            }${tab === "dev" && sub.dev === "prompts" ? " edit" : ""}`}
+            }`}
           >
           {tab === "chat" && sub.chat === "talk" && (
             <Talk
@@ -669,15 +575,7 @@ export default function Page() {
               onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
             />
           )}
-          {tab === "dev" && (sub.dev === "lists" || sub.dev === "prompts") && (
-            <Data
-              catalogue={catalogue}
-              at={datum}
-              draft={draft}
-              onDraft={setDraft}
-              boxRef={pen}
-            />
-          )}
+          {tab === "dev" && sub.dev !== "states" && <Data sheaf={sub.dev} onPost={post} />}
           {tab === "dev" && sub.dev === "states" && <Machine status={status} />}
           {tab === "library" && (
             <Library

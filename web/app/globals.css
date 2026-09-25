@@ -616,7 +616,6 @@ textarea {
   background: none; border: 0; color: var(--ink);
   font: var(--mono); letter-spacing: .06em; padding: 0;
 }
-.tabpanel.edit { display: flex; overflow: hidden; padding: 0; }
 textarea.prompt {
   flex: 1 1 auto;
   min-height: 0;

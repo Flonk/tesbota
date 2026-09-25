@@ -325,7 +325,6 @@ export function Tabs({ items, value, onChange, sub = false, className = "" }) {
         <button
           key={t.id}
           className={`tab${value === t.id ? " on" : ""}`}
-          disabled={t.off || undefined}
           onClick={() => onChange(t.id)}
         >
           <Mark name={t.icon}>{t.label}</Mark>
