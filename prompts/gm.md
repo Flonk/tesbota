@@ -35,7 +35,7 @@ Reply with a single fenced json block and nothing else:
 
 # Action
 
-Each turn the explorer can take an action. `minutes`, `fatigue`, `health` describe what the action cost.
+Each turn the explorer can take an action. `minutes`, `fatigue`, `health` describe what the action cost. `minutes` is never walking somewhere: if they walk anywhere, set `travel` instead.
 
 Most actions should require a skill check. `{"skill": "athletics", "dc": 12}`.
 
