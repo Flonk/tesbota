@@ -11,8 +11,6 @@ import {
   EXPLORERS, FORBIDDEN_AUTHORS, GODHEADS, KINDS, NARRATOR, TRAITS, TRAITS_ROLLED, WEIGHT,
 } from "./config.ts";
 
-export const ATTESTED = "attested";
-
 const LETTERS: Record<string, string> = { ß: "ss", æ: "ae", œ: "oe", ø: "o", ł: "l", đ: "d", ð: "d", þ: "th" };
 
 export const slug = (text: unknown): string =>
@@ -33,7 +31,7 @@ const SMALL = new Set([
  * A thing is named the way a title is set: every word but the small joining ones
  * in the middle, and a word that already capitalises itself is left alone.
  */
-export function titled(name: unknown): string {
+function titled(name: unknown): string {
   const words = String(name ?? "").split(/\s+/).filter(Boolean);
   return words
     .map((word, at) => {
@@ -49,7 +47,7 @@ export const findEntity = (id: string) =>
   db.row("SELECT * FROM entity WHERE id = ?", [slug(id)]);
 
 export function ensureEntity(
-  kind: string, entityId: string, name?: string | null, turnId?: string | null, author?: string | null
+  kind: string, entityId: string, name?: string | null, turnId?: string | null
 ): string {
   const ident = slug(entityId);
   const sort = (KINDS as readonly string[]).includes(kind) ? kind : "places";
@@ -59,14 +57,6 @@ export function ensureEntity(
     con.prepare("INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)")
       .run(ident, sort, called, turnId ?? null);
     if (sort === "people") con.prepare("INSERT OR IGNORE INTO person (id) VALUES (?)").run(ident);
-    if (sort === "books") {
-      const by = author || "unknown";
-      const byId =
-        (con.prepare("SELECT id FROM entity WHERE id = ? AND kind = 'people'").get(slug(by)) as db.Row)
-          ?.id ?? null;
-      con.prepare("INSERT OR IGNORE INTO book (id, author, author_id) VALUES (?,?,?)")
-        .run(ident, by, byId);
-    }
   });
   return ident;
 }
@@ -74,14 +64,11 @@ export function ensureEntity(
 export const passages = (bookId: string) =>
   db.rows("SELECT * FROM passage WHERE book_id = ? ORDER BY ord", [slug(bookId)]);
 
-export const passage = (bookId: string, ord: number) =>
-  db.row("SELECT * FROM passage WHERE book_id = ? AND ord = ?", [slug(bookId), ord]);
-
 /** A place's own row — what contains it and what sort of place it is. */
 export const findPlace = (placeId: string | null | undefined) =>
   db.row("SELECT * FROM place WHERE id = ?", [slug(placeId)]);
 
-export const contains = (placeId: string): string[] =>
+const contains = (placeId: string): string[] =>
   db.rows("SELECT id FROM place WHERE parent = ? ORDER BY id", [slug(placeId)]).map((r) => String(r.id));
 
 export function ancestry(placeId: string): Array<{ id: string; name: string }> {
@@ -167,20 +154,15 @@ export function traits(entityId: string, roll = false, rng: Rng = random): strin
   return picked;
 }
 
-export const person = (entityId: string) =>
-  db.row(
-    `SELECT p.id, p.work, p.lives, p.born, p.died, p.traits,
-            coalesce(l.name, replace(p.lives, '-', ' ')) AS lives_name
-       FROM person p LEFT JOIN entity l ON l.id = p.lives
-      WHERE p.id = ?`,
-    [slug(entityId)]
-  );
-
 const ARTICLE = /^(?:the|a|an)\s+/i;
-const ANCHORED = /\[[^\]]*\]\(bota:\/\/[^)]*\)/g;
 const SPELLED = /\[([^\]]*)\]\(bota:\/\/[^)]*\)/g;
 const QUOTED = /"[^"]*"|“[^”]*”/g;
+const LINK = new RegExp(`bota://(${KINDS.join("|")})/([a-z0-9][a-z0-9-]*)(?:#([pc]\\d+))?`, "g");
 const SHORTEST_NAME = 3;
+
+const link = (kind: string, ident: string) => `bota://${kind}/${ident}`;
+
+const mentioned = (text: string) => new Set([...text.matchAll(LINK)].map((m) => m[2]));
 
 /**
  * What a link says, without where it points. The adventurer reads a terminal, not
@@ -193,7 +175,7 @@ export const plain = (text: string | null | undefined) =>
  * Every string that names something, longest first, so a mill inside a village is
  * linked as the mill and not as the village.
  */
-export function candidates(): Array<[string, string, string]> {
+function candidates(): Array<[string, string, string]> {
   const forms = new Map<string, [string, string, string]>();
   for (const r of db.rows("SELECT id, kind, name FROM entity")) {
     const name = String(r.name ?? "");
@@ -209,7 +191,7 @@ export function candidates(): Array<[string, string, string]> {
 
 const escaped = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export const namePattern = (form: string) =>
+const namePattern = (form: string) =>
   new RegExp(`(?<!\\w)${form.split(/\s+/).map(escaped).join("\\s+")}(?!\\w)`, "gi");
 
 /**
@@ -220,10 +202,10 @@ export function linkNames(text: string | null | undefined): string {
   if (!text) return text as string;
   let out = String(text);
   const kept: Array<[number, number]> = [];
-  for (const re of [ANCHORED, QUOTED, new RegExp(db.LINK.source, "g")]) {
+  for (const re of [SPELLED, QUOTED, LINK]) {
     for (const m of out.matchAll(re)) kept.push([m.index!, m.index! + m[0].length]);
   }
-  const linked = new Set(db.mentioned(out));
+  const linked = mentioned(out);
   const edits: Array<[number, number, string]> = [];
   for (const [form, kind, ident] of candidates()) {
     if (linked.has(ident)) continue;
@@ -231,7 +213,7 @@ export function linkNames(text: string | null | undefined): string {
       const start = m.index!;
       const end = start + m[0].length;
       if (kept.some(([a, b]) => start < b && a < end)) continue;
-      edits.push([start, end, `[${m[0]}](${db.link(kind, ident)})`]);
+      edits.push([start, end, `[${m[0]}](${link(kind, ident)})`]);
       kept.push([start, end]);
       linked.add(ident);
       break;
@@ -274,7 +256,7 @@ export const illegalBooks = () =>
     .filter((r) => FORBIDDEN_AUTHORS.includes(String(r.a)))
     .map((r) => String(r.id));
 
-export function graph() {
+function graph() {
   const nodes: Record<string, { name: string }> = {};
   const edges: Array<[string, string, string, string]> = [];
   const links: Array<[string, string]> = [];
@@ -332,7 +314,7 @@ export function mermaid(): string {
  * Everything anybody carries is a thing the world has a row for. Naming one that
  * has none writes it down, the same as naming a place.
  */
-export function thing(name: string, kind = "items", turnId?: string | null): string | null {
+function thing(name: string, kind = "items", turnId?: string | null): string | null {
   const ident = slug(name);
   if (!ident) return null;
   if (!findEntity(ident)) {
@@ -371,7 +353,7 @@ export function describe(
  * What a thing does is a row for each stat it moves, so a ring worth +1 dex costs
  * the world no column.
  */
-export function affect(item: string, stat: string, amount: unknown) {
+function affect(item: string, stat: string, amount: unknown) {
   db.writing((con) => {
     con.prepare(
       "INSERT INTO effect (item, stat, amount) VALUES (?, ?, ?) " +
@@ -380,10 +362,10 @@ export function affect(item: string, stat: string, amount: unknown) {
   });
 }
 
-export type Effect = { stat: string; amount: string };
+type Effect = { stat: string; amount: string };
 
 /** What each of these things does, by id. */
-export function effects(items: string[]): Record<string, Effect[]> {
+function effects(items: string[]): Record<string, Effect[]> {
   const ids = items.map(slug).filter(Boolean);
   if (!ids.length) return {};
   const marks = ids.map(() => "?").join(",");
@@ -407,7 +389,7 @@ export function does(from: Record<string, unknown> | Effect[] | null | undefined
   return pairs.map(([stat, amount]) => `${amount} ${stat}`).join(", ");
 }
 
-export const held = (holder: string, name: string) =>
+const held = (holder: string, name: string) =>
   db.row("SELECT * FROM holding WHERE holder = ? AND item = ?", [holder, slug(name)]);
 
 export type Holding = {
@@ -440,81 +422,17 @@ export function holdings(holder: string): Holding[] {
   }));
 }
 
-/**
- * An aspect is a thing in its own right — citizen, sworn, cursed — that other
- * things can be marked with. What it grants is written on the aspect, not on
- * everybody wearing it.
- */
-export function aspect(
-  name: string, applies?: string | null, ability?: unknown, about?: string | null
-): string {
-  const ident = ensureEntity("aspects", slug(name), String(name));
-  db.writing((con) => {
-    con.prepare("INSERT OR IGNORE INTO aspect (id) VALUES (?)").run(ident);
-    if (applies != null) con.prepare("UPDATE aspect SET applies = ? WHERE id = ?").run(applies, ident);
-    if (ability !== undefined) {
-      con.prepare("UPDATE aspect SET ability = ? WHERE id = ?")
-        .run(ability ? JSON.stringify(ability) : null, ident);
-    }
-    if (about != null) con.prepare("UPDATE entity SET about = ? WHERE id = ?").run(about, ident);
-  });
-  return ident;
-}
-
 export const ABILITY = [
   "damage", "advantage", "cooldown", "sleep", "delay", "spawn", "within", "in_kind", "in_aspect",
 ] as const;
 
-/**
- * What a body can do, written down once as a thing of its own. The columns are
- * what the driver rolls; the rest is in its description, for the game master.
- */
-export function ability(name: string, about?: string | null, how: Record<string, unknown> = {}): string {
-  const ident = ensureEntity("abilities", slug(name), String(name));
-  const known: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(how)) {
-    if (!(ABILITY as readonly string[]).includes(k) || v == null) continue;
-    known[k] = k === "spawn" && typeof v !== "string" ? JSON.stringify(v)
-      : k === "advantage" ? (v ? 1 : 0)
-      : v;
-  }
-  db.writing((con) => {
-    con.prepare("INSERT OR IGNORE INTO ability (id) VALUES (?)").run(ident);
-    const keys = Object.keys(known);
-    if (keys.length) {
-      const sets = keys.map((k) => `${k} = ?`).join(", ");
-      con.prepare(`UPDATE ability SET ${sets} WHERE id = ?`)
-        .run(...keys.map((k) => known[k] as any), ident);
-    }
-    if (about != null) con.prepare("UPDATE entity SET about = ? WHERE id = ?").run(about, ident);
-  });
-  return ident;
-}
-
 export const BODY = ["health", "damage", "dc", "bonus", "defense", "skill"] as const;
-
-/**
- * What a thing brings to a fight, written against the thing itself so it is the
- * same every time it is met.
- */
-export function embody(entityId: string, stats: Record<string, unknown>): string {
-  const ident = slug(entityId);
-  const known = Object.entries(stats).filter(([k, v]) => (BODY as readonly string[]).includes(k) && v != null);
-  db.writing((con) => {
-    con.prepare("INSERT OR IGNORE INTO body (id) VALUES (?)").run(ident);
-    if (known.length) {
-      const sets = known.map(([k]) => `${k} = ?`).join(", ");
-      con.prepare(`UPDATE body SET ${sets} WHERE id = ?`).run(...known.map(([, v]) => v as any), ident);
-    }
-  });
-  return ident;
-}
 
 /** What the record calls a thing, or nothing if it has no row. */
 export const called = (entityId: string): string | null =>
   db.value<string>("SELECT name FROM entity WHERE id = ?", [slug(entityId)]);
 
-export type BodyRow = Record<(typeof BODY)[number], any>;
+type BodyRow = Record<(typeof BODY)[number], any>;
 
 /** The fight stats a thing carries, or nothing if it has never been given any. */
 export function body(entityId: string): BodyRow | null {
@@ -532,18 +450,9 @@ export const mobs = () =>
     id: String(r.id), name: String(r.name), about: r.about, body: body(String(r.id)),
   }));
 
-/** An aspect hands out an ability to everything marked with it. */
-export function grant(aspectId: string, abilityId: string) {
-  db.writing((con) => {
-    con.prepare("INSERT OR IGNORE INTO grants (aspect, ability) VALUES (?,?)")
-      .run(slug(aspectId), slug(abilityId));
-  });
-  return true;
-}
+type AbilityRow = Record<string, any>;
 
-export type AbilityRow = Record<string, any>;
-
-export function readAbility(r: db.Row | null): AbilityRow | null {
+function readAbility(r: db.Row | null): AbilityRow | null {
   if (!r) return null;
   const out: AbilityRow = Object.fromEntries(ABILITY.map((k) => [k, r[k]]));
   out.id = r.id;
@@ -562,35 +471,6 @@ export const abilitiesOf = (aspectId: string) =>
       WHERE g.aspect = ? ORDER BY g.id`,
     [slug(aspectId)]
   ).map(readAbility).filter(Boolean) as AbilityRow[];
-
-export const findAbility = (abilityId: string) =>
-  readAbility(
-    db.row(
-      "SELECT a.*, e.name FROM ability a LEFT JOIN entity e ON e.id = a.id WHERE a.id = ?",
-      [slug(abilityId)]
-    )
-  );
-
-/**
- * Mark a thing with an aspect. `value` is what the aspect is of — the place a
- * citizen belongs to, the house somebody is sworn into.
- */
-export function tag(entityId: string, aspectId: string, value?: unknown) {
-  db.writing((con) => {
-    con.prepare("INSERT OR IGNORE INTO tagged (entity, aspect, value) VALUES (?,?,?)")
-      .run(slug(entityId), slug(aspectId), value ? String(value) : null);
-  });
-  return true;
-}
-
-export function untag(entityId: string, aspectId: string, value?: unknown) {
-  db.writing((con) => {
-    con.prepare(
-      "DELETE FROM tagged WHERE entity = ? AND aspect = ? AND coalesce(value, '') = coalesce(?, '')"
-    ).run(slug(entityId), slug(aspectId), value ? String(value) : null);
-  });
-  return true;
-}
 
 /** Everything a thing is marked with, and what each mark is of. */
 export const aspectsOf = (entityId: string) =>
@@ -614,17 +494,6 @@ export const aspectsOf = (entityId: string) =>
  */
 export const markedWith = (entityId: string, aspectId: string) =>
   !!db.row("SELECT 1 FROM tagged WHERE entity = ? AND aspect = ?", [slug(entityId), slug(aspectId)]);
-
-/** Everything marked with an aspect — every citizen of Alheim. */
-export function bearingAspect(aspectId: string, value?: string | null) {
-  let sql = "SELECT entity, value FROM tagged WHERE aspect = ?";
-  const args: unknown[] = [slug(aspectId)];
-  if (value) {
-    sql += " AND value = ?";
-    args.push(String(value));
-  }
-  return db.rows(sql + " ORDER BY entity", args);
-}
 
 /**
  * Everyone with something to their name. The explorer is one of them and is not
@@ -669,7 +538,7 @@ export function give(holder: string, name: string, qty = 1, worn = false, turnId
  * Give up what is asked for, or everything held if that is less. Taking what
  * nobody has is nothing happening.
  */
-export function take(holder: string, name: string, qty = 1): number {
+function take(holder: string, name: string, qty = 1): number {
   const item = slug(name);
   if (!holder || !item) return 0;
   const want = Math.trunc(qty || 1);
@@ -695,7 +564,7 @@ export const strip = (holder: string) =>
  * Take from a holder past what they have, leaving them short by the rest. A
  * negative row is a debt somebody has written and is good for.
  */
-export function owe(holder: string, name: string, qty = 1): number {
+function owe(holder: string, name: string, qty = 1): number {
   const item = thing(name);
   if (!holder || !item) return 0;
   const want = Math.trunc(qty || 1);

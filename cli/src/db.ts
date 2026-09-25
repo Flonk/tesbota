@@ -11,9 +11,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { CANON_DB } from "./config.ts";
 
-export const LINK = /bota:\/\/(people|places|books|items|aspects|abilities)\/([a-z0-9][a-z0-9-]*)(?:#([pc]\d+))?/g;
-
-export const SCHEMA = `
+const SCHEMA = `
 CREATE TABLE IF NOT EXISTS entity (
   id         TEXT PRIMARY KEY,
   kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects','abilities')),
@@ -457,15 +455,3 @@ export function value<T = any>(sql: string, args: unknown[] = [], fallback: T | 
   const first = Object.values(found)[0];
   return (first === undefined ? fallback : first) as T;
 }
-
-export const link = (kind: string, ident: string, fragment?: string | null) =>
-  `bota://${kind}/${ident}` + (fragment ? `#${fragment}` : "");
-
-export function targets(text: string | null | undefined): Array<[string, string, string]> {
-  const out: Array<[string, string, string]> = [];
-  for (const m of String(text ?? "").matchAll(LINK)) out.push([m[1], m[2], m[3] || ""]);
-  return out;
-}
-
-export const mentioned = (text: string | null | undefined) =>
-  new Set(targets(text).map(([, ident]) => ident));

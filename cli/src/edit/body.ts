@@ -1,4 +1,5 @@
 import type { Ctx } from "./index.ts";
+import { BODY } from "../canon.ts";
 import { fields, said, whole } from "./shared.ts";
 
 const WHOLE = { health: "health", dc: "dc", bonus: "bonus", defense: "defense" } as const;
@@ -9,7 +10,7 @@ export default function body(con: any, id: string, value: unknown, _ctx: Ctx) {
     con.prepare("DELETE FROM body WHERE id = ?").run(id);
     return;
   }
-  const got = fields(value, "body", ["health", "damage", "dc", "bonus", "defense", "skill"]);
+  const got = fields(value, "body", BODY);
   con.prepare("INSERT INTO body (id) VALUES (?) ON CONFLICT(id) DO NOTHING").run(id);
   for (const [key, raw] of Object.entries(got)) {
     let v: string | number | null;
