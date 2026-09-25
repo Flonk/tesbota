@@ -10,10 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import * as canon from "./canon.ts";
 import { random, type Rng } from "./rng.ts";
-import {
-  CAMPAIGN, DEATH, DEFAULTS, EXPLORER, FIRST_NAMES, MAX_HEALTH, PENDING,
-  STARTING_INVENTORY, STARTING_SKILLS, STATE, SURNAME, TURNS, WORLD_START,
-} from "./config.ts";
+import { CAMPAIGN, DEATH, EXPLORER, FIRST_NAMES, PENDING, STATE, SURNAME, TURNS } from "./config.ts";
 import type { StateName } from "./machine.ts";
 import { Campaign, Turn, type CampaignT, type TurnT } from "./schema.ts";
 
@@ -46,28 +43,6 @@ export function pickName(rng: Rng = random): string {
 export const explorerName = (campaign?: CampaignT | null) =>
   (campaign ?? loadCampaign()).explorer || "the explorer";
 
-export function newCampaign(): CampaignT {
-  return Campaign.parse({
-    explorer: null,
-    sessions: { explorer: null, gm: null, lore3_sitting: null },
-    sent: {},
-    fight: null,
-    current_turn: null,
-    turn_counter: 0,
-    clock: { ...DEFAULTS },
-    time: { ...WORLD_START },
-    vitals: { health: MAX_HEALTH, fatigue: 0, hunger: 0 },
-    quests: [],
-    skills: JSON.parse(JSON.stringify(STARTING_SKILLS)),
-    last_narration: null,
-    note: null,
-    location: null,
-    location_path: [],
-    last_seen: null,
-    created: stamp(),
-  });
-}
-
 type KitEntry = { name: string; effects?: Record<string, string>; [k: string]: unknown };
 
 /**
@@ -76,27 +51,14 @@ type KitEntry = { name: string; effects?: Record<string, string>; [k: string]: u
  */
 export function catalogue(inventory: readonly KitEntry[]) {
   for (const entry of inventory) {
-    if (!entry || typeof entry !== "object" || !entry.name) continue;
-    canon.describe(entry.name, entry.effects ?? null, {
-      type: entry.type, weight: entry.weight, worth: entry.worth,
-      owed_by: entry.owed_by, rarity: entry.rarity, slot: entry.slot,
-    });
+    if (entry.name) canon.describe(entry.name, entry.effects ?? null, entry);
   }
 }
 
-/**
- * Move what the explorer was carrying in the campaign file into canon, where
- * everything anybody holds now lives.
- */
-export function stock(inventory: readonly (KitEntry | string)[]) {
-  catalogue(inventory.filter((e): e is KitEntry => typeof e === "object" && e !== null));
-  for (const entry of inventory) {
-    if (typeof entry === "object" && entry !== null) {
-      canon.give(EXPLORER, entry.name, Number(entry.qty ?? 1) || 1, !!entry.worn);
-    } else {
-      canon.give(EXPLORER, entry);
-    }
-  }
+/** Put a kit in the explorer's hands. Everything anybody holds lives in canon. */
+export function stock(inventory: readonly KitEntry[]) {
+  catalogue(inventory);
+  for (const entry of inventory) canon.give(EXPLORER, entry.name, Number(entry.qty ?? 1) || 1, !!entry.worn);
 }
 
 /**
@@ -108,46 +70,14 @@ export const campaignIfAny = (): CampaignT | null =>
   fs.existsSync(CAMPAIGN) ? loadCampaign() : null;
 
 export function loadCampaign(): CampaignT {
-  if (!fs.existsSync(CAMPAIGN)) {
-    const made = newCampaign();
-    made.explorer = pickName();
-    writeJson(CAMPAIGN, made);
-    return Campaign.parse(made);
+  const campaign = Campaign.parse(
+    fs.existsSync(CAMPAIGN) ? readJson(CAMPAIGN) : { created: stamp(), turn_counter: 0 }
+  );
+  if (!campaign.explorer) {
+    campaign.explorer = pickName();
+    saveCampaign(campaign);
   }
-
-  const held = readJson(CAMPAIGN) as Record<string, unknown>;
-  const blank = newCampaign();
-  let changed = false;
-  if (!held.explorer) {
-    held.explorer = pickName();
-    changed = true;
-  }
-  for (const key of ["note", "location", "location_path", "quests", "time"] as const) {
-    if (!(key in held)) {
-      held[key] = blank[key];
-      changed = true;
-    }
-  }
-  for (const key of ["skills", "clock"] as const) {
-    if (!held[key]) {
-      held[key] = blank[key];
-      changed = true;
-    }
-  }
-  if ("inventory" in held) {
-    stock((held.inventory as KitEntry[]) || []);
-    delete held.inventory;
-    changed = true;
-  }
-  const vitals = (held.vitals ||= blank.vitals) as Record<string, number>;
-  for (const [key, value] of Object.entries(blank.vitals)) {
-    if (!(key in vitals)) {
-      vitals[key] = value;
-      changed = true;
-    }
-  }
-  if (changed) writeJson(CAMPAIGN, held);
-  return Campaign.parse(held);
+  return campaign;
 }
 
 export const saveCampaign = (campaign: CampaignT) => writeJson(CAMPAIGN, Campaign.parse(campaign));
@@ -226,5 +156,3 @@ export function ensureLayout() {
   fs.mkdirSync(STATE, { recursive: true });
   fs.mkdirSync(TURNS, { recursive: true });
 }
-
-export { STARTING_INVENTORY };

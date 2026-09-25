@@ -20,10 +20,10 @@ import { random, type Rng } from "./rng.ts";
 import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY } from "./config.ts";
 import * as worldclock from "./worldclock.ts";
 import {
-  clearDeath, ensureLayout, loadCampaign, loadTurn, newCampaign, newTurn, now,
+  clearDeath, ensureLayout, loadCampaign, loadTurn, newTurn, now,
   pendingDeath, pickName, retire, save, saveCampaign, saveTurn, stamp, stock,
 } from "./state.ts";
-import { Draft, type CampaignT, type TurnT } from "./schema.ts";
+import { Campaign, Draft, type CampaignT, type TurnT } from "./schema.ts";
 
 const SUSPENDED = ["arbiter", "lore3", "clock"];
 const TRAIL = 40;
@@ -94,10 +94,9 @@ export async function bury(campaign: CampaignT, cause?: string | null): Promise<
   retire(campaign);
   clearDeath();
 
-  const life = newCampaign();
-  life.explorer = pickName();
-  life.time = campaign.time;
-  life.clock = campaign.clock;
+  const life = Campaign.parse({
+    created: stamp(), turn_counter: 0, explorer: pickName(), time: campaign.time, clock: campaign.clock,
+  });
   saveCampaign(life);
   stock(STARTING_INVENTORY);
 
