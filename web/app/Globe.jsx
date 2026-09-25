@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { openDossier } from "./ui";
 import {
   carried, covers, dropped, extentOf, onto, opened, rerun, rework, runsOf, straighten,
 } from "./shaping";
-import { Act, Palette, Row } from "./ui";
+import { Act, openDossier, Palette, Row } from "./ui";
 import { edit, IDLE, onRun, sum, UNWRITTEN } from "./map/editor";
 import { treeOf } from "./map/pins";
 
@@ -91,9 +90,7 @@ function lengths(points) {
  * exactly on the horizon. It is one curve because a sphere lit from one side has
  * one, and the dark half is whichever pole is leaning away.
  */
-const HOME = { x: 0, y: 0 };
-
-function night(subsolar, o = HOME) {
+function night(subsolar, o) {
   const tilt = Math.tan(subsolar.lat * RAD) || 1e-9;
   const edge = [];
   for (let lon = -180; lon <= 180; lon += 1) {
@@ -156,13 +153,10 @@ function gather(pins, here, scale) {
     if (near) near.pins.push(pin);
     else groups.push({ x, y, pins: [pin] });
   }
-  const held = new Map(groups.map((g, n) => [n, g.pins]));
-  return [...held.values()].map((group) => {
+  return groups.map(({ pins: group }) => {
     const all = group.flatMap((pin) => pin.all);
     const holding = group.find((pin) => pin.all.some((p) => p.id === here));
-    const said = holding || group.reduce((a, b) =>
-      weight(b) > weight(a) || (weight(b) === weight(a) && b.all.length > a.all.length) ? b : a
-    );
+    const said = holding || group[0];
     return {
       id: said.place.id,
       name: said.place.name,
@@ -171,7 +165,6 @@ function gather(pins, here, scale) {
       day: said.place.day,
       altitude: said.place.altitude,
       here: !!holding,
-      more: all.length - 1,
       all,
     };
   });
@@ -1164,7 +1157,6 @@ export default function Globe({
     <svg
       ref={svg}
       viewBox={`${view.x - ox} ${view.y - oy} ${view.w} ${view.h}`}
-      data-origin={`${ox} ${oy}`}
       className={`globesvg${editing ? ` editing ${tool}` : ""}${spaced ? " panning" : ""}`}
       preserveAspectRatio="xMidYMid slice"
       role="img"
@@ -1194,7 +1186,7 @@ export default function Globe({
         )}
       </g>
 
-      <g style={{ strokeWidth: near }}>
+      <g>
         {drawn.map((place) => (
           <path
             key={`shape-${place.id}`}
@@ -1278,7 +1270,7 @@ export default function Globe({
       )}
 
       {draft && (
-        <g className="globedraft" style={{ strokeWidth: near }}>
+        <g className="globedraft">
           {draft.runs.map((run, r) => (
             <path
               key={`draft-${r}`}

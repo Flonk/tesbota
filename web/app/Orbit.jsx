@@ -165,10 +165,6 @@ export default function Orbit({ focus = null }) {
     if (sky.bodies[id] && id !== ground?.id) return setPicked(id);
     // Anything above the world is a step back out to the system it is drawn in.
     const outward = ground ? ground.above || [] : plan.above.slice(0, -1);
-    if (sky.bodies[id]?.type === "celestial-system" && id !== plan.shown.id) {
-      setFrame(id);
-      return setPicked(null);
-    }
     if (outward.some((p) => p.id === id)) {
       setFrame(id);
       return setPicked(null);
