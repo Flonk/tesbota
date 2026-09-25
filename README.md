@@ -587,44 +587,23 @@ bonuses, and the itemised inventory.
 
 ## Maps
 
-Places carry `way` rows — a target, a bearing and a rough distance each.
-Distances may be vague, because most of this world has never been measured; a
-number belongs there only where somebody in the world actually measured it, and
-the attested claim says who.
+Every place carries its own position: a `lat`/`lon` pin on `place`, an `extent` on
+`entity` (GeoJSON — an outline for ground, a line for a road or a river), or both.
+The shapes are the record: a road is where its line runs, a village is where its
+outline is, and nothing about where things lie is written down twice. What holds what
+is something the shapes say too — every place belongs to the smallest ground drawn
+around its pin — and a place with neither a pin nor a shape is not on the map at all,
+which `tesbota check` says out loud.
 
-That plus `within` is already a graph, so the map is a recursive query rather
-than a walk over rows, and `tesbota map` renders it as mermaid — containment as
-nested subgraphs, exits as labelled edges, unwritten places dashed.
+Doors are the one thing a map cannot show: the inside of a building, a cellar, a way
+into somewhere that is not on the ground at all. Those are the only rows the `way`
+table still holds.
 
-**The map is a projection of the graph, not a stored thing.** It is solved fresh
-from `within` and `exits` every time, and there are two layers to what it may know.
-
-*Derived, never stored.* `bearing_degrees()` turns a bearing into degrees clockwise
-from north, and `distance_band()` turns a distance into a low and a high in metres
-— wide on purpose, because "a short walk" is 200 to 1200 metres and pretending
-otherwise is a lie. Both return nothing at all for the vague cases rather than a
-guess, and most of this world's roads are a vague case. They live in
-`cli/src/travel.ts`, which already owns leagues and journey timing.
-
-*Established, stored.* A place may carry an `extent` — GeoJSON on `entity` — and
-only lore master 3 writes one, only where a document in the world measured the
-thing. The Council surveys a road; a plate carries a boundary. A place with no
-extent is not a defect and is never given one to make the map look better, because
-coordinates would mean inventing precision nobody established.
-
-`cli/src/mapping.ts` solves the two into a layout — seeded, so the same world always
-draws the same map — with an extent pinning a place absolutely, a bearing fixing an
-angle, a distance band fixing a range, and containment placing whatever has nothing
-else. A place with no bearing and no distance to anything is `floating`: it is
-reported as floating and given no position at all rather than a made-up one, and the
-map lists it in a gutter instead of scattering it into the middle. `tesbota map`
-still prints mermaid; `tesbota map --json` prints the solved layout.
-
-The renderer draws each containment group in its own frame and compresses distances
-within a group before drawing them, because this world runs from a hundred metres to
-thirty kilometres and one linear frame makes a village a dot. Bearings and ordering
-survive that; the metres do not, which is why every road keeps the distance somebody
-actually recorded on its label and says "nobody has measured this" when nobody has.
+`tesbota around [place | lat,lon]` says what is within reach and which way it lies,
+and `tesbota route [from] <to>` finds the way over the roads, and across country where
+no road goes. Both read the map in `cli/src/ground.ts`, on the geometry in
+`cli/src/geo.ts`; the place tree and the map's own writes are in
+`cli/src/places.ts`. `tesbota map` prints the tree as mermaid.
 
 ## Looking before acting
 
