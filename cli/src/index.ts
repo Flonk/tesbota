@@ -140,7 +140,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         mark.at = worldclock.date({ ...when, day: mark.day });
       }
     }
-    // Where the adventurer is standing, so a map of a world can say so.
+    // The last place the adventurer stood in, so a map of a world can say so. A stop
+    // on a road between places goes in the journey instead.
     const here = held?.location ?? null;
     // A journey under way, so the map can draw the road ahead and where on it they are.
     const journey = underway(held);
