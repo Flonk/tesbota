@@ -20,7 +20,7 @@ import * as db from "./db.ts";
 import * as sky from "./sky.ts";
 import { sqlite3 } from "./sqlite.ts";
 
-export type Wrong = { what: string; said: string };
+export type Wrong = { what: string; said: string; ids?: string[] };
 
 function unread(written: unknown, back: unknown, at = ""): string[] {
   if (!written || typeof written !== "object") {
@@ -113,6 +113,7 @@ function orphans(): Wrong[] {
   }
   return lost.map((r) => ({
     what: "orphan",
+    ids: [String(r.id), String(r.parent)],
     said: `${r.id} sits inside ${r.parent}, which is not a place — nothing can reach it`,
   }));
 }
@@ -140,6 +141,7 @@ function unplaced(): Wrong[] {
   }
   return lost.map((r) => ({
     what: "unplaced",
+    ids: [String(r.id)],
     said: `${r.id} is a ${r.type ?? "place"} with no position and no shape — the map cannot draw it`,
   }));
 }
@@ -151,12 +153,12 @@ function reader(): Wrong[] {
     : [{ what: "sqlite3", said: "no sqlite3 anywhere — every agent above the explorer is blind" }];
 }
 
+export const canonWrong = (): Wrong[] => [...calendar(), ...orphans(), ...unplaced()];
+
 export function check(): Wrong[] {
   return [
     ...reader(),
-    ...calendar(),
-    ...orphans(),
-    ...unplaced(),
+    ...canonWrong(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
     ...onDisk(),

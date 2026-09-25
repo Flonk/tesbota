@@ -1,5 +1,5 @@
 import * as db from "../db.ts";
-import { check } from "../check.ts";
+import { canonWrong } from "../check.ts";
 import entity from "./entity.ts";
 import person from "./person.ts";
 import body from "./body.ts";
@@ -46,8 +46,8 @@ export function edit(id: string, patch: unknown) {
   }
   let wrong: string[] = [];
   try {
-    wrong = check()
-      .filter((w) => w.said.includes(ident))
+    wrong = canonWrong()
+      .filter((w) => w.ids?.includes(ident) || (w.what === "calendar" && "orbit" in sections))
       .map((w) => w.said);
   } catch {}
   return { ok: true, id: ident, wrong };
