@@ -131,6 +131,10 @@ const turnFiles = () => {
 export const allTurns = (): TurnT[] =>
   turnFiles().map((f) => Turn.parse(readJson(path.join(TURNS, f))));
 
+/** Everywhere the explorer has actually stood. */
+export const walked = (): Set<string> =>
+  new Set(allTurns().flatMap((t) => t.location_path.map((p) => p.id)).filter(Boolean));
+
 export function newTurn(
   campaign: CampaignT, state: StateName = "explorer", fields: Partial<TurnT> = {}
 ): TurnT {

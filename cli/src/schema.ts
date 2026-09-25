@@ -384,9 +384,6 @@ export const Campaign = z.object({
   quiet: z.number().int().default(0),
   calm: z.number().int().default(0),
   settled: z.array(z.string()).default([]),
-  /** everywhere they have stood, worked out once and kept rather than re-read */
-  walked: z.array(z.string()).default([]),
-  walked_through: z.string().nullish(),
   /** not a fight — what was carried out of one nobody finished */
   fight: Carried.nullish(),
 });

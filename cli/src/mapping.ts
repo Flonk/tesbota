@@ -8,12 +8,10 @@
  * That is over. Every place now carries its own `lat`/`lon` and its own `extent`,
  * so there is nothing left to solve: a shape written down is a shape, and the map
  * draws it where the record puts it. What survives here is what was never about
- * guessing — reading the places out, finding the middle of a written shape, and
- * remembering which of them have been walked rather than merely read about.
+ * guessing — reading the places out, and finding the middle of a written shape.
  */
 
 import * as db from "./db.ts";
-import { allTurns, campaignIfAny, loadCampaign, saveCampaign } from "./state.ts";
 
 export type Place = {
   name: string;
@@ -82,35 +80,6 @@ export function centre(extent: string | null): [number, number] | null {
     points.reduce((a, p) => a + p[0], 0) / points.length,
     points.reduce((a, p) => a + p[1], 0) / points.length,
   ];
-}
-
-/**
- * Everywhere the explorer has actually stood. The turn records are read once and
- * the answer is kept on the campaign.
- */
-export function walked(): Set<string> {
-  const campaign = campaignIfAny();
-  if (!campaign) return new Set();
-  const seen = new Set(campaign.walked);
-  const mark = campaign.walked_through || "";
-  let latest = mark;
-  for (const turn of allTurns()) {
-    if (turn.turn_id <= mark) continue;
-    if (turn.turn_id > latest) latest = turn.turn_id;
-    for (const step of turn.location_path) {
-      if (step.id) seen.add(step.id);
-    }
-  }
-
-  const before = new Set(campaign.walked);
-  const moved = latest !== mark || seen.size !== before.size;
-  if (moved) {
-    const fresh = loadCampaign();
-    fresh.walked = [...seen].sort();
-    fresh.walked_through = latest;
-    saveCampaign(fresh);
-  }
-  return seen;
 }
 
 export const knowledge = (ident: string, been: Set<string>) =>

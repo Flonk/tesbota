@@ -13,7 +13,6 @@ import * as chronicle from "./chronicle.ts";
 import * as db from "./db.ts";
 import * as driver from "./driver.ts";
 import * as machine from "./machine.ts";
-import * as mapping from "./mapping.ts";
 import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
 import * as sky from "./sky.ts";
@@ -30,7 +29,7 @@ import {
 } from "./config.ts";
 import {
   allTurns, campaignIfAny, catalogue, ensureLayout, explorerName, loadCampaign,
-  loadTurn, now, parse, saveCampaign, stock,
+  loadTurn, now, parse, saveCampaign, stock, walked,
 } from "./state.ts";
 
 const say = (x: unknown) => console.log(typeof x === "string" ? x : JSON.stringify(x));
@@ -120,7 +119,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     const when = held?.time ?? WORLD_START;
     // Everywhere they have actually stood, so the map can tell what was walked
     // from what was only ever written down.
-    const said = sky.describe(when, mapping.walked());
+    const said = sky.describe(when, walked());
     for (const body of Object.values(said.bodies) as any[]) {
       for (const mark of body.seasons || []) {
         mark.at = worldclock.date({ ...when, day: mark.day });
