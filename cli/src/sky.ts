@@ -103,8 +103,6 @@ export function bodies(): Record<string, Body> {
   return out;
 }
 
-export const body = (id: string): Body | null => bodies()[id] ?? null;
-
 const inside = (it: Body, known: Record<string, Body>) =>
   Object.values(known).filter((other) => other.parent === it.id);
 
@@ -424,46 +422,6 @@ export function altitude(
     Math.sin(lat * RAD) * Math.sin(at.lat * RAD) +
     Math.cos(lat * RAD) * Math.cos(at.lat * RAD) * Math.cos(hour);
   return Math.asin(Math.max(-1, Math.min(1, sin))) * DEG;
-}
-
-export function sunUp(
-  it: Body, when: When, lat: number, lon: number, known: Record<string, Body> = bodies()
-): boolean | null {
-  const high = altitude(it, when, lat, lon, known);
-  return high === null ? null : high > REFRACTION;
-}
-
-/**
- * How much of the day the star is above the horizon, in minutes. A latitude the
- * season has tipped fully into the light or fully out of it gets the whole day or
- * none of it, which is what a pole is.
- */
-export function dayLength(
-  it: Body, when: When, lat: number, known: Record<string, Body> = bodies()
-): number | null {
-  const at = subsolar(it, when, known);
-  if (!at) return null;
-  const top = Math.sin(REFRACTION * RAD) - Math.sin(lat * RAD) * Math.sin(at.lat * RAD);
-  const bottom = Math.cos(lat * RAD) * Math.cos(at.lat * RAD);
-  if (!bottom) return top < 0 ? MINUTES_PER_DAY : 0;
-  const cos = top / bottom;
-  if (cos <= -1) return MINUTES_PER_DAY;
-  if (cos >= 1) return 0;
-  return (2 * Math.acos(cos) * DEG * MINUTES_PER_DAY) / 360;
-}
-
-/**
- * Where the day/night line crosses a meridian. This is what a flat map draws, and
- * it is the only thing in here the map will need that the clock does not.
- */
-export function terminator(
-  it: Body, when: When, lon: number, known: Record<string, Body> = bodies()
-): number | null {
-  const at = subsolar(it, when, known);
-  if (!at) return null;
-  const tan = Math.tan(at.lat * RAD);
-  if (!tan) return 0;
-  return Math.atan(-Math.cos(wrap180(lon - at.lon) * RAD) / tan) * DEG;
 }
 
 const kept_home = new WeakMap<Record<string, Body>, Body | null>();

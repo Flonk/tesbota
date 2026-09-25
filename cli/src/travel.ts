@@ -1,6 +1,6 @@
 /**
- * The road. How far a thing is written as being, which way it lies, and how much
- * of a walk gets done before something interrupts it.
+ * Time on the road: how long a stretch of world-time takes, and how much of a walk
+ * gets done before something interrupts it.
  */
 
 import type { Rng } from "./rng.ts";
@@ -12,71 +12,6 @@ export const POINTS = [
   "south", "south-south-west", "south-west", "west-south-west",
   "west", "west-north-west", "north-west", "north-north-west",
 ];
-
-function compass(): Record<string, number> {
-  const table: Record<string, number> = {};
-  POINTS.forEach((name, n) => {
-    const forms = [
-      name,
-      name.replace(/-/g, ""),
-      name.replace(/-/g, " "),
-      name.split("-").map((w) => w[0]).join(""),
-    ];
-    for (const form of forms) table[form] = n * 22.5;
-  });
-  return table;
-}
-
-export const COMPASS = compass();
-
-export const UNITS: Record<string, number> = {
-  m: 1, metre: 1, metres: 1, meter: 1, meters: 1,
-  km: 1000, kilometre: 1000, kilometres: 1000, kilometer: 1000, kilometers: 1000,
-  mile: 1609, miles: 1609,
-  league: 4800, leagues: 4800,
-};
-
-const MEASURED = /(\d+(?:\.\d+)?)\s*(?:(?:-|–|to)\s*(\d+(?:\.\d+)?)\s*)?([a-z]+)/;
-
-const PACES: Array<[string, [number, number]]> = [
-  ["a few days", [75000, 150000]],
-  ["half a day", [15000, 30000]],
-  ["a day", [25000, 45000]],
-  ["an hour", [3000, 6000]],
-  ["a couple of minutes", [100, 300]],
-  ["a few minutes", [100, 500]],
-  ["a short walk", [200, 1200]],
-  ["a short way", [200, 1200]],
-  ["a long walk", [4000, 12000]],
-];
-
-/**
- * Degrees clockwise from north, or nothing at all where the world never wrote a
- * direction down.
- */
-export function bearingDegrees(text: unknown): number | undefined {
-  const said = String(text ?? "").toLowerCase().split(/\s+/).filter(Boolean).join(" ")
-    .replace(/^[ .,]+|[ .,]+$/g, "");
-  return COMPASS[said];
-}
-
-/**
- * A low and a high in metres, wide on purpose, or nothing where nobody has
- * measured it — which is most of the roads in this world.
- */
-export function distanceBand(text: unknown): [number, number] | null {
-  const said = String(text ?? "").toLowerCase().split(/\s+/).filter(Boolean).join(" ");
-  if (!said) return null;
-  const found = MEASURED.exec(said);
-  if (found && UNITS[found[3]] !== undefined) {
-    const scale = UNITS[found[3]];
-    const low = parseFloat(found[1]) * scale;
-    const high = found[2] ? parseFloat(found[2]) * scale : low;
-    return [Math.round(low), Math.round(high)];
-  }
-  for (const [phrase, band] of PACES) if (said.includes(phrase)) return band;
-  return null;
-}
 
 /** How long a stretch of world-time takes in real seconds, at the current speed. */
 export function realDelayMs(pace: PaceT, inWorldMinutes: number): number {
