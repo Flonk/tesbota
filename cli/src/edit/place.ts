@@ -63,6 +63,9 @@ export default function place(con: any, id: string, value: unknown, ctx: Ctx) {
     if (row.type === "celestial-system" && ground) {
       throw new Error(`${id} has ground inside it, so it cannot be a celestial-system`);
     }
+    if (!CELESTIAL.includes(String(row.type)) && con.prepare("SELECT 1 FROM orbit WHERE id = ?").get(id)) {
+      throw new Error(`${id} has an orbit, so it cannot be a ${row.type ?? "place without a type"}`);
+    }
   }
 
   con
