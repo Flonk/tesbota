@@ -74,7 +74,9 @@ would be no empty ground left to click. Esc and `deselect` let go too. Clicking
 inside the selection reaches through to what stands on it. Space or the middle button pans in any
 tool. Ctrl Z and Ctrl Shift Z undo and redo, Enter saves, and Delete takes out
 the corner last picked. Unsaved work is never dropped: letting go, choosing
-another place or turning the pen off with changes pending says so instead.
+another place, stepping up the trail, following a link to somewhere else,
+leaving the map tab, closing the page or turning the pen off with changes
+pending says so instead.
 
 A selected road or river shows its width in metres in the bar; it saves with the shape. It is drawn at that width once zoomed in far enough for it to be wider than the line.
 

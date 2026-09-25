@@ -46,7 +46,7 @@ const spot = (at, scale) => ({ x: MIDDLE + at.x * scale, y: MIDDLE - at.y * scal
 const holderOf = (bodies, id) =>
   Object.values(bodies).find((b) => (b.standing || []).some((p) => p.id === id)) || null;
 
-export default function Orbit({ focus = null }) {
+export default function Orbit({ focus = null, onUnsaved = null }) {
   const [sky, setSky] = useState(null);
   const [picked, setPicked] = useState(null);
   const [frame, setFrame] = useState(null);
@@ -58,6 +58,13 @@ export default function Orbit({ focus = null }) {
   // are walking. Once only: after that the map stays where it has been put.
   const [went, setWent] = useState(null);
   const landed = useRef(false);
+  const leave = () => !(editing && unsaved) || window.confirm("discard unsaved changes?");
+
+  useEffect(() => {
+    if (!onUnsaved) return;
+    onUnsaved(editing && unsaved);
+    return () => onUnsaved(false);
+  }, [editing, unsaved, onUnsaved]);
 
   const read = useCallback(
     () =>
@@ -89,6 +96,7 @@ export default function Orbit({ focus = null }) {
 
   useEffect(() => {
     if (!holder) return;
+    if (holder !== picked && !leave()) return;
     if (sky?.bodies?.[holder]?.type === "celestial-system") {
       setFrame(holder);
       setPicked(null);
@@ -159,13 +167,15 @@ export default function Orbit({ focus = null }) {
 
   const step = (id) => {
     if (sky.bodies[id]?.type === "celestial-system" && id !== plan.shown.id) {
+      if (!leave()) return;
       setFrame(id);
       return setPicked(null);
     }
-    if (sky.bodies[id] && id !== ground?.id) return setPicked(id);
+    if (sky.bodies[id] && id !== ground?.id) return leave() && setPicked(id);
     // Anything above the world is a step back out to the system it is drawn in.
     const outward = ground ? ground.above || [] : plan.above.slice(0, -1);
     if (outward.some((p) => p.id === id)) {
+      if (!leave()) return;
       setFrame(id);
       return setPicked(null);
     }
@@ -179,10 +189,7 @@ export default function Orbit({ focus = null }) {
           <Crumb className="maptrail" where={trail} onPick={step} />
           <button
             className={`crumbtool${editing ? " on" : ""}`}
-            onClick={() => {
-              if (editing && unsaved && !window.confirm("discard unsaved changes?")) return;
-              setEditing((was) => !was);
-            }}
+            onClick={() => leave() && setEditing((was) => !was)}
             title={editing ? "stop reshaping" : "reshape what is drawn"}
             aria-label="reshape"
           >

@@ -124,6 +124,7 @@ export default function Page() {
   const [counts, setCounts] = useState({});
   const [settings, setSettings] = useState(false);
   const [mapAt, setMapAt] = useState(null);
+  const [mapUnsaved, setMapUnsaved] = useState(false);
   const [walker, setWalker] = useState(WALKERS[0]);
   const keyboard = useKeyboardAvoid();
   const app = useRef(null);
@@ -243,7 +244,7 @@ export default function Page() {
     }
     if (!failed) shown.current = null;
     const stuck = data.status?.state === "arbiter";
-    if (stuck && !wasBlocked.current && !deepLinked.current) {
+    if (stuck && !wasBlocked.current && !deepLinked.current && !mapUnsaved) {
       setTab("chat");
       pickSub("chat", "lore");
     }
@@ -377,6 +378,7 @@ export default function Page() {
             }))}
             value={tab}
             onChange={(next) => {
+              if (tab === "map" && next !== "map" && mapUnsaved && !window.confirm("discard unsaved changes?")) return;
               if (next === "map") setMapAt(null);
               setTab(next);
             }}
@@ -438,7 +440,7 @@ export default function Page() {
               onNote={(text) => post("/api/note", { text }, "note")}
             />
           )}
-          {tab === "map" && <Orbit focus={mapAt} />}
+          {tab === "map" && <Orbit focus={mapAt} onUnsaved={setMapUnsaved} />}
           {tab === "me" && sub.me === "equipped" && <Doll inventory={inventory || []} />}
           {tab === "me" && sub.me === "inventory" && <Kit inventory={inventory || []} />}
           {tab === "me" && sub.me === "stats" && (

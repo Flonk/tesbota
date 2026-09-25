@@ -587,8 +587,17 @@ export default function Globe({
   const dirty = past.length > 0;
 
   useEffect(() => {
-    if (onDirty) onDirty(dirty);
+    if (!onDirty) return;
+    onDirty(dirty);
+    return () => onDirty(false);
   }, [dirty, onDirty]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const stay = (e) => e.preventDefault();
+    window.addEventListener("beforeunload", stay);
+    return () => window.removeEventListener("beforeunload", stay);
+  }, [dirty]);
 
   /** Take up a shape to work on, as it is written. */
   function take(place) {
