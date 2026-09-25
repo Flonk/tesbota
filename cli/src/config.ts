@@ -32,6 +32,7 @@ export const READ_TOOLS = ["Bash"];
 export const WRITE_TOOLS = ["Bash"];
 
 export const MAX_GM_RETRIES = 3;
+export const MAX_PROPOSE_RETRIES = 2;
 
 // Defense does not subtract from a blow, it divides it — a body with DEFENSE_HALVES
 // takes half of what lands, twice that takes a third, and nothing is ever immune.

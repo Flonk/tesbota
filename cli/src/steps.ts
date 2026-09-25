@@ -28,7 +28,7 @@ import {
 import {
   BANDS, BLOW_FATIGUE, BLOW_MINUTES, DIE, EXPLORER, GODHEAD_ID, HUNGER_PER_HOUR,
   MAX_ASKS, MAX_BLOWS, MAX_FATIGUE, MAX_GM_RETRIES, MAX_HEALTH, MAX_HUNGER,
-  MAX_LOOKS, MAX_TALKS, MODELS, PRESS_FLOOR, READ_TOOLS, SKILL_DIE,
+  MAX_LOOKS, MAX_PROPOSE_RETRIES, MAX_TALKS, MODELS, PRESS_FLOOR, READ_TOOLS, SKILL_DIE,
   SPARK_FLOOR, TRIVIAL_FATIGUE, TRIVIAL_MINUTES, WEIGHT,
 } from "./config.ts";
 
@@ -380,7 +380,7 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
 
   if (!said || !("minutes" in said)) {
     turn.propose_retries += 1;
-    if (turn.propose_retries < 2) return "again";
+    if (turn.propose_retries < MAX_PROPOSE_RETRIES) return "again";
     turn.proposal = {
       summary: turn.action || "",
       target: null,
@@ -568,17 +568,29 @@ export async function ruleRecord(
 }
 
 /** Nothing can go on until somebody writes the missing document. */
-export function holdForLore(
-  { campaign, turn }: World, claims: ClaimT[], unresolved: VerdictT[]
-): "unwritten" {
-  const byId = new Map(claims.map((c) => [c.id, c]));
-  turn.gap = unresolved
-    .map((v) => "- " + (v.question.trim() || byId.get(v.claim)?.text || v.claim))
-    .join("\n");
+function hold({ campaign, turn }: World, gap: string): "unwritten" {
+  turn.gap = gap;
   const blocked = openPhase(turn);
   if (blocked) blocked.status = "blocked";
   campaign.quiet = 0;
   return "unwritten";
+}
+
+const listed = (lines: string[]) => lines.map((line) => "- " + line).join("\n");
+
+function holdForLore(world: World, claims: ClaimT[], unresolved: VerdictT[]): "unwritten" {
+  const byId = new Map(claims.map((c) => [c.id, c]));
+  return hold(world, listed(unresolved.map((v) => v.question.trim() || byId.get(v.claim)?.text || v.claim)));
+}
+
+function sendBack<E extends string>(world: World, wrong: VerdictT[], failed: string, edge: E): E | "unwritten" {
+  const { turn } = world;
+  if (turn.gm_retries >= MAX_GM_RETRIES) {
+    return hold(world, `${failed}\n\n${JSON.stringify({ false: wrong }, null, 2)}`);
+  }
+  turn.gm_retries += 1;
+  turn.correction = JSON.stringify({ contradicts_the_record: wrong }, null, 2);
+  return edge;
 }
 
 /**
@@ -587,7 +599,7 @@ export function holdForLore(
  * the game master and nobody checks a blow.
  */
 export const stepMuster: Step<"muster"> = async (world) => {
-  const { campaign, turn } = world;
+  const { turn } = world;
   const running = fightOf(turn);
   const strangers = fight.unbound(running).map((x) => ({ id: x.id, name: x.name }));
   const said = running.said;
@@ -611,30 +623,21 @@ export const stepMuster: Step<"muster"> = async (world) => {
     }
   }
   showFight(turn, running);
-  if (asked.length) {
-    turn.gap = asked.map((q) => "- " + q).join("\n");
-    const blocked = openPhase(turn);
-    if (blocked) blocked.status = "blocked";
-    campaign.quiet = 0;
-    return "unwritten";
-  }
+  if (asked.length) return hold(world, listed(asked));
 
   const unresolved = verdicts.filter((v) => v.result === "UNRESOLVED");
   if (unresolved.length) return holdForLore(world, claims, unresolved);
 
   const wrong = verdicts.filter((v) => v.result === "FALSE");
   if (wrong.length) {
-    if (turn.gm_retries >= MAX_GM_RETRIES) {
-      turn.gap =
-        "The game master could not declare a fight that survives adjudication.\n\n" +
-        JSON.stringify({ false: wrong }, null, 2);
-      return "unwritten";
+    const edge = sendBack(
+      world, wrong, "The game master could not declare a fight that survives adjudication.", "rejected"
+    );
+    if (edge === "rejected") {
+      turn.fight = null;
+      turn.phases = turn.phases.filter((x) => x.kind !== "fight");
     }
-    turn.gm_retries += 1;
-    turn.correction = JSON.stringify({ contradicts_the_record: wrong }, null, 2);
-    turn.fight = null;
-    turn.phases = turn.phases.filter((x) => x.kind !== "fight");
-    return "rejected";
+    return edge;
   }
 
   turn.correction = null;
@@ -782,17 +785,10 @@ export const stepLore2: Step<"lore2"> = async (world) => {
   }
 
   if (wrong.length) {
-    if (turn.gm_retries >= MAX_GM_RETRIES) {
-      turn.gap =
-        "The game master could not produce a draft that survives adjudication.\n\n" +
-        JSON.stringify({ false: wrong }, null, 2);
-      return "unwritten";
-    }
-    turn.gm_retries += 1;
-    turn.correction = JSON.stringify({ contradicts_the_record: wrong }, null, 2);
-    return redraftEdge(turn);
+    return sendBack(
+      world, wrong, "The game master could not produce a draft that survives adjudication.", redraftEdge(turn)
+    );
   }
-
   return "stands";
 };
 
