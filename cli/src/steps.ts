@@ -653,25 +653,27 @@ export const FATE_INSTRUCTIONS: Record<string, string> = {
     "unlooked-for kindness, a danger that passes them by entirely. Let it matter.",
 };
 
-export function rollCheck({ campaign, turn }: World, rng: Rng = random): CheckT | null {
-  const asked = turn.draft?.check;
+export function rollCheck(campaign: CampaignT, asked: DraftT["check"], rng: Rng = random): CheckT | null {
   const skill = String(asked?.skill || "").trim().toLowerCase();
   const bonus = sheet.skillBonus(campaign, skill);
   if (bonus === null) return null;
-  const dc = asked?.dc || 10;
   const { fatigue, hunger } = campaign.vitals;
   const against = ([["spent", fatigue], ["starving", hunger]] as const)
     .filter(([, level]) => level >= 100)
     .map(([word]) => word);
-  const rolls = Array.from({ length: 1 + against.length }, () => rng.int(1, SKILL_DIE));
-  const roll = Math.min(...rolls);
-  const outcome = {
-    skill, dc, roll, rolls, against, for: [], bonus,
+  return rollAgainst(skill, asked?.dc || 10, bonus, rng, against);
+}
+
+function rollAgainst(
+  skill: string, dc: number, bonus: number, rng: Rng, against: string[] = [], edge = false
+): CheckT {
+  const rolls = Array.from({ length: edge ? 2 : 1 + against.length }, () => rng.int(1, SKILL_DIE));
+  const roll = edge ? Math.max(...rolls) : Math.min(...rolls);
+  return {
+    skill, dc, roll, rolls, against, for: edge ? ["the better of two"] : [], bonus,
     total: roll + bonus,
     passed: roll + bonus >= dc,
   };
-  turn.check = outcome;
-  return outcome;
 }
 
 export function rollFate(turn: TurnT, rng: Rng = random): string | null {
@@ -736,7 +738,8 @@ export const stepLore2: Step<"lore2"> = async (world) => {
   }
 
   if (!wrong.length && turn.roll == null && !turn.asking) {
-    const check = rollCheck(world);
+    const check = rollCheck(campaign, draft.check);
+    turn.check = check;
     const fate = rollFate(turn);
     const payload: Record<string, unknown> = {};
 
@@ -782,14 +785,16 @@ export const stepLore2: Step<"lore2"> = async (world) => {
  * One word back from the explorer, read the way an action is read. Anything that
  * does not parse is a swing, because a body in a fight does not stand still.
  */
-export function chosenBlow(said: string, campaign: CampaignT, running?: FightT | null): SwingT {
+export function chosenBlow(
+  said: string, campaign: CampaignT, running?: FightT | null, spent: string[] = []
+): SwingT {
   const first = String(said ?? "").trim().split("\n");
   const head = (first[0] || "").trim().replace(/^["'`*]+|["'`*]+$/g, "").trim();
   const upper = head.toUpperCase();
   if (upper.startsWith("FLEE")) return { verb: "FLEE" };
   if (upper.startsWith("ITEM")) {
     const want = canon.slug(head.slice(4));
-    const found = fight.usable(campaign).find((h) => canon.slug(h.name) === want);
+    const found = fight.usable(spent).find((h) => canon.slug(h.name) === want);
     return found ? { verb: "ITEM", item: found.item } : { verb: "ATTACK" };
   }
   if (upper.startsWith("SKILL")) {
@@ -841,7 +846,7 @@ export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
   const me = running.us[0];
   const first = !running.blows.length;
   const message = first
-    ? prompts.fightOpen(running, me, fight.usable(campaign))
+    ? prompts.fightOpen(running, me, fight.usable(turn.spent))
     : prompts.fightBlow(running, me, saidBlow(running.blows[running.blows.length - 1]));
   const [text, session] = await ask(message, {
     system: prompts.EXPLORER_SYSTEM(),
@@ -851,7 +856,7 @@ export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
     permission: explorerPermission,
   });
   campaign.sessions.explorer = session;
-  turn.swing = chosenBlow(firstUtterance(text) || text, campaign, running);
+  turn.swing = chosenBlow(firstUtterance(text) || text, campaign, running, turn.spent);
   return "chose";
 };
 
@@ -863,7 +868,7 @@ export function takeTurn(
   blow.chose = picked.verb;
 
   if (picked.verb === "ITEM") {
-    const used = fight.usable(world.campaign).find((h) => h.item === picked.item);
+    const used = fight.usable(world.turn.spent).find((h) => h.item === picked.item);
     if (used) {
       blow.chose = `ITEM ${used.name}`;
       blow.mended = canon.does(used.effects);
@@ -876,7 +881,7 @@ export function takeTurn(
   }
 
   if (picked.verb === "FLEE") {
-    const [check] = strike(world, running, me, null, me.skill ?? null, running.flee_dc, rng);
+    const [check] = strike(world.campaign, me, me.skill ?? null, running.flee_dc, rng);
     blow.check = check;
     blow.hit = check.passed;
     if (check.passed) running.ended = "fled";
@@ -887,7 +892,7 @@ export function takeTurn(
   if (picked.verb === "SKILL") blow.chose = `SKILL ${picked.skill}`;
   const mark = fight.stillUp(running, "mark" in picked ? picked.mark : null) || fight.marks(running, me);
   if (!mark) return;
-  const [check, hurt] = strike(world, running, me, mark, skill, mark.dc, rng);
+  const [check, hurt] = strike(world.campaign, me, skill, mark.dc, rng);
   blow.check = check;
   blow.hit = check.passed;
   blow.at = mark.id;
@@ -900,30 +905,11 @@ export function takeTurn(
  * keeps the better, which is the one thing a body can have going for it.
  */
 export function strike(
-  world: World | null, running: FightT, who: FighterT, mark: FighterT | null,
-  skill: string | null, dc: number, rng: Rng, edge = false, hurts?: string | null
+  campaign: CampaignT | null, who: FighterT, skill: string | null, dc: number, rng: Rng,
+  edge = false, hurts?: string | null
 ): [CheckT, number] {
-  let check: CheckT | null;
-  if (who.kind === "explorer" && world) {
-    drafted(world.turn).check = { skill: skill ?? "", dc };
-    check = rollCheck(world, rng);
-    if (check === null) {
-      const roll = rng.int(1, SKILL_DIE);
-      check = {
-        skill: skill ?? "", dc, roll, rolls: [roll], against: [], for: [], bonus: who.bonus,
-        total: roll + who.bonus, passed: roll + who.bonus >= dc,
-      };
-    }
-  } else {
-    const rolls = Array.from({ length: edge ? 2 : 1 }, () => rng.int(1, SKILL_DIE));
-    const roll = edge ? Math.max(...rolls) : rolls[0];
-    check = {
-      skill: skill || "a swing", dc, roll, rolls,
-      for: edge ? ["the better of two"] : [],
-      against: [], bonus: who.bonus, total: roll + who.bonus,
-      passed: roll + who.bonus >= dc,
-    };
-  }
+  const rolled = who.kind === "explorer" && campaign ? rollCheck(campaign, { skill: skill ?? "", dc }, rng) : null;
+  const check = rolled ?? rollAgainst(skill || "a swing", dc, who.bonus, rng, [], edge);
   const bandOf = hurts || who.damage;
   let hurt = 0;
   if (check.passed) {
@@ -985,8 +971,7 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
     const mark = fight.marks(running, who);
     if (mark) {
       const [check, hurt] = strike(
-        null, running, who, mark, who.skill ?? null, mark.dc, rng,
-        !!power?.advantage, power?.damage
+        null, who, who.skill ?? null, mark.dc, rng, !!power?.advantage, power?.damage
       );
       blow.check = check;
       blow.hit = check.passed;
@@ -1002,20 +987,15 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
   }
 
   running.blows.push(blow);
-  turn.swing = null;
-  running.turn += 1;
-  if (running.turn >= fight.order(running).length) {
-    running.turn = 0;
-    running.round += 1;
-    fight.arrive(running);
-  }
-
   blow.us = fight.snapshot(running.us);
   blow.them = fight.snapshot(running.them);
+  turn.swing = null;
 
   fight.settle(running);
   if (!running.ended && running.blows.length >= MAX_BLOWS) running.ended = "broken";
-  return running.ended ? "over" : "next";
+  if (running.ended) return "over";
+  fight.pass(running);
+  return "next";
 };
 
 const Worded = Draft.pick({
@@ -1063,9 +1043,8 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
     quest_close: [...was.quest_close, ...out.quest_close],
     minutes: Math.max(2, running.round * BLOW_MINUTES),
     fatigue: mine * BLOW_FATIGUE,
-    health: me.most ? me.health - me.most : 0,
+    health: me.health - me.opened,
     hunger: sated || null,
-    check: null,
   };
   turn.draft = draft;
   turn.check = null;

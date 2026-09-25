@@ -33,12 +33,6 @@ export function band(said: unknown, rng: Rng): number {
   return rng.int(Math.min(low, high), Math.max(low, high));
 }
 
-/** The worst a band can do, for a fumble. */
-export function bandtop(said: unknown): number {
-  const found = BAND.exec(String(said ?? "")) || BAND.exec(UNARMED)!;
-  return Number(found[3] ?? Math.max(Number(found[1]), Number(found[2])));
-}
-
 /** What a body has on adds up, whoever it is. Nothing carried but not worn counts. */
 export function wornDefense(holder: string = EXPLORER): number {
   let total = 0;
@@ -268,26 +262,26 @@ export const order = (fight: FightT): FighterT[] => [...fight.us, ...fight.them]
 
 export const standing = (fight: FightT) => order(fight).filter((x) => !x.dead);
 
+/** Whose turn it is. */
+export function whoseTurn(fight: FightT): FighterT | null {
+  const up = order(fight)[fight.turn];
+  return up && !up.dead ? up : null;
+}
+
 /**
- * Whose turn it is, skipping the fallen. The pointer walks a fixed list rather
+ * Hand the turn on, skipping the fallen. The pointer walks a fixed list rather
  * than a shrinking one, so a death never hands anybody a second swing.
  */
-export function whoseTurn(fight: FightT): FighterT | null {
-  const line = order(fight);
-  if (!line.length || line.every((x) => x.dead)) return null;
-  for (let step = 0; step <= line.length; step++) {
-    const at = fight.turn + step;
-    if (at >= line.length) {
+export function pass(fight: FightT) {
+  if (!standing(fight).length) return;
+  do {
+    fight.turn += 1;
+    if (fight.turn >= order(fight).length) {
       fight.turn = 0;
       fight.round += 1;
-      return whoseTurn(fight);
+      arrive(fight);
     }
-    if (!line[at].dead) {
-      fight.turn = at;
-      return line[at];
-    }
-  }
-  return null;
+  } while (order(fight)[fight.turn].dead);
 }
 
 /**
@@ -311,8 +305,9 @@ export function stillUp(fight: FightT, id: string | null | undefined): FighterT 
   return fight.them.find((x) => x.id === id && !x.dead) ?? null;
 }
 
-export const usable = (campaign: CampaignT) =>
-  canon.holdings(EXPLORER).filter((h) => h.type === "consumable" && Math.trunc(Number(h.qty) || 0) > 0);
+export const usable = (spent: string[] = []) =>
+  canon.holdings(EXPLORER).filter((h) =>
+    h.type === "consumable" && Math.trunc(Number(h.qty) || 0) > spent.filter((x) => x === h.name).length);
 
 /**
  * Whether what it can do is there to be done. A thing used once is done with;
