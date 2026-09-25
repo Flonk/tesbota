@@ -4,8 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-export const CANON = path.join(ROOT, "canon");
-export const CANON_DB = process.env.TESBOTA_CANON || path.join(ROOT, "canon.db");
+export const CANON_DB = path.join(ROOT, "canon.db");
 
 export const PROFILES = ["corda", "debug"] as const;
 export type Profile = (typeof PROFILES)[number];
@@ -123,8 +122,6 @@ export const FIRST_NAMES = [
   "Thies", "Tomke", "Ubbo", "Uwe", "Vibeke", "Volkert", "Wibke", "Wiard",
   "Wilke", "Wobke", "Ynse", "Zwaantje",
 ];
-
-export const STUB = "$BOTA";
 
 // One world, and a holder for each adventurer walking it. The first keeps the plain
 // name; anybody else is told apart by their profile, so two kits never become one.
@@ -255,8 +252,6 @@ export const SKILL_DIE = 20;
 
 export const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand", "ring"] as const;
 
-export const RING_SLOTS = 4;
-
 export const APPAREL_ICON: Record<string, string> = {
   helmet: "helm",
   chest: "shirt",
@@ -305,13 +300,6 @@ export const DIE = 400;
 export const BANDS = ["common", "common", "uncommon", "rare", "epic", "legendary"];
 export const SPARK_FLOOR = 4;
 export const PRESS_FLOOR = 3;
-
-export const FATE_LABELS: Record<string, string> = {
-  greater_calamity: "greater calamity",
-  lesser_calamity: "lesser calamity",
-  lesser_fortune: "lesser fortune",
-  greater_fortune: "greater fortune",
-};
 
 export const DEFAULTS = {
   hours_per_league: 1.5,

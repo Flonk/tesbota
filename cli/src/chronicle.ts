@@ -13,9 +13,9 @@ import { MYSTERY, NARRATOR, WORLD_START } from "./config.ts";
 import { explorerName } from "./state.ts";
 import type { TurnT } from "./schema.ts";
 
-export const bookTitle = (name?: string | null) => `The Life of ${name || explorerName()}`;
+export const bookTitle = () => `The Life of ${explorerName()}`;
 
-export const bookId = (name?: string | null) => canon.slug(bookTitle(name));
+export const bookId = () => canon.slug(bookTitle());
 
 export function ensureBook(turnId?: string | null): string {
   const { era, year } = WORLD_START;
@@ -55,16 +55,19 @@ export function compose(turn: TurnT): string {
   return said.join(" ");
 }
 
+function append(text: string) {
+  ensureBook();
+  const ord = nextOrd();
+  db.writing((con) => {
+    con.prepare("INSERT INTO passage (book_id, ord, text) VALUES (?,?,?)").run(bookId(), ord, text);
+  });
+  return since(ord);
+}
+
 export function write(turn: TurnT) {
   ensureBook(turn.turn_id);
   const text = compose(turn);
-  if (!text) return [];
-  const ord = nextOrd();
-  db.writing((con) => {
-    con.prepare("INSERT INTO passage (book_id, ord, text) VALUES (?,?,?)")
-      .run(bookId(), ord, canon.linkNames(text));
-  });
-  return since(ord);
+  return text ? append(canon.linkNames(text)) : [];
 }
 
 /**
@@ -74,20 +77,10 @@ export function write(turn: TurnT) {
 export function close(cause?: string | null) {
   let said = String(cause || MYSTERY).split(/\s+/).filter(Boolean).join(" ").replace(/\.+$/, "");
   if (said.toLowerCase().startsWith("who ")) said = said.slice(4);
-  const text = `Here ends the life of ${explorerName()}, who ${canon.linkNames(said)}.`;
-  const ord = nextOrd();
-  db.writing((con) => {
-    con.prepare("INSERT INTO passage (book_id, ord, text) VALUES (?,?,?)").run(bookId(), ord, text);
-  });
-  return since(ord);
+  return append(`Here ends the life of ${explorerName()}, who ${canon.linkNames(said)}.`);
 }
 
-/** Take the book back to nothing, so it can be set down again in one voice. */
-export const clear = () =>
-  db.writing((con) => con.prepare("DELETE FROM passage WHERE book_id = ?").run(bookId()).changes);
-
 export function played(turn: TurnT): boolean {
-  if (turn.state === "arbiter" || turn.state === "lore3") return false;
   if ((turn.phases || []).length) {
     return turn.phases.some((p) => p.who === "gm" && String(p.text || "").trim());
   }

@@ -1,9 +1,8 @@
 import type { Ctx } from "./index.ts";
-import { RARITIES } from "../config.ts";
+import { RARITIES, SLOTS } from "../config.ts";
 import { fields, number, oneOf, said } from "./shared.ts";
 
 const FIELDS = ["type", "slot", "rarity", "weight", "worth", "owed_by"] as const;
-const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand", "ring"] as const;
 
 export default function item(con: any, id: string, value: unknown, ctx: Ctx) {
   if (ctx.kind !== "items") throw new Error(`item: ${id} is one of the ${ctx.kind}, not the items`);
