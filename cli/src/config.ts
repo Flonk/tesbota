@@ -7,7 +7,7 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 export const CANON_DB = path.join(ROOT, "canon.db");
 
 export const PROFILES = ["corda", "debug"] as const;
-export type Profile = (typeof PROFILES)[number];
+type Profile = (typeof PROFILES)[number];
 
 const asked = (process.env.TESBOTA_PROFILE || "").trim().toLowerCase();
 export const PROFILE: Profile = (PROFILES as readonly string[]).includes(asked)
@@ -16,7 +16,7 @@ export const PROFILE: Profile = (PROFILES as readonly string[]).includes(asked)
 
 // One world, more than one adventurer walking it. The first keeps the state
 // directory it has always had; anybody else gets a room of their own inside it.
-export const SHARED = path.join(ROOT, "state");
+const SHARED = path.join(ROOT, "state");
 export const roomOf = (p: Profile) => (p === PROFILES[0] ? SHARED : path.join(SHARED, p));
 export const STATE = roomOf(PROFILE);
 
@@ -42,7 +42,7 @@ export const BLOW_MINUTES = 1;
 export const BLOW_FATIGUE = 3;
 export const UNARMED = "1–2";
 
-export const GODHEAD = "the godhead";
+const GODHEAD = "the godhead";
 export const GODHEAD_ID = "the-godhead";
 export const NARRATOR = "The Narrator";
 export const GODHEADS = [GODHEAD, NARRATOR.toLowerCase()];
@@ -160,8 +160,8 @@ export const OPENING_QUEST = {
 };
 
 export const DAYS_PER_WEEK = 7;
-export const WEEKS_PER_MONTH = 4;
-export const MONTHS_PER_YEAR = 8;
+const WEEKS_PER_MONTH = 4;
+const MONTHS_PER_YEAR = 8;
 export const DAYS_PER_MONTH = DAYS_PER_WEEK * WEEKS_PER_MONTH;
 export const DAYS_PER_YEAR = DAYS_PER_MONTH * MONTHS_PER_YEAR;
 
@@ -209,7 +209,7 @@ export const WORLD_SKY = {
   },
 } as const;
 
-export const SPEED_FACTOR = 10;
+const SPEED_FACTOR = 10;
 
 export const CARRY_PER_STR = 0.5;
 export const OVER_DRAG = 10.0;

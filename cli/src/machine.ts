@@ -18,7 +18,7 @@ import type { AgentId } from "./agents.ts";
  * that are not agents at all: `cli` for what the driver does on its own, and
  * `human` for what waits on a person.
  */
-export type Runs = AgentId | "cli" | "human";
+type Runs = AgentId | "cli" | "human";
 
 /**
  * The states, named once. Everything else is derived from this, so adding one
@@ -31,7 +31,7 @@ export const STATE_NAMES = [
 
 export type StateName = (typeof STATE_NAMES)[number];
 
-export type Edge = {
+type Edge = {
   /** the state this edge leads to */
   readonly to: StateName;
   /** the name a step returns to take it, unique within its state */
@@ -40,7 +40,7 @@ export type Edge = {
   readonly when: string;
 };
 
-export type State = {
+type State = {
   /** what happens while the world is here */
   readonly does: string;
   /** who does the work here, which is what the diagram colours by */

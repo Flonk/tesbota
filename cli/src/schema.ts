@@ -19,7 +19,7 @@ import { z } from "zod";
 import { STATE_NAMES } from "./machine.ts";
 import { DEFAULTS, GODHEAD_ID, MAX_HEALTH, STARTING_SKILLS, WORLD_START } from "./config.ts";
 
-export const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab-case");
+const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab-case");
 
 /** `1–2`, `2-5`, or a bare number — what one blow takes off. */
 export const BAND = /(\d+)\s*[–—-]\s*(\d+)|^\s*(\d+)\s*$/;
@@ -28,13 +28,13 @@ export const Band = z.string().regex(BAND, "a damage band reads `1–2`");
 
 export const Written = z.record(z.string(), z.unknown());
 
-export const Vitals = z.object({
+const Vitals = z.object({
   health: z.number().int().min(0).max(100).default(MAX_HEALTH),
   fatigue: z.number().int().min(0).max(100).default(0),
   hunger: z.number().int().min(0).max(100).default(0),
 });
 
-export const Time = z.object({
+const Time = z.object({
   era: z.number().int(),
   year: z.number().int(),
   day: z.number().int(),
@@ -43,32 +43,32 @@ export const Time = z.object({
   long: z.string().optional(),
 });
 
-export const Pace = z.object({
+const Pace = z.object({
   hours_per_league: z.number().default(DEFAULTS.hours_per_league),
   min_leg_minutes: z.number().default(DEFAULTS.min_leg_minutes),
   encounter_chance_per_league: z.number().default(DEFAULTS.encounter_chance_per_league),
   speed_factor: z.number().default(DEFAULTS.speed_factor),
 });
 
-export const Skills = z.object({
+const Skills = z.object({
   abilities: z.record(z.string(), z.number().int()).default({}),
   proficiency: z.number().int().default(0),
   proficient: z.array(z.string()).default([]),
 });
 
-export const Sessions = z.object({
+const Sessions = z.object({
   explorer: z.string().nullish(),
   gm: z.string().nullish(),
   lore3_sitting: z.string().nullish(),
 });
 
-export const Placed = z.object({ id: z.string(), name: z.string() });
+const Placed = z.object({ id: z.string(), name: z.string() });
 
-export const Pt = z.tuple([z.number(), z.number()]);
+const Pt = z.tuple([z.number(), z.number()]);
 
 export const QuestStatus = z.enum(["active", "done", "failed", "abandoned"]);
 
-export const Quest = z.object({
+const Quest = z.object({
   id: z.string(),
   title: z.string(),
   detail: z.string().default(""),
@@ -82,7 +82,7 @@ export const Quest = z.object({
   where: z.array(Placed).default([]),
 });
 
-export const Check = z.object({
+const Check = z.object({
   skill: z.string(),
   dc: z.number().int(),
   roll: z.number().int(),
@@ -94,7 +94,7 @@ export const Check = z.object({
   passed: z.boolean(),
 });
 
-export const Spawn = z.object({
+const Spawn = z.object({
   name: z.string(),
   who: z.string().nullish(),
   count: z.coerce.number().int().min(1).default(1),
@@ -122,7 +122,7 @@ export const Ability = z.object({
   used: z.boolean().default(false),
 });
 
-export const Side = z.enum(["explorer", "ally", "foe"]);
+const Side = z.enum(["explorer", "ally", "foe"]);
 
 /** One body standing in a fight. `id` is the whole of its identity. */
 export const Fighter = z.object({
@@ -173,9 +173,9 @@ export const Blow = z.object({
   them: z.array(z.object({ id: Id, health: z.number().int().min(0), dead: z.boolean() })).default([]),
 });
 
-export const Ended = z.enum(["beaten", "killed", "fled", "broken"]);
+const Ended = z.enum(["beaten", "killed", "fled", "broken"]);
 
-export const Fight = z.object({
+const Fight = z.object({
   skill: z.string(),
   flee_dc: z.number().int(),
   name: z.string().default("it"),
@@ -194,7 +194,7 @@ export const Fight = z.object({
 });
 
 /** What the adventurer chose to do with one round. The mark is an id, and so is the item. */
-export const Swing = z.discriminatedUnion("verb", [
+const Swing = z.discriminatedUnion("verb", [
   z.object({ verb: z.literal("ATTACK"), mark: Id.nullish() }),
   z.object({ verb: z.literal("SKILL"), skill: z.string(), mark: Id.nullish() }),
   z.object({ verb: z.literal("ITEM"), item: z.string() }),
@@ -208,7 +208,7 @@ export const Claim = z.object({
   kind: z.string().nullish(),
 });
 
-export const Result = z.enum(["TRUE", "WITHIN_BOUNDS", "FALSE", "UNRESOLVED"]);
+const Result = z.enum(["TRUE", "WITHIN_BOUNDS", "FALSE", "UNRESOLVED"]);
 
 export const Verdict = z.object({
   claim: z.string(),
@@ -233,7 +233,7 @@ const Holder = z.string().nullish().transform((said) => said || GODHEAD_ID);
 
 export const Listed = <T extends z.ZodType>(item: T) => z.array(item).nullish().transform((items) => items ?? []);
 
-export const Transaction = z.object({
+const Transaction = z.object({
   from: Holder,
   to: Holder,
   name: z.string(),
@@ -257,11 +257,11 @@ export const Draft = z.object({
   quest_close: Listed(z.unknown()),
 });
 
-export const PhaseKind = z.enum(["action", "look", "say", "answer", "outcome", "world", "fight"]);
+const PhaseKind = z.enum(["action", "look", "say", "answer", "outcome", "world", "fight"]);
 
-export const Outcome = z.object({ band: z.string(), text: z.string(), p: z.number() });
+const Outcome = z.object({ band: z.string(), text: z.string(), p: z.number() });
 
-export const Phase = z.object({
+const Phase = z.object({
   n: z.number().int().optional(),
   who: z.enum(["explorer", "gm"]),
   kind: PhaseKind,
@@ -278,13 +278,13 @@ export const Phase = z.object({
   check: Check.nullish(),
 });
 
-export const Proposal = z.object({
+const Proposal = z.object({
   summary: z.string(),
   minutes: z.number().int(),
   fatigue: z.number().int(),
 });
 
-export const Journey = z.object({
+const Journey = z.object({
   to: Id,
   /** the way the map says they are going, and how much of it this stretch covers */
   path: z.array(Pt).default([]),
@@ -295,10 +295,10 @@ export const Journey = z.object({
   minutes: z.number().int().min(0),
 });
 
-export const StateName = z.enum(STATE_NAMES);
+const StateName = z.enum(STATE_NAMES);
 
 /** One edge of the machine, crossed. Two states name it; `on` is what the step said. */
-export const Crossing = z.object({
+const Crossing = z.object({
   from: StateName,
   to: StateName,
   at: z.string(),
@@ -364,7 +364,7 @@ export const Turn = z.object({
   quest: z.string().nullish(),
 });
 
-export const Carried = Fight.pick({ skill: true, flee_dc: true, name: true, us: true, them: true });
+const Carried = Fight.pick({ skill: true, flee_dc: true, name: true, us: true, them: true });
 
 export const Campaign = z.object({
   created: z.string(),

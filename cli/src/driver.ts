@@ -31,9 +31,9 @@ import { Campaign, Draft, Verdict, type CampaignT, type TurnT } from "./schema.t
 const TRAIL = 40;
 const LOCK = path.join(STATE, "run.lock");
 
-export const pendingPath = (turnId: string) => path.join(PENDING, `${turnId}.md`);
+const pendingPath = (turnId: string) => path.join(PENDING, `${turnId}.md`);
 
-export function writePending(turn: TurnT): string {
+function writePending(turn: TurnT): string {
   fs.mkdirSync(PENDING, { recursive: true });
   const file = pendingPath(turn.turn_id);
   if (fs.existsSync(file)) return file;
@@ -102,7 +102,7 @@ export function openWorld(campaign: CampaignT): TurnT {
  * what killed them and stays on the shelf; the world keeps everything it has been
  * told.
  */
-export async function bury(campaign: CampaignT, cause?: string | null): Promise<TurnT> {
+async function bury(campaign: CampaignT, cause?: string | null): Promise<TurnT> {
   chronicle.close(cause);
   canon.strip(EXPLORER);
   retire(campaign);
@@ -316,5 +316,3 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
   if (fs.existsSync(file)) fs.rmSync(file);
   return turn;
 }
-
-export { STATES };

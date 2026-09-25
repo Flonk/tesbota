@@ -24,7 +24,7 @@ const FLAGS = ["-safe", "-readonly"];
  * with the line: run a second command, redirect, glob, expand something inside
  * double quotes, or be left inside an open quote.
  */
-export function words(raw: string): string[] | null {
+function words(raw: string): string[] | null {
   const out: string[] = [];
   let word = "";
   let begun = false;

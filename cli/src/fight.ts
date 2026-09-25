@@ -34,7 +34,7 @@ export function band(said: unknown, rng: Rng): number {
 }
 
 /** What a body has on adds up, whoever it is. Nothing carried but not worn counts. */
-export function wornDefense(holder: string = EXPLORER): number {
+function wornDefense(holder: string = EXPLORER): number {
   let total = 0;
   for (const held of canon.holdings(holder)) {
     if (!held.worn) continue;
@@ -51,7 +51,7 @@ export function wornDefense(holder: string = EXPLORER): number {
  * What they are holding. Worn, a weapon, and carrying a damage band — anything
  * else and they are swinging a fist, which is no worse than a stick.
  */
-export function swungWith(campaign: CampaignT): [string, string] {
+function swungWith(campaign: CampaignT): [string, string] {
   for (const held of canon.holdings(EXPLORER)) {
     if (held.worn && held.type === "weapon") {
       const said = (held.effects || []).find((e) => e.stat === "damage")?.amount;
@@ -67,7 +67,7 @@ export function swungWith(campaign: CampaignT): [string, string] {
  * is the same Rat every time; what the game master wrote stands over the record
  * for this fight only and is never written back.
  */
-export function fighter(said: Record<string, unknown>, kind: FighterT["kind"], fallbackDc = 11): FighterT {
+function fighter(said: Record<string, unknown>, kind: FighterT["kind"], fallbackDc = 11): FighterT {
   const ident = canon.slug(said.who || said.name || kind) || kind;
   const kept: Record<string, unknown> = canon.body(ident) ?? {};
   const written = canon.called(ident);
@@ -129,7 +129,7 @@ export function rebind(fight: FightT, declared: string, bound: string, campaign:
 }
 
 /** Every place they are inside, innermost first. */
-export function standingOn(campaign: CampaignT): string[] {
+function standingOn(campaign: CampaignT): string[] {
   const chain = [
     campaign.location,
     ...[...campaign.location_path].reverse().map((x) => x.id),
@@ -146,7 +146,7 @@ export function standingOn(campaign: CampaignT): string[] {
 }
 
 /** Whether what a body can do counts on the ground it is standing on. */
-export function countsHere(power: AbilityT, campaign: CampaignT): boolean {
+function countsHere(power: AbilityT, campaign: CampaignT): boolean {
   const ground = new Set(standingOn(campaign));
   if (power.within && !ground.has(canon.slug(power.within))) return false;
   if (power.in_kind) {
@@ -160,14 +160,14 @@ export function countsHere(power: AbilityT, campaign: CampaignT): boolean {
   return true;
 }
 
-export const STAND_IN = /\$([A-Z_]+)_NAME/;
+const STAND_IN = /\$([A-Z_]+)_NAME/;
 
 /**
  * `$GUARDED_NAME Guard` is an Alheim Guard in Alheim and a Greater Plains Guard on
  * the road between. The token names an aspect; whoever answers is the nearest
  * place around them carrying it.
  */
-export function namedFor(text: unknown, campaign: CampaignT): string {
+function namedFor(text: unknown, campaign: CampaignT): string {
   return String(text ?? "").replace(/\$([A-Z_]+)_NAME/g, (whole, token: string) => {
     const want = token.toLowerCase().replace(/_/g, "-");
     for (const place of standingOn(campaign)) {
@@ -184,7 +184,7 @@ export function namedFor(text: unknown, campaign: CampaignT): string {
  * What a body is marked with, and what its markings hand it here. A citizen is
  * only worth anything where the mark says it is.
  */
-export function borne(who: FighterT, campaign: CampaignT): FighterT {
+function borne(who: FighterT, campaign: CampaignT): FighterT {
   const marks = canon.aspectsOf(who.id);
   who.aspects = marks.map((m) => ({ name: m.name, value: m.value, of: m.of }));
   if (who.ability) return who;
@@ -258,9 +258,9 @@ export function openFight(campaign: CampaignT, draft: DraftT): FightT {
  * Everybody in the fight, in the order they act — our side then theirs, and
  * anything that arrives partway through falls in at the back.
  */
-export const order = (fight: FightT): FighterT[] => [...fight.us, ...fight.them];
+const order = (fight: FightT): FighterT[] => [...fight.us, ...fight.them];
 
-export const standing = (fight: FightT) => order(fight).filter((x) => !x.dead);
+const standing = (fight: FightT) => order(fight).filter((x) => !x.dead);
 
 /** Whose turn it is. */
 export function whoseTurn(fight: FightT): FighterT | null {
@@ -340,7 +340,7 @@ export function spawn(fight: FightT, want: SpawnT): FighterT[] {
  * What armour is worth. It does not subtract from a blow, it divides it — so a
  * great deal of defense is a great deal of good and is never quite enough.
  */
-export function soften(hurt: number, guard: unknown): number {
+function soften(hurt: number, guard: unknown): number {
   const kept = DEFENSE_HALVES / (DEFENSE_HALVES + Math.max(0, Math.trunc(Number(guard) || 0)));
   // Python rounds half to even; a blow is small enough that the difference shows.
   const scaled = hurt * kept;
@@ -372,7 +372,7 @@ export function settle(fight: FightT) {
 export const ARRIVED = "the-world";
 
 /** Anything called for in an earlier round turns up when its round comes. */
-export function arrive(fight: FightT) {
+function arrive(fight: FightT) {
   const owed = fight.owed.filter((due) => due.at <= fight.round);
   const waiting = fight.owed.filter((due) => due.at > fight.round);
   for (const due of owed) {

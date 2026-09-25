@@ -33,10 +33,10 @@ export function ensureBook(turnId?: string | null): string {
 export const passages = () =>
   canon.passages(bookId()).map((r) => ({ ord: Number(r.ord), text: String(r.text) }));
 
-export const nextOrd = () =>
+const nextOrd = () =>
   (db.value<number>("SELECT max(ord) FROM passage WHERE book_id = ?", [bookId()]) || 0) + 1;
 
-export const since = (start: number) =>
+const since = (start: number) =>
   db.rows("SELECT ord, text FROM passage WHERE book_id = ? AND ord >= ? ORDER BY ord", [bookId(), start])
     .map((r) => ({ ord: Number(r.ord), text: String(r.text) }));
 

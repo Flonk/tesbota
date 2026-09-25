@@ -23,7 +23,7 @@ const FENCE = /```(\w*)\s*([\s\S]*?)```/g;
 const CLOSERS = new Set([",", ":", "}", "]"]);
 
 /** Escape the bare double quotes a game master leaves around spoken words. */
-export function mend(raw: string): string {
+function mend(raw: string): string {
   const out: string[] = [];
   let inside = false;
   let escaped = false;

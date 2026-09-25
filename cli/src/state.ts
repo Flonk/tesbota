@@ -118,7 +118,7 @@ export function retire(campaign: CampaignT): string {
   return home;
 }
 
-export const turnPath = (turnId: string) => path.join(TURNS, `${turnId}.json`);
+const turnPath = (turnId: string) => path.join(TURNS, `${turnId}.json`);
 
 const turnFiles = () => {
   try {

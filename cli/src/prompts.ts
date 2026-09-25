@@ -25,7 +25,7 @@ import {
 
 type Keeps = ReturnType<typeof holdingsAt>;
 
-export const PROMPTS = path.join(ROOT, "prompts");
+const PROMPTS = path.join(ROOT, "prompts");
 const INCLUDE = ["COMMON", "WRITING"];
 
 /**
@@ -55,7 +55,7 @@ export const fill = (text: string | null | undefined): string =>
     .split("$HOLDER").join(EXPLORER);
 
 /** One of a thing says nothing; a debt has to say itself. */
-export function tally(qty: unknown): string {
+function tally(qty: unknown): string {
   const n = Math.trunc(Number(qty) || 1);
   if (n < 0) return ` (owes ${Math.abs(n)})`;
   return n > 1 ? ` x${n}` : "";
@@ -66,7 +66,7 @@ export function tally(qty: unknown): string {
  * already been handed is not worth the tokens of handing over again. What moved
  * is spelled out; what did not gets a line saying so.
  */
-export function told(
+function told(
   parts: string[], sent: Record<string, string> | null | undefined,
   key: string, head: string, body: string, still: string
 ) {
@@ -81,7 +81,7 @@ export function told(
 
 const num = (n: unknown) => String(Number(n) || 0);
 
-export function renderQuests(quests: QuestT[] | null | undefined): string {
+function renderQuests(quests: QuestT[] | null | undefined): string {
   const lines: string[] = [];
   for (const q of quests || []) {
     if (q.status !== "active") continue;
@@ -98,7 +98,7 @@ export function renderQuests(quests: QuestT[] | null | undefined): string {
   return lines.join("\n") || "  (nothing)";
 }
 
-export function gmInventory(items: Holding[] | null | undefined, load?: Load | null): string {
+function gmInventory(items: Holding[] | null | undefined, load?: Load | null): string {
   const lines: string[] = [];
   for (const item of items || []) {
     const where = item.worn ? " (worn)" : "";
@@ -118,7 +118,7 @@ export function gmInventory(items: Holding[] | null | undefined, load?: Load | n
   return out;
 }
 
-export function gmHoldings(holders: Keeps | null | undefined): string {
+function gmHoldings(holders: Keeps | null | undefined): string {
   const lines: string[] = [];
   for (const holder of holders || []) {
     lines.push(`  ${holder.name} (${holder.id}):`);
@@ -151,9 +151,9 @@ export function explorerTurn(narration: string | null, nudge?: unknown, check?: 
   return text;
 }
 
-export const CARRY_SAME = "What they are carrying is exactly as you were last told.";
-export const KEEP_SAME = "What everything here keeps is exactly as you were last told.";
-export const QUEST_SAME = "What they have taken on is exactly as you were last told.";
+const CARRY_SAME = "What they are carrying is exactly as you were last told.";
+const KEEP_SAME = "What everything here keeps is exactly as you were last told.";
+const QUEST_SAME = "What they have taken on is exactly as you were last told.";
 
 const noteBlock = (note: string) =>
   "A note from the one who keeps this world. Nobody in the story speaks it " +
@@ -188,7 +188,7 @@ const VERBS = (weapon: string, weaponDamage: string, kit: string) =>
   FLEE            get out`;
 
 /** Who is still up, on both sides, and how much is left in them. */
-export function sides(fight: FightT): string {
+function sides(fight: FightT): string {
   const row = (x: FighterT, mine: boolean) => {
     if (x.dead) return `  ${x.name} — down`;
     const asleep = x.asleep ? " (not stirring)" : "";
@@ -224,7 +224,7 @@ export function fightBlow(fight: FightT, me: FighterT, said: string): string {
   return `${said}\n\n${sides(fight)}${hurt}\n\nWhat do you do?`;
 }
 
-export const ENDED: Record<NonNullable<FightT["ended"]>, string> = {
+const ENDED: Record<NonNullable<FightT["ended"]>, string> = {
   beaten: "it went down.",
   fled: "you got out.",
   killed: "you did not get out.",
@@ -279,7 +279,7 @@ function blowKind(blow: BlowT) {
 }
 
 /** One row of the roll sheet: who acted, what they chose, and what came of it. */
-export function blowLine(blow: BlowT): string {
+function blowLine(blow: BlowT): string {
   const who = blow.name || "somebody";
   const said = blow.chose;
   const mark = blow.atname || "nobody";
@@ -327,7 +327,7 @@ export function gmBlows(fight: FightT, fate: string | null): string {
   return parts.join("\n\n");
 }
 
-export const REDRAFT =
+const REDRAFT =
   "Your previous draft was rejected. Revise it and reply with the same json shape. " +
   "Keep everything that still stands — a redraft is a correction, not a retreat, " +
   "and an answer that says less than the one before it is a worse answer, not a " +
@@ -369,7 +369,7 @@ export function gmAnswer(
 
 const REJECTED = "Your previous draft was rejected. Revise it and reply with the same json shape:\n\n";
 
-export const PRESS = `The world does not wait, and this turn it moves.
+const PRESS = `The world does not wait, and this turn it moves.
 
 Something that was going on without the adventurer arrives. Somebody acts, something waiting stops waiting, a thread already on the table pays out — the person they were warned about finds them, the errand turns out to have been a pretext, what was in the trees comes out of the trees.
 
@@ -384,7 +384,7 @@ const CHOSEN = (text: string) =>
 
 Narrate it as what happens. Do not hedge it, do not offer it as a possibility, and do not mention that anything was rolled. Keep the rest of the turn as it was; this replaces the outcome, not the action.`;
 
-export const STRANGE =
+const STRANGE =
   "This one is strange, and that is deliberate. Put it in front of them plainly and without explanation. Nobody in the scene remarks on it, nothing accounts for it, and you do not hint at what it means — you do not know. Write it as a claim like any other and let it be ruled on.";
 
 export function gmTurn(
@@ -532,7 +532,7 @@ export function lore1Turn(
   return parts.join("\n\n");
 }
 
-export function musterLine(who: FighterT): string {
+function musterLine(who: FighterT): string {
   const bits = [who.name || "somebody"];
   if (who.most) bits.push(`${who.most} health`);
   if (who.damage) bits.push(`${who.damage} damage`);
@@ -595,7 +595,7 @@ export function questmasterTurn(quest: QuestT, where?: PlacedT[] | null): string
   return parts.join("\n\n");
 }
 
-export const LAYERS: ReadonlyArray<readonly [string, string]> = [
+const LAYERS: ReadonlyArray<readonly [string, string]> = [
   ["common", "common"],
   ["writing", "writing"],
   ...new Map(Object.values(AGENTS).map((a) => [a.prompt, a.label])),

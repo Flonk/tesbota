@@ -6,10 +6,10 @@ import type { CampaignT, TurnT } from "./schema.ts";
 
 export const DIM = "\x1b[2m";
 export const BOLD = "\x1b[1m";
-export const WARN = "\x1b[33m";
+const WARN = "\x1b[33m";
 export const OFF = "\x1b[0m";
 
-export function duration(ms: number): string {
+function duration(ms: number): string {
   const seconds = Math.max(0, Math.trunc(ms / 1000));
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -34,7 +34,7 @@ export function wrap(text: string | null | undefined, width = 76, indent = "  ")
   return lines.join("\n");
 }
 
-export function* beats(turns: TurnT[]) {
+function* beats(turns: TurnT[]) {
   for (const turn of turns) {
     const road = turn.wake_at ? null : turn.journey;
     let cue: string | null = null;
