@@ -11,11 +11,11 @@
 import * as db from "./db.ts";
 import { HEAVENS } from "./config.ts";
 import {
-  area, bearing, closest, covers, gap, metres, page, pinOf, point16, shapeOf, type Pt, type Shape,
+  area, bearing, closest, covers, gap, metres, page, pinOf, point16, shapeOf, type Shape,
 } from "./geo.ts";
 import { ancestry, placesUnder, worldOf, type PlaceRow } from "./places.ts";
 import { campaignIfAny } from "./state.ts";
-import type { CampaignT } from "./schema.ts";
+import type { CampaignT, PtT } from "./schema.ts";
 
 const EARTH = 6371000;
 const LEAGUE = 4800;
@@ -45,7 +45,7 @@ export function standsAt(campaign: CampaignT | null): string | null {
   return `${lat.toFixed(6)},${lon.toFixed(6)}`;
 }
 
-type Where = { world: string; all: Spot[]; at: Pt; spot: Spot | null; said: string };
+type Where = { world: string; all: Spot[]; at: PtT; spot: Spot | null; said: string };
 
 /** A place id, `lat,lon`, or nothing for wherever the explorer is standing. */
 function resolve(target: string | null | undefined): Where | { error: string } {
@@ -188,12 +188,12 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
   if (a.world !== b.world) return { error: `${a.said} and ${b.said} are not on the same world` };
   const radius = radiusOf(a.world);
   const { all } = a;
-  const middle: Pt = [(a.at[0] + b.at[0]) / 2, (a.at[1] + b.at[1]) / 2];
+  const middle: PtT = [(a.at[0] + b.at[0]) / 2, (a.at[1] + b.at[1]) / 2];
   const flat = page(middle, radius);
 
-  const nodes: Pt[] = [];
+  const nodes: PtT[] = [];
   const edges: Edge[][] = [];
-  const node = (p: Pt) => {
+  const node = (p: PtT) => {
     nodes.push(p);
     edges.push([]);
     return nodes.length - 1;
@@ -205,9 +205,9 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
   };
 
   const roads = all.filter((s) => s.type === "road" && s.line && s.line.length >= 2);
-  const cuts = new Map<string, Array<{ seg: number; t: number; p: Pt; n?: number }>>();
+  const cuts = new Map<string, Array<{ seg: number; t: number; p: PtT; n?: number }>>();
   for (const r of roads) cuts.set(r.id, r.line!.map((p, i) => ({ seg: i, t: 0, p })));
-  const cut = (road: Spot, seg: number, t: number, p: Pt) => {
+  const cut = (road: Spot, seg: number, t: number, p: PtT) => {
     const at = { seg, t, p, n: node(p) };
     cuts.get(road.id)!.push(at);
     return at.n!;
@@ -228,7 +228,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
 
   const start = node(a.at);
   const end = node(b.at);
-  for (const [n, p] of [[start, a.at], [end, b.at]] as Array<[number, Pt]>) {
+  for (const [n, p] of [[start, a.at], [end, b.at]] as Array<[number, PtT]>) {
     for (const r of roads) {
       const hit = closest([r.line!], p, flat);
       if (hit) link(n, cut(r, hit.seg, hit.t, hit.q), "off", "", ACROSS_COUNTRY);
@@ -254,7 +254,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
     link(i, nearestNode(p), "join", "");
     link(j, nearestNode(q), "join", "");
   }
-  function nearestNode(p: Pt) {
+  function nearestNode(p: PtT) {
     let best = start;
     let least = metres(nodes[best], p, radius);
     for (let n = 0; n < nodes.length - 2; n++) {
@@ -285,7 +285,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
   const steps: Array<{ from: number; to: number; edge: Edge }> = [];
   for (let n = end; back[n]; n = back[n]!.from) steps.unshift({ from: back[n]!.from, to: n, edge: back[n]!.edge });
 
-  const legs: Array<{ by: string; name: string; metres: number; from: Pt; to: Pt }> = [];
+  const legs: Array<{ by: string; name: string; metres: number; from: PtT; to: PtT }> = [];
   for (const s of steps) {
     const by = s.edge.by === "join" ? (legs.at(-1)?.by ?? "off") : s.edge.by;
     const name = s.edge.by === "join" ? (legs.at(-1)?.name ?? "") : s.edge.name;
@@ -307,7 +307,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
       return { by: "across", name: "", metres: Math.round(l.metres), said: `go ${spoken(l.metres)} ${way} across country` };
     });
   const total = said.reduce((n, l) => n + l.metres, 0);
-  const path: Pt[] = [nodes[start], ...steps.map((s) => nodes[s.to])]
+  const path: PtT[] = [nodes[start], ...steps.map((s) => nodes[s.to])]
     .filter((p, n, all) => n === 0 || p[0] !== all[n - 1][0] || p[1] !== all[n - 1][1]);
   return {
     path,
