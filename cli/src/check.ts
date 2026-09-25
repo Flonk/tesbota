@@ -2,11 +2,12 @@
  * What has to be true of the machine before it is trusted to run.
  *
  * Reading what is on disk back through the schema is the one that earned its
- * place: zod strips what it has not been told about, so a field a step writes
- * and a later step reads is silently lost the moment the turn goes to disk and
- * comes back. A proposal that vanishes between `propose` and `gm` is a turn that
- * quietly re-prices itself, and nothing about it looks wrong until you read the
- * narration.
+ * place: zod strips what it has not been told about. Every save now writes what
+ * the schema reads, so what is left to catch is a file from before a field was
+ * renamed or declared, or one edited by hand: a key the next load quietly drops,
+ * or a value it reads back as something else. A debug turn still holding
+ * `draft.location` after `destination` replaced it delivers nowhere, and nothing
+ * about it looks wrong until the explorer never moves.
  */
 
 import fs from "node:fs";
