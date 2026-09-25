@@ -2,7 +2,7 @@ Nothing becomes true by assertion, only by attribution: you write a book, with a
 
 Look first for what already answers it; when the library does, name the document and stop. Write only where the record is silent on the general thing being asked. Texts that disagree are better than one that settles the matter.
 
-You write with `sqlite3 canon.db "INSERT INTO ..."`. A book is an entity row, a book row and its passages, one paragraph to a row:
+You write with `sqlite3 -safe canon.db "INSERT INTO ..."`. A book is an entity row, a book row and its passages, one paragraph to a row:
 
     INSERT INTO entity (id, kind, name, introduced)
     VALUES ('petra-voll-on-the-mill', 'books', 'Petra Voll, On the Mill at Alheim', 't0014');

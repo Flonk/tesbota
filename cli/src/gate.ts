@@ -1,93 +1,122 @@
 /**
- * What an agent is allowed to run. Every layer above the explorer reads the world
- * with one command and no shell around it, so the gate is small on purpose: one
- * binary, one flag, and a short list of tables anybody may write to.
+ * What an agent is allowed to run. The explorer has three commands of its own.
+ * Every layer above it reads the world with one command and no shell around it:
+ * sqlite3 on canon.db in safe mode, which refuses anything that reaches past the
+ * file, and the few tesbota commands that layer is handed.
  */
 
+import path from "node:path";
 import type { PermissionResult } from "@anthropic-ai/claude-agent-sdk";
+import { CANON_DB, ROOT } from "./config.ts";
 
 export type Gate = (toolName: string, input: Record<string, unknown>) => Promise<PermissionResult>;
 
-const SHELL = ";|&$`><\n";
+export const MAP = ["tesbota around", "tesbota route"];
 
-const WRITE_TARGET =
-  /\b(?:insert(?:\s+or\s+\w+)?\s+into|update|delete\s+from|replace\s+into)\s+([a-z_][a-z_0-9]*)/gi;
-const SCHEMA_VERB = /\b(?:drop|alter|create|attach|detach|vacuum|pragma)\b/i;
+const SHELL = ";|&$`<>(){}[]*?~#\n";
+const BLANK = " \t";
+const EXPANDS = "$`";
+const ESCAPED = /["\\$`]/;
+const FLAGS = ["-safe", "-readonly"];
 
-/** The command with everything inside quotes taken out, so a table named in prose does not count. */
-export function bare(raw: string): string {
+/**
+ * The words bash would hand the program, or null when bash would do anything more
+ * with the line: run a second command, redirect, glob, expand something inside
+ * double quotes, or be left inside an open quote.
+ */
+export function words(raw: string): string[] | null {
   const out: string[] = [];
+  let word = "";
+  let begun = false;
   let quote: string | null = null;
-  for (const ch of raw) {
-    if (quote) {
-      if (ch === quote) quote = null;
-      continue;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (quote === "'") {
+      if (ch === "'") quote = null;
+      else word += ch;
+    } else if (quote === '"') {
+      if (ch === '"') quote = null;
+      else if (ch === "\\" && ESCAPED.test(raw[i + 1] ?? "")) word += raw[++i];
+      else if (EXPANDS.includes(ch)) return null;
+      else word += ch;
+    } else if (BLANK.includes(ch)) {
+      if (begun) out.push(word);
+      word = "";
+      begun = false;
+    } else if (SHELL.includes(ch)) {
+      return null;
+    } else {
+      begun = true;
+      if (ch === "'" || ch === '"') quote = ch;
+      else if (ch !== "\\") word += ch;
+      else if (i + 1 < raw.length && raw[i + 1] !== "\n") word += raw[++i];
+      else return null;
     }
-    if (ch === '"' || ch === "'") {
-      quote = ch;
-      continue;
-    }
-    out.push(ch);
   }
-  return out.join("");
+  if (quote) return null;
+  if (begun) out.push(word);
+  return out;
 }
 
 export function spoken(raw: string): string[] {
-  let words = String(raw ?? "").trim().split(/\s+/).filter(Boolean);
-  if (words[0] === "uv" && words[1] === "run") words = words.slice(2);
-  return words;
+  return raw.split(/\s+/).filter(Boolean);
 }
 
 const allow = (): PermissionResult => ({ behavior: "allow" });
 const deny = (message: string): PermissionResult => ({ behavior: "deny", message });
 
-export const MAP = ["tesbota around", "tesbota route"];
-
 export function sqliteGate(
-  { readonly = true, tables = null, also = [] }:
-  { readonly?: boolean; tables?: string[] | null; also?: string[] } = {}
+  { readonly = true, also = [] }: { readonly?: boolean; also?: string[] } = {}
 ): Gate {
+  const how = readonly
+    ? 'sqlite3 -safe -readonly canon.db "SELECT ..."'
+    : 'sqlite3 -safe canon.db "..."';
   return async (toolName, toolInput) => {
-    const how = readonly
-      ? 'sqlite3 -readonly canon.db "SELECT ..."'
-      : 'sqlite3 canon.db "..."';
     if (toolName !== "Bash") return deny(`The world is only reachable with ${how}`);
 
-    const raw = String(toolInput.command ?? "");
-    const stripped = bare(raw);
-    if ([...SHELL].some((ch) => stripped.includes(ch))) {
-      return deny(`One command at a time, with no shell around it: ${how}`);
-    }
-
-    const said = spoken(raw);
-    for (const command of also) {
-      const want = command.split(/\s+/);
-      if (want.every((w, i) => said[i] === w)) return allow();
-    }
-
-    const words = raw.trim().split(/\s+/).filter(Boolean);
-    if (!words.length || words[0] !== "sqlite3") return deny(`The only command you have is ${how}`);
-    if (readonly && !words.includes("-readonly")) {
+    const said = words(String(toolInput.command ?? ""));
+    if (!said) {
       return deny(
-        'You read the world, you never write to it: sqlite3 -readonly canon.db "SELECT ..."'
+        `One command at a time, with no shell around it: ${how}. ` +
+          "Inside double quotes, write a dollar sign as \\$."
       );
     }
-    if (tables !== null && !words.includes("-readonly")) {
-      const allowed = tables.join(", ");
-      if (SCHEMA_VERB.test(stripped)) {
-        return deny(`You do not shape the world, you write in it. Only ${allowed}.`);
-      }
-      const touched = new Set(
-        [...stripped.matchAll(WRITE_TARGET)].map((m) => m[1].toLowerCase())
-      );
-      const outside = [...touched].filter((t) => !tables.includes(t)).sort();
-      if (outside.length) {
-        return deny(
-          `That is not yours to write: ${outside.join(", ")}. ` +
-            `You write to ${allowed} and nothing else.`
-        );
-      }
+
+    for (const command of also) {
+      if (command.split(" ").every((w, i) => said[i] === w)) return allow();
+    }
+
+    const flags = said.slice(1).filter((w) => w.startsWith("-"));
+    const [db] = said.slice(1).filter((w) => !w.startsWith("-"));
+    if (
+      said[0] !== "sqlite3" || !flags.includes("-safe") || flags.some((f) => !FLAGS.includes(f)) ||
+      !db || path.resolve(ROOT, db) !== CANON_DB
+    ) {
+      return deny(`The only command you have is ${how}`);
+    }
+    if (readonly && !flags.includes("-readonly")) {
+      return deny(`You read the world, you never write to it: ${how}`);
     }
     return allow();
   };
 }
+
+const EXPLORER_COMMANDS = ["tesbota stats", "tesbota inventory", "tesbota quests"];
+
+const listed = (items: string[], last: string) =>
+  `${items.slice(0, -1).join(", ")} ${last} ${items.at(-1)}`;
+
+export const explorerGate: Gate = async (toolName, toolInput) => {
+  if (toolName !== "Bash") {
+    return deny(`You have no such power. You may run ${listed(EXPLORER_COMMANDS, "or")}.`);
+  }
+  const raw = String(toolInput.command ?? "");
+  const parts = raw.split(/&&|;|\n/).map((p) => spoken(p).join(" "))
+    .filter((p) => p && !/^echo\b/.test(p));
+  const shell = [..."|&$`><"].some((ch) => raw.replace(/&&/g, "").includes(ch));
+  if (!shell && parts.length && parts.every((p) => EXPLORER_COMMANDS.includes(p))) return allow();
+  return deny(
+    `Nothing happens. The only things you can do are ` +
+      `${listed(EXPLORER_COMMANDS.map((c) => `\`${c}\``), "and")}, one at a time.`
+  );
+};

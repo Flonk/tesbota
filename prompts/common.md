@@ -1,6 +1,8 @@
 The world is a SQLite database at canon.db, and querying it is the only way you can see it:
 
-    sqlite3 -readonly canon.db "SELECT ..."
+    sqlite3 -safe -readonly canon.db "SELECT ..."
+
+Inside the double quotes a dollar sign is written `\$`, so a mark reads `'\$BOTA'`.
 
     entity(id, kind, name, introduced, extent, about, made, changed)
                                                        kind: people | places | books |
