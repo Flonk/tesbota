@@ -276,6 +276,7 @@ export const stepAnswer: Step = async ({ campaign, turn }) => {
   (campaign.sessions as any).gm = session;
   const draft = extractJson<Record<string, any>>(text);
   draft.claims ??= [];
+  draft.destination = null;
   draft.minutes = 0;
   draft.fatigue = 0;
   draft.health = 0;
@@ -1276,7 +1277,6 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
     told.chosen = T(turn).chosen;
     told.fortune = T(turn).fortune;
   }
-  turn.destination = heading || campaign.location || null;
   turn.location_path = campaign.location_path || [];
   turn.vitals = { ...(campaign.vitals as any) };
   const active = (campaign.quests as any[]).find((q) => q?.status === "active");
@@ -1297,6 +1297,8 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
     clear();
     return "spent";
   }
+
+  turn.destination = heading || campaign.location || null;
 
   if ((turn.arrival || turn.event) && !turn.action) {
     turn.minutes = Math.trunc(Number(draft.minutes) || 0);

@@ -186,7 +186,7 @@ export const Draft = z.object({
   quest_close: z.array(z.unknown()).default([]),
 });
 
-export const PhaseKind = z.enum(["action", "answer", "say", "outcome", "world", "fight"]);
+export const PhaseKind = z.enum(["action", "look", "say", "answer", "outcome", "world", "fight"]);
 
 export const Phase = z.object({
   n: z.number().int().optional(),
