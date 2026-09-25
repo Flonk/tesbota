@@ -255,14 +255,14 @@ export const illegalBooks = () =>
 
 function graph() {
   const nodes: Record<string, { name: string }> = {};
-  const edges: Array<[string, string, string, string]> = [];
+  const edges: Array<[string, string]> = [];
   const links: Array<[string, string]> = [];
   for (const r of db.rows("SELECT id, name FROM entity WHERE kind = 'places' ORDER BY id"))
     nodes[String(r.id)] = { name: String(r.name) };
   for (const r of db.rows("SELECT id, parent FROM place WHERE parent IS NOT NULL ORDER BY id"))
     links.push([String(r.parent), String(r.id)]);
-  for (const r of db.rows("SELECT src, dst, bearing, distance FROM way ORDER BY src, dst"))
-    edges.push([String(r.src), String(r.dst), String(r.bearing || ""), String(r.distance || "")]);
+  for (const r of db.rows("SELECT src, dst FROM way ORDER BY src, dst"))
+    edges.push([String(r.src), String(r.dst)]);
   return { nodes, edges, links };
 }
 
@@ -299,11 +299,7 @@ export function mermaid(): string {
   for (const root of Object.keys(nodes).sort().filter((i) => !parentOf[i])) {
     emit(root, 0, new Set([root]));
   }
-  for (const [src, dst, bearing, distance] of edges) {
-    if (!nodes[dst]) continue;
-    const label = [bearing, distance].filter(Boolean).join(" ");
-    out.push(`  ${src} ${label ? `-- ${label} -->` : "-->"} ${dst}`);
-  }
+  for (const [src, dst] of edges) if (nodes[dst]) out.push(`  ${src} --> ${dst}`);
   return out.join("\n");
 }
 

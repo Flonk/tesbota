@@ -5,7 +5,7 @@ export default function ways(con: any, id: string, value: unknown, ctx: Ctx) {
   if (ctx.kind !== "places") throw new Error(`${id} is one of the ${ctx.kind}, not a place`);
   const seen = new Set<string>();
   const rows = list(value, "doors").map((row, n) => {
-    const got = fields(row, `door ${n + 1}`, ["dst", "bearing", "distance"]);
+    const got = fields(row, `door ${n + 1}`, ["dst"]);
     const dst = named(con, got.dst, `door ${n + 1}`, "places");
     if (!dst || dst === "$BOTA") throw new Error(`door ${n + 1} has to lead somewhere`);
     if (dst === id) throw new Error(`door ${n + 1} leads back into ${id}`);
