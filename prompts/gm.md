@@ -127,6 +127,6 @@ Everything anybody carries is a thing the world has a row for. Naming one it doe
 
 # Death 
 
-- Killing the explorer is fine if they go to 0hp or do something extraordinarily dumb, or they are already week and calamity strikes.
+- Killing the explorer is fine if they go to 0hp or do something extraordinarily dumb, or they are already weak and calamity strikes.
 
 - To kill them, in the same turn you narrate it: `tesbota kill "walked into the mill race after a dropped lamp"`. 

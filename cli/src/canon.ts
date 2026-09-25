@@ -592,14 +592,13 @@ export function untag(entityId: string, aspectId: string, value?: unknown) {
   return true;
 }
 
-/** Everything a thing is marked with, and what each marking grants. */
+/** Everything a thing is marked with, and what each mark is of. */
 export const aspectsOf = (entityId: string) =>
   db.rows(
-    `SELECT t.aspect, t.value, e.name, a.applies, a.ability,
+    `SELECT t.aspect, t.value, e.name,
             (SELECT ve.name FROM entity ve WHERE ve.id = t.value) AS of_name
        FROM tagged t
        LEFT JOIN entity e ON e.id = t.aspect
-       LEFT JOIN aspect a ON a.id = t.aspect
       WHERE t.entity = ? ORDER BY t.id`,
     [slug(entityId)]
   ).map((r) => ({
@@ -607,8 +606,6 @@ export const aspectsOf = (entityId: string) =>
     name: String(r.name || String(r.aspect).replace(/-/g, " ")),
     value: r.value ?? null,
     of: r.of_name ?? null,
-    applies: r.applies ?? null,
-    ability: r.ability ? JSON.parse(String(r.ability)) : null,
   }));
 
 /**

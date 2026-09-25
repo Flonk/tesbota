@@ -6,7 +6,7 @@ Inside the double quotes a dollar sign is written `\$`, so a mark reads `'\$BOTA
 
     entity(id, kind, name, introduced, extent, about, made, changed)
                                                        kind: people | places | books |
-                                                       items | aspects
+                                                       items | aspects | abilities
                                                        made/changed: when the record was written,
                                                        kept for you — never write to them
     book(id, author, author_id, written, rarity)       author_id when the author has a row

@@ -128,7 +128,7 @@ There is no fixed list of stats. `damage`, `defense`, `health` and `hunger` are 
 An aspect is a mark anything can carry, and it is an entity like any other — `citizen`, `sworn`, `cursed`. What it is goes in its own `about`; what it is worth goes on the aspect, not on everybody wearing it.
 
     INSERT INTO entity (id, kind, name) VALUES ('citizen', 'aspects', 'citizen');
-    INSERT INTO aspect (id, applies, ability) VALUES ('citizen', 'within', NULL);
+    INSERT INTO aspect (id) VALUES ('citizen');
     INSERT INTO tagged (entity, aspect, value) VALUES
       ('greta-marsch', 'citizen', 'alheim'),
       ('jost-marsch', 'citizen', 'alheim');
@@ -152,7 +152,7 @@ A spawned thing may be named for the ground that called it: `$GUARDED_NAME Guard
 
 Three aspects earn their keep already and are worth knowing before you write a fourth. `settlement` marks a place people live in — it is what tells a road from a town, which `place.type` cannot. `guarded` marks a place with a guard to call, and a region may be guarded where the country between its towns is nobody's. `mob` marks somebody who is a kind of thing rather than a person: a rat, a guard, anything the world has more than one of. Give a mob a `person` row like anybody else, but do not give it a life.
 
-`value` is what the aspect is *of* — the place a citizen belongs to, the house somebody is sworn into — and it is usually an entity id. `applies` says when the aspect's `ability` counts: `always`, or `within`, which means only while standing inside the place named in `value`. `ability` is a fight ability in json, written the way the game master writes one, and it is what makes an aspect bite: raise a hand to a citizen of Alheim inside Alheim and the aspect calls the guard.
+`value` is what the aspect is *of* — the place a citizen belongs to, the house somebody is sworn into — and it is usually an entity id.
 
 Mark a thing when the marking is a fact about it, not a mood. A miller is a `person.work`; a citizen is an aspect, because the place has a claim on them.
 
