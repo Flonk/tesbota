@@ -13,12 +13,14 @@ import {
 
 export const ATTESTED = "attested";
 
+const LETTERS: Record<string, string> = { ß: "ss", æ: "ae", œ: "oe", ø: "o", ł: "l", đ: "d", ð: "d", þ: "th" };
+
 export const slug = (text: unknown): string =>
   String(text ?? "")
     .normalize("NFKD")
-    .replace(/[̀-ͯ'’]/g, "")
+    .replace(/[\u0300-\u036f'’]/g, "")
     .toLowerCase()
-    .replace(/ß/g, "ss")
+    .replace(/[ßæœøłđðþ]/g, (letter) => LETTERS[letter] ?? "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
