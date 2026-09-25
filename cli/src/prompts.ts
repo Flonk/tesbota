@@ -203,8 +203,8 @@ function sides(fight: FightT): string {
  * Laid out once. The explorer keeps a session, so every turn after this one is a
  * single line and the standing of both sides.
  */
-export function fightOpen(fight: FightT, me: FighterT, carried: Holding[] | null): string {
-  const kit = (carried || [])
+export function fightOpen(fight: FightT, me: FighterT, usable: Holding[] | null): string {
+  const kit = (usable || [])
     .map((h) => `\n                    ${h.name} — ${does(h.effects)}`)
     .join("");
   return (
