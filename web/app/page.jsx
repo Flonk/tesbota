@@ -800,7 +800,8 @@ export default function Page() {
     if (what === "abort") return setDraft(null);
     if (what === "save") {
       if (draft === null) return;
-      post("/api/prompt", { id: datum, text }, "prompt").then(() => {
+      post("/api/prompt", { id: datum, text }, "prompt").then(({ ok }) => {
+        if (!ok) return;
         setDraft(null);
         setCatalogue(null);
       });
