@@ -266,7 +266,7 @@ export function blowLine(blow: BlowT): string {
   return `${who} — ${said} on ${mark}, missed`;
 }
 
-export function gmBlows(fight: FightT, fate?: unknown, correction?: string | null): string {
+export function gmBlows(fight: FightT, fate?: unknown): string {
   const sheet: string[] = [];
   let seen: unknown = null;
   for (const b of fight.blows) {
@@ -279,13 +279,6 @@ export function gmBlows(fight: FightT, fate?: unknown, correction?: string | nul
   const parts = [BLOWS(sheet.join("\n"), fight.ended ? ENDED[fight.ended] : "it is not over.")];
   if (fate) parts.push(FIGHT_FATE);
   if (fight.ended === "killed") parts.push(FIGHT_DEATH);
-  if (correction) {
-    parts.push(
-      "Your lines were sent back. The blows above are settled and are not " +
-        "yours to change — write them again, the same in number and in order, " +
-        "and put right what was wrong with them:\n\n" + correction
-    );
-  }
   return parts.join("\n\n");
 }
 

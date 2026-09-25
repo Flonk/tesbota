@@ -257,8 +257,8 @@ async function drive(limit: number): Promise<Ran> {
 }
 
 /**
- * What was holding a turn up has been settled. The draft goes back to whoever can
- * use the ruling, which for a rolled fight is its words and never its dice.
+ * What was holding a turn up has been settled. It goes back to whoever fell silent:
+ * the adventurer, or whoever wrote the draft that was held.
  */
 export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
   const claims = turn.draft?.claims ?? [];
@@ -279,19 +279,22 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
       break;
     }
   }
-  turn.correction = JSON.stringify({
-    ruled:
-      "What was holding this up has been settled and canon has been written. " +
-      "Read canon again before you answer.",
-    your_rejected_draft: turn.draft?.narration,
-    instruction:
-      "Give this again. Keep everything the record now supports — the ruling " +
-      "was made so that you could say it, not so that you would drop it. " +
-      "Change only what canon actually contradicts.",
-  }, null, 2);
-
-  const edge = turn.fight?.blows.length ? "ruled_fight" : turn.looking ? "ruled_answer" : "ruled";
-  cross(turn, "lore3", edge);
+  if (!turn.draft) {
+    turn.blank = 0;
+    cross(turn, "lore3", "ruled_explorer");
+  } else {
+    turn.correction = JSON.stringify({
+      ruled:
+        "What was holding this up has been settled and canon has been written. " +
+        "Read canon again before you answer.",
+      your_rejected_draft: turn.draft.narration,
+      instruction:
+        "Give this again. Keep everything the record now supports — the ruling " +
+        "was made so that you could say it, not so that you would drop it. " +
+        "Change only what canon actually contradicts.",
+    }, null, 2);
+    cross(turn, "lore3", turn.looking ? "ruled_answer" : "ruled");
+  }
   save(campaign, turn);
   const file = pendingPath(turn.turn_id);
   if (fs.existsSync(file)) fs.rmSync(file);

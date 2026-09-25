@@ -161,7 +161,6 @@ export const STATES = {
     edges: [
       { to: "deliver", on: "stands", when: "nothing contradicts the record" },
       { to: "gm", on: "redraft", when: "a claim is FALSE, or the dice went against them" },
-      { to: "blows", on: "rewrite", when: "the same rolled fight needs different words" },
       { to: "answer", on: "reanswer", when: "the answer needs redrafting" },
       { to: "arbiter", on: "unwritten", when: "the world is silent and cannot go on" },
     ],
@@ -205,8 +204,8 @@ export const STATES = {
     edges: [
       { to: "arbiter", on: "answered", when: "it wrote back and the silence stands" },
       { to: "gm", on: "ruled", when: "canon was written — narrate it again" },
-      { to: "blows", on: "ruled_fight", when: "canon was written mid-fight" },
       { to: "answer", on: "ruled_answer", when: "canon was written for a question" },
+      { to: "explorer", on: "ruled_explorer", when: "canon was written — ask the adventurer again" },
     ],
   },
 

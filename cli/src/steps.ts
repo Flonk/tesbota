@@ -708,15 +708,11 @@ export function tooTired(campaign: CampaignT, draft: DraftT): boolean {
 }
 
 /**
- * Where a rejected draft goes back to. A fight that has already been rolled is
- * settled — the dice are not the lore master's to overturn, only the words are —
- * so it goes back for different words on the same blows, never a fresh fight.
+ * Where a rejected draft goes back to: an answer to be answered again, anything
+ * else to the game master. A rolled fight never comes here — it was checked at its
+ * muster, and its dice are not the lore master's to overturn.
  */
-export function redraftEdge(turn: TurnT): EdgeOn<"lore2"> {
-  if (turn.fight?.blows.length) return "rewrite";
-  if (!turn.looking) return "redraft";
-  return "reanswer";
-}
+export const redraftEdge = (turn: TurnT) => (turn.looking ? "reanswer" : "redraft");
 
 /** Lore 1 alone: read the world out of it, then hand the facts to the ruling. */
 export const stepLore1: Step<"lore1"> = async (world) => {
@@ -1044,7 +1040,7 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const running = fightOf(turn);
   if (!turn.rolled) rollFate(turn);
   const [text, session] = await ask(
-    prompts.gmBlows(running, turn.chosen, turn.correction),
+    prompts.gmBlows(running, turn.chosen),
     {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
@@ -1090,7 +1086,6 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const told = showFight(turn, running);
   told.text = draft.narration;
   told.status = "pending";
-  turn.correction = null;
   // The record was checked when the fight was declared. Swinging is the game
   // master's alone — every blow is a particular, and particulars are never the
   // lore master's to rule on.
