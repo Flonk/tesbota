@@ -36,9 +36,9 @@ export function wrap(text: string | null | undefined, width = 76, indent = "  ")
 
 export function* beats(turns: TurnT[]) {
   for (const turn of turns) {
+    const road = turn.wake_at ? null : turn.journey;
     let cue: string | null = null;
-    if (turn.arrival) cue = `arrives at ${turn.arrival}`;
-    else if (turn.leagues_left > 0 && !turn.wake_at) cue = "something on the road";
+    if (road) cue = road.cut ? "something on the road" : `arrives at ${road.to}`;
     yield { turn, cue, action: turn.action ?? null, narration: compose(turn) || null };
   }
 }
@@ -63,10 +63,10 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
 
   if (state === "clock") {
     const left = parse(String(turn.wake_at)).getTime() - now().getTime();
-    lines.push(turn.destination ? `  the adventurer is on the road to ${turn.destination}` : "  the adventurer is resting");
+    lines.push(turn.journey ? `  the adventurer is on the road to ${turn.journey.to}` : "  the adventurer is resting");
     lines.push(
       `  wakes in ${duration(left)}` +
-        (turn.leagues_left ? ", and the road does not get them there" : "")
+        (turn.journey?.cut ? ", and the road does not get them there" : "")
     );
   } else if (state === "arbiter") {
     lines.push(`  ${WARN}the lore master is waiting on you${OFF} — run: tesbota lore`);

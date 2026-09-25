@@ -14,14 +14,16 @@ import * as chronicle from "./chronicle.ts";
 import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
 import * as ground from "./ground.ts";
-import { STEPS } from "./steps.ts";
+import { applyVitals, passTime, standIn, STEPS } from "./steps.ts";
 import { edgeFrom, STATES, type EdgeOn, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
-import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY, STATE } from "./config.ts";
+import {
+  EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY, STATE, WALK_FATIGUE_PER_HOUR,
+} from "./config.ts";
 import * as worldclock from "./worldclock.ts";
 import {
   clearDeath, ensureLayout, loadCampaign, loadTurn, newTurn, now,
-  pendingDeath, pickName, retire, save, saveCampaign, saveTurn, stamp, stock,
+  pendingDeath, pickName, retire, save, saveCampaign, stamp, stock,
 } from "./state.ts";
 import { Campaign, Draft, Verdict, type CampaignT, type TurnT } from "./schema.ts";
 
@@ -109,25 +111,24 @@ export async function bury(campaign: CampaignT, cause?: string | null): Promise<
 }
 
 /**
- * Set them walking. The road either runs out at the destination or stops early,
- * and what is left of it comes back as another leg once the interruption is done.
+ * Set them walking from wherever they stand. The road either runs out at the
+ * destination or stops early, and the next leg sets out from where it stopped.
  */
 export function walk(campaign: CampaignT, destination: string, rng: Rng = random): TurnT {
-  let path: Array<[number, number]> | null = null;
-  let leagues = 0;
-  const found = ground.route(campaign.location ?? null, destination);
+  const found = ground.route(ground.standsAt(campaign), destination);
   if ("error" in found) console.error(`[walk] no route to ${destination}: ${found.error}`);
-  else {
-    path = found.path;
-    leagues = found.leagues;
-  }
-  const [minutes, left, cut] = travel.leg(campaign.clock, leagues, rng, sheet.load(campaign).drag);
+  const way = "error" in found ? { path: [], leagues: 0 } : found;
+  const [minutes, left, cut] = travel.leg(campaign.clock, way.leagues, rng, sheet.load(campaign).drag);
   return begin(campaign, "walks", {
     wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
-    destination,
-    leagues_left: cut ? left : 0,
-    path,
-    reach: cut && leagues ? Number(((leagues - left) / leagues).toFixed(4)) : 1,
+    journey: {
+      to: destination,
+      path: way.path,
+      reach: cut && way.leagues ? Number(((way.leagues - left) / way.leagues).toFixed(4)) : 1,
+      left: cut ? left : 0,
+      cut,
+      minutes,
+    },
   });
 }
 
@@ -145,11 +146,20 @@ export function advance(campaign: CampaignT, turn: TurnT): TurnT {
 }
 
 /** Whether the walking is done, and what the world does about it if so. */
-export function tickClock(turn: TurnT, moment: Date): boolean {
+export function tickClock(campaign: CampaignT, turn: TurnT, moment: Date): boolean {
   if (!travel.arrived(turn, moment)) return false;
   turn.wake_at = null;
-  if (!turn.leagues_left && turn.destination) turn.arrival = turn.destination;
-  cross(turn, "clock", turn.leagues_left || turn.destination ? "arrived" : "woken");
+  const road = turn.journey;
+  if (!road) {
+    cross(turn, "clock", "woken");
+    return true;
+  }
+  const fatigue = Math.round((road.minutes / 60) * WALK_FATIGUE_PER_HOUR);
+  applyVitals(campaign, { minutes: road.minutes, fatigue, health: 0, hunger: null });
+  passTime(campaign, road.minutes);
+  if (road.cut) campaign.position = ground.pointAlong(road.path, road.reach);
+  else standIn(campaign, road.to, turn.turn_id);
+  cross(turn, "clock", "arrived");
   return true;
 }
 
@@ -231,8 +241,8 @@ async function drive(limit: number): Promise<Ran> {
     if (state === "lore3") return { state: "lore3", turn };
 
     if (state === "clock") {
-      if (!tickClock(turn, now())) return { state: "clock", turn };
-      saveTurn(turn);
+      if (!tickClock(campaign, turn, now())) return { state: "clock", turn };
+      save(campaign, turn);
       continue;
     }
 

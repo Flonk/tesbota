@@ -99,7 +99,7 @@ You do not roll it and you never write it. The explorer will be asked, round by 
 
 Before you describe where they are or what they can see, run `tesbota around`: it says what they are standing inside, what is near, how far and which way. Before you send them anywhere, run `tesbota route <destination>`: it walks the roads and says how far it really is. Never guess a distance or a direction the map can answer.
 
-A journey that was interrupted keeps its `destination`; set it again and they carry on.
+A journey that was interrupted leaves them on the road where it stopped, and `tesbota around` says where that is. Set its `destination` again and they carry on from there.
 
 # Quests
 

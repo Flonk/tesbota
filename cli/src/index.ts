@@ -29,10 +29,25 @@ import {
 } from "./config.ts";
 import {
   allTurns, campaignIfAny, catalogue, ensureLayout, explorerName, loadCampaign,
-  loadTurn, now, parse, saveCampaign, stock, walked,
+  loadTurn, now, parse, saveCampaign, stamp, stock, walked,
 } from "./state.ts";
+import type { CampaignT, TurnT } from "./schema.ts";
 
 const say = (x: unknown) => console.log(typeof x === "string" ? x : JSON.stringify(x));
+
+function underway(held: CampaignT | null) {
+  let turn: TurnT | null = null;
+  try {
+    turn = held?.current_turn ? loadTurn(held.current_turn) : null;
+  } catch {}
+  const leg = turn?.state === "clock" ? turn.journey : null;
+  if (turn?.wake_at && leg?.path.length) {
+    return { path: leg.path, from: turn.created, until: turn.wake_at, reach: leg.reach, destination: leg.to };
+  }
+  if (!held?.position) return null;
+  const still = stamp();
+  return { path: [held.position, held.position], from: still, until: still, reach: 1, destination: null };
+}
 
 type Args = { flags: Set<string>; rest: string[] };
 
@@ -64,7 +79,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       say(String(turn.gap ?? "").trim());
     } else if (ran.state === "clock") {
       const left = parse(String(turn.wake_at)).getTime() - now().getTime();
-      const going = turn.destination ? `travelling to ${turn.destination}` : "resting";
+      const going = turn.journey ? `travelling to ${turn.journey.to}` : "resting";
       say(`[${turn.turn_id}] ${going} — ${Math.max(0, Math.floor(left / 60000))} min to go`);
     } else {
       say(`[${turn.turn_id}] ${ran.state}`);
@@ -126,18 +141,10 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       }
     }
     // Where the adventurer is standing, so a map of a world can say so.
-    (said as any).here = held?.location ?? null;
+    const here = held?.location ?? null;
     // A journey under way, so the map can draw the road ahead and where on it they are.
-    try {
-      const turn = held?.current_turn ? loadTurn(held.current_turn) : null;
-      if (turn && turn.state === "clock" && turn.path?.length && turn.wake_at) {
-        (said as any).journey = {
-          path: turn.path, from: turn.created, until: turn.wake_at,
-          reach: turn.reach ?? 1, destination: turn.destination ?? null,
-        };
-      }
-    } catch {}
-    if (flags.has("--json")) return say(said);
+    const journey = underway(held);
+    if (flags.has("--json")) return say({ ...said, here, ...(journey ? { journey } : {}) });
 
     const hours = (seconds: number | null) =>
       seconds ? `${(seconds / 3600).toFixed(4)} h` : "—";

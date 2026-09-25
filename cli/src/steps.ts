@@ -347,15 +347,12 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
     if (turn.propose_retries < MAX_PROPOSE_RETRIES) return "again";
     turn.proposal = {
       summary: turn.action || "",
-      target: null,
       minutes: TRIVIAL_MINUTES,
       fatigue: TRIVIAL_FATIGUE,
-      unpriced: true,
     };
   } else {
     turn.proposal = {
       summary: String(said.summary ?? (turn.action || "")),
-      target: typeof said.target === "string" ? said.target : null,
       minutes: Math.trunc(Number(said.minutes) || 0),
       fatigue: Math.trunc(Number(said.fatigue) || 0),
     };
@@ -376,7 +373,7 @@ export function duePress(turn: TurnT, campaign?: CampaignT | null): boolean {
   return (turn.pressed ??= (campaign?.calm || 0) >= PRESS_FLOOR);
 }
 
-const onRoad = (turn: TurnT) => !turn.action && (!!turn.arrival || turn.leagues_left > 0);
+const onRoad = (turn: TurnT) => !turn.action && !!turn.journey;
 
 export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
   const agreed = turn.proposal ?? null;
@@ -387,9 +384,7 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
       previous: campaign.last_narration ?? null,
       vitals: campaign.vitals,
       correction: turn.correction ?? null,
-      event: world && turn.leagues_left > 0,
-      left: world ? turn.leagues_left : null,
-      arrival: world ? turn.arrival : null,
+      journey: world ? turn.journey : null,
       agreed,
       note: turn.note ?? null,
       chosen: turn.chosen ?? null,
@@ -408,7 +403,7 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
   const draft = Draft.parse({
     ...said,
     claims: [],
-    destination: said.destination ?? turn.arrival ?? turn.destination ?? campaign.location ?? null,
+    destination: said.destination ?? turn.destination ?? turn.journey?.to ?? campaign.location ?? null,
     ...(agreed ? { minutes: agreed.minutes, fatigue: agreed.fatigue } : {}),
   });
   turn.draft = draft;
@@ -967,14 +962,31 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
 
 // ── delivery ────────────────────────────────────────────────────────────────
 
-export function applyVitals(campaign: CampaignT, draft: DraftT): CampaignT {
+export function applyVitals(
+  campaign: CampaignT, cost: Pick<DraftT, "minutes" | "fatigue" | "health" | "hunger">
+): CampaignT {
   const vitals = campaign.vitals;
-  vitals.fatigue = Math.max(0, Math.min(MAX_FATIGUE, vitals.fatigue + draft.fatigue));
-  vitals.health = Math.max(0, Math.min(MAX_HEALTH, vitals.health + draft.health));
+  vitals.fatigue = Math.max(0, Math.min(MAX_FATIGUE, vitals.fatigue + cost.fatigue));
+  vitals.health = Math.max(0, Math.min(MAX_HEALTH, vitals.health + cost.health));
 
-  const drift = (draft.minutes / 60) * HUNGER_PER_HOUR;
-  vitals.hunger = Math.max(0, Math.min(MAX_HUNGER, Math.round(vitals.hunger + drift + (draft.hunger ?? 0))));
+  const drift = (cost.minutes / 60) * HUNGER_PER_HOUR;
+  vitals.hunger = Math.max(0, Math.min(MAX_HUNGER, Math.round(vitals.hunger + drift + (cost.hunger ?? 0))));
   return campaign;
+}
+
+export function passTime(campaign: CampaignT, minutes: number): string {
+  const time = worldclock.advance(campaign.time, minutes);
+  time.stamp = worldclock.stamp(time);
+  time.long = worldclock.longStamp(time);
+  campaign.time = time;
+  return time.long;
+}
+
+export function standIn(campaign: CampaignT, place: string, turnId: string) {
+  campaign.location = place;
+  campaign.position = null;
+  canon.ensureEntity("places", place, null, turnId);
+  campaign.location_path = canon.ancestry(place);
 }
 
 /**
@@ -1113,9 +1125,9 @@ function setDown(turn: TurnT, draft: DraftT) {
 }
 
 /**
- * Everything a turn changes about the world, applied in one place. Nothing above
- * it writes to the campaign, so a turn that never reaches here leaves no mark —
- * which is what makes a rejected draft safe to throw away.
+ * Everything a draft changes about the world, applied in one place. Nothing before
+ * it applies a draft, so a draft that never reaches here leaves no mark — which is
+ * what makes a rejected draft safe to throw away.
  */
 export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   const draft = drafted(turn);
@@ -1133,18 +1145,8 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   settleFight(campaign, turn);
 
   const heading = canon.slug(draft.destination);
-  const where = turn.arrival ? turn.arrival : campaign.location ? "" : heading;
-  if (where) {
-    campaign.location = where;
-    canon.ensureEntity("places", campaign.location, null, turn.turn_id);
-    campaign.location_path = canon.ancestry(campaign.location);
-  }
-
-  const time = worldclock.advance(campaign.time, draft.minutes);
-  time.stamp = worldclock.stamp(time);
-  time.long = worldclock.longStamp(time);
-  campaign.time = time;
-  turn.at = time.long;
+  if (!campaign.location && heading) standIn(campaign, heading, turn.turn_id);
+  turn.at = passTime(campaign, draft.minutes);
 
   turn.location_path = campaign.location_path;
   turn.vitals = { ...campaign.vitals };

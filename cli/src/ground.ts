@@ -11,6 +11,7 @@
 import * as db from "./db.ts";
 import { POINTS } from "./travel.ts";
 import { campaignIfAny } from "./state.ts";
+import type { CampaignT } from "./schema.ts";
 
 const EARTH = 6371000;
 const LEAGUE = 4800;
@@ -182,15 +183,34 @@ function pinOf(s: Spot): Pt | null {
   return null;
 }
 
+export function pointAlong(path: Pt[], fraction: number): Pt {
+  const lengths = path.slice(1).map((p, n) => metres(path[n], p, 1));
+  let want = Math.max(0, Math.min(1, fraction)) * lengths.reduce((a, b) => a + b, 0);
+  for (let n = 0; n < lengths.length; n++) {
+    if (lengths[n] > 0 && want <= lengths[n]) {
+      const t = want / lengths[n];
+      return [path[n][0] + (path[n + 1][0] - path[n][0]) * t, path[n][1] + (path[n + 1][1] - path[n][1]) * t];
+    }
+    want -= lengths[n];
+  }
+  return path[path.length - 1];
+}
+
+export function standsAt(campaign: CampaignT | null): string | null {
+  if (!campaign?.position) return campaign?.location ?? null;
+  const [lon, lat] = campaign.position;
+  return `${lat.toFixed(6)},${lon.toFixed(6)}`;
+}
+
 type Where = { world: string; at: Pt; spot: Spot | null; said: string };
 
 /** A place id, `lat,lon`, or nothing for wherever the explorer is standing. */
 function resolve(target: string | null | undefined): Where | { error: string } {
   let text = String(target ?? "").trim();
   if (!text) {
-    const here = campaignIfAny()?.location;
+    const here = standsAt(campaignIfAny());
     if (!here) return { error: "nobody is standing anywhere yet — name a place or give lat,lon" };
-    text = String(here);
+    text = here;
   }
   const pair = /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/.exec(text);
   if (pair) {

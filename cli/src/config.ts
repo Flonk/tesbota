@@ -218,6 +218,7 @@ export const MAX_FATIGUE = 100;
 export const MAX_HUNGER = 100;
 
 export const HUNGER_PER_HOUR = 4;
+export const WALK_FATIGUE_PER_HOUR = 4;
 
 export const ABILITIES = ["str", "dex", "con", "int", "wis", "cha"] as const;
 

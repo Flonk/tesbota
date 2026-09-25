@@ -69,9 +69,9 @@ export async function snapshot(profile = PROFILES[0]) {
   const slides = [];
   for (const turn of turns) {
     const draft = turn.draft || {};
+    const road = turn.wake_at ? null : turn.journey;
     let cue = null;
-    if (turn.arrival) cue = `arrives at ${turn.arrival.replace(/-/g, " ")}`;
-    else if (turn.leagues_left > 0 && !turn.wake_at) cue = "something on the road";
+    if (road) cue = road.cut ? "something on the road" : `arrives at ${road.to.replace(/-/g, " ")}`;
 
     const verdicts = {};
     for (const v of turn.verdicts || []) verdicts[v.claim] = v;
@@ -142,7 +142,7 @@ export async function snapshot(profile = PROFILES[0]) {
     trail: current?.trail || [],
   };
   if (current?.wake_at) {
-    status.destination = current.destination;
+    status.destination = current.journey?.to;
     status.wakesIn = duration(minutesUntil(current.wake_at));
     status.events = (current.schedule || []).filter((e) => !e.fired).length;
   }

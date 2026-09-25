@@ -19,8 +19,8 @@ import { ARRIVED } from "./fight.ts";
 import type { Load } from "./sheet.ts";
 import {
   Written,
-  type BlowT, type CarriedT, type CheckT, type DraftT, type FightT, type FighterT, type OutcomeT,
-  type PlacedT, type ProposalT, type QuestT, type VitalsT,
+  type BlowT, type CarriedT, type CheckT, type DraftT, type FightT, type FighterT, type JourneyT,
+  type OutcomeT, type PlacedT, type ProposalT, type QuestT, type VitalsT,
 } from "./schema.ts";
 
 type Keeps = ReturnType<typeof holdingsAt>;
@@ -389,12 +389,12 @@ export const STRANGE =
 
 export function gmTurn(
   action: string | null | undefined,
-  { previous = null, vitals = null, correction = null, event = false, left = null, arrival = null,
+  { previous = null, vitals = null, correction = null, journey = null,
     agreed = null, note = null, chosen = null, press = false, inventory = null, others = null,
     quests = null, now = null, load = null, sent = null, standing = null }:
   { previous?: string | null; vitals?: VitalsT | null; correction?: string | null;
-    event?: boolean; left?: number | null; arrival?: string | null;
-    agreed?: ProposalT | null; note?: string | null; chosen?: OutcomeT | null; press?: boolean;
+    journey?: JourneyT | null; agreed?: ProposalT | null; note?: string | null;
+    chosen?: OutcomeT | null; press?: boolean;
     inventory?: Holding[] | null; others?: Keeps | null; quests?: QuestT[] | null;
     now?: string | null; load?: Load | null; sent?: Record<string, string> | null;
     standing?: CarriedT | null } = {}
@@ -407,23 +407,23 @@ export function gmTurn(
       "They agreed to this, and it is settled — narrate it as happening, " +
         `and do not re-price it:\n\n${agreed.summary}\n\n` +
         `It takes ${agreed.minutes} minutes and costs ${agreed.fatigue} fatigue. ` +
-        "Narrate where it actually gets them. If the target was reachable in that " +
-        "time, they arrive. Do not tell them they are still nowhere."
+        "If it sends them somewhere, set `destination` and narrate them setting off, " +
+        "never arriving; the walk is not in these minutes."
     );
   }
   if (vitals) parts.push(vitalsBlock(vitals));
   if (previous) parts.push(lastTold(previous));
-  if (arrival) parts.push(`The adventurer has arrived at ${arrival}. Narrate the arrival.`);
-  if (event) {
-    let said =
+  if (journey && !journey.cut) {
+    parts.push(`The adventurer has arrived at ${journey.to}. Narrate the arrival.`);
+  }
+  if (journey?.cut) {
+    parts.push(
       "Something interrupts the journey here. Invent what, and narrate it. " +
-      "The adventurer has been travelling and does not know how long.";
-    if (left) {
-      said +=
-        ` The road still has ${left} leagues in it: when they are done here, ` +
-        "set them walking again with what is left.";
-    }
-    parts.push(said);
+        "The adventurer has been travelling and does not know how long. " +
+        `They were on their way to ${journey.to}, and the road still has ${journey.left} ` +
+        `leagues in it: when they are done here, set \`destination\` to \`${journey.to}\` ` +
+        "and they carry on from where they stopped."
+    );
   }
   kitBlocks(parts, sent, { inventory, load, others, quests });
   if (standing) {

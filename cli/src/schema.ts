@@ -64,6 +64,8 @@ export const Sessions = z.object({
 
 export const Placed = z.object({ id: z.string(), name: z.string() });
 
+export const Pt = z.tuple([z.number(), z.number()]);
+
 export const QuestStatus = z.enum(["active", "done", "failed", "abandoned"]);
 
 export const Quest = z.object({
@@ -278,10 +280,19 @@ export const Phase = z.object({
 
 export const Proposal = z.object({
   summary: z.string(),
-  target: z.string().nullish(),
   minutes: z.number().int(),
   fatigue: z.number().int(),
-  unpriced: z.boolean().optional(),
+});
+
+export const Journey = z.object({
+  to: Id,
+  /** the way the map says they are going, and how much of it this stretch covers */
+  path: z.array(Pt).default([]),
+  reach: z.number(),
+  /** how much of the road is left once this stretch stops, and whether it stops short */
+  left: z.number(),
+  cut: z.boolean(),
+  minutes: z.number().int().min(0),
 });
 
 export const StateName = z.enum(STATE_NAMES);
@@ -322,7 +333,6 @@ export const Turn = z.object({
   check: Check.nullish(),
 
   note: z.string().nullish(),
-  arrival: Id.nullish(),
   spent: z.array(z.string()).default([]),
 
   /** the edge the driver last crossed, and the ones before it — what the dev tab draws */
@@ -340,12 +350,8 @@ export const Turn = z.object({
   nudge: z.number().int().min(0).default(0),
   pressed: z.boolean().nullish(),
   fortune: z.number().nullish(),
-  /** where the road is taking them, and how much of it is left */
   destination: Id.nullish(),
-  leagues_left: z.number().default(0),
-  /** the way the map says they are going, and how much of it this stretch covers */
-  path: z.array(z.tuple([z.number(), z.number()])).nullish(),
-  reach: z.number().nullish(),
+  journey: Journey.nullish(),
   /** the lore master's sitting, archived onto the turn that needed it */
   lore: z.array(z.object({ role: z.string(), text: z.string() })).default([]),
   lore_gap: z.string().nullish(),
@@ -369,6 +375,7 @@ export const Campaign = z.object({
   current_turn: z.string().nullish(),
   turn_counter: z.number().int().min(0),
   location: Id.nullish(),
+  position: Pt.nullish(),
   location_path: z.array(Placed).default([]),
   vitals: Vitals.prefault({}),
   skills: Skills.default(() => structuredClone(STARTING_SKILLS)),
@@ -403,6 +410,7 @@ export type VerdictT = z.infer<typeof Verdict>;
 export type CheckT = z.infer<typeof Check>;
 export type OutcomeT = z.infer<typeof Outcome>;
 export type ProposalT = z.infer<typeof Proposal>;
+export type JourneyT = z.infer<typeof Journey>;
 export type QuestT = z.infer<typeof Quest>;
 export type PlacedT = z.infer<typeof Placed>;
 export type TimeT = z.infer<typeof Time>;
