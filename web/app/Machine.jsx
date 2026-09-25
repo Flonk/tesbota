@@ -234,6 +234,10 @@ export default function Machine({ status }) {
                         markerWidth="4" markerHeight="4" orient="auto-start-reverse">
                   <path d="M 0 0 L 10 5 L 0 10 z" className="mheadfill" />
                 </marker>
+                <marker id="mheadlit" viewBox="0 0 10 10" refX="8" refY="5"
+                        markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" className="mheadlitfill" />
+                </marker>
                 <marker id="mheadlive" viewBox="0 0 10 10" refX="8" refY="5"
                         markerWidth="4.6" markerHeight="4.6" orient="auto-start-reverse">
                   <path d="M 0 0 L 10 5 L 0 10 z" className="mheadlivefill" />
@@ -251,7 +255,7 @@ export default function Machine({ status }) {
                   return (
                     <g key={e.id} className={`medge${rank === 2 ? " live" : ""}${rank === 1 ? " lit" : ""}`}>
                       <path d={path.d} className="mline"
-                            markerEnd={rank === 2 ? "url(#mheadlive)" : "url(#mhead)"} />
+                            markerEnd={rank === 2 ? "url(#mheadlive)" : rank === 1 ? "url(#mheadlit)" : "url(#mhead)"} />
                       {rank === 2 && <path d={path.d} className="mflow" />}
                     </g>
                   );

@@ -1167,8 +1167,9 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 
 .mline { fill: none; stroke: var(--line); stroke-width: 1; }
 .mheadfill { fill: var(--line); }
+.mheadlitfill { fill: var(--ink); }
 .mheadlivefill { fill: var(--gold); }
-.medge.lit .mline { stroke: var(--fg); }
+.medge.lit .mline { stroke: var(--ink); }
 .medge.live .mline { stroke: var(--gold); stroke-width: 1.6; }
 
 /* the edge the world is crossing right now */
@@ -1193,7 +1194,7 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
    Letting the first two share a line made them share it only when they fitted,
    so the list changed shape with the width of the column. */
 .mstep { display: flex; flex-direction: column; gap: .05rem; }
-.mon { font: var(--mono); letter-spacing: .06em; color: var(--fg); }
+.mon { font: var(--mono); letter-spacing: .06em; color: var(--ink); }
 .mon::after { content: ":"; color: var(--dim); }
 .mgo { font: var(--mono); font-size: .92em; letter-spacing: .04em; color: var(--place); }
 .mwhen { line-height: 1.35; }
