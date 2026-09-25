@@ -50,6 +50,11 @@ const across = (lon) => ((wrapped(lon) + 180) / 360) * W;
 
 const hold = (n, low, high) => Math.max(low, Math.min(high, n));
 
+const nice = (most) => {
+  const ten = 10 ** Math.floor(Math.log10(most));
+  return [5, 2, 1].map((n) => n * ten).find((n) => n <= most) ?? ten;
+};
+
 // The projection read backwards. Looking at a map never needs this; putting a
 // finger on one and saying "there" does.
 const lonOf = (x) => (x / W) * 360 - 180;
@@ -345,6 +350,14 @@ export default function Globe({
   }, [body?.id]);
 
   const sun = body?.subsolar || null;
+
+  // Everything drawn on top of the world is kept the same size on the screen
+  // however close you are, the way a pin does not grow when a map is zoomed. One
+  // user unit at this scale is one pixel, so the numbers below are pixels — and
+  // because the world covers its pane, the scale comes from whichever side of it
+  // is doing the covering.
+  const k = pane.w && pane.h ? Math.max(pane.w / view.w, pane.h / view.h) : W / view.w;
+  const near = 1 / k;
   const standing = body?.standing || [];
   const byId = useMemo(() => new Map(standing.map((p) => [p.id, p])), [standing]);
 
@@ -397,9 +410,8 @@ export default function Globe({
         : place;
     });
     const sizes = new Map(base.map((place) => [place.id, place.box]));
-    const scale = pane.w && pane.h ? Math.max(pane.w / view.w, pane.h / view.h) : W / view.w;
-    return gather(resolve(moving, sizes, scale, chosen), here, scale);
-  }, [standing, base, here, view.w, pane, rides, chosen, total?.lon, total?.lat]);
+    return gather(resolve(moving, sizes, k, chosen), here, k);
+  }, [standing, base, here, k, rides, chosen, total?.lon, total?.lat]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
@@ -601,7 +613,7 @@ export default function Globe({
     const a = onto_map(last);
     const b = onto_map(before);
     const long = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1;
-    const reach = 26 * (pane.w && pane.h ? Math.min(view.w / pane.w, view.h / pane.h) : view.w / W);
+    const reach = 26 * near;
     const [lon, lat] = off_map([a[0] + ((a[0] - b[0]) / long) * reach, a[1] + ((a[1] - b[1]) / long) * reach]);
     return [at === "end" ? run.length : 0, [hold(lon, -180, 180), hold(lat, -LIMIT, LIMIT)]];
   }
@@ -1143,16 +1155,6 @@ export default function Globe({
 
   if (!sun) return null;
 
-  // Everything drawn on top of the world is kept the same size on the screen
-  // however close you are, the way a pin does not grow when a map is zoomed. One
-  // user unit at this scale is one pixel, so the numbers below are pixels — and
-  // because the world covers its pane, the scale comes from whichever side of it
-  // is doing the covering.
-  const near =
-    pane.w && pane.h
-      ? Math.min(view.w / pane.w, view.h / pane.h)
-      : view.w / W;
-
   // Two names on top of each other say less than one name does. Whoever you are
   // standing with wins, then whoever stands with the most.
   const said = [];
@@ -1174,14 +1176,12 @@ export default function Globe({
 
   const nameOf = (id) => byId.get(id)?.name || id;
 
+  const metresPerPixel = (lat) => (2 * Math.PI * body.radius * Math.cos(lat * RAD)) / (W * k);
+
   const ruler = (() => {
     if (!body.radius || !pane.w || !pane.h) return null;
-    const k = Math.max(pane.w / view.w, pane.h / view.h);
-    const middle = latOf(view.y + view.h / 2);
-    const perPixel = (2 * Math.PI * body.radius * Math.cos(middle * RAD)) / (W * k);
-    const most = perPixel * 110;
-    const ten = 10 ** Math.floor(Math.log10(most));
-    const length = [5, 2, 1].map((n) => n * ten).find((n) => n <= most) ?? ten;
+    const perPixel = metresPerPixel(latOf(view.y + view.h / 2));
+    const length = nice(perPixel * 110);
     return {
       px: length / perPixel,
       perPixel,
@@ -1194,15 +1194,11 @@ export default function Globe({
 
   const grid = (() => {
     if (!shown.grid || !body.radius || !pane.w || !pane.h) return null;
-    const k = Math.max(pane.w / view.w, pane.h / view.h);
     const top = latOf(view.y);
     const bottom = latOf(view.y + view.h);
     const steady = Math.max(-80, Math.min(80, Math.round((top + bottom) / 2 / 5) * 5));
     const round = 2 * Math.PI * body.radius;
-    const perPixel = (round * Math.cos(steady * RAD)) / (W * k);
-    const most = perPixel * 110;
-    const ten = 10 ** Math.floor(Math.log10(most));
-    const length = [5, 2, 1].map((n) => n * ten).find((n) => n <= most) ?? ten;
+    const length = nice(metresPerPixel(steady) * 110);
     const tall = (length / round) * 360;
     const wide = tall / Math.cos(steady * RAD);
     const west = Math.max(lonOf(view.x), -180);
