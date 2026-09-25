@@ -178,7 +178,7 @@ function editShape(kind, ed, toggle) {
     books: {
       cols: "minmax(12rem, 3fr) minmax(6rem, 1.2fr) 6rem 1.2rem",
       fields: [
-        { key: "name", label: "book", strong: true, cell: name },
+        { key: "name", label: "book", strong: true, cell: (r) => (chronicle(r) ? r.name : name(r)) },
         { key: "author", label: "author", dim: true,
           cell: (r) => (chronicle(r) ? r.author : input("book", "author")(r)) },
         { key: "written", label: "written", dim: true,
