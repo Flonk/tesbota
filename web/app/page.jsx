@@ -571,8 +571,13 @@ export default function Page() {
   const busy = pending || (data?.job?.running ? data.job.label || "step" : null);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/state", { cache: "no-store" });
-    if (res.ok) setData(await res.json());
+    try {
+      const res = await fetch("/api/state", { cache: "no-store" });
+      if (!res.ok) return;
+      const next = await res.json();
+      if (next.names) knowNames(next.names);
+      setData(next);
+    } catch {}
   }, []);
 
   // A quiet world is polled slowly; one with something in flight is polled fast,
@@ -584,10 +589,6 @@ export default function Page() {
     const id = setInterval(load, moving ? 1000 : 4000);
     return () => clearInterval(id);
   }, [load, moving]);
-
-  useEffect(() => {
-    if (data?.names) knowNames(data.names);
-  }, [data]);
 
   useEffect(() => {
     const when = data?.written;
