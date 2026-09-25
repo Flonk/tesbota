@@ -5,9 +5,11 @@
  * system prompt, a message, and the tools that layer is trusted with.
  */
 
-import { query, type CanUseTool } from "@anthropic-ai/claude-agent-sdk";
+import { query, type HookCallback, type Options } from "@anthropic-ai/claude-agent-sdk";
 import { ROOT } from "./config.ts";
+import type { Gate } from "./gate.ts";
 import { fill } from "./prompts.ts";
+import { Written } from "./schema.ts";
 
 export class AgentError extends Error {
   constructor(message: string) {
@@ -56,7 +58,7 @@ export function mend(raw: string): string {
   return out.join("");
 }
 
-export function extractJson<T = any>(text: string | null | undefined): T {
+export function extractJson<T = unknown>(text: string | null | undefined): T {
   const said = String(text ?? "");
   const match = FENCE.exec(said);
   const raw = match ? match[1] : said;
@@ -78,13 +80,12 @@ export type Asked = {
   tools?: readonly string[];
   session?: string | null;
   model?: string | null;
-  permission?: CanUseTool | null;
+  permission?: Gate | null;
   attempts?: number;
 };
 
 async function once(
-  prompt: string, system: string, tools: readonly string[], session: string | null | undefined,
-  model: string | null | undefined, permission: CanUseTool | null | undefined
+  prompt: string, { system, tools, session, model, permission }: Required<Omit<Asked, "attempts">>
 ): Promise<[string, string | null]> {
   const chunks: string[] = [];
   let sessionId: string | null = session ?? null;
@@ -93,7 +94,7 @@ async function once(
   // never consulted — which silently handed every agent an unrestricted shell.
   // When there is a gate, the tool is left out of the allowlist so every call
   // falls through to it.
-  const options: Record<string, unknown> = {
+  const options: Options = {
     systemPrompt: system,
     permissionMode: "acceptEdits",
     resume: session ?? undefined,
@@ -105,24 +106,22 @@ async function once(
     options.canUseTool = permission;
     // Read-only commands are approved before canUseTool is ever asked, so the gate
     // also stands in front of every call as a hook, where nothing gets round it.
-    options.hooks = {
-      PreToolUse: [{
-        hooks: [async (input: any) => {
-          const verdict: any = await permission(input.tool_name, input.tool_input ?? {}, {} as any);
-          if (verdict?.behavior === "allow") return { continue: true };
-          return {
-            hookSpecificOutput: {
-              hookEventName: "PreToolUse",
-              permissionDecision: "deny",
-              permissionDecisionReason: verdict?.message || "Nothing happens.",
-            },
-          };
-        }],
-      }],
+    const gate: HookCallback = async (input) => {
+      if (input.hook_event_name !== "PreToolUse") return { continue: true };
+      const verdict = await permission(input.tool_name, Written.safeParse(input.tool_input).data ?? {});
+      if (verdict.behavior === "allow") return { continue: true };
+      return {
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse",
+          permissionDecision: "deny",
+          permissionDecisionReason: verdict.message || "Nothing happens.",
+        },
+      };
     };
+    options.hooks = { PreToolUse: [{ hooks: [gate] }] };
   } else options.allowedTools = [...tools];
 
-  for await (const message of query({ prompt, options: options as any })) {
+  for await (const message of query({ prompt, options })) {
     if (message.type === "assistant") {
       for (const block of message.message.content) {
         if (block.type === "text") chunks.push(block.text);
@@ -143,7 +142,7 @@ export async function ask(prompt: string, opts: Asked): Promise<[string, string 
   let last: unknown = null;
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
-      return await once(said, told, tools, session, model, permission);
+      return await once(said, { system: told, tools, session, model, permission });
     } catch (err) {
       last = err;
       if (attempt + 1 < attempts) await rest(2000);

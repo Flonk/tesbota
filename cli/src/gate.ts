@@ -4,7 +4,9 @@
  * binary, one flag, and a short list of tables anybody may write to.
  */
 
-import type { CanUseTool, PermissionResult } from "@anthropic-ai/claude-agent-sdk";
+import type { PermissionResult } from "@anthropic-ai/claude-agent-sdk";
+
+export type Gate = (toolName: string, input: Record<string, unknown>) => Promise<PermissionResult>;
 
 const SHELL = ";|&$`><\n";
 
@@ -42,14 +44,14 @@ const deny = (message: string): PermissionResult => ({ behavior: "deny", message
 export function sqliteGate(
   { readonly = true, tables = null, also = [] }:
   { readonly?: boolean; tables?: string[] | null; also?: string[] } = {}
-): CanUseTool {
+): Gate {
   return async (toolName, toolInput) => {
     const how = readonly
       ? 'sqlite3 -readonly canon.db "SELECT ..."'
       : 'sqlite3 canon.db "..."';
     if (toolName !== "Bash") return deny(`The world is only reachable with ${how}`);
 
-    const raw = String((toolInput as any)?.command ?? "");
+    const raw = String(toolInput.command ?? "");
     const stripped = bare(raw);
     if ([...SHELL].some((ch) => stripped.includes(ch))) {
       return deny(`One command at a time, with no shell around it: ${how}`);

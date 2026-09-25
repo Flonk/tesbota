@@ -15,7 +15,7 @@ import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
 import * as worldclock from "./worldclock.ts";
 import { AgentError, ask, extractJson } from "./agent.ts";
-import { sqliteGate } from "./gate.ts";
+import { sqliteGate, type Gate } from "./gate.ts";
 import type { EdgeOn, LoopState } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import { explorerName, pendingDeath, recordDeath } from "./state.ts";
@@ -95,7 +95,7 @@ export function normaliseCommand(text: string): string {
   return parts.join(" ");
 }
 
-export const explorerPermission = async (toolName: string, toolInput: Record<string, unknown>) => {
+export const explorerPermission: Gate = async (toolName, toolInput) => {
   if (toolName !== "Bash") {
     return {
       behavior: "deny" as const,
