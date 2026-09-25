@@ -178,7 +178,7 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
       quests: campaign.quests,
       now: worldclock.longStamp(campaign.time),
       sent: ledger(campaign),
-      standing: campaign.fight ?? null,
+      carried: campaign.carried ?? null,
     })
   );
 

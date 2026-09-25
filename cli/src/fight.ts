@@ -214,7 +214,7 @@ const Bodies = z.array(Written);
  */
 export function openFight(campaign: CampaignT, draft: DraftT): FightT {
   const said: Record<string, unknown> = draft.fight ?? {};
-  const held = campaign.fight;
+  const held = campaign.carried;
   const them = Bodies.safeParse(said.them).data ?? (said.name || said.health ? [said] : null);
   const allies = Bodies.safeParse(said.us).data;
   const [weapon, hurt] = swungWith(campaign);

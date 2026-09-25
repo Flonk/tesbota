@@ -391,13 +391,13 @@ export function gmTurn(
   action: string | null | undefined,
   { previous = null, vitals = null, correction = null, journey = null,
     agreed = null, note = null, chosen = null, press = false, inventory = null, others = null,
-    quests = null, now = null, load = null, sent = null, standing = null }:
+    quests = null, now = null, load = null, sent = null, carried = null }:
   { previous?: string | null; vitals?: VitalsT | null; correction?: string | null;
     journey?: JourneyT | null; agreed?: ProposalT | null; note?: string | null;
     chosen?: OutcomeT | null; press?: boolean;
     inventory?: Holding[] | null; others?: Keeps | null; quests?: QuestT[] | null;
     now?: string | null; load?: Load | null; sent?: Record<string, string> | null;
-    standing?: CarriedT | null } = {}
+    carried?: CarriedT | null } = {}
 ): string {
   const parts: string[] = [];
   if (now) parts.push(`The time is ${now}.`);
@@ -426,10 +426,10 @@ export function gmTurn(
     );
   }
   kitBlocks(parts, sent, { inventory, load, others, quests });
-  if (standing) {
-    const left = standing.them.filter((x) => !x.dead).map((x) => `${x.name}, ${x.health} left`).join("; ");
+  if (carried) {
+    const left = carried.them.filter((x) => !x.dead).map((x) => `${x.name}, ${x.health} left`).join("; ");
     parts.push(
-      `The fight with ${standing.name} is not over: ${left}. ` +
+      `The fight with ${carried.name} is not over: ${left}. ` +
         "Declare it again with that health to carry the pool forward, or " +
         "narrate it ending some other way and leave `fight` out."
     );

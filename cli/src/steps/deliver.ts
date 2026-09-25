@@ -119,11 +119,11 @@ async function applyQuests(campaign: CampaignT, draft: DraftT, turnId: string) {
 function settleFight(campaign: CampaignT, turn: TurnT): CampaignT {
   const running = fighting(turn);
   if (!running) {
-    campaign.fight = null;
+    campaign.carried = null;
     return campaign;
   }
   if (running.ended === "broken") {
-    campaign.fight = {
+    campaign.carried = {
       skill: running.skill,
       flee_dc: running.flee_dc,
       name: running.name,
@@ -131,7 +131,7 @@ function settleFight(campaign: CampaignT, turn: TurnT): CampaignT {
       them: running.them.filter((x) => !x.dead).map((x) => ({ ...x })),
     };
   } else {
-    campaign.fight = null;
+    campaign.carried = null;
   }
   if (running.ended === "killed" && !pendingDeath()) {
     const felled = [...running.blows].reverse()

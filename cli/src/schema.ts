@@ -11,7 +11,7 @@
  *    in memory and broke the moment a turn went to disk and came back, because
  *    the copy in `swing.mark` and the copy in `fight.them` stopped being the same
  *    object and every wound landed on the orphan. Ids do not have that failure.
- *  - A fight lives in exactly one place. `campaign.fight` is not a fight; it is
+ *  - A fight lives in exactly one place. `campaign.carried` is not a fight; it is
  *    what is carried out of one that nobody finished.
  */
 
@@ -392,7 +392,7 @@ export const Campaign = z.object({
   calm: z.number().int().default(0),
   settled: z.array(z.string()).default([]),
   /** not a fight — what was carried out of one nobody finished */
-  fight: Carried.nullish(),
+  carried: Carried.nullish(),
 });
 
 export type TurnT = z.infer<typeof Turn>;
