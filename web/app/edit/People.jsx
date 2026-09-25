@@ -1,7 +1,7 @@
 "use client";
 
-import { Act } from "../ui";
-import { Chips, Field, Group, Pick, reader } from "./fields";
+import { Act, Section } from "../ui";
+import { Chips, Field, Pick, reader } from "./fields";
 import { Holdings, Tags } from "./Common";
 
 const words = (text) =>
@@ -14,7 +14,7 @@ function Fight({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "body", thing.body);
   const has = draft.body === undefined ? !!thing.body : draft.body !== null;
   return (
-    <Group label="in a fight">
+    <Section label="in a fight">
       {has ? (
         <>
           <div className="efields">
@@ -30,7 +30,7 @@ function Fight({ thing, draft, change }) {
       ) : (
         <Act onClick={() => change("body", {})}>add fight stats</Act>
       )}
-    </Group>
+    </Section>
   );
 }
 

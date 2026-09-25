@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { shortDate, timeOf } from "./clock";
-import { Cap, Crumb, Empty, openDossier, Overlay, Prose, Table, Tag, unrated } from "./ui";
+import { Cap, Crumb, Empty, openDossier, Overlay, Prose, Section, Table, Tag, unrated } from "./ui";
 
 const WORDS = { done: "done", failed: "failed", abandoned: "let go" };
 const TONE = { done: "good", failed: "warn", abandoned: "dim" };
@@ -48,24 +48,21 @@ function QuestPanel({ quest, onClose }) {
       }
     >
       <div className="dbody">
-        <div className="dsec">
-          <p className="cap">what it asks</p>
+        <Section label="what it asks">
           {quest.detail ? (
             <Prose className="dclaimtext" text={quest.detail} />
           ) : (
             <Empty>nothing was written down about it</Empty>
           )}
-        </div>
+        </Section>
 
         {quest.script && (
-          <div className="dsec">
-            <p className="cap">script — the game master sees this, the adventurer never does</p>
+          <Section label="script — the game master sees this, the adventurer never does">
             <pre className="prompt">{quest.script}</pre>
-          </div>
+          </Section>
         )}
 
-        <div className="dsec">
-          <p className="cap">set by</p>
+        <Section label="set by">
           {quest.giver ? (
             <p className="dline">
               <button className="dlink" onClick={() => openDossier(quest.giver)}>
@@ -75,15 +72,13 @@ function QuestPanel({ quest, onClose }) {
           ) : (
             <Empty>nobody is recorded as having asked</Empty>
           )}
-        </div>
+        </Section>
 
-        <div className="dsec">
-          <p className="cap">taken on at</p>
+        <Section label="taken on at">
           {quest.where?.length ? <Crumb where={quest.where} /> : <Empty>nowhere recorded</Empty>}
-        </div>
+        </Section>
 
-        <div className="dsec">
-          <p className="cap">when</p>
+        <Section label="when">
           <p className="dline">
             <span>opened {shortDate(quest.at || quest.opened)}</span>
             <span className="dsection">{timeOf(quest.at)}</span>
@@ -96,7 +91,7 @@ function QuestPanel({ quest, onClose }) {
               <span className="dsection">{quest.closed}</span>
             </p>
           )}
-        </div>
+        </Section>
       </div>
     </Overlay>
   );

@@ -1,16 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { Act } from "../ui";
-
-export function Group({ label, children }) {
-  return (
-    <div className="dsec">
-      {label && <p className="cap">{label}</p>}
-      {children}
-    </div>
-  );
-}
+import { Act, Section } from "../ui";
 
 const shown = (value) => (value === null || value === undefined ? "" : String(value));
 
@@ -180,7 +171,7 @@ export function Pick({ label, kind, value, onChange, placeholder = "" }) {
 export function Many({ label, rows, onChange, columns, blank, empty = "none" }) {
   const set = (n, key, v) => onChange(rows.map((row, m) => (m === n ? { ...row, [key]: v } : row)));
   return (
-    <Group label={label}>
+    <Section label={label}>
       <div className="emany" style={{ "--cols": columns.length }}>
         {rows.length > 0 && (
           <div className="erow ehead">
@@ -215,7 +206,7 @@ export function Many({ label, rows, onChange, columns, blank, empty = "none" }) 
         ))}
       </div>
       <Act onClick={() => onChange([...rows, { ...blank }])}>add</Act>
-    </Group>
+    </Section>
   );
 }
 
@@ -228,7 +219,7 @@ export function Chips({ label, values, onChange, placeholder = "add" }) {
     setText("");
   };
   return (
-    <Group label={label}>
+    <Section label={label}>
       <div className="dtraits echips">
         {values.map((v) => (
           <span className="pill echip" key={v}>
@@ -252,7 +243,7 @@ export function Chips({ label, values, onChange, placeholder = "add" }) {
           onBlur={add}
         />
       </div>
-    </Group>
+    </Section>
   );
 }
 

@@ -2,7 +2,7 @@
 
 import { abilityLine, abilityWhere, face as itemFace, KIND_ICON, PLACE_ICON, rare } from "./world";
 import { useCallback, useEffect, useState } from "react";
-import { Crumb, EditBar, Empty, Mark, Note, openDossier, openMap, Overlay, Pill, Prose, rated, settled, Stub, Table, Tabs, Tag, tint, told, unrated } from "./ui";
+import { Crumb, EditBar, Empty, Mark, Note, openDossier, openMap, Overlay, Pill, Prose, rated, Section, settled, Stub, Table, Tabs, Tag, tint, told, unrated } from "./ui";
 import Icon from "./icons";
 import { EDITORS, merged, saveEdits } from "./edit";
 import { Field } from "./edit/fields";
@@ -322,15 +322,6 @@ function Traits({ person }) {
         <Empty>nobody has said what they are like</Empty>
       )}
     </Section>
-  );
-}
-
-function Section({ label, children }) {
-  return (
-    <div className="dsec">
-      <p className="cap">{label}</p>
-      {children}
-    </div>
   );
 }
 

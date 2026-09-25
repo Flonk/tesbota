@@ -1,7 +1,8 @@
 "use client";
 
-import { Field, Group, Many, Pick, reader } from "./fields";
+import { Field, Many, Pick, reader } from "./fields";
 import { Tags } from "./Common";
+import { Section } from "../ui";
 import { PLACE_TYPES } from "../world";
 
 const CELESTIAL = ["celestial-body", "celestial-system"];
@@ -39,13 +40,13 @@ export default function PlacesEdit({ thing, draft, change }) {
         )}
       </div>
       {CELESTIAL.includes(type) && (
-        <Group label="orbit">
+        <Section label="orbit">
           <div className="efields">
             {ORBIT.map(([key, label]) => (
               <Field key={key} kind="number" label={label} value={orbit(key)} onChange={putOrbit(key)} />
             ))}
           </div>
-        </Group>
+        </Section>
       )}
       <Many
         label="doors"

@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Act } from "../ui";
+import { Act, Section } from "../ui";
 import Icon from "../icons";
-import { Field, Group, Pick, reader } from "./fields";
+import { Field, Pick, reader } from "./fields";
 import { Tags } from "./Common";
 import { RARITIES } from "../world";
 
@@ -51,7 +51,7 @@ export default function BooksEdit({ thing, draft, change }) {
         <Field label="written" value={get("written")} onChange={put("written")} />
         <Field label="rarity" kind="choice" options={RARITIES} value={get("rarity")} onChange={put("rarity")} />
       </div>
-      <Group label="text">
+      <Section label="text">
         <div className="epassages" ref={list}>
           {texts.map((text, n) => (
             <div
@@ -91,7 +91,7 @@ export default function BooksEdit({ thing, draft, change }) {
           ))}
         </div>
         <Act onClick={() => set([...texts, ""])}>add passage</Act>
-      </Group>
+      </Section>
       <Tags thing={thing} draft={draft} change={change} />
     </>
   );

@@ -1,7 +1,8 @@
 "use client";
 
-import { Field, Group, Many, Pick, reader } from "./fields";
+import { Field, Many, Pick, reader } from "./fields";
 import { Tags } from "./Common";
+import { Section } from "../ui";
 import { PLACE_TYPES } from "../world";
 
 export default function AbilitiesEdit({ thing, draft, change }) {
@@ -14,7 +15,7 @@ export default function AbilitiesEdit({ thing, draft, change }) {
   const granted = draft.granted ?? (thing.granted || []).map((a) => a.id);
   return (
     <>
-      <Group label="what it does">
+      <Section label="what it does">
         <div className="efields">
           <Field label="damage" value={get("damage")} onChange={put("damage")} placeholder="2-5" />
           <Field
@@ -36,7 +37,7 @@ export default function AbilitiesEdit({ thing, draft, change }) {
           <Field kind="choice" label="in a" options={PLACE_TYPES} value={get("in_kind")} onChange={put("in_kind")} />
           <Pick label="somewhere" kind="aspects" value={get("in_aspect")} onChange={put("in_aspect")} />
         </div>
-      </Group>
+      </Section>
       <Many
         label="granted by"
         rows={granted.map((aspect) => ({ aspect }))}

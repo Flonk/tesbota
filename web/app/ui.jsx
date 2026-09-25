@@ -49,6 +49,15 @@ export function Cap({ children }) {
   return <div className="cap">{children}</div>;
 }
 
+export function Section({ label, children }) {
+  return (
+    <div className="dsec">
+      {label && <p className="cap">{label}</p>}
+      {children}
+    </div>
+  );
+}
+
 export function Crumb({ where = [], short = false, lead = null, onPick = null, className = "" }) {
   if (!where.length) return null;
   const shown = short ? where.slice(-2) : where;
