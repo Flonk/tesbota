@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { send } from "../http";
 import {
-  added, covers, dropped, extentOf, moved, opened, rerun, rework, runsOf, straighten,
+  added, covers, dropped, extentOf, moved, opened, rerun, rework, runsOf, spread, straighten,
 } from "../shaping";
 import { isRun } from "../world";
 import { hold, LIMIT, offMap, onMap, project } from "./projection";
@@ -166,13 +166,15 @@ export function useShapeEditor({ body, tree, editing, onSaved, onDirty }) {
     const ground = byId.get(chosen);
     const rings = ground?.extent ? runsOf(ground.extent) : null;
     if (!rings?.shut) return new Set();
+    const size = spread(rings.runs);
     const above = new Set(tree.ancestors(chosen).map((p) => p.id));
     return new Set(
       [...byId.values()]
-        .filter(
-          (p) => p.id !== chosen && !above.has(p.id) && p.lat !== null && p.lon !== null &&
-            covers(rings.runs, [p.lon, p.lat])
-        )
+        .filter((p) => {
+          if (p.id === chosen || above.has(p.id) || !p.pin || !covers(rings.runs, p.pin)) return false;
+          const own = runsOf(p.extent);
+          return !own?.shut || spread(own.runs) < size;
+        })
         .map((p) => p.id)
     );
   }, [tree, byId, chosen]);

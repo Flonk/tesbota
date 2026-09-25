@@ -148,6 +148,8 @@ const area = (run) => {
   return Math.abs(sum / 2);
 };
 
+export const spread = (runs) => runs.reduce((sum, run) => sum + area(run), 0);
+
 /** The point on an outline nearest to p: which edge, how far along it, how far off. */
 export function onto(run, p, shut) {
   let best = null;
