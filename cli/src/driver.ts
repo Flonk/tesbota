@@ -21,7 +21,7 @@ import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY } from ".
 import * as worldclock from "./worldclock.ts";
 import {
   clearDeath, ensureLayout, loadCampaign, loadTurn, newCampaign, newTurn, now,
-  pendingDeath, pickName, retire, saveCampaign, saveTurn, stamp, stock, turnPath,
+  pendingDeath, pickName, retire, save, saveCampaign, saveTurn, stamp, stock,
 } from "./state.ts";
 import { Draft, type CampaignT, type TurnT } from "./schema.ts";
 
@@ -79,8 +79,7 @@ export async function openWorld(campaign: CampaignT): Promise<TurnT> {
   const world = { campaign, turn };
   const edge = await STEPS.lore1(world);
   turn.state = edgeFrom("lore1", edge).to;
-  saveTurn(turn);
-  saveCampaign(campaign);
+  save(campaign, turn);
   return turn;
 }
 
@@ -212,8 +211,7 @@ export async function run(limit = 1): Promise<Ran> {
     // not have stops here rather than putting the world somewhere unwritten.
     turn.state = edgeFrom(state, edge).to;
     took(turn, state, edge);
-    saveTurn(turn);
-    saveCampaign(campaign);
+    save(campaign, turn);
     if (turn.state === "done") completed += 1;
   }
 }

@@ -150,7 +150,7 @@ export function loadCampaign(): CampaignT {
   return Campaign.parse(held);
 }
 
-export const saveCampaign = (campaign: CampaignT) => writeJson(CAMPAIGN, campaign);
+export const saveCampaign = (campaign: CampaignT) => writeJson(CAMPAIGN, Campaign.parse(campaign));
 
 /**
  * A death is asked for here and carried out by the driver, because whoever calls
@@ -206,29 +206,21 @@ export function newTurn(
 ): TurnT {
   campaign.turn_counter += 1;
   const turnId = `t${String(campaign.turn_counter).padStart(4, "0")}`;
-  const turn = Turn.parse({
-    turn_id: turnId,
-    state,
-    created: stamp(),
-    action: null,
-    draft: null,
-    verdicts: [],
-    correction: null,
-    gm_retries: 0,
-    gap: null,
-    wake_at: null,
-    minutes: 0,
-    ...fields,
-  });
+  const turn = Turn.parse({ turn_id: turnId, state, created: stamp(), ...fields });
   campaign.current_turn = turnId;
-  writeJson(turnPath(turnId), turn);
-  saveCampaign(campaign);
+  save(campaign, turn);
   return turn;
 }
 
 export const loadTurn = (turnId: string): TurnT => Turn.parse(readJson(turnPath(turnId)));
 
-export const saveTurn = (turn: TurnT) => writeJson(turnPath(turn.turn_id), turn);
+export const saveTurn = (turn: TurnT) => writeJson(turnPath(turn.turn_id), Turn.parse(turn));
+
+export function save(campaign: CampaignT, turn: TurnT) {
+  const [held, kept] = [Campaign.parse(campaign), Turn.parse(turn)];
+  writeJson(turnPath(kept.turn_id), kept);
+  writeJson(CAMPAIGN, held);
+}
 
 export function ensureLayout() {
   fs.mkdirSync(STATE, { recursive: true });
