@@ -5,7 +5,7 @@
  * the hands that write it, and that is all.
  */
 
-import type { DatabaseSync } from "node:sqlite";
+import type { DatabaseSync, SQLInputValue } from "node:sqlite";
 import * as db from "./db.ts";
 import { random, type Rng } from "./rng.ts";
 import {
@@ -182,11 +182,18 @@ const mentioned = (text: string) => new Set([...text.matchAll(LINK)].map((m) => 
 export const plain = (text: string | null | undefined) =>
   String(text ?? "").replace(SPELLED, "$1");
 
+const escaped = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const namePattern = (form: string) =>
+  new RegExp(`(?<!\\w)${form.split(/\s+/).map(escaped).join("\\s+")}(?!\\w)`, "gi");
+
+type Form = [string, string, string, RegExp];
+
 /**
  * Every string that names something, longest first, so a mill inside a village is
  * linked as the mill and not as the village.
  */
-function candidates(): Array<[string, string, string]> {
+function candidates(): Form[] {
   const forms = new Map<string, [string, string, string]>();
   for (const r of db.rows("SELECT id, kind, name FROM entity")) {
     const name = String(r.name ?? "");
@@ -197,19 +204,16 @@ function candidates(): Array<[string, string, string]> {
       if (!forms.has(key)) forms.set(key, [form, String(r.kind), String(r.id)]);
     }
   }
-  return [...forms.values()].sort((a, b) => b[0].length - a[0].length);
+  return [...forms.values()]
+    .sort((a, b) => b[0].length - a[0].length)
+    .map(([form, kind, ident]) => [form, kind, ident, namePattern(form)]);
 }
-
-const escaped = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const namePattern = (form: string) =>
-  new RegExp(`(?<!\\w)${form.split(/\s+/).map(escaped).join("\\s+")}(?!\\w)`, "gi");
 
 /**
  * Turn the names of things the world already knows into addresses, once each,
  * leaving quotations and existing links exactly as they were.
  */
-export function linkNames(text: string | null | undefined): string {
+export function linkNames(text: string | null | undefined, forms?: Form[]): string {
   if (!text) return text as string;
   let out = String(text);
   const kept: Array<[number, number]> = [];
@@ -218,9 +222,9 @@ export function linkNames(text: string | null | undefined): string {
   }
   const linked = mentioned(out);
   const edits: Array<[number, number, string]> = [];
-  for (const [form, kind, ident] of candidates()) {
+  for (const [, kind, ident, pattern] of forms ?? candidates()) {
     if (linked.has(ident)) continue;
-    for (const m of out.matchAll(namePattern(form))) {
+    for (const m of out.matchAll(pattern)) {
       const start = m.index!;
       const end = start + m[0].length;
       if (kept.some(([a, b]) => start < b && a < end)) continue;
@@ -241,10 +245,11 @@ export function linkNames(text: string | null | undefined): string {
  * follow back.
  */
 export function linkWriting(): number {
+  const forms = candidates();
   let touched = 0;
   db.writing((con) => {
     for (const r of con.prepare("SELECT book_id, ord, text FROM passage").all() as db.Row[]) {
-      const linked = linkNames(String(r.text));
+      const linked = linkNames(String(r.text), forms);
       if (linked !== r.text) {
         con.prepare("UPDATE passage SET text = ? WHERE book_id = ? AND ord = ?")
           .run(linked, r.book_id, r.ord);
@@ -252,7 +257,7 @@ export function linkWriting(): number {
       }
     }
     for (const r of con.prepare("SELECT id, about FROM entity WHERE about IS NOT NULL").all() as db.Row[]) {
-      const linked = linkNames(String(r.about));
+      const linked = linkNames(String(r.about), forms);
       if (linked !== r.about) {
         con.prepare("UPDATE entity SET about = ? WHERE id = ?").run(linked, r.id);
         touched += 1;
@@ -337,30 +342,28 @@ const STATS = ["type", "weight", "worth", "owed_by", "rarity", "slot"];
 export function describe(
   name: string, effectsOf?: Record<string, string> | null, stats: Record<string, unknown> = {}
 ): string | null {
-  const item = thing(name);
-  if (!item) return null;
+  if (!slug(name)) return null;
   const known = Object.entries(stats).filter(([k, v]) => STATS.includes(k) && v != null);
-  if (known.length) {
-    db.writing((con) => {
+  return db.writing((con) => {
+    const item = mint(con, "items", name, name);
+    if (known.length) {
       const sets = known.map(([k]) => `${k} = ?`).join(", ");
-      con.prepare(`UPDATE item SET ${sets} WHERE id = ?`).run(...known.map(([, v]) => v as any), item);
-    });
-  }
-  for (const [stat, amount] of Object.entries(effectsOf || {})) affect(item, stat, amount);
-  return item;
+      con.prepare(`UPDATE item SET ${sets} WHERE id = ?`).run(...known.map(([, v]) => v as SQLInputValue), item);
+    }
+    for (const [stat, amount] of Object.entries(effectsOf || {})) affect(con, item, stat, amount);
+    return item;
+  });
 }
 
 /**
  * What a thing does is a row for each stat it moves, so a ring worth +1 dex costs
  * the world no column.
  */
-function affect(item: string, stat: string, amount: unknown) {
-  db.writing((con) => {
-    con.prepare(
-      "INSERT INTO effect (item, stat, amount) VALUES (?, ?, ?) " +
-        "ON CONFLICT (item, stat) DO UPDATE SET amount = excluded.amount"
-    ).run(slug(item), stat, String(amount));
-  });
+function affect(con: DatabaseSync, item: string, stat: string, amount: unknown) {
+  con.prepare(
+    "INSERT INTO effect (item, stat, amount) VALUES (?, ?, ?) " +
+      "ON CONFLICT (item, stat) DO UPDATE SET amount = excluded.amount"
+  ).run(item, stat, String(amount));
 }
 
 type Effect = { stat: string; amount: string };
