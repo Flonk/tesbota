@@ -19,6 +19,8 @@ export const PLACE_ICON = {
 
 export const PLACE_TYPES = Object.keys(PLACE_ICON);
 
+export const isRun = (type) => type === "road" || type === "river";
+
 const APPAREL_ICON = {
   helmet: "helm", chest: "shirt", legs: "trousers", feet: "boot", offhand: "shield", ring: "ring",
 };

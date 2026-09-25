@@ -1,4 +1,5 @@
 import { added, moved, opened, runsOf } from "../shaping";
+import { isRun } from "../world";
 
 export const UNWRITTEN = "\u0000new";
 
@@ -18,18 +19,16 @@ export const IDLE = {
 
 export const sum = (a, b) => ({ lon: (a?.lon || 0) + (b?.lon || 0), lat: (a?.lat || 0) + (b?.lat || 0) });
 
-const shutFor = (type) => type !== "road" && type !== "river";
-
 function draftOf(place) {
   const read = runsOf(place.extent);
-  const shut = shutFor(place.type);
+  const shut = !isRun(place.type);
   const width = shut ? null : place.width ?? null;
   return read
     ? { ...read, runs: read.shut ? read.runs.map(opened) : read.runs, width }
     : { shut, runs: [[]], groups: [0], width };
 }
 
-const blank = (type) => ({ shut: shutFor(type), runs: [[]], groups: [0], width: null });
+const blank = (type) => ({ shut: !isRun(type), runs: [[]], groups: [0], width: null });
 
 export const onRun = (draft, i, change) => ({ ...draft, runs: draft.runs.map((r, n) => (n === i ? change(r) : r)) });
 

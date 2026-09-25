@@ -353,6 +353,18 @@ export function Tabs({ items, value, onChange, sub = false }) {
   );
 }
 
+export function useMedia(query) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const read = () => setMatches(media.matches);
+    read();
+    media.addEventListener("change", read);
+    return () => media.removeEventListener("change", read);
+  }, [query]);
+  return matches;
+}
+
 /** For a table whose rows carry a rarity: colour each by its own. */
 export const rated = (row) => row?.rarity ?? null;
 /** For a table whose rows have no rarity to speak of. Saying so is still required. */

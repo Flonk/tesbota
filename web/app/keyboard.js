@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMedia } from "./ui";
 
 export const typing = (el) => !!el?.closest?.("input, textarea, select, [contenteditable]");
 
@@ -22,15 +23,7 @@ export function useKeyboardAvoid(threshold = 120, query = "(max-width: 640px)") 
   const [settled, setSettled] = useState(0);
   const [view, setView] = useState({ top: 0, height: 0 });
   const [side, setSide] = useState(null);
-  const [narrow, setNarrow] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const read = () => setNarrow(mq.matches);
-    read();
-    mq.addEventListener("change", read);
-    return () => mq.removeEventListener("change", read);
-  }, [query]);
+  const narrow = useMedia(query);
 
   useEffect(() => {
     const port = window.visualViewport;

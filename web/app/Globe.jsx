@@ -4,7 +4,10 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "r
 import {
   carried, covers, dropped, extentOf, onto, opened, rerun, rework, runsOf, straighten,
 } from "./shaping";
-import { Act, openDossier, Palette, Row } from "./ui";
+import { send } from "./http";
+import { typing } from "./keyboard";
+import { Act, openDossier, Palette, Row, useMedia } from "./ui";
+import { isRun } from "./world";
 import { edit, IDLE, onRun, sum, UNWRITTEN } from "./map/editor";
 import { treeOf } from "./map/pins";
 
@@ -144,7 +147,7 @@ function resolve({ kids, down }, sizes, scale, open = null) {
  * them names it, unless the adventurer is standing in one of them.
  */
 function gather(pins, here, scale) {
-  const weight = (pin) => (pin.place.type === "road" || pin.place.type === "river" ? -1 : pin.wide);
+  const weight = (pin) => (isRun(pin.place.type) ? -1 : pin.wide);
   const groups = [];
   for (const pin of [...pins].sort((a, b) => weight(b) - weight(a) || b.all.length - a.all.length)) {
     const x = across(pin.lon) * scale;
@@ -194,6 +197,8 @@ const VIEWS = [
 
 const SHOWN = "tesbota.map.shown";
 
+const LAYER = { region: 1, water: 0, location: 2, road: 3, river: 3 };
+
 const SLOP = 4;
 const REACH = 16;
 
@@ -211,7 +216,6 @@ export default function Globe({
   journey = null,
 }) {
   const [view, setView] = useState(FIT);
-  const [coarse, setCoarse] = useState(false);
   const [shown, setShown] = useState({ bodies: true, night: true, grid: false });
   const [clock, setClock] = useState(() => Date.now());
   const [pane, setPane] = useState({ w: 0, h: 0 });
@@ -261,14 +265,7 @@ export default function Globe({
       return next;
     });
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const query = window.matchMedia("(pointer: coarse)");
-    const read = () => setCoarse(query.matches);
-    read();
-    query.addEventListener?.("change", read);
-    return () => query.removeEventListener?.("change", read);
-  }, []);
+  const coarse = useMedia("(pointer: coarse)");
 
   // A fresh world starts whole again — only when it is a different world, so an
   // effect run twice does not undo having been asked to come down to somewhere.
@@ -371,7 +368,6 @@ export default function Globe({
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
   const drawn = useMemo(() => {
-    const order = { water: 0, region: 1, location: 2, road: 3, river: 3 };
     return base
       .filter((place) => place.id !== chosen)
       .map((place) => {
@@ -380,7 +376,7 @@ export default function Globe({
         const depth = Math.min(tree.up(place.id).length, 6);
         return { ...place, rings, box: by ? boxOf(rings.flat()) : place.box, depth };
       })
-      .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2) || a.depth - b.depth);
+      .sort((a, b) => (LAYER[a.type] ?? 2) - (LAYER[b.type] ?? 2) || a.depth - b.depth);
   }, [base, tree, chosen, rides]);
   // Where the picture is measured from. A browser draws in single precision, and
   // six figures of zoom on a number near 800 leaves nothing of it below the pixel:
@@ -408,7 +404,7 @@ export default function Globe({
     const lines = [];
     const waters = [];
     for (const place of drawn) {
-      if (place.type === "road" || place.type === "river") {
+      if (isRun(place.type)) {
         let run = offset(place.rings[0], origin);
         if (run.length < 2) continue;
         if (run[0][0] > run[run.length - 1][0]) run = [...run].reverse();
@@ -435,7 +431,7 @@ export default function Globe({
     const y = view.y + view.h / 2;
     let best = null;
     for (const place of drawn) {
-      if (place.type === "road" || place.type === "river") continue;
+      if (isRun(place.type)) continue;
       const { box } = place;
       const fills = Math.max(
         (box.maxX - box.minX) / view.w,
@@ -660,22 +656,12 @@ export default function Globe({
     if (!asking || saving) return;
     setSaving(true);
     setWrong(null);
-    try {
-      const res = await fetch("/api/place", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: asking.id, deep: asking.deep }),
-      });
-      const back = await res.json().catch(() => null);
-      if (back?.error) return setWrong(back.error);
-      setAsking(null);
-      dispatch({ type: "release" });
-      if (onSaved) onSaved();
-    } catch (err) {
-      setWrong(String(err));
-    } finally {
-      setSaving(false);
-    }
+    const { error } = await send("/api/place", { id: asking.id, deep: asking.deep }, "DELETE");
+    setSaving(false);
+    if (error) return setWrong(error);
+    setAsking(null);
+    dispatch({ type: "release" });
+    if (onSaved) onSaved();
   }
 
   async function keep() {
@@ -687,37 +673,25 @@ export default function Globe({
     try {
       let id = chosen;
       if (chosen === UNWRITTEN) {
-        const res = await fetch("/api/place", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: fresh.name, type: fresh.type, on: body.id }),
-        });
-        const back = await res.json().catch(() => null);
-        if (back?.error || !back?.id) return setWrong(back?.error || "the place was not written");
-        id = back.id;
+        const made = await send("/api/place", { name: fresh.name, type: fresh.type, on: body.id });
+        if (made.error || !made.payload.id) return setWrong(made.error || "the place was not written");
+        id = made.payload.id;
         dispatch({ type: "written", id });
       }
-      const res = await fetch("/api/shape", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id, extent, carry, alone: !bringing,
-          ...(draft.shut ? {} : { width: draft.width ?? null }),
-        }),
+      const shaped = await send("/api/shape", {
+        id, extent, carry, alone: !bringing,
+        ...(draft.shut ? {} : { width: draft.width ?? null }),
       });
-      const back = await res.json().catch(() => null);
-      if (back?.error) {
+      if (shaped.error) {
         if (id !== chosen && onSaved) onSaved();
-        return setWrong(back.error);
+        return setWrong(shaped.error);
       }
       // Whatever the new shape now holds, or has let go of, it says so.
-      const moving = back?.carried || [];
-      const shifting = [...moving.map((at) => ({ id: at })), ...(back?.moved || [])];
+      const moving = shaped.payload.carried || [];
+      const shifting = [...moving.map((at) => ({ id: at })), ...(shaped.payload.moved || [])];
       setMoved(shifting.length ? shifting : null);
       dispatch({ type: "saved" });
       if (onSaved) onSaved();
-    } catch (err) {
-      setWrong(String(err));
     } finally {
       setSaving(false);
     }
@@ -938,7 +912,7 @@ export default function Globe({
   }
 
   keys.current = (e) => {
-    if (e.target?.closest?.("input, textarea, select, [contenteditable]")) return;
+    if (typing(e.target)) return;
     if (e.key === "Enter" && e.target?.closest?.("button")) return;
     const key = e.key.toLowerCase();
     const mod = e.metaKey || e.ctrlKey;
@@ -972,9 +946,8 @@ export default function Globe({
 
   useEffect(() => {
     if (!editing) return;
-    const typing = (e) => e.target?.closest?.("input, textarea, select, [contenteditable]");
     const down_key = (e) => {
-      if (e.key === " " && !typing(e)) {
+      if (e.key === " " && !typing(e.target)) {
         e.preventDefault();
         if (e.target?.closest?.("button")) e.target.blur();
         setSpaced(true);
@@ -983,7 +956,7 @@ export default function Globe({
       keys.current?.(e);
     };
     const up_key = (e) => {
-      if (e.key !== " " || typing(e)) return;
+      if (e.key !== " " || typing(e.target)) return;
       e.preventDefault();
       setSpaced(false);
     };
@@ -1131,7 +1104,7 @@ export default function Globe({
               value={naming.type}
               onChange={(e) => setNaming({ ...naming, type: e.target.value })}
             >
-              {["region", "water", "location", "road", "river"].map((kind) => (
+              {Object.keys(LAYER).map((kind) => (
                 <option key={kind} value={kind}>
                   {kind}
                 </option>
@@ -1199,7 +1172,7 @@ export default function Globe({
           </path>
         ))}
         {drawn
-          .filter((place) => place.type === "road" || place.type === "river")
+          .filter((place) => isRun(place.type))
           .map((place) => (
             <path key={`hit-${place.id}`} d={local.get(place.id)} data-place={place.id} className="globehit" />
           ))}
