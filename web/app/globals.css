@@ -410,9 +410,6 @@ textarea {
 .tab .pip { width: 5px; height: 5px; border-radius: 50%; background: var(--warn); }
 .tab .count { color: var(--gold); }
 
-.stat { font: var(--mono); letter-spacing: .06em; color: var(--dim); white-space: nowrap; }
-.stat.warn { color: var(--warn); }
-.stat.gold { color: var(--gold); }
 .btn.jump { letter-spacing: 0; }
 
 .tabbody { flex: 1 1 auto; min-height: 0; position: relative; display: flex; }
@@ -558,7 +555,6 @@ textarea {
   .metertrack { width: 38px; }
   .meterlabel { width: 1.6rem; }
   .tabpanel { padding: .8rem .9rem 1.2rem; }
-  .stat { display: none; }
   .btn { padding: var(--bar-y) .6rem; }
 }
 

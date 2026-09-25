@@ -21,14 +21,6 @@ import { given, KIND_ICON, KINDS } from "./world";
 import Machine from "./Machine";
 import { Act, Btn, Empty, knowNames, openDossier, Row, Tabs } from "./ui";
 
-const PHASE = {
-  explorer: "deciding",
-  answer: "answering",
-  gm: "it happens",
-  lore1: "checking the record",
-  done: "done",
-};
-
 const MOOD = {
   explorer: "the adventurer is deciding",
   propose: "the adventurer is deciding",
@@ -40,6 +32,7 @@ const MOOD = {
   blows: "the fight is being written",
   lore1: "the record is being read",
   lore2: "the record is being checked",
+  deliver: "the turn is being applied",
   narrate: "the narrator is writing",
   done: "the world sleeps",
   uninitialised: "nothing has begun",
@@ -53,7 +46,9 @@ function mood(status, busy) {
   if (status.state === "lore3") return "the lore master is writing";
   if (busy) return "the world turns";
   if (status.state === "clock") {
-    return `the adventurer walks${status.wakesIn ? ` — ${status.wakesIn} to go` : ""}`;
+    return `the adventurer walks${status.destination ? ` to ${status.destination}` : ""}${
+      status.wakesIn ? ` — ${status.wakesIn} to go` : ""
+    }`;
   }
   return MOOD[status.state] || "the world sleeps";
 }
@@ -83,19 +78,6 @@ function Brand({ status, busy, walker, onWalker, onSettings }) {
       </button>
     </Row>
   );
-}
-
-function Status({ status }) {
-  if (status.state === "clock") {
-    return (
-      <span className="stat">
-        on the road{status.destination ? ` to ${status.destination}` : ""} — {status.wakesIn}
-      </span>
-    );
-  }
-  if (status.state === "arbiter") return <span className="stat warn">the world is silent</span>;
-  if (status.state === "lore3") return <span className="stat gold">the lore master is writing</span>;
-  return <span className="stat">{PHASE[status.state] || status.state}</span>;
 }
 
 const REMEMBER = "tesbota.sub";
@@ -400,8 +382,6 @@ export default function Page() {
           />
           <span className="grip" />
           <div className="tabright">
-            {busy && <span className="stat gold">working…</span>}
-            <Status status={status} />
             <Btn
               className="jump"
               onClick={() => go(count - 1)}
