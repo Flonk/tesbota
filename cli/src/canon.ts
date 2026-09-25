@@ -390,9 +390,6 @@ export function does(from: Record<string, unknown> | Effect[] | null | undefined
   return pairs.map(([stat, amount]) => `${amount} ${stat}`).join(", ");
 }
 
-const held = (holder: string, name: string) =>
-  db.row("SELECT * FROM holding WHERE holder = ? AND item = ?", [holder, slug(name)]);
-
 export type Holding = {
   item: string; name: string; type: string | null; slot: string | null;
   rarity: string | null; about: string; weight: number | null;
@@ -516,69 +513,33 @@ export function holders() {
   });
 }
 
+/** A negative row is a debt somebody has written and is good for. */
+function shift(
+  con: DatabaseSync, holder: string, item: string, delta: number, worn = false, turnId: string | null = null
+): number {
+  const found = con.prepare("SELECT id, qty FROM holding WHERE holder = ? AND item = ?")
+    .get(holder, item) as db.Row | undefined;
+  const left = (found ? Number(found.qty) : 0) + delta;
+  if (found && left === 0) con.prepare("DELETE FROM holding WHERE id = ?").run(found.id);
+  else if (found) con.prepare("UPDATE holding SET qty = ? WHERE id = ?").run(left, found.id);
+  else if (left !== 0) {
+    con.prepare("INSERT INTO holding (holder, item, qty, worn, turn_id) VALUES (?,?,?,?,?)")
+      .run(holder, item, left, worn ? 1 : 0, turnId);
+  }
+  return left;
+}
+
 export function give(holder: string, name: string, qty = 1, worn = false, turnId?: string | null): number {
   const item = thing(name, turnId);
   if (!holder || !item) return 0;
   const want = Math.trunc(qty || 1);
-  db.writing((con) => {
-    const found = con.prepare("SELECT id, qty FROM holding WHERE holder = ? AND item = ?")
-      .get(holder, item) as db.Row | undefined;
-    if (found) {
-      const left = Number(found.qty) + want;
-      if (left === 0) con.prepare("DELETE FROM holding WHERE id = ?").run(found.id);
-      else con.prepare("UPDATE holding SET qty = ? WHERE id = ?").run(left, found.id);
-    } else {
-      con.prepare("INSERT INTO holding (holder, item, qty, worn, turn_id) VALUES (?,?,?,?,?)")
-        .run(holder, item, want, worn ? 1 : 0, turnId ?? null);
-    }
-  });
+  db.writing((con) => shift(con, holder, item, want, worn, turnId ?? null));
   return want;
-}
-
-/**
- * Give up what is asked for, or everything held if that is less. Taking what
- * nobody has is nothing happening.
- */
-function take(holder: string, name: string, qty = 1): number {
-  const item = slug(name);
-  if (!holder || !item) return 0;
-  const want = Math.trunc(qty || 1);
-  return db.writing((con) => {
-    const found = con.prepare("SELECT id, qty FROM holding WHERE holder = ? AND item = ?")
-      .get(holder, item) as db.Row | undefined;
-    if (!found) return 0;
-    const left = Number(found.qty) - want;
-    if (left <= 0) {
-      con.prepare("DELETE FROM holding WHERE id = ?").run(found.id);
-      return Number(found.qty);
-    }
-    con.prepare("UPDATE holding SET qty = ? WHERE id = ?").run(left, found.id);
-    return want;
-  });
 }
 
 /** Everything a holder had, gone from them. Used when a life ends. */
 export const strip = (holder: string) =>
   db.writing((con) => con.prepare("DELETE FROM holding WHERE holder = ?").run(holder).changes);
-
-/**
- * Take from a holder past what they have, leaving them short by the rest. A
- * negative row is a debt somebody has written and is good for.
- */
-function owe(holder: string, name: string, qty = 1): number {
-  const item = thing(name);
-  if (!holder || !item) return 0;
-  const want = Math.trunc(qty || 1);
-  return db.writing((con) => {
-    const found = con.prepare("SELECT id, qty FROM holding WHERE holder = ? AND item = ?")
-      .get(holder, item) as db.Row | undefined;
-    const left = (found ? Number(found.qty) : 0) - want;
-    if (found && left === 0) con.prepare("DELETE FROM holding WHERE id = ?").run(found.id);
-    else if (found) con.prepare("UPDATE holding SET qty = ? WHERE id = ?").run(left, found.id);
-    else con.prepare("INSERT INTO holding (holder, item, qty) VALUES (?,?,?)").run(holder, item, left);
-    return left;
-  });
-}
 
 /**
  * Move a thing between two holders. Either side may be nothing — bread is eaten,
@@ -588,19 +549,19 @@ function owe(holder: string, name: string, qty = 1): number {
 export function transfer(
   src: string | null, dst: string | null, name: string, qty = 1, turnId?: string | null
 ): number {
-  let want = Math.trunc(qty || 1);
-  let worn = false;
-  if (src) {
-    const found = held(src, name);
-    if (found) worn = !!found.worn;
-    if (dst) owe(src, name, want);
-    else {
-      want = take(src, name, want);
-      if (!want) return 0;
-    }
-  }
-  if (dst) give(dst, name, want, worn, turnId);
-  return want;
+  const item = dst ? thing(name, turnId) : slug(name);
+  if (!item) return 0;
+  const want = Math.trunc(qty || 1);
+  return db.writing((con) => {
+    const found = src
+      ? con.prepare("SELECT qty, worn FROM holding WHERE holder = ? AND item = ?").get(src, item) as db.Row | undefined
+      : undefined;
+    const moved = src && !dst ? (found ? Math.min(want, Math.max(0, Number(found.qty))) : 0) : want;
+    if (!moved) return 0;
+    if (src) shift(con, src, item, -moved);
+    if (dst) shift(con, dst, item, moved, !!found?.worn, turnId ?? null);
+    return moved;
+  });
 }
 
 /**
