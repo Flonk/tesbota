@@ -173,5 +173,5 @@ export function useViewport(body, focus, byId) {
     if (f) setView(settle({ ...from, x: from.x - dx / f.k, y: from.y - dy / f.k }));
   };
 
-  return { svg, view, viewRef, pane, k, near, perPixel, origin, framed, zoomAt, spot, pan };
+  return { svg, view, viewRef, k, near, perPixel, origin, framed, zoomAt, spot, pan };
 }
