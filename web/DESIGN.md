@@ -21,7 +21,7 @@ them:
     --track     the letter-spacing of every label in a bar
 
 A narrow screen tightens the bars by moving `--bar-x` and `--track` in one media
-query. It does not tighten `.tab` and leave `.shapebar` alone — that is exactly
+query. It does not tighten `.tab` and leave `.row` alone — that is exactly
 how two bars stop agreeing, and it is how this went wrong the first time.
 
 ## The pieces
@@ -32,7 +32,13 @@ how two bars stop agreeing, and it is how this went wrong the first time.
 | `<Palette>` | icon buttons floating over the canvas they work on, square and the height of a bar: a column of tools that pick (`value`), or with `across` a row of actions that do (an `onClick` per item) |
 | `<Row>` | a bar of anything else |
 | `<Act>` | a button inside a bar that **does** something |
+| `<Pen>` | the button at the end of a bar that turns editing on and off |
+| `<EditBar>` | the bar shown while editing: what is unsaved, cancel and save |
 | `<Btn>` | a button outside a bar |
+| `<Overlay>` | a panel over the tabs, with a head, an optional `bar` under it and a body |
+| `<Section>` | a labelled block inside a panel |
+| `<Table>` | rows under named columns, coloured as the Tables section says |
+| `<Meter>` | a level against its most, such as health |
 | `<Crumb>` | a trail of containing places, wherever they appear |
 | `<Pill>` | a name you can press |
 | `<Tag>` | a verdict |
