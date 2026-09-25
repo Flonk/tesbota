@@ -66,7 +66,7 @@ a refusal. A refusal is `{ error: "…" }`.
                                  (con, id, value, all) => void, throws Error(words);
                                  grants.ts holds both ends of `grants`
     web/app/api/edit/route.js    the door
-    web/app/edit/index.js        EDITORS by kind, and merged()
+    web/app/edit/index.js        EDITORS by kind, merged(), and saveEdits()
     web/app/edit/fields.jsx      the pieces every editor is made of
     web/app/edit/<Kind>.jsx      one editor per kind, default export
                                  ({ thing, draft, change }) => JSX
@@ -112,9 +112,11 @@ the draft, `null` included, and the saved value otherwise; `put(key)` merges
 | `<Pick label kind value onChange />` | an entity of one kind, chosen by name |
 | `<Many label rows onChange columns blank />` | a list of rows, each a line of fields, with add and remove |
 | `<Chips label values onChange />` | a list of words, like traits |
-| `<Group label>` | a labelled block, the same as a read-only section |
+| `<Input pick />` | a `Pick` of that kind when `pick` is given, a `Field` otherwise |
+| `<Fields spec get put />` | one `Input` per `{ key, ...field }` in `spec`, read and written through the reader |
 
-Labels are the same words the read-only view uses.
+A labelled block is `ui.jsx`'s `<Section label>`, the same as a read-only
+section. Labels are the same words the read-only view uses.
 
 ## The library in edit mode
 
