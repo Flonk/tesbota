@@ -12,7 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { AGENTS } from "./agents.ts";
 import { does, type Holding, type holdingsAt } from "./canon.ts";
-import { EXPLORER, FLEE_FLOOR, ROOT } from "./config.ts";
+import { EXPLORER, FLEE_FLOOR, MAX_FATIGUE, MAX_HEALTH, MAX_HUNGER, ROOT } from "./config.ts";
 import { bookId, bookTitle } from "./chronicle.ts";
 import { explorerName } from "./state.ts";
 import { ARRIVED } from "./fight.ts";
@@ -79,7 +79,7 @@ export function told(
   }
 }
 
-const num = (n: unknown) => String(Number(n) ?? 0);
+const num = (n: unknown) => String(Number(n) || 0);
 
 export function renderQuests(quests: QuestT[] | null | undefined): string {
   const lines: string[] = [];
@@ -98,11 +98,12 @@ export function renderQuests(quests: QuestT[] | null | undefined): string {
   return lines.join("\n") || "  (nothing)";
 }
 
-export function renderInventory(items: Holding[] | null | undefined, load?: Load | null): string {
+export function gmInventory(items: Holding[] | null | undefined, load?: Load | null): string {
   const lines: string[] = [];
   for (const item of items || []) {
     const where = item.worn ? " (worn)" : "";
-    lines.push(`  - ${item.name}${tally(item.qty)}${where}`);
+    const effects = item.effects.length ? ` — ${does(item.effects)}` : "";
+    lines.push(`  - ${item.name}${tally(item.qty)}${where}${effects}`);
   }
   let out = lines.join("\n") || "  (nothing)";
   if (load) {
@@ -117,7 +118,7 @@ export function renderInventory(items: Holding[] | null | undefined, load?: Load
   return out;
 }
 
-export function renderHoldings(holders: Keeps | null | undefined): string {
+export function gmHoldings(holders: Keeps | null | undefined): string {
   const lines: string[] = [];
   for (const holder of holders || []) {
     lines.push(`  ${holder.name} (${holder.id}):`);
@@ -153,6 +154,32 @@ export function explorerTurn(narration: string | null, nudge?: unknown, check?: 
 export const CARRY_SAME = "What they are carrying is exactly as you were last told.";
 export const KEEP_SAME = "What everything here keeps is exactly as you were last told.";
 export const QUEST_SAME = "What they have taken on is exactly as you were last told.";
+
+const noteBlock = (note: string) =>
+  "A note from the one who keeps this world. Nobody in the story speaks it " +
+  "and the adventurer must never learn of it — direction, not an event:" +
+  `\n\n${note}`;
+
+const vitalsBlock = (v: VitalsT) =>
+  `Their condition: health ${v.health}/${MAX_HEALTH}, fatigue ${v.fatigue}/${MAX_FATIGUE}, ` +
+  `hunger ${v.hunger}/${MAX_HUNGER}.`;
+
+const lastTold = (previous: string) => `What the adventurer was last told:\n\n${previous}`;
+
+function kit(
+  parts: string[], sent: Record<string, string> | null,
+  { inventory = null, load = null, others = null, quests = null }:
+  { inventory?: Holding[] | null; load?: Load | null; others?: Keeps | null; quests?: QuestT[] | null }
+) {
+  if (inventory != null) {
+    told(parts, sent, "inventory", "What they are carrying:", gmInventory(inventory, load), CARRY_SAME);
+  }
+  if (others) {
+    told(parts, sent, "others", "What everything here keeps, and it is the whole of it:",
+         gmHoldings(others), KEEP_SAME);
+  }
+  if (quests) told(parts, sent, "quests", "What they have taken on:", renderQuests(quests), QUEST_SAME);
+}
 
 const VERBS = (weapon: string, weaponDamage: string, kit: string) =>
   `  ATTACK <who>    swing with the ${weapon}, ${weaponDamage} damage
@@ -313,14 +340,8 @@ export function gmAnswer(
     correction?: string | null; load?: Load | null; sent?: Record<string, string> | null } = {}
 ): string {
   const parts: string[] = [];
-  if (previous) parts.push(`What they were last told:\n\n${previous}`);
-  if (inventory) {
-    told(parts, sent, "inventory", "What they are carrying:", renderInventory(inventory, load), CARRY_SAME);
-  }
-  if (others) {
-    told(parts, sent, "others", "What everything here keeps, and it is the whole of it:",
-         renderHoldings(others), KEEP_SAME);
-  }
+  if (previous) parts.push(lastTold(previous));
+  kit(parts, sent, { inventory, load, others });
 
   if (mode === "say") {
     parts.push(
@@ -345,6 +366,8 @@ export function gmAnswer(
   if (correction) parts.push(REDRAFT + correction);
   return parts.join("\n\n");
 }
+
+export const REJECTED = "Your previous draft was rejected. Revise it and reply with the same json shape:\n\n";
 
 export const PRESS = `The world does not wait, and this turn it moves.
 
@@ -378,13 +401,7 @@ export function gmTurn(
 ): string {
   const parts: string[] = [];
   if (now) parts.push(`The time is ${now}.`);
-  if (note) {
-    parts.push(
-      "A note from the one who keeps this world. Nobody in the story speaks it " +
-        "and the adventurer must never learn of it — direction, not an event:" +
-        `\n\n${note}`
-    );
-  }
+  if (note) parts.push(noteBlock(note));
   if (agreed) {
     parts.push(
       "They agreed to this, and it is settled — narrate it as happening, " +
@@ -394,10 +411,8 @@ export function gmTurn(
         "time, they arrive. Do not tell them they are still nowhere."
     );
   }
-  if (vitals) {
-    parts.push(`Their condition: health ${vitals.health}/100, fatigue ${vitals.fatigue}/100.`);
-  }
-  if (previous) parts.push(`What the adventurer was last told:\n\n${previous}`);
+  if (vitals) parts.push(vitalsBlock(vitals));
+  if (previous) parts.push(lastTold(previous));
   if (arrival) parts.push(`The adventurer has arrived at ${arrival}. Narrate the arrival.`);
   if (event) {
     let said =
@@ -410,16 +425,7 @@ export function gmTurn(
     }
     parts.push(said);
   }
-  if (inventory != null) {
-    told(parts, sent, "inventory", "What they are carrying:", renderInventory(inventory, load), CARRY_SAME);
-  }
-  if (others) {
-    told(parts, sent, "others", "What everything here keeps, and it is the whole of it:",
-         renderHoldings(others), KEEP_SAME);
-  }
-  if (quests) {
-    told(parts, sent, "quests", "What they have taken on:", renderQuests(quests), QUEST_SAME);
-  }
+  kit(parts, sent, { inventory, load, others, quests });
   if (standing) {
     const left = standing.them.filter((x) => !x.dead).map((x) => `${x.name}, ${x.health} left`).join("; ");
     parts.push(
@@ -434,11 +440,7 @@ export function gmTurn(
     parts.push(CHOSEN(chosen.text));
     if (["epic", "legendary"].includes(chosen.band)) parts.push(STRANGE);
   }
-  if (correction) {
-    parts.push(
-      `Your previous draft was rejected. Revise it and reply with the same json shape:\n\n${correction}`
-    );
-  }
+  if (correction) parts.push(REJECTED + correction);
   return parts.join("\n\n");
 }
 
@@ -452,21 +454,10 @@ export function gmPropose(
 ): string {
   const parts: string[] = [];
   if (now) parts.push(`The time is ${now}.`);
-  if (note) {
-    parts.push(
-      "A note from the one who keeps this world. Nobody in the story speaks it " +
-        "and the adventurer must never learn of it — direction, not an event:" +
-        `\n\n${note}`
-    );
-  }
-  if (previous) parts.push(`What the adventurer was last told:\n\n${previous}`);
-  if (vitals) {
-    parts.push(`Their condition: health ${vitals.health}/100, fatigue ${vitals.fatigue}/100.`);
-  }
-  if (inventory != null) parts.push("What they are carrying:\n" + renderInventory(inventory, load));
-  if (others) {
-    parts.push("What everything here keeps, and it is the whole of it:\n" + renderHoldings(others));
-  }
+  if (note) parts.push(noteBlock(note));
+  if (previous) parts.push(lastTold(previous));
+  if (vitals) parts.push(vitalsBlock(vitals));
+  kit(parts, null, { inventory, load, others });
   parts.push(`What they intend to do:\n\n${action}`);
   for (const [question, answer] of answers || []) {
     parts.push(`You asked: ${question}\n\nThe record says: ${answer}`);

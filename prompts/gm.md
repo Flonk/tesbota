@@ -21,6 +21,7 @@ Reply with a single fenced json block and nothing else:
   "minutes": 0,
   "fatigue": 0,
   "health": 0,
+  "hunger": 0,
   "check": null,
   "fight": null,
   "transactions": [],
@@ -35,6 +36,8 @@ Reply with a single fenced json block and nothing else:
 # Action
 
 Each turn the explorer can take an action. `minutes`, `fatigue`, `health` describe what the action cost. `minutes` is never walking somewhere: walking is `destination`.
+
+`hunger` is what the action did to their hunger beyond time passing, negative when they ate. What a thing does when used is written beside it in what they are carrying.
 
 Most actions should require a skill check. `{"skill": "athletics", "dc": 12}`.
 

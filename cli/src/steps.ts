@@ -973,7 +973,7 @@ export function applyVitals(campaign: CampaignT, draft: DraftT): CampaignT {
   vitals.health = Math.max(0, Math.min(MAX_HEALTH, vitals.health + draft.health));
 
   const drift = (draft.minutes / 60) * HUNGER_PER_HOUR;
-  vitals.hunger = Math.max(0, Math.min(MAX_HUNGER, Math.round(vitals.hunger + (draft.hunger ?? drift))));
+  vitals.hunger = Math.max(0, Math.min(MAX_HUNGER, Math.round(vitals.hunger + drift + (draft.hunger ?? 0))));
   return campaign;
 }
 
