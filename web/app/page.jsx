@@ -259,15 +259,16 @@ export default function Page() {
     setError(null);
     shown.current = null;
     flight.current += 1;
-    const { status, payload, error } = await send(path, body);
+    const sent = await send(path, body);
     flight.current -= 1;
-    if (status === null) {
+    if (sent.status === null) {
       setPending(null);
-      setError(error);
-      return { ok: false, payload };
+      setError(sent.error);
+      return { ok: false, payload: null };
     }
+    const { payload } = sent;
     let refused = null;
-    if (status >= 300) refused = `${status} — ${label} did not start`;
+    if (sent.status >= 300) refused = `${sent.status} — ${label} did not start`;
     else if (payload?.busy) refused = `already running: ${payload.label || "a step"}`;
     else if (payload?.error && payload.error !== "nothing is pending") refused = payload.error;
     if (refused) setError(refused);
