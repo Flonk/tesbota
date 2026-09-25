@@ -88,6 +88,7 @@ export async function snapshot(profile = PROFILES[0]) {
         outcomes: rows.map((o) => ({ ...o, band: band(o.band) })),
         chosen: chosen ? { ...chosen, band: band(chosen.band) } : chosen,
         fortune: borrowed ? turn.fortune : x.fortune,
+        roll: borrowed ? turn.roll : x.roll,
       };
     });
     if (!phases.length && !turn.action && !draft.narration && !cue) continue;
