@@ -6,6 +6,7 @@
  */
 
 import * as actions from "./actions.ts";
+import { AgentError } from "./agent.ts";
 import * as canon from "./canon.ts";
 import { check } from "./check.ts";
 import * as chronicle from "./chronicle.ts";
@@ -91,11 +92,10 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         ran = await driver.run(1);
       } catch (exc) {
         // An agent that will not answer in json is not a reason to lose the world.
-        // It is written down and the loop waits and asks again. Only the same
-        // failure three times running stops it, since asking again changes nothing.
+        // It is written down and the loop waits, rather than the process dying.
         const said = `[${loadCampaign().current_turn}] stumbled: ${(exc as Error).message}`.slice(0, 400);
         say(said);
-        again = said === last ? again + 1 : 1;
+        again = exc instanceof AgentError ? 0 : said === last ? again + 1 : 1;
         last = said;
         if (again >= 3) return say("stopped: the same stumble three times running");
         await new Promise((r) => setTimeout(r, every * 1000));

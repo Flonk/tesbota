@@ -147,8 +147,10 @@ node cli/src/index.ts kill      # end this life; the next step starts another
 
 Autoplay is `node cli/src/index.ts play`, a loop that steps, honours the pause
 switch and waits between. An agent that will not answer in json no longer kills
-it: the stumble is printed and the loop waits, rather than the process dying. Without it — or the timer below — nothing turns
-the world over; the web UI has no stepper of its own.
+it: the stumble is printed and the loop waits, rather than the process dying.
+Any other failure stops it once it has come up the same three times running,
+since asking again would change nothing. Without it — or the timer below —
+nothing turns the world over; the web UI has no stepper of its own.
 
 Make it tick on its own with a user timer:
 
