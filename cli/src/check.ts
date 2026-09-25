@@ -17,25 +17,8 @@ import * as db from "./db.ts";
 import * as sky from "./sky.ts";
 import * as travel from "./travel.ts";
 import { sqlite3 } from "./sqlite.ts";
-import { STEPS } from "./steps.ts";
 
 export type Wrong = { what: string; said: string };
-
-/** Every state has a handler, and every handler a state. */
-function handlers(): Wrong[] {
-  const wrong: Wrong[] = [];
-  const stated = new Set(machine.STATE_NAMES);
-  const held = new Set(Object.keys(STEPS));
-  for (const name of stated) {
-    const loop = machine.STATES[name].driven === "loop";
-    if (loop && !held.has(name)) wrong.push({ what: "handlers", said: `${name} has no step` });
-    if (!loop && held.has(name)) wrong.push({ what: "handlers", said: `${name} is held but has a step` });
-  }
-  for (const name of held) {
-    if (!stated.has(name as any)) wrong.push({ what: "handlers", said: `step ${name} is not a state` });
-  }
-  return wrong;
-}
 
 /**
  * A turn carrying every field anybody writes, put through the schema and read
@@ -99,7 +82,7 @@ function onDisk(): Wrong[] {
  * runs where the table says nothing is the whole reason the table exists.
  */
 function agents(): Wrong[] {
-  const declared = new Set(machine.STATE_NAMES.flatMap((n) => [...machine.STATES[n].agents]));
+  const declared = new Set<string>(machine.STATE_NAMES.flatMap((n) => [...machine.STATES[n].agents]));
   const layers = ["explorer", "gm", "propose", "lore1", "lore2", "queries",
                   "lore3", "lore4", "questmaster"];
   return layers
@@ -197,7 +180,6 @@ export function check(): Wrong[] {
     ...unplaced(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
-    ...handlers(),
     ...roundTrip(),
     ...onDisk(),
   ];

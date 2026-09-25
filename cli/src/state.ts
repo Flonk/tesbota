@@ -14,6 +14,7 @@ import {
   CAMPAIGN, DEATH, DEFAULTS, EXPLORER, FIRST_NAMES, MAX_HEALTH, PENDING,
   STARTING_INVENTORY, STARTING_SKILLS, STATE, SURNAME, TURNS, WORLD_START,
 } from "./config.ts";
+import type { StateName } from "./machine.ts";
 import { Campaign, Turn, type CampaignT, type TurnT } from "./schema.ts";
 
 export const now = () => new Date();
@@ -201,7 +202,7 @@ export const allTurns = (): TurnT[] =>
   turnFiles().map((f) => Turn.parse(readJson(path.join(TURNS, f))));
 
 export function newTurn(
-  campaign: CampaignT, state = "explorer", fields: Record<string, unknown> = {}
+  campaign: CampaignT, state: StateName = "explorer", fields: Record<string, unknown> = {}
 ): TurnT {
   campaign.turn_counter += 1;
   const turnId = `t${String(campaign.turn_counter).padStart(4, "0")}`;

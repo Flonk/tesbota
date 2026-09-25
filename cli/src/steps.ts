@@ -16,6 +16,7 @@ import * as sheet from "./sheet.ts";
 import * as worldclock from "./worldclock.ts";
 import { AgentError, ask, extractJson } from "./agent.ts";
 import { sqliteGate } from "./gate.ts";
+import type { EdgeOn, LoopState } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import { explorerName, pendingDeath, recordDeath } from "./state.ts";
 import type { CampaignT, TurnT } from "./schema.ts";
@@ -30,7 +31,7 @@ import {
 export type World = { campaign: CampaignT; turn: TurnT };
 
 /** What a step gives back: the name of one edge out of the state it was in. */
-export type Step = (world: World, rng?: Rng) => Promise<string> | string;
+export type Step<S extends LoopState> = (world: World, rng?: Rng) => Promise<EdgeOn<S>>;
 
 const T = (turn: TurnT) => turn as unknown as Record<string, any>;
 const C = (campaign: CampaignT) => campaign as unknown as Record<string, any>;
@@ -174,7 +175,7 @@ export function classify(text: string, turn: TurnT): [string, string] {
   return ["done", stripped];
 }
 
-export const stepExplorer: Step = async ({ campaign, turn }) => {
+export const stepExplorer: Step<"explorer"> = async ({ campaign, turn }) => {
   const [text, session] = await ask(
     prompts.explorerTurn(campaign.last_narration ?? null, T(turn).nudge, turn.check),
     {
@@ -237,7 +238,7 @@ export const stepExplorer: Step = async ({ campaign, turn }) => {
 };
 
 /** The turn is over and it survived adjudication. It is set down as it stands. */
-export const stepNarrate: Step = ({ turn }) => {
+export const stepNarrate: Step<"narrate"> = async ({ turn }) => {
   if (chronicle.played(turn)) {
     const written = chronicle.write(turn);
     if (written.length) T(turn).chronicle = [...(T(turn).chronicle || []), ...written];
@@ -254,7 +255,7 @@ export function ledger(campaign: CampaignT): Record<string, string> {
   return (C(campaign).sent ||= {});
 }
 
-export const stepAnswer: Step = async ({ campaign, turn }) => {
+export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
   const [text, session] = await ask(
     prompts.gmAnswer(turn.question ?? "", {
       previous: campaign.last_narration ?? null,
@@ -325,7 +326,7 @@ export function spin(outcomes: any[], fortune: number, only?: string | string[] 
   return pool[pool.length - 1];
 }
 
-export const stepPropose: Step = async ({ campaign, turn }, rng = random) => {
+export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = random) => {
   if (campaign.note && !turn.note) {
     turn.note = campaign.note;
     campaign.note = null;
@@ -404,7 +405,7 @@ export function duePress(turn: TurnT, campaign?: CampaignT | null): boolean {
   return T(turn).pressed;
 }
 
-export const stepGm: Step = async ({ campaign, turn }) => {
+export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
   if (!(campaign.sessions as any).gm && !campaign.last_narration) {
     T(turn).draft = JSON.parse(JSON.stringify(OPENING));
     turn.opening = true;
@@ -566,7 +567,7 @@ export async function ruleRecord(
 }
 
 /** Nothing can go on until somebody writes the missing document. */
-export function holdForLore({ campaign, turn }: World, claims: any[], unresolved: any[]): string {
+export function holdForLore({ campaign, turn }: World, claims: any[], unresolved: any[]): "unwritten" {
   const byId = Object.fromEntries(claims.map((c) => [c.id, c]));
   turn.gap = unresolved
     .map((v) => "- " + (String(v.question || "").trim() || byId[v.claim]?.text || v.claim))
@@ -582,7 +583,7 @@ export function holdForLore({ campaign, turn }: World, claims: any[], unresolved
  * is ruled on once, here, before a die is thrown — after this the fight belongs to
  * the game master and nobody checks a blow.
  */
-export const stepMuster: Step = async (world) => {
+export const stepMuster: Step<"muster"> = async (world) => {
   const { campaign, turn } = world;
   const running = T(turn).fight as fight.Fight;
   const strangers = fight.unbound(running).map((x) => ({ id: x.id, name: x.name }));
@@ -706,14 +707,14 @@ export function tooTired(campaign: CampaignT, draft: Record<string, any>): boole
  * settled — the dice are not the lore master's to overturn, only the words are —
  * so it goes back for different words on the same blows, never a fresh fight.
  */
-export function redraftEdge(turn: TurnT): string {
+export function redraftEdge(turn: TurnT): EdgeOn<"lore2"> {
   if ((T(turn).fight?.blows || []).length) return "rewrite";
   if (!turn.looking) return "redraft";
   return "reanswer";
 }
 
 /** Lore 1 alone: read the world out of it, then hand the facts to the ruling. */
-export const stepLore1: Step = async (world) => {
+export const stepLore1: Step<"lore1"> = async (world) => {
   const { turn } = world;
   const draft = T(turn).draft;
 
@@ -730,7 +731,7 @@ export const stepLore1: Step = async (world) => {
 };
 
 /** Lore 2 alone: rule on what lore 1 read, and decide where the draft goes. */
-export const stepLore2: Step = async (world) => {
+export const stepLore2: Step<"lore2"> = async (world) => {
   const { campaign, turn } = world;
   const draft = T(turn).draft;
   const narration = draft.narration || "";
@@ -865,7 +866,7 @@ export function saidBlow(blow: fight.Blow): string {
 }
 
 /** Ask them what they do with this turn of theirs. One line out, one word back. */
-export const stepSwing: Step = async ({ campaign, turn }) => {
+export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
   const running = T(turn).fight as fight.Fight;
   const me = running.us[0];
   const first = !running.blows.length;
@@ -956,7 +957,7 @@ export function strike(
 }
 
 /** Whoever's turn it is takes it. The explorer is asked; everybody else is rolled. */
-export const stepFight: Step = (world, rng = random) => {
+export const stepFight: Step<"fight"> = async (world, rng = random) => {
   const { turn } = world;
   const running = T(turn).fight as fight.Fight;
   const who = fight.whoseTurn(running);
@@ -1039,7 +1040,7 @@ export const stepFight: Step = (world, rng = random) => {
 };
 
 /** One game master call to put words on a settled exchange. */
-export const stepBlows: Step = async ({ campaign, turn }) => {
+export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const running = T(turn).fight as fight.Fight;
   if (!turn.rolled) rollFate(turn);
   const [text, session] = await ask(
@@ -1224,7 +1225,7 @@ export function settleFight(campaign: CampaignT, turn: TurnT): CampaignT {
  * it writes to the campaign, so a turn that never reaches here leaves no mark —
  * which is what makes a rejected draft safe to throw away.
  */
-export const stepDeliver: Step = async ({ campaign, turn }) => {
+export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   if (turn.delivered) return "again";
 
   const draft = T(turn).draft;
@@ -1315,7 +1316,7 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
 };
 
 /** The handler for each state. The edges they may return are in `machine.ts`. */
-export const STEPS: Record<string, Step> = {
+export const STEPS: { [S in LoopState]: Step<S> } = {
   explorer: stepExplorer,
   answer: stepAnswer,
   propose: stepPropose,

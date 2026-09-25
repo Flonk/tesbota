@@ -15,7 +15,7 @@ import * as prompts from "./prompts.ts";
 import { ask } from "./agent.ts";
 import { sqliteGate } from "./gate.ts";
 import { MODELS, MYSTERY, PROFILES, roomOf, STATE, WRITE_TOOLS } from "./config.ts";
-import { edgeFrom, type StateName } from "./machine.ts";
+import { edgeFrom, type EdgeOn, type StateName } from "./machine.ts";
 import type { TurnT } from "./schema.ts";
 import {
   loadCampaign, loadTurn, readJson, recordDeath, saveCampaign, saveTurn, writeJson,
@@ -38,7 +38,7 @@ export function appendChat(role: string, text: string) {
  * lore master answering — are two states that have to be written down as they
  * change hands or nothing watching can tell which of you is holding it.
  */
-function hand(turn: TurnT, from: StateName, on: string): TurnT {
+function hand<S extends StateName>(turn: TurnT, from: S, on: EdgeOn<S>): TurnT {
   turn.state = edgeFrom(from, on).to;
   driver.took(turn, from, on);
   saveTurn(turn);

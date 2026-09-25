@@ -50,10 +50,10 @@ export function writePending(turn: TurnT): string {
  * The edge the world just crossed, kept on the turn. Two states name an edge on
  * their own, which is why no two edges in the machine may share a pair.
  */
-export function took(turn: TurnT, cameFrom: string, edge: string) {
+export function took(turn: TurnT, cameFrom: StateName, edge: string) {
   const landed = turn.state;
   if (!landed || landed === cameFrom) return turn;
-  const crossing = { from: cameFrom as StateName, to: landed as StateName, at: stamp(), on: edge };
+  const crossing = { from: cameFrom, to: landed, at: stamp(), on: edge };
   (turn as any).took = crossing;
   const trail = ((turn as any).trail ||= []);
   trail.push(crossing);
@@ -177,7 +177,7 @@ export async function run(limit = 1): Promise<Ran> {
   let completed = 0;
   for (;;) {
     const turn = loadTurn(campaign.current_turn ?? opened);
-    const state = turn.state as StateName;
+    const state = turn.state;
 
     const death = pendingDeath();
     if (death && (state === "done" || SUSPENDED.includes(state))) {
@@ -206,11 +206,8 @@ export async function run(limit = 1): Promise<Ran> {
       continue;
     }
 
-    const step = STEPS[state];
-    if (!step) throw new Error(`no handler for state \`${state}\``);
-
     const world = { campaign, turn };
-    const edge = await step(world);
+    const edge = await STEPS[state](world);
     // The machine decides where an edge goes. A step that names one its state does
     // not have stops here rather than putting the world somewhere unwritten.
     turn.state = edgeFrom(state, edge).to;

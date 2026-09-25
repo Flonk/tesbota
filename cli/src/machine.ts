@@ -60,7 +60,7 @@ export type State = {
   readonly edges: readonly Edge[];
 };
 
-export const STATES: Record<StateName, State> = {
+export const STATES = {
   explorer: {
     does: "the adventurer decides what to do with the turn",
     runs: "explorer",
@@ -234,13 +234,20 @@ export const STATES: Record<StateName, State> = {
       { to: "clock", on: "walks", when: "the turn put them on the road" },
     ],
   },
-};
+} as const satisfies Record<StateName, State>;
+
+export type EdgeOn<S extends StateName> = (typeof STATES)[S]["edges"][number]["on"];
+
+export type LoopState = {
+  [S in StateName]: (typeof STATES)[S]["driven"] extends "loop" ? S : never;
+}[StateName];
 
 /** Where a step in this state is allowed to go, by the edge name it returns. */
-export function edgeFrom(state: StateName, on: string): Edge {
-  const found = STATES[state].edges.find((e) => e.on === on);
+export function edgeFrom<S extends StateName>(state: S, on: EdgeOn<S>): Edge {
+  const edges: readonly Edge[] = STATES[state].edges;
+  const found = edges.find((e) => e.on === on);
   if (!found) {
-    const legal = STATES[state].edges.map((e) => e.on).join(", ");
+    const legal = edges.map((e) => e.on).join(", ");
     throw new Error(`no edge \`${on}\` out of \`${state}\` — this state goes: ${legal}`);
   }
   return found;
