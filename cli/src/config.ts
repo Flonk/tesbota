@@ -255,6 +255,8 @@ export const SKILL_DIE = 20;
 
 export const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand", "ring"] as const;
 
+export const RING_SLOTS = 4;
+
 export const APPAREL_ICON: Record<string, string> = {
   helmet: "helm",
   chest: "shirt",
