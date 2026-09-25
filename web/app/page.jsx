@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "./icons";
 import Kit, { Doll } from "./Kit";
 import Sheet from "./Sheet";
-import Quests, { QuestPanel } from "./Quests";
+import Quests from "./Quests";
 import Library from "./Library";
 import Data from "./Data";
 import Dossier from "./Dossier";
@@ -14,7 +14,8 @@ import Steer from "./Steer";
 import Talk from "./Talk";
 import Turn from "./Turn";
 import { send } from "./http";
-import { typing, useKeyboardAvoid } from "./keyboard";
+import { useDeck, useSplit } from "./bands";
+import { useKeyboardAvoid } from "./keyboard";
 import Orbit from "./Orbit";
 import { given, KIND_ICON, KINDS } from "./world";
 import Machine from "./Machine";
@@ -139,22 +140,15 @@ export default function Page() {
     chat: "talk", me: "equipped", library: "places", dev: "states",
   });
   const [counts, setCounts] = useState({});
-  const [quest, setQuest] = useState(null);
   const [settings, setSettings] = useState(false);
   const [mapAt, setMapAt] = useState(null);
   const [walker, setWalker] = useState(WALKERS[0]);
   const keyboard = useKeyboardAvoid();
-  const [at, setAt] = useState(0);
-  const [split, setSplit] = useState(50);
-  const [dragging, setDragging] = useState(false);
   const app = useRef(null);
-  const grab = useRef(null);
-  const swallow = useRef(false);
-  const splitNow = useRef(50);
-  const deck = useRef(null);
-  const pinned = useRef(true);
+  const { split, dragging, handle } = useSplit(app);
   const shown = useRef(null);
   const wasBlocked = useRef(false);
+  const deepLinked = useRef(false);
   // Requests that answer for themselves rather than through a job file. A poll
   // must not decide the world is idle while one of them is still out.
   const flight = useRef(0);
@@ -206,10 +200,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const open = (e) => {
-      setQuest(null);
-      setDossier(e.detail);
-    };
+    const open = (e) => setDossier(e.detail);
     window.addEventListener("bota:open", open);
     return () => window.removeEventListener("bota:open", open);
   }, []);
@@ -221,7 +212,6 @@ export default function Page() {
     const show = (id) => {
       if (!id) return;
       setDossier(null);
-      setQuest(null);
       setTab("map");
       setMapAt({ id, asked: Date.now() });
     };
@@ -231,7 +221,7 @@ export default function Page() {
     const asked = url.searchParams.get("map");
     if (asked) {
       show(asked);
-      wasBlocked.current = true;
+      deepLinked.current = true;
       url.searchParams.delete("map");
       window.history.replaceState(null, "", url);
     }
@@ -262,14 +252,6 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const saved = Number(localStorage.getItem("tesbota.split"));
-    if (saved >= 15 && saved <= 85) {
-      setSplit(saved);
-      splitNow.current = saved;
-    }
-  }, []);
-
-  useEffect(() => {
     if (!data) return;
     if (!data.job?.running && !flight.current) setPending(null);
     const failed = data.job?.error || null;
@@ -279,99 +261,16 @@ export default function Page() {
     }
     if (!failed) shown.current = null;
     const stuck = data.status?.state === "arbiter";
-    if (stuck && !wasBlocked.current) {
+    if (stuck && !wasBlocked.current && !deepLinked.current) {
       setTab("chat");
       pickSub("chat", "lore");
     }
+    deepLinked.current = false;
     wasBlocked.current = stuck;
   }, [data]);
 
   const count = data?.slides?.length ?? 0;
-
-  const go = useCallback(
-    (i) => {
-      const el = deck.current;
-      if (!el || !count) return;
-      const next = Math.max(0, Math.min(count - 1, i));
-      el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
-    },
-    [count]
-  );
-
-  useEffect(() => {
-    if (pinned.current && count) go(count - 1);
-  }, [count, go]);
-
-  useEffect(() => {
-    function onKey(e) {
-      if (e.defaultPrevented || typing(e.target) || dossier) return;
-      if (e.key === "ArrowLeft") go(at - 1);
-      if (e.key === "ArrowRight") go(at + 1);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [at, go, dossier]);
-
-  function onScroll() {
-    const el = deck.current;
-    if (!el || !el.clientWidth) return;
-    const i = Math.round(el.scrollLeft / el.clientWidth);
-    setAt(i);
-    pinned.current = i >= count - 1;
-  }
-
-  function grabBar(e) {
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-    if (e.target.closest("textarea, input")) return;
-    const box = app.current?.getBoundingClientRect();
-    if (!box) return;
-    swallow.current = false;
-    grab.current = { box, id: e.pointerId, from: e.clientY, moved: false };
-    window.addEventListener("pointermove", dragBar);
-    window.addEventListener("pointerup", dropBar);
-    window.addEventListener("pointercancel", dropBar);
-  }
-
-  function dragBar(e) {
-    const g = grab.current;
-    if (!g || e.pointerId !== g.id) return;
-    if (!g.moved) {
-      if (Math.abs(e.clientY - g.from) < 5) return;
-      g.moved = true;
-      setDragging(true);
-    }
-    const pct = ((e.clientY - g.box.top) / g.box.height) * 100;
-    const next = Math.max(18, Math.min(82, pct));
-    splitNow.current = next;
-    setSplit(next);
-  }
-
-  function dropBar(e) {
-    const g = grab.current;
-    if (!g || e.pointerId !== g.id) return;
-    grab.current = null;
-    window.removeEventListener("pointermove", dragBar);
-    window.removeEventListener("pointerup", dropBar);
-    window.removeEventListener("pointercancel", dropBar);
-    if (!g.moved) return;
-    setDragging(false);
-    swallow.current = true;
-    localStorage.setItem("tesbota.split", String(Math.round(splitNow.current)));
-  }
-
-  function clickBar(e) {
-    if (!swallow.current) return;
-    swallow.current = false;
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  function evenBar(e) {
-    if (e.target.closest("button, textarea, input")) return;
-    splitNow.current = 50;
-    setSplit(50);
-    localStorage.setItem("tesbota.split", "50");
-  }
+  const { deck, at, go, onScroll } = useDeck(count, !!dossier);
 
   async function post(path, body, label) {
     setPending(label);
@@ -483,9 +382,7 @@ export default function Page() {
         <Row
           middled={false}
           className="tabbar"
-          onPointerDown={grabBar}
-          onClickCapture={clickBar}
-          onDoubleClick={evenBar}
+          {...handle}
           title="drag to resize"
         >
           <Tabs
@@ -569,12 +466,7 @@ export default function Page() {
           {tab === "me" && sub.me === "stats" && (
             <Sheet vitals={vitals} skills={skills} load={data.load} />
           )}
-          {tab === "me" && sub.me === "quests" && (
-            <Quests
-              quests={quests}
-              onOpen={(id) => setQuest(quests.find((q) => q.id === id) || null)}
-            />
-          )}
+          {tab === "me" && sub.me === "quests" && <Quests quests={quests} />}
           {tab === "dev" && sub.dev !== "states" && <Data sheaf={sub.dev} onPost={post} />}
           {tab === "dev" && sub.dev === "states" && <Machine status={status} />}
           {tab === "library" && (
@@ -593,7 +485,6 @@ export default function Page() {
             who={status.who}
             onClose={() => setDossier(null)}
           />
-          <QuestPanel quest={quest} onClose={() => setQuest(null)} />
         </div>
       </section>
     </div>

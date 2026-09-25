@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { shortDate, timeOf } from "./clock";
 import { Cap, Crumb, Empty, openDossier, Overlay, Prose, Table, Tag, unrated } from "./ui";
 
@@ -31,7 +32,7 @@ const FINISHED = {
   ],
 };
 
-export function QuestPanel({ quest, onClose }) {
+function QuestPanel({ quest, onClose }) {
   if (!quest) return null;
   const finished = quest.status !== "active";
   return (
@@ -101,17 +102,30 @@ export function QuestPanel({ quest, onClose }) {
   );
 }
 
-export default function Quests({ quests = [], onOpen }) {
+export default function Quests({ quests = [] }) {
+  const [picked, setPicked] = useState(null);
   const active = quests.filter((q) => q.status === "active");
   const past = quests.filter((q) => q.status !== "active");
+
+  useEffect(() => {
+    const shut = () => setPicked(null);
+    window.addEventListener("bota:open", shut);
+    window.addEventListener("bota:map", shut);
+    return () => {
+      window.removeEventListener("bota:open", shut);
+      window.removeEventListener("bota:map", shut);
+    };
+  }, []);
 
   return (
     <div>
       <Cap>ongoing</Cap>
-      <Table rarity={unrated} {...COLUMNS} rows={active} onOpen={onOpen} empty="nothing has been taken on" />
+      <Table rarity={unrated} {...COLUMNS} rows={active} onOpen={setPicked} empty="nothing has been taken on" />
 
       <Cap>finished</Cap>
-      <Table rarity={unrated} {...FINISHED} rows={past} onOpen={onOpen} empty="nothing has been finished yet" />
+      <Table rarity={unrated} {...FINISHED} rows={past} onOpen={setPicked} empty="nothing has been finished yet" />
+
+      <QuestPanel quest={quests.find((q) => q.id === picked) || null} onClose={() => setPicked(null)} />
     </div>
   );
 }
