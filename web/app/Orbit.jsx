@@ -109,12 +109,12 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
     // Whoever is walking, if anybody is — and the world they are on. A life that
     // has not begun has nobody standing anywhere, and a map of the system is not
     // what anybody opened the map for: show the world itself, whole.
-    const under = sky.here ? holderOf(sky.bodies, sky.here) : null;
-    const ground = under || (sky.home && sky.bodies[sky.home]) || null;
+    const walkedOn = sky.here ? holderOf(sky.bodies, sky.here) : null;
+    const ground = walkedOn || (sky.home && sky.bodies[sky.home]) || null;
     if (!ground) return;
     landed.current = true;
     setPicked(ground.id);
-    if (under) setWent({ id: sky.here, asked: Date.now(), close: true });
+    if (walkedOn) setWent({ id: sky.here, asked: Date.now(), close: true });
   }, [sky, holder]);
 
   // A system is drawn as what it holds, each thing where it stands in it: the
@@ -154,14 +154,14 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
   // way walking across one would.
   const tree = ground ? treeOf(ground.standing || []) : null;
   const at = tree?.byId.get(over);
-  const under = at ? [at, ...tree.up(over)].slice(0, 8).reverse() : [];
+  const below = at ? [at, ...tree.ancestors(over)].slice(0, 8).reverse() : [];
 
   const stale = sky.stale && <Note tone="warn">{sky.stale}</Note>;
 
   const trail = [
     ...(ground?.above || plan.above),
     ground && { id: ground.id, name: ground.name },
-    ...under,
+    ...below,
   ].filter(Boolean);
 
   const step = (id) => {
