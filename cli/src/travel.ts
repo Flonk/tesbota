@@ -5,6 +5,7 @@
 
 import { OVER_DRAG } from "./config.ts";
 import type { Rng } from "./rng.ts";
+import type { ClockT } from "./schema.ts";
 
 export const POINTS = [
   "north", "north-north-east", "north-east", "east-north-east",
@@ -79,7 +80,7 @@ export function distanceBand(text: unknown): [number, number] | null {
 }
 
 /** How long a stretch of world-time takes in real seconds, at the current speed. */
-export function realDelayMs(clock: Record<string, unknown>, inWorldMinutes: number): number {
+export function realDelayMs(clock: ClockT, inWorldMinutes: number): number {
   const factor = Number(clock?.speed_factor) || 1;
   return ((Number(inWorldMinutes) * 60) / factor) * 1000;
 }
@@ -99,7 +100,7 @@ export function drag(load: { carried?: number; capacity?: number } | null | unde
  * league; the first that lands says where the walking stops.
  */
 export function leg(
-  clock: Record<string, any>, leagues: number, rng: Rng, slowed = 1.0
+  clock: ClockT, leagues: number, rng: Rng, slowed = 1.0
 ): [number, number, boolean] {
   const hoursPerLeague = Number(clock.hours_per_league);
   const minLeg = Math.trunc(Number(clock.min_leg_minutes));

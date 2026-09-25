@@ -91,24 +91,23 @@ export function centre(extent: string | null): [number, number] | null {
 export function walked(): Set<string> {
   const campaign = campaignIfAny();
   if (!campaign) return new Set();
-  const seen = new Set<string>(((campaign as any).walked || []) as string[]);
-  const mark = String((campaign as any).walked_through || "");
+  const seen = new Set(campaign.walked);
+  const mark = campaign.walked_through || "";
   let latest = mark;
   for (const turn of allTurns()) {
     if (turn.turn_id <= mark) continue;
     if (turn.turn_id > latest) latest = turn.turn_id;
-    for (const step of (turn.location_path || []) as any[]) {
-      const ident = step && typeof step === "object" ? step.id : step;
-      if (ident) seen.add(String(ident));
+    for (const step of turn.location_path) {
+      if (step.id) seen.add(step.id);
     }
   }
 
-  const before = new Set<string>(((campaign as any).walked || []) as string[]);
+  const before = new Set(campaign.walked);
   const moved = latest !== mark || seen.size !== before.size;
   if (moved) {
     const fresh = loadCampaign();
-    (fresh as any).walked = [...seen].sort();
-    (fresh as any).walked_through = latest;
+    fresh.walked = [...seen].sort();
+    fresh.walked_through = latest;
     saveCampaign(fresh);
   }
   return seen;

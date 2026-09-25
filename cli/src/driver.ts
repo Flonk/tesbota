@@ -23,7 +23,7 @@ import {
   clearDeath, ensureLayout, loadCampaign, loadTurn, newCampaign, newTurn, now,
   pendingDeath, pickName, retire, saveCampaign, saveTurn, stamp, stock, turnPath,
 } from "./state.ts";
-import type { CampaignT, TurnT } from "./schema.ts";
+import { Draft, type CampaignT, type TurnT } from "./schema.ts";
 
 const SUSPENDED = ["arbiter", "lore3", "clock"];
 const TRAIL = 40;
@@ -54,8 +54,8 @@ export function took(turn: TurnT, cameFrom: StateName, edge: string) {
   const landed = turn.state;
   if (!landed || landed === cameFrom) return turn;
   const crossing = { from: cameFrom, to: landed, at: stamp(), on: edge };
-  (turn as any).took = crossing;
-  const trail = ((turn as any).trail ||= []);
+  turn.took = crossing;
+  const trail = turn.trail;
   trail.push(crossing);
   if (trail.length > TRAIL) trail.splice(0, trail.length - TRAIL);
   return turn;
@@ -63,13 +63,13 @@ export function took(turn: TurnT, cameFrom: StateName, edge: string) {
 
 export async function openWorld(campaign: CampaignT): Promise<TurnT> {
   const turn = newTurn(campaign, "lore1");
-  (turn as any).draft = JSON.parse(JSON.stringify(OPENING));
+  turn.draft = Draft.parse(OPENING);
   turn.opening = true;
-  const quests = ((campaign as any).quests ||= []) as any[];
-  if (!quests.some((q) => q?.id === OPENING_QUEST.id)) {
+  const quests = campaign.quests;
+  if (!quests.some((q) => q.id === OPENING_QUEST.id)) {
     quests.push({
       ...OPENING_QUEST,
-      at: worldclock.stamp(campaign.time as any),
+      at: worldclock.stamp(campaign.time),
       status: "active",
       opened: turn.turn_id,
       closed: null,
@@ -95,12 +95,12 @@ export async function bury(campaign: CampaignT, cause?: string | null): Promise<
   retire(campaign);
   clearDeath();
 
-  const life = newCampaign() as any;
+  const life = newCampaign();
   life.explorer = pickName();
-  life.time = campaign.time || life.time;
-  life.clock = campaign.clock || life.clock;
+  life.time = campaign.time;
+  life.clock = campaign.clock;
   saveCampaign(life);
-  stock(STARTING_INVENTORY as any);
+  stock(STARTING_INVENTORY);
 
   const turn = await openWorld(life);
   chronicle.ensureBook(turn.turn_id);
@@ -121,10 +121,10 @@ export function walk(campaign: CampaignT, destination: string, rng: Rng = random
     leagues = found.leagues;
   }
   const [minutes, left, cut] = travel.leg(
-    campaign.clock as any, leagues, rng, travel.drag(sheet.load(campaign))
+    campaign.clock, leagues, rng, travel.drag(sheet.load(campaign))
   );
   return newTurn(campaign, "clock", {
-    wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock as any, minutes))),
+    wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
     destination,
     leagues_left: cut ? left : 0,
     path,
@@ -139,7 +139,7 @@ export function advance(campaign: CampaignT, turn: TurnT): TurnT {
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {
     return newTurn(campaign, "clock", {
-      wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock as any, minutes))),
+      wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
     });
   }
   return newTurn(campaign, "explorer");
@@ -147,10 +147,10 @@ export function advance(campaign: CampaignT, turn: TurnT): TurnT {
 
 /** Whether the walking is done, and what the world does about it if so. */
 export function tickClock(turn: TurnT, moment: Date): boolean {
-  if (!travel.arrived(turn as any, moment)) return false;
-  const destination = (turn as any).destination;
+  if (!travel.arrived(turn, moment)) return false;
+  const destination = turn.destination;
   turn.wake_at = null;
-  if ((turn as any).leagues_left) {
+  if (turn.leagues_left) {
     turn.event = "true";
     turn.state = edgeFrom("clock", "arrived").to;
     return true;
@@ -223,11 +223,11 @@ export async function run(limit = 1): Promise<Ran> {
  * use the ruling, which for a rolled fight is its words and never its dice.
  */
 export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
-  const claims = ((turn as any).draft || {}).claims || [];
+  const claims = turn.draft?.claims ?? [];
   const unresolved = new Set(
-    (turn.verdicts || []).filter((v: any) => v.result === "UNRESOLVED").map((v: any) => v.claim)
+    turn.verdicts.filter((v) => v.result === "UNRESOLVED").map((v) => v.claim)
   );
-  const settled = ((campaign as any).settled ||= []) as string[];
+  const settled = campaign.settled;
   for (const claim of claims) {
     if (unresolved.has(claim.id) && !settled.includes(claim.text)) settled.push(claim.text);
   }
@@ -235,7 +235,7 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
 
   turn.gap = null;
   turn.gm_retries = 0;
-  for (const entry of [...((turn as any).phases || [])].reverse()) {
+  for (const entry of [...turn.phases].reverse()) {
     if (entry.status === "blocked") {
       entry.status = "pending";
       break;
@@ -245,15 +245,14 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
     ruled:
       "What was holding this up has been settled and canon has been written. " +
       "Read canon again before you answer.",
-    your_rejected_draft: ((turn as any).draft || {}).narration,
+    your_rejected_draft: turn.draft?.narration,
     instruction:
       "Give this again. Keep everything the record now supports — the ruling " +
       "was made so that you could say it, not so that you would drop it. " +
       "Change only what canon actually contradicts.",
   }, null, 2);
 
-  const blows = ((turn as any).fight || {}).blows || [];
-  const edge = blows.length ? "ruled_fight" : turn.looking ? "ruled_answer" : "ruled";
+  const edge = turn.fight?.blows.length ? "ruled_fight" : turn.looking ? "ruled_answer" : "ruled";
   turn.state = edgeFrom("lore3", edge).to;
   saveTurn(turn);
   const file = pendingPath(turn.turn_id);

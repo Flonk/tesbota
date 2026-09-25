@@ -10,11 +10,19 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { does } from "./canon.ts";
+import { does, type Holding, type holdingsAt } from "./canon.ts";
 import { FLEE_FLOOR, ROOT } from "./config.ts";
 import { bookId, bookTitle } from "./chronicle.ts";
 import { EXPLORER } from "./config.ts";
 import { explorerName } from "./state.ts";
+import type { Load } from "./sheet.ts";
+import {
+  Written,
+  type BlowT, type CarriedT, type CheckT, type DraftT, type FightT, type FighterT, type OutcomeT,
+  type PlacedT, type ProposalT, type QuestT, type VitalsT,
+} from "./schema.ts";
+
+type Keeps = ReturnType<typeof holdingsAt>;
 
 export const PROMPTS = path.join(ROOT, "prompts");
 const INCLUDE = ["COMMON", "WRITING"];
@@ -86,10 +94,10 @@ export function told(
 
 const num = (n: unknown) => String(Number(n) ?? 0);
 
-export function renderQuests(quests: any[] | null | undefined): string {
+export function renderQuests(quests: QuestT[] | null | undefined): string {
   const lines: string[] = [];
   for (const q of quests || []) {
-    if (q?.status !== "active") continue;
+    if (q.status !== "active") continue;
     const giver = q.giver ? `, set by ${q.giver}` : "";
     lines.push(`  [${q.id}] ${q.title}${giver}`);
     if (q.detail) lines.push(`      ${q.detail}`);
@@ -103,15 +111,11 @@ export function renderQuests(quests: any[] | null | undefined): string {
   return lines.join("\n") || "  (nothing)";
 }
 
-export function renderInventory(items: any[] | null | undefined, load?: any): string {
+export function renderInventory(items: Holding[] | null | undefined, load?: Load | null): string {
   const lines: string[] = [];
   for (const item of items || []) {
-    if (item && typeof item === "object") {
-      const where = item.worn ? " (worn)" : "";
-      lines.push(`  - ${item.name}${tally(item.qty)}${where}`);
-    } else {
-      lines.push(`  - ${item}`);
-    }
+    const where = item.worn ? " (worn)" : "";
+    lines.push(`  - ${item.name}${tally(item.qty)}${where}`);
   }
   let out = lines.join("\n") || "  (nothing)";
   if (load) {
@@ -126,7 +130,7 @@ export function renderInventory(items: any[] | null | undefined, load?: any): st
   return out;
 }
 
-export function renderHoldings(holders: any[] | null | undefined): string {
+export function renderHoldings(holders: Keeps | null | undefined): string {
   const lines: string[] = [];
   for (const holder of holders || []) {
     lines.push(`  ${holder.name} (${holder.id}):`);
@@ -137,14 +141,14 @@ export function renderHoldings(holders: any[] | null | undefined): string {
 
 const signed = (n: unknown) => `${Number(n) >= 0 ? "+" : ""}${Number(n)}`;
 
-export function explorerTurn(narration: string | null, nudge?: unknown, check?: any): string {
+export function explorerTurn(narration: string | null, nudge?: unknown, check?: CheckT | null): string {
   let text = narration || "You become aware. That is all, for now.";
   if (check) {
-    const dice = (check.rolls?.length ? check.rolls : [check.roll]).join(" ");
+    const dice = (check.rolls.length ? check.rolls : [check.roll]).join(" ");
     let line =
       `\n\nYou tried it: ${check.skill}, d20 ${dice} ${signed(check.bonus)} ` +
       `against ${check.dc} — you ${check.passed ? "made it" : "fell short"}.`;
-    if (check.against?.length) {
+    if (check.against.length) {
       line +=
         ` You are ${check.against.join(" and ")}, so you threw ` +
         `${check.rolls.length} dice and kept the worst.`;
@@ -170,14 +174,14 @@ const VERBS = (weapon: string, weaponDamage: string, kit: string) =>
   FLEE            get out`;
 
 /** Who is still up, on both sides, and how much is left in them. */
-export function sides(fight: any): string {
-  const row = (x: any, mine: boolean) => {
+export function sides(fight: FightT): string {
+  const row = (x: FighterT, mine: boolean) => {
     if (x.dead) return `  ${x.name} — down`;
     const asleep = x.asleep ? " (not stirring)" : "";
     return `  ${x.name} — ${x.health} left${asleep}` + (mine ? " (you)" : "");
   };
-  const ours = fight.us.map((x: any, n: number) => row(x, n === 0)).join("\n");
-  const theirs = fight.them.map((x: any) => row(x, false)).join("\n");
+  const ours = fight.us.map((x, n) => row(x, n === 0)).join("\n");
+  const theirs = fight.them.map((x) => row(x, false)).join("\n");
   return `With you:\n${ours}\n\nAgainst you:\n${theirs}`;
 }
 
@@ -185,7 +189,7 @@ export function sides(fight: any): string {
  * Laid out once. The explorer keeps a session, so every turn after this one is a
  * single line and the standing of both sides.
  */
-export function fightOpen(fight: any, me: any, carried: any[] | null): string {
+export function fightOpen(fight: FightT, me: FighterT, carried: Holding[] | null): string {
   const kit = (carried || [])
     .map((h) => `\n                    ${h.name} — ${does(h.effects)}`)
     .join("");
@@ -201,12 +205,12 @@ export function fightOpen(fight: any, me: any, carried: any[] | null): string {
 }
 
 /** What just happened, where everybody stands, and the question again. */
-export function fightBlow(fight: any, me: any, said: string): string {
+export function fightBlow(fight: FightT, me: FighterT, said: string): string {
   const hurt = me.health <= FLEE_FLOOR ? "\n\nYou are hurt badly." : "";
   return `${said}\n\n${sides(fight)}${hurt}\n\nWhat do you do?`;
 }
 
-export const ENDED: Record<string, string> = {
+export const ENDED: Record<NonNullable<FightT["ended"]>, string> = {
   beaten: "it went down.",
   fled: "you got out.",
   killed: "you did not get out.",
@@ -243,7 +247,7 @@ const FIGHT_DEATH = `It ended: you did not get out. They are dead. Before you re
 The last line you write is the last line of their book. Write it as one.`;
 
 /** One row of the roll sheet: who acted, what they chose, and what came of it. */
-export function blowLine(blow: any): string {
+export function blowLine(blow: BlowT): string {
   const who = blow.name || "somebody";
   const said = blow.chose || "ATTACK";
   if (said === "ASLEEP") return `${who} — does not stir`;
@@ -262,7 +266,7 @@ export function blowLine(blow: any): string {
   return `${who} — ${said} on ${mark}, missed`;
 }
 
-export function gmBlows(fight: any, fate?: unknown, correction?: string | null): string {
+export function gmBlows(fight: FightT, fate?: unknown, correction?: string | null): string {
   const sheet: string[] = [];
   let seen: unknown = null;
   for (const b of fight.blows) {
@@ -272,7 +276,7 @@ export function gmBlows(fight: any, fate?: unknown, correction?: string | null):
     }
     sheet.push(`    ${b.n}  ${blowLine(b)}`);
   }
-  const parts = [BLOWS(sheet.join("\n"), ENDED[fight.ended] ?? "it is not over.")];
+  const parts = [BLOWS(sheet.join("\n"), fight.ended ? ENDED[fight.ended] : "it is not over.")];
   if (fate) parts.push(FIGHT_FATE);
   if (fight.ended === "killed") parts.push(FIGHT_DEATH);
   if (correction) {
@@ -294,8 +298,8 @@ export const REDRAFT =
 export function gmAnswer(
   question: string,
   { previous = null, mode = "look", inventory = null, others = null, correction = null, load = null, sent = null }:
-  { previous?: string | null; mode?: string; inventory?: any[] | null; others?: any[] | null;
-    correction?: string | null; load?: any; sent?: Record<string, string> | null } = {}
+  { previous?: string | null; mode?: string; inventory?: Holding[] | null; others?: Keeps | null;
+    correction?: string | null; load?: Load | null; sent?: Record<string, string> | null } = {}
 ): string {
   const parts: string[] = [];
   if (previous) parts.push(`What they were last told:\n\n${previous}`);
@@ -353,7 +357,13 @@ export function gmTurn(
   action: string | null | undefined,
   { previous = null, vitals = null, correction = null, event = null, left = null, arrival = null,
     agreed = null, note = null, chosen = null, press = false, inventory = null, others = null,
-    quests = null, now = null, load = null, sent = null, standing = null }: Record<string, any> = {}
+    quests = null, now = null, load = null, sent = null, standing = null }:
+  { previous?: string | null; vitals?: VitalsT | null; correction?: string | null;
+    event?: string | null; left?: number | null; arrival?: string | null;
+    agreed?: ProposalT | null; note?: string | null; chosen?: OutcomeT | null; press?: boolean;
+    inventory?: Holding[] | null; others?: Keeps | null; quests?: QuestT[] | null;
+    now?: string | null; load?: Load | null; sent?: Record<string, string> | null;
+    standing?: CarriedT | null } = {}
 ): string {
   const parts: string[] = [];
   if (now) parts.push(`The time is ${now}.`);
@@ -400,9 +410,10 @@ export function gmTurn(
     told(parts, sent, "quests", "What they have taken on:", renderQuests(quests), QUEST_SAME);
   }
   if (standing) {
+    const left = standing.them.filter((x) => !x.dead).map((x) => `${x.name}, ${x.health} left`).join("; ");
     parts.push(
-      `The fight with ${standing.name} is not over. It has ${standing.health} ` +
-        "left in it. Declare it again with that health to carry the pool forward, or " +
+      `The fight with ${standing.name} is not over: ${left}. ` +
+        "Declare it again with that health to carry the pool forward, or " +
         "narrate it ending some other way and leave `fight` out."
     );
   }
@@ -425,7 +436,10 @@ export const lore1Query = (question: string) => `${question}`;
 export function gmPropose(
   action: string | null | undefined,
   { previous = null, vitals = null, answers = null, note = null, inventory = null,
-    others = null, now = null, load = null }: Record<string, any> = {}
+    others = null, now = null, load = null }:
+  { previous?: string | null; vitals?: VitalsT | null; answers?: Array<[string, string]> | null;
+    note?: string | null; inventory?: Holding[] | null; others?: Keeps | null;
+    now?: string | null; load?: Load | null } = {}
 ): string {
   const parts: string[] = [];
   if (now) parts.push(`The time is ${now}.`);
@@ -451,9 +465,9 @@ export function gmPropose(
   return parts.join("\n\n");
 }
 
-const named = (where: any[]) =>
+const named = (where: PlacedT[]) =>
   where
-    .map((w) => (w && typeof w === "object" ? w.name || w.id : String(w)))
+    .map((w) => w.name || w.id)
     .filter(Boolean)
     .join(" > ");
 
@@ -466,7 +480,7 @@ const named = (where: any[]) =>
  * passing a lore master. The fields say as much about the world as the sentences
  * do, so they are read out here in plain words and go the same way.
  */
-export function doings(draft: Record<string, any> | null | undefined, here?: string | null): string {
+export function doings(draft: DraftT | null | undefined, here?: string | null): string {
   if (!draft) return "";
   const said: string[] = [];
 
@@ -479,12 +493,13 @@ export function doings(draft: Record<string, any> | null | undefined, here?: str
     const many = Math.abs(Number(t.qty) || 1);
     said.push(`${many} ${t.name} passed from ${from} to ${to}`);
   }
-  for (const q of draft.quest_open || []) {
+  for (const item of draft.quest_open || []) {
+    const q = Written.safeParse(item).data;
     if (!q?.title && !q?.id) continue;
     said.push(`They have taken on: ${q.title || q.id}` + (q.giver ? `, set by ${q.giver}` : ""));
   }
   for (const q of draft.quest_close || []) {
-    const id = typeof q === "object" ? q?.id : q;
+    const id = q && typeof q === "object" ? Written.safeParse(q).data?.id : q;
     if (id) said.push(`An errand is finished: ${id}`);
   }
   return said.map((x) => `- ${x}`).join("\n");
@@ -493,7 +508,7 @@ export function doings(draft: Record<string, any> | null | undefined, here?: str
 export function lore1Turn(
   narration: string,
   { where = null, now = null, roster = null, did = null }:
-  { where?: any[] | null; now?: string | null; roster?: string | null; did?: string | null } = {}
+  { where?: PlacedT[] | null; now?: string | null; roster?: string | null; did?: string | null } = {}
 ): string {
   const parts: string[] = [];
   if (where) parts.push("Where: " + named(where));
@@ -517,13 +532,13 @@ export function lore1Turn(
   return parts.join("\n\n");
 }
 
-export function musterLine(who: any): string {
+export function musterLine(who: FighterT): string {
   const bits = [who.name || "somebody"];
   if (who.most) bits.push(`${who.most} health`);
   if (who.damage) bits.push(`${who.damage} damage`);
   if (who.defense) bits.push(`${who.defense} defense`);
-  const power = who.ability || {};
-  if (power.name) {
+  const power = who.ability;
+  if (power?.name) {
     const said = [power.name];
     if (power.damage) said.push(`${power.damage} damage`);
     const called = power.spawn?.name;
@@ -533,10 +548,10 @@ export function musterLine(who: any): string {
   return "- " + bits.join(", ");
 }
 
-export function muster(fight: any): string {
+export function muster(fight: FightT): string {
   const out: string[] = [];
   for (const [side, label] of [["them", "Against them"], ["us", "With them"]] as const) {
-    const bodies = (fight[side] || []).filter((x: any) => x.kind !== "explorer");
+    const bodies = fight[side].filter((x) => x.kind !== "explorer");
     if (bodies.length) out.push(label + ":\n" + bodies.map(musterLine).join("\n"));
   }
   return out.join("\n\n");
@@ -571,7 +586,7 @@ export const lore3Turn = (gap: string) =>
   "Talk it through with me first. Look up whatever already exists before " +
   "proposing anything. When we agree, write the documents.";
 
-export function questmasterTurn(quest: any, where?: any[] | null): string {
+export function questmasterTurn(quest: QuestT, where?: PlacedT[] | null): string {
   const parts = [`The errand: ${quest.title}`];
   if (quest.detail) parts.push(`As it was put to them: ${quest.detail}`);
   if (quest.giver) parts.push(`Set by: ${quest.giver}`);

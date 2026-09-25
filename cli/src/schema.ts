@@ -17,16 +17,65 @@
 
 import { z } from "zod";
 import { STATE_NAMES } from "./machine.ts";
+import { DEFAULTS, MAX_HEALTH, STARTING_SKILLS, WORLD_START } from "./config.ts";
 
 export const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab-case");
 
 /** `1–2`, `2-5`, or a bare number — what one blow takes off. */
 export const Band = z.string().regex(/^\s*\d+\s*(?:[–—-]\s*\d+\s*)?$/, "a damage band reads `1–2`");
 
+export const Written = z.record(z.string(), z.unknown());
+
 export const Vitals = z.object({
-  health: z.number().int().min(0).max(100),
-  fatigue: z.number().int().min(0).max(100),
-  hunger: z.number().int().min(0).max(100),
+  health: z.number().int().min(0).max(100).default(MAX_HEALTH),
+  fatigue: z.number().int().min(0).max(100).default(0),
+  hunger: z.number().int().min(0).max(100).default(0),
+});
+
+export const Time = z.object({
+  era: z.number().int(),
+  year: z.number().int(),
+  day: z.number().int(),
+  minute: z.number().int(),
+  stamp: z.string().optional(),
+  long: z.string().optional(),
+});
+
+export const Clock = z.object({
+  hours_per_league: z.number().default(DEFAULTS.hours_per_league),
+  min_leg_minutes: z.number().default(DEFAULTS.min_leg_minutes),
+  encounter_chance_per_league: z.number().default(DEFAULTS.encounter_chance_per_league),
+  speed_factor: z.number().default(DEFAULTS.speed_factor),
+});
+
+export const Skills = z.object({
+  abilities: z.record(z.string(), z.number().int()).default({}),
+  proficiency: z.number().int().default(0),
+  proficient: z.array(z.string()).default([]),
+});
+
+export const Sessions = z.object({
+  explorer: z.string().nullish(),
+  gm: z.string().nullish(),
+  lore3_sitting: z.string().nullish(),
+});
+
+export const Placed = z.object({ id: z.string(), name: z.string() });
+
+export const QuestStatus = z.enum(["active", "done", "failed", "abandoned"]);
+
+export const Quest = z.object({
+  id: z.string(),
+  title: z.string(),
+  detail: z.string().default(""),
+  giver: z.string().optional(),
+  script: z.string().default(""),
+  at: z.string(),
+  status: QuestStatus,
+  opened: z.string(),
+  closed: z.string().nullish(),
+  closed_at: z.string().optional(),
+  where: z.array(Placed).default([]),
 });
 
 export const Check = z.object({
@@ -41,6 +90,19 @@ export const Check = z.object({
   passed: z.boolean(),
 });
 
+export const Spawn = z.object({
+  name: z.string(),
+  who: z.string().nullish(),
+  count: z.coerce.number().int().min(1).default(1),
+  health: z.coerce.number().int().min(0).nullish(),
+  most: z.coerce.number().int().min(0).nullish(),
+  damage: Band.nullish(),
+  dc: z.coerce.number().int().min(0).nullish(),
+  bonus: z.coerce.number().int().nullish(),
+  defense: z.coerce.number().int().min(0).nullish(),
+  skill: z.string().nullish(),
+});
+
 export const Ability = z.object({
   name: z.string().optional(),
   damage: Band.nullish(),
@@ -48,22 +110,12 @@ export const Ability = z.object({
   cooldown: z.number().int().min(0).default(0),
   sleep: z.number().int().min(0).default(0),
   delay: z.number().int().min(0).default(0),
-  spawn: z.object({ name: z.string(), count: z.number().int().min(1).default(1) }).nullish(),
+  spawn: Spawn.nullish(),
   within: z.string().nullish(),
   in_kind: z.string().nullish(),
   in_aspect: z.string().nullish(),
   from: z.string().nullish(),
   used: z.boolean().default(false),
-});
-
-/** What the world keeps about a thing that can be fought. */
-export const BodyRecord = z.object({
-  health: z.number().int().positive().nullish(),
-  damage: Band.nullish(),
-  dc: z.number().int().positive().nullish(),
-  bonus: z.number().int().default(0),
-  defense: z.number().int().min(0).default(0),
-  skill: z.string().nullish(),
 });
 
 export const Side = z.enum(["explorer", "ally", "foe"]);
@@ -88,7 +140,7 @@ export const Fighter = z.object({
   cool: z.number().int().min(0).default(0),
   dead: z.boolean().default(false),
   /** exactly what the game master wrote, so a rebound body can be rebuilt */
-  as_written: z.record(z.string(), z.unknown()).default({}),
+  as_written: Written.default({}),
 });
 
 export const Blow = z.object({
@@ -133,16 +185,17 @@ export const Fight = z.object({
   owed: z.array(z.object({
     at: z.number().int(),
     by: z.string(),
-    spawn: z.object({ name: z.string(), count: z.number().int().min(1).default(1) }),
+    spawn: Spawn,
   })).default([]),
 });
 
-/** What the adventurer chose to do with one round. The mark is an id. */
-export const Swing = z.object({
-  verb: z.enum(["ATTACK", "ITEM", "SKILL", "FLEE"]),
-  what: z.union([z.string(), z.record(z.string(), z.unknown())]).nullish(),
-  mark: Id.nullish(),
-});
+/** What the adventurer chose to do with one round. The mark is an id, and so is the item. */
+export const Swing = z.discriminatedUnion("verb", [
+  z.object({ verb: z.literal("ATTACK"), mark: Id.nullish() }),
+  z.object({ verb: z.literal("SKILL"), skill: z.string(), mark: Id.nullish() }),
+  z.object({ verb: z.literal("ITEM"), item: z.string() }),
+  z.object({ verb: z.literal("FLEE") }),
+]);
 
 export const Claim = z.object({
   id: z.string(),
@@ -179,7 +232,7 @@ export const Draft = z.object({
   health: z.number().int().default(0),
   hunger: z.number().int().nullish(),
   check: z.object({ skill: z.string(), dc: z.number().int() }).nullish(),
-  fight: z.record(z.string(), z.unknown()).nullish(),
+  fight: Written.nullish(),
   transactions: z.array(Transaction).default([]),
   quest_open: z.array(z.unknown()).default([]),
   quest_update: z.array(z.unknown()).default([]),
@@ -188,9 +241,11 @@ export const Draft = z.object({
 
 export const PhaseKind = z.enum(["action", "look", "say", "answer", "outcome", "world", "fight"]);
 
+export const Outcome = z.object({ band: z.string(), text: z.string(), p: z.number() });
+
 export const Phase = z.object({
   n: z.number().int().optional(),
-  who: z.enum(["explorer", "gm", "driver"]),
+  who: z.enum(["explorer", "gm"]),
   kind: PhaseKind,
   status: z.enum(["pending", "checked", "blocked", "said"]).default("pending"),
   text: z.string().default(""),
@@ -198,8 +253,22 @@ export const Phase = z.object({
   fight: Fight.nullish(),
   minutes: z.number().int().optional(),
   fatigue: z.number().int().optional(),
+  roll: z.number().int().nullish(),
+  outcomes: z.array(Outcome).optional(),
+  chosen: Outcome.nullish(),
+  fortune: z.number().nullish(),
   check: Check.nullish(),
 });
+
+export const Proposal = z.object({
+  summary: z.string(),
+  target: z.string().nullish(),
+  minutes: z.number().int(),
+  fatigue: z.number().int(),
+  unpriced: z.boolean().optional(),
+});
+
+export const Exchange = z.object({ question: z.string().nullish(), answer: z.string() });
 
 export const StateName = z.enum(STATE_NAMES);
 
@@ -238,8 +307,8 @@ export const Turn = z.object({
   roll: z.number().int().nullish(),
   rolled: z.boolean().default(false),
   fate: z.string().nullish(),
-  chosen: z.record(z.string(), z.unknown()).nullish(),
-  outcomes: z.array(z.unknown()).default([]),
+  chosen: Outcome.nullish(),
+  outcomes: z.array(Outcome).default([]),
   check: Check.nullish(),
 
   note: z.string().nullish(),
@@ -259,7 +328,7 @@ export const Turn = z.object({
   // is silently dropped the next time the turn is read off disk, and a proposal
   // that vanishes between `propose` and `gm` is a turn that quietly re-prices
   // itself.
-  proposal: z.record(z.string(), z.unknown()).nullish(),
+  proposal: Proposal.nullish(),
   confirmed: z.boolean().default(false),
   propose_retries: z.number().int().min(0).default(0),
   blank: z.number().int().min(0).default(0),
@@ -268,9 +337,9 @@ export const Turn = z.object({
   pressed: z.boolean().nullish(),
   forced_strange: z.boolean().default(false),
   fortune: z.number().nullish(),
-  looks: z.array(z.unknown()).default([]),
-  talks: z.array(z.unknown()).default([]),
-  context: z.array(z.unknown()).default([]),
+  looks: z.array(Exchange).default([]),
+  talks: z.array(Exchange).default([]),
+  context: z.array(Exchange).default([]),
   /** where the road is taking them, and how much of it is left */
   destination: z.string().nullish(),
   leagues_left: z.number().default(0),
@@ -278,17 +347,19 @@ export const Turn = z.object({
   path: z.array(z.tuple([z.number(), z.number()])).nullish(),
   reach: z.number().nullish(),
   /** the lore master's sitting, archived onto the turn that needed it */
-  lore: z.array(z.unknown()).default([]),
+  lore: z.array(z.object({ role: z.string(), text: z.string() })).default([]),
   lore_gap: z.string().nullish(),
 
   minutes: z.number().int().min(0).default(0),
   wake_at: z.string().nullish(),
   at: z.string().nullish(),
   vitals: Vitals.nullish(),
-  location_path: z.array(z.unknown()).default([]),
+  location_path: z.array(Placed).default([]),
   quest: z.string().nullish(),
-  chronicle: z.array(z.unknown()).default([]),
+  chronicle: z.array(z.object({ ord: z.number().int(), text: z.string() })).default([]),
 });
+
+export const Carried = Fight.pick({ skill: true, flee_dc: true, name: true, us: true, them: true });
 
 export const Campaign = z.object({
   created: z.string(),
@@ -299,14 +370,14 @@ export const Campaign = z.object({
   current_turn: z.string().nullish(),
   turn_counter: z.number().int().min(0),
   location: Id.nullish(),
-  location_path: z.array(z.unknown()).default([]),
-  vitals: Vitals,
-  skills: z.record(z.string(), z.unknown()).default({}),
-  quests: z.array(z.unknown()).default([]),
-  time: z.record(z.string(), z.unknown()),
-  clock: z.record(z.string(), z.unknown()),
-  sessions: z.record(z.string(), z.string().nullable()).default({}),
-  sent: z.record(z.string(), z.unknown()).default({}),
+  location_path: z.array(Placed).default([]),
+  vitals: Vitals.prefault({}),
+  skills: Skills.default(() => structuredClone(STARTING_SKILLS)),
+  quests: z.array(Quest).default([]),
+  time: Time.default(() => ({ ...WORLD_START })),
+  clock: Clock.prefault({}),
+  sessions: Sessions.prefault({}),
+  sent: z.record(z.string(), z.string()).default({}),
   last_narration: z.string().nullish(),
   last_seen: z.string().nullish(),
   note: z.string().nullish(),
@@ -318,29 +389,27 @@ export const Campaign = z.object({
   walked: z.array(z.string()).default([]),
   walked_through: z.string().nullish(),
   /** not a fight — what was carried out of one nobody finished */
-  fight: z.object({
-    skill: z.string(),
-    flee_dc: z.number().int(),
-    us: z.array(Fighter),
-    them: z.array(Fighter),
-  }).nullish(),
+  fight: Carried.nullish(),
 });
-
-/**
- * The one thing a transition is handed and the one thing it gives back. A step
- * takes this, changes it, and returns the name of the edge it is taking — it
- * never says what state comes next, because that is the machine's to know.
- */
-export type World = {
-  campaign: z.infer<typeof Campaign>;
-  turn: z.infer<typeof Turn>;
-};
 
 export type TurnT = z.infer<typeof Turn>;
 export type CampaignT = z.infer<typeof Campaign>;
+export type PhaseT = z.infer<typeof Phase>;
 export type FightT = z.infer<typeof Fight>;
 export type FighterT = z.infer<typeof Fighter>;
 export type BlowT = z.infer<typeof Blow>;
+export type AbilityT = z.infer<typeof Ability>;
+export type SpawnT = z.infer<typeof Spawn>;
 export type DraftT = z.infer<typeof Draft>;
 export type SwingT = z.infer<typeof Swing>;
+export type ClaimT = z.infer<typeof Claim>;
 export type VerdictT = z.infer<typeof Verdict>;
+export type CheckT = z.infer<typeof Check>;
+export type OutcomeT = z.infer<typeof Outcome>;
+export type ProposalT = z.infer<typeof Proposal>;
+export type QuestT = z.infer<typeof Quest>;
+export type PlacedT = z.infer<typeof Placed>;
+export type TimeT = z.infer<typeof Time>;
+export type ClockT = z.infer<typeof Clock>;
+export type VitalsT = z.infer<typeof Vitals>;
+export type CarriedT = z.infer<typeof Carried>;

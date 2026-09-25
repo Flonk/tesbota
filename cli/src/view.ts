@@ -62,10 +62,10 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
 
   if (state === "clock") {
     const left = parse(String(turn.wake_at)).getTime() - now().getTime();
-    lines.push(`  the adventurer is on the road to ${(turn as any).destination}`);
+    lines.push(`  the adventurer is on the road to ${turn.destination}`);
     lines.push(
       `  wakes in ${duration(left)}` +
-        ((turn as any).leagues_left ? ", and the road does not get them there" : "")
+        (turn.leagues_left ? ", and the road does not get them there" : "")
     );
   } else if (state === "arbiter") {
     lines.push(`  ${WARN}the lore master is waiting on you${OFF} — run: tesbota lore`);

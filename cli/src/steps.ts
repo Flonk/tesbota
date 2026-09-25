@@ -19,7 +19,11 @@ import { sqliteGate } from "./gate.ts";
 import type { EdgeOn, LoopState } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import { explorerName, pendingDeath, recordDeath } from "./state.ts";
-import type { CampaignT, TurnT } from "./schema.ts";
+import {
+  Blow, Claim, Draft, QuestStatus, Verdict, Written,
+  type BlowT, type CampaignT, type CheckT, type ClaimT, type DraftT, type FightT, type FighterT,
+  type OutcomeT, type PhaseT, type QuestT, type SwingT, type TurnT, type VerdictT,
+} from "./schema.ts";
 import {
   BANDS, BLOW_FATIGUE, BLOW_MINUTES, DIE, EXPLORER, GODHEAD_ID, HUNGER_PER_HOUR,
   MAX_ASKS, MAX_BLOWS, MAX_FATIGUE, MAX_GM_RETRIES, MAX_HEALTH, MAX_HUNGER,
@@ -33,15 +37,23 @@ export type World = { campaign: CampaignT; turn: TurnT };
 /** What a step gives back: the name of one edge out of the state it was in. */
 export type Step<S extends LoopState> = (world: World, rng?: Rng) => Promise<EdgeOn<S>>;
 
-const T = (turn: TurnT) => turn as unknown as Record<string, any>;
-const C = (campaign: CampaignT) => campaign as unknown as Record<string, any>;
+function drafted(turn: TurnT): DraftT {
+  if (!turn.draft) throw new Error(`${turn.turn_id} has no draft`);
+  return turn.draft;
+}
+
+export function fightOf(turn: TurnT): FightT {
+  if (!turn.fight) throw new Error(`${turn.turn_id} has no fight`);
+  return turn.fight;
+}
 
 // ── phases ──────────────────────────────────────────────────────────────────
 
-export function phase(turn: TurnT, who: string, kind: string, text: string, extra: Record<string, any> = {}) {
-  const entries = (T(turn).phases ||= []);
-  const entry = {
-    n: entries.length + 1,
+export function phase(
+  turn: TurnT, who: PhaseT["who"], kind: PhaseT["kind"], text: string, extra: Partial<PhaseT> = {}
+): PhaseT {
+  const entry: PhaseT = {
+    n: turn.phases.length + 1,
     who,
     kind,
     text,
@@ -49,7 +61,7 @@ export function phase(turn: TurnT, who: string, kind: string, text: string, extr
     claims: [],
     ...extra,
   };
-  entries.push(entry);
+  turn.phases.push(entry);
   return entry;
 }
 
@@ -57,22 +69,19 @@ export function phase(turn: TurnT, who: string, kind: string, text: string, extr
  * Append what the game master said. A pending phase is rewritten in place — that
  * only happens when the lore master has sent it back.
  */
-export function gmPhase(turn: TurnT, kind: string, text: string, extra: Record<string, any> = {}) {
-  const entries = (T(turn).phases ||= []);
-  const last = entries[entries.length - 1];
-  if (last && last.who === "gm" && last.status === "pending") {
+export function gmPhase(turn: TurnT, kind: PhaseT["kind"], text: string, extra: Partial<PhaseT> = {}): PhaseT {
+  const last = openPhase(turn);
+  if (last) {
     last.kind = kind;
     last.text = text;
-    last.redrafts = (last.redrafts || 0) + 1;
     Object.assign(last, extra);
     return last;
   }
   return phase(turn, "gm", kind, text, extra);
 }
 
-export function openPhase(turn: TurnT) {
-  const entries = T(turn).phases || [];
-  const last = entries[entries.length - 1];
+export function openPhase(turn: TurnT): PhaseT | null {
+  const last = turn.phases[turn.phases.length - 1];
   return last && last.who === "gm" && last.status === "pending" ? last : null;
 }
 
@@ -93,7 +102,7 @@ export const explorerPermission = async (toolName: string, toolInput: Record<str
       message: "You have no such power. You may run tesbota stats, tesbota inventory or tesbota quests.",
     };
   }
-  const raw = String((toolInput as any)?.command ?? "");
+  const raw = String(toolInput.command ?? "");
   const parts = raw.split(/&&|;|\n/).map(normaliseCommand).filter((p) => p && !/^echo\b/.test(p));
   const shell = [..."|&$`><"].some((ch) => raw.replace(/&&/g, "").includes(ch));
   if (!shell && parts.length && parts.every((p) => EXPLORER_COMMANDS.includes(p))) {
@@ -149,7 +158,7 @@ const QUOTES = "\"'“‘„«";
  * prefixes are honoured when given; otherwise a question is a look and speech is
  * a say, so the explorer need not remember the syntax.
  */
-export function classify(text: string, turn: TurnT): [string, string] {
+export function classify(text: string, turn: TurnT): ["look" | "say" | "done", string] {
   const stripped = unprefixed(text);
   const upper = stripped.toUpperCase();
 
@@ -162,8 +171,8 @@ export function classify(text: string, turn: TurnT): [string, string] {
   }
   if (bare.length <= 48 && DONE_WORDS.some((w) => bare.includes(w))) return ["done", stripped];
 
-  const looksLeft = (T(turn).looks || []).length < MAX_LOOKS;
-  const talksLeft = (T(turn).talks || []).length < MAX_TALKS;
+  const looksLeft = turn.looks.length < MAX_LOOKS;
+  const talksLeft = turn.talks.length < MAX_TALKS;
 
   if (QUOTES.includes(stripped.slice(0, 1)) && talksLeft) {
     return ["say", stripped.replace(new RegExp(`^[${QUOTES}”’»]+|[${QUOTES}”’»]+$`, "g"), "")];
@@ -177,24 +186,24 @@ export function classify(text: string, turn: TurnT): [string, string] {
 
 export const stepExplorer: Step<"explorer"> = async ({ campaign, turn }) => {
   const [text, session] = await ask(
-    prompts.explorerTurn(campaign.last_narration ?? null, T(turn).nudge, turn.check),
+    prompts.explorerTurn(campaign.last_narration ?? null, turn.nudge, turn.check),
     {
       system: prompts.EXPLORER_SYSTEM(),
       tools: ["Bash"],
-      session: (campaign.sessions as any).explorer,
+      session: campaign.sessions.explorer,
       model: MODELS.explorer,
-      permission: explorerPermission as any,
+      permission: explorerPermission,
     }
   );
-  (campaign.sessions as any).explorer = session;
+  campaign.sessions.explorer = session;
 
   const stripped = firstUtterance(text);
   const upper = stripped.toUpperCase();
   const asked = upper.startsWith("LOOK:") || upper.startsWith("SAY:");
 
   if (!stripped) {
-    T(turn).blank = (T(turn).blank || 0) + 1;
-    if (T(turn).blank >= MAX_ASKS) {
+    turn.blank += 1;
+    if (turn.blank >= MAX_ASKS) {
       turn.gap =
         "The adventurer has said nothing that can be acted on:\n\n" +
         String(text ?? "").trim().slice(0, 600);
@@ -210,26 +219,25 @@ export const stepExplorer: Step<"explorer"> = async ({ campaign, turn }) => {
   }
 
   if (!turn.action && asked) {
-    T(turn).nudge = (T(turn).nudge || 0) + 1;
-    if (T(turn).nudge < MAX_ASKS) return "again";
+    turn.nudge += 1;
+    if (turn.nudge < MAX_ASKS) return "again";
     turn.action = stripped.split(":").slice(1).join(":").trim();
     phase(turn, "explorer", "action", turn.action);
     return "acts";
   }
 
   const [kind, said] = classify(stripped, turn);
-  const caps: Record<string, number> = { look: MAX_LOOKS, say: MAX_TALKS };
-  const buckets: Record<string, string> = { look: "looks", say: "talks" };
+  const room = { look: MAX_LOOKS - turn.looks.length, say: MAX_TALKS - turn.talks.length };
 
-  if (caps[kind] !== undefined && (T(turn)[buckets[kind]] || []).length < caps[kind]) {
+  if (kind !== "done" && room[kind] > 0) {
     turn.question = said;
-    turn.mode = kind as any;
+    turn.mode = kind;
     turn.looking = true;
     phase(turn, "explorer", kind, said);
     return "looks";
   }
 
-  T(turn).ready = said;
+  turn.ready = said;
   if (turn.resolved) {
     turn.delivered = true;
     return "quiet";
@@ -241,7 +249,7 @@ export const stepExplorer: Step<"explorer"> = async ({ campaign, turn }) => {
 export const stepNarrate: Step<"narrate"> = async ({ turn }) => {
   if (chronicle.played(turn)) {
     const written = chronicle.write(turn);
-    if (written.length) T(turn).chronicle = [...(T(turn).chronicle || []), ...written];
+    if (written.length) turn.chronicle = [...turn.chronicle, ...written];
   }
   return "written";
 };
@@ -251,8 +259,8 @@ export const stepNarrate: Step<"narrate"> = async ({ turn }) => {
  * means it has been handed nothing, so the slate goes with it.
  */
 export function ledger(campaign: CampaignT): Record<string, string> {
-  if (!(campaign.sessions as any).gm) C(campaign).sent = {};
-  return (C(campaign).sent ||= {});
+  if (!campaign.sessions.gm) campaign.sent = {};
+  return campaign.sent;
 }
 
 export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
@@ -270,19 +278,16 @@ export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
       permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
-      session: (campaign.sessions as any).gm,
+      session: campaign.sessions.gm,
       model: MODELS.gm,
     }
   );
-  (campaign.sessions as any).gm = session;
-  const draft = extractJson<Record<string, any>>(text);
-  draft.claims ??= [];
-  draft.destination = null;
-  draft.minutes = 0;
-  draft.fatigue = 0;
-  draft.health = 0;
-  draft.check = null;
-  T(turn).draft = draft;
+  campaign.sessions.gm = session;
+  const said = extractJson<Record<string, unknown>>(text);
+  const draft = Draft.parse({
+    ...said, claims: said.claims ?? [], destination: null, minutes: 0, fatigue: 0, health: 0, check: null,
+  });
+  turn.draft = draft;
   gmPhase(turn, "answer", draft.narration);
   turn.correction = null;
   return "answered";
@@ -292,10 +297,13 @@ export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
  * Six ways it could go, one to a band up the ladder, weights made to add up. A
  * malformed table is thrown away; a missing weight falls back to its band.
  */
-export function weighOutcomes(raw: any[] | null | undefined) {
-  const entries = (raw || []).filter((e) => e && typeof e === "object" && String(e.text || "").trim());
-  const kept: any[] = [];
-  const used = new Set<any>();
+export function weighOutcomes(raw: unknown): OutcomeT[] {
+  const entries = (Array.isArray(raw) ? raw : []).flatMap((e: unknown) => {
+    const entry = Written.safeParse(e).data;
+    return entry && String(entry.text || "").trim() ? [entry] : [];
+  });
+  const kept: Record<string, unknown>[] = [];
+  const used = new Set<Record<string, unknown>>();
   for (const wanted of BANDS) {
     const match = entries.find((e) => e.band === wanted && !used.has(e));
     if (!match) return [];
@@ -303,16 +311,17 @@ export function weighOutcomes(raw: any[] | null | undefined) {
     kept.push(match);
   }
   const out = kept.map((entry) => {
+    const band = String(entry.band);
     let weight = Number(entry.p);
-    if (!(weight > 0)) weight = WEIGHT[entry.band];
-    return { band: entry.band as string, text: String(entry.text).trim(), p: weight };
+    if (!(weight > 0)) weight = WEIGHT[band];
+    return { band, text: String(entry.text).trim(), p: weight };
   });
   const total = out.reduce((a, e) => a + e.p, 0);
   for (const entry of out) entry.p = entry.p / total;
   return out;
 }
 
-export function spin(outcomes: any[], fortune: number, only?: string | string[] | null) {
+export function spin(outcomes: OutcomeT[], fortune: number, only?: string | string[] | null): OutcomeT {
   const wanted = typeof only === "string" ? [only] : only;
   let pool = wanted ? outcomes.filter((e) => wanted.includes(e.band)) : [...outcomes];
   if (!pool.length) pool = [...outcomes];
@@ -336,12 +345,12 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
     prompts.gmPropose(turn.action, {
       previous: campaign.last_narration ?? null,
       vitals: campaign.vitals,
-      answers: turn.answers || [],
+      answers: turn.answers,
       note: turn.note ?? null,
       inventory: canon.holdings(EXPLORER),
       load: sheet.load(campaign),
       others: canon.holdingsAt(campaign.location),
-      now: worldclock.longStamp(campaign.time as any),
+      now: worldclock.longStamp(campaign.time),
     }),
     {
       system: prompts.GM_PROPOSE_SYSTEM(),
@@ -351,10 +360,10 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
       model: MODELS.gm,
     }
   );
-  const out = extractJson<Record<string, any>>(text);
+  const out = extractJson<Record<string, unknown>>(text);
 
   const question = typeof out.ask === "string" ? out.ask.trim() : null;
-  const answers = (T(turn).answers ||= []);
+  const answers = turn.answers;
   if (question && answers.length < MAX_ASKS) {
     const [reply] = await ask(prompts.lore1Query(question), {
       system: prompts.LORE1_QUERY_SYSTEM(),
@@ -367,47 +376,48 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
     return "again";
   }
 
-  let proposal = out.proposal;
-  const priced = proposal && typeof proposal === "object" && "minutes" in proposal;
+  const said = Written.safeParse(out.proposal).data;
 
-  if (!priced) {
-    T(turn).propose_retries = (T(turn).propose_retries || 0) + 1;
-    if (T(turn).propose_retries < 2) return "again";
-    proposal = {
+  if (!said || !("minutes" in said)) {
+    turn.propose_retries += 1;
+    if (turn.propose_retries < 2) return "again";
+    turn.proposal = {
       summary: turn.action || "",
       target: null,
       minutes: TRIVIAL_MINUTES,
       fatigue: TRIVIAL_FATIGUE,
       unpriced: true,
     };
+  } else {
+    turn.proposal = {
+      summary: String(said.summary ?? (turn.action || "")),
+      target: typeof said.target === "string" ? said.target : null,
+      minutes: Math.trunc(Number(said.minutes) || 0),
+      fatigue: Math.trunc(Number(said.fatigue) || 0),
+    };
   }
-
-  proposal.summary ??= turn.action || "";
-  proposal.minutes = Math.trunc(Number(proposal.minutes) || 0);
-  proposal.fatigue = Math.trunc(Number(proposal.fatigue) || 0);
-  T(turn).proposal = proposal;
 
   const outcomes = weighOutcomes(out.outcomes);
   if (outcomes.length) {
-    const strange = (campaign.quiet || 0) >= SPARK_FLOOR;
-    T(turn).outcomes = outcomes;
-    T(turn).fortune = rng.next();
-    T(turn).chosen = spin(outcomes, T(turn).fortune, strange ? ["epic", "legendary"] : null);
-    T(turn).forced_strange = strange;
+    const strange = campaign.quiet >= SPARK_FLOOR;
+    const fortune = rng.next();
+    turn.outcomes = outcomes;
+    turn.fortune = fortune;
+    turn.chosen = spin(outcomes, fortune, strange ? ["epic", "legendary"] : null);
+    turn.forced_strange = strange;
   }
 
-  T(turn).confirmed = true;
+  turn.confirmed = true;
   return "priced";
 };
 
 export function duePress(turn: TurnT, campaign?: CampaignT | null): boolean {
-  if (!("pressed" in T(turn))) T(turn).pressed = ((campaign as any)?.calm || 0) >= PRESS_FLOOR;
-  return T(turn).pressed;
+  return (turn.pressed ??= (campaign?.calm || 0) >= PRESS_FLOOR);
 }
 
 export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
-  if (!(campaign.sessions as any).gm && !campaign.last_narration) {
-    T(turn).draft = JSON.parse(JSON.stringify(OPENING));
+  if (!campaign.sessions.gm && !campaign.last_narration) {
+    turn.draft = Draft.parse(OPENING);
     turn.opening = true;
     return "narrated";
   }
@@ -418,17 +428,17 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
       vitals: campaign.vitals,
       correction: turn.correction ?? null,
       event: turn.event ?? null,
-      left: T(turn).leagues_left ?? null,
+      left: turn.leagues_left,
       arrival: turn.arrival ?? null,
-      agreed: T(turn).confirmed ? T(turn).proposal : null,
+      agreed: turn.confirmed ? turn.proposal : null,
       note: turn.note ?? null,
-      chosen: T(turn).chosen ?? null,
+      chosen: turn.chosen ?? null,
       press: duePress(turn, campaign),
       inventory: canon.holdings(EXPLORER),
       load: sheet.load(campaign),
       others: canon.holdingsAt(campaign.location),
-      quests: campaign.quests || [],
-      now: worldclock.longStamp(campaign.time as any),
+      quests: campaign.quests,
+      now: worldclock.longStamp(campaign.time),
       sent: ledger(campaign),
       standing: campaign.fight ?? null,
     }),
@@ -436,38 +446,39 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
       permission: sqliteGate({ also: ["tesbota kill", "tesbota traits", "tesbota around", "tesbota route"] }),
-      session: (campaign.sessions as any).gm,
+      session: campaign.sessions.gm,
       model: MODELS.gm,
     }
   );
-  (campaign.sessions as any).gm = session;
+  campaign.sessions.gm = session;
 
-  const draft = extractJson<Record<string, any>>(text);
-  draft.claims ??= [];
-  draft.destination ??= turn.arrival ?? turn.destination ?? campaign.location ?? null;
-  draft.minutes ??= 0;
-  draft.fatigue ??= 0;
-  draft.health ??= 0;
-  draft.hunger ??= null;
-  draft.check ??= null;
-  draft.transactions ??= [];
-  draft.quest_open ??= [];
-  draft.quest_update ??= [];
-  draft.quest_close ??= [];
+  const said = extractJson<Record<string, unknown>>(text);
+  said.claims ??= [];
+  said.destination ??= turn.arrival ?? turn.destination ?? campaign.location ?? null;
+  said.minutes ??= 0;
+  said.fatigue ??= 0;
+  said.health ??= 0;
+  said.hunger ??= null;
+  said.check ??= null;
+  said.transactions ??= [];
+  said.quest_open ??= [];
+  said.quest_update ??= [];
+  said.quest_close ??= [];
 
-  const agreed = T(turn).confirmed ? T(turn).proposal : null;
+  const agreed = turn.confirmed ? turn.proposal : null;
   if (agreed) {
-    draft.minutes = agreed.minutes;
-    draft.fatigue = agreed.fatigue;
+    said.minutes = agreed.minutes;
+    said.fatigue = agreed.fatigue;
   }
-  T(turn).draft = draft;
+  const draft = Draft.parse(said);
+  turn.draft = draft;
   const world = (turn.arrival || turn.event) && !turn.action;
   gmPhase(turn, world ? "world" : "outcome", draft.narration);
   turn.correction = null;
 
-  if ((draft.fight || campaign.fight) && !(T(turn).fight?.blows || []).length) {
+  if ((draft.fight || campaign.fight) && !turn.fight?.blows.length) {
     const opened = fight.openFight(campaign, draft);
-    T(turn).fight = opened;
+    turn.fight = opened;
     // The page draws whatever is on the turn, so the fight goes on the turn the
     // moment it is declared. Waiting for the last blow means nobody sees any of it.
     showFight(turn, opened);
@@ -480,33 +491,34 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
  * Keep the drawn phase pointing at the fight as it stands. Saving and loading the
  * turn parts the two copies, so this re-marries them every blow.
  */
-export function showFight(turn: TurnT, running: fight.Fight) {
-  for (const entry of T(turn).phases || []) {
+export function showFight(turn: TurnT, running: FightT): PhaseT {
+  for (const entry of turn.phases) {
     if (entry.kind === "fight") {
       entry.fight = running;
       return entry;
     }
   }
-  return gmPhase(turn, "fight", running.said || "", { fight: running });
+  return gmPhase(turn, "fight", running.said, { fight: running });
 }
 
 // ── the lore masters ────────────────────────────────────────────────────────
 
-export function derived(raw: any[]): [any[], any[]] {
-  const claims: any[] = [];
-  const verdicts: any[] = [];
-  for (const entry of raw || []) {
-    if (!entry || typeof entry !== "object") continue;
+export function derived(raw: unknown): [ClaimT[], VerdictT[]] {
+  const claims: ClaimT[] = [];
+  const verdicts: VerdictT[] = [];
+  for (const item of Array.isArray(raw) ? raw : []) {
+    const entry = Written.safeParse(item).data;
+    if (!entry) continue;
     const id = String(entry.id || `c${claims.length + 1}`);
-    claims.push({ id, text: String(entry.text || ""), entity: entry.entity ?? null, kind: entry.kind ?? null });
-    verdicts.push({
+    claims.push(Claim.parse({ id, text: String(entry.text || ""), entity: entry.entity ?? null, kind: entry.kind ?? null }));
+    verdicts.push(Verdict.parse({
       claim: id,
       result: entry.result || "TRUE",
       why: entry.why || "",
       question: entry.question || "",
       alternative: entry.alternative || "",
       sources: entry.sources || [],
-    });
+    }));
   }
   return [claims, verdicts];
 }
@@ -521,18 +533,19 @@ export async function readRecord(
 ): Promise<string[]> {
   const [read] = await ask(
     prompts.lore1Turn(narration, {
-      where: campaign.location_path as any[],
-      now: worldclock.longStamp(campaign.time as any),
+      where: campaign.location_path,
+      now: worldclock.longStamp(campaign.time),
       roster: roster ?? null,
       // The structured half of the draft goes the same way the prose does.
-      did: prompts.doings(T(turn).draft, campaign.location) || null,
+      did: prompts.doings(turn.draft, campaign.location) || null,
     }),
     { system: prompts.LORE1_SYSTEM(), tools: [], session: null, model: MODELS.lore1 }
   );
-  const facts = (extractJson<any>(read).facts || [])
+  const said = extractJson<Record<string, unknown>>(read).facts;
+  const facts = (Array.isArray(said) ? said : [])
     .map((f: unknown) => String(f).trim())
     .filter(Boolean);
-  T(turn).facts = facts;
+  turn.facts = facts;
   return facts;
 }
 
@@ -541,8 +554,9 @@ export async function readRecord(
  * reading from the ruling was for.
  */
 export async function ruleRecord(
-  { campaign, turn }: World, narration: string, facts: string[], unknown?: any[] | null
-): Promise<[any[], any[], Record<string, any>]> {
+  { campaign, turn }: World, narration: string, facts: string[],
+  unknown?: Array<{ id: string; name: string }> | null
+): Promise<[ClaimT[], VerdictT[], Record<string, unknown>]> {
   const [text] = await ask(prompts.lore2Turn(narration, facts, unknown), {
     system: prompts.LORE2_SYSTEM(),
     tools: READ_TOOLS,
@@ -550,11 +564,11 @@ export async function ruleRecord(
     session: null,
     model: MODELS.lore2,
   });
-  const ruled = extractJson<Record<string, any>>(text);
-  const [claims, verdicts] = derived(ruled.claims || []);
-  T(turn).draft.claims = claims;
+  const ruled = extractJson<Record<string, unknown>>(text);
+  const [claims, verdicts] = derived(ruled.claims);
+  drafted(turn).claims = claims;
 
-  const settled = new Set((campaign.settled || []).map((t) => canon.plain(t)));
+  const settled = new Set(campaign.settled.map((t) => canon.plain(t)));
   for (const verdict of verdicts) {
     const claim = claims.find((c) => c.id === verdict.claim);
     if (claim && settled.has(canon.plain(claim.text))) {
@@ -562,19 +576,21 @@ export async function ruleRecord(
       verdict.why = "already ruled on";
     }
   }
-  T(turn).verdicts = verdicts;
+  turn.verdicts = verdicts;
   return [claims, verdicts, ruled];
 }
 
 /** Nothing can go on until somebody writes the missing document. */
-export function holdForLore({ campaign, turn }: World, claims: any[], unresolved: any[]): "unwritten" {
-  const byId = Object.fromEntries(claims.map((c) => [c.id, c]));
+export function holdForLore(
+  { campaign, turn }: World, claims: ClaimT[], unresolved: VerdictT[]
+): "unwritten" {
+  const byId = new Map(claims.map((c) => [c.id, c]));
   turn.gap = unresolved
-    .map((v) => "- " + (String(v.question || "").trim() || byId[v.claim]?.text || v.claim))
+    .map((v) => "- " + (v.question.trim() || byId.get(v.claim)?.text || v.claim))
     .join("\n");
   const blocked = openPhase(turn);
   if (blocked) blocked.status = "blocked";
-  C(campaign).quiet = 0;
+  campaign.quiet = 0;
   return "unwritten";
 }
 
@@ -585,16 +601,17 @@ export function holdForLore({ campaign, turn }: World, claims: any[], unresolved
  */
 export const stepMuster: Step<"muster"> = async (world) => {
   const { campaign, turn } = world;
-  const running = T(turn).fight as fight.Fight;
+  const running = fightOf(turn);
   const strangers = fight.unbound(running).map((x) => ({ id: x.id, name: x.name }));
-  const said = running.said || "";
+  const said = running.said;
   const facts = await readRecord(world, said, prompts.muster(running));
   const [claims, verdicts, ruled] = await ruleRecord(
     world, said, facts, strangers.length ? strangers : null
   );
 
   const asked: string[] = [];
-  for (const bound of ruled.bodies || []) {
+  for (const item of Array.isArray(ruled.bodies) ? ruled.bodies : []) {
+    const bound = Written.safeParse(item).data ?? {};
     const declared = canon.slug(bound.declared || "");
     const became = canon.slug(bound.is || "");
     if (became && canon.called(became) && fight.rebind(running, declared, became)) continue;
@@ -612,7 +629,7 @@ export const stepMuster: Step<"muster"> = async (world) => {
     turn.gap = asked.map((q) => "- " + q).join("\n");
     const blocked = openPhase(turn);
     if (blocked) blocked.status = "blocked";
-    C(campaign).quiet = 0;
+    campaign.quiet = 0;
     return "unwritten";
   }
 
@@ -629,8 +646,8 @@ export const stepMuster: Step<"muster"> = async (world) => {
     }
     turn.gm_retries += 1;
     turn.correction = JSON.stringify({ contradicts_the_record: wrong }, null, 2);
-    delete T(turn).fight;
-    T(turn).phases = (T(turn).phases || []).filter((x: any) => x.kind !== "fight");
+    turn.fight = null;
+    turn.phases = turn.phases.filter((x) => x.kind !== "fight");
     return "rejected";
   }
 
@@ -658,24 +675,24 @@ export const FATE_INSTRUCTIONS: Record<string, string> = {
     "unlooked-for kindness, a danger that passes them by entirely. Let it matter.",
 };
 
-export function rollCheck({ campaign, turn }: World, rng: Rng = random) {
-  const asked = (T(turn).draft || {}).check || {};
-  const skill = String(asked.skill || "").trim().toLowerCase();
+export function rollCheck({ campaign, turn }: World, rng: Rng = random): CheckT | null {
+  const asked = turn.draft?.check;
+  const skill = String(asked?.skill || "").trim().toLowerCase();
   const bonus = sheet.skillBonus(campaign, skill);
   if (bonus === null) return null;
-  const dc = Math.trunc(Number(asked.dc) || 10);
-  const vitals = (campaign.vitals || {}) as any;
-  const against = ([["spent", vitals.fatigue], ["starving", vitals.hunger]] as const)
-    .filter(([, level]) => Math.trunc(Number(level) || 0) >= 100)
+  const dc = Math.trunc(Number(asked?.dc) || 10);
+  const { fatigue, hunger } = campaign.vitals;
+  const against = ([["spent", fatigue], ["starving", hunger]] as const)
+    .filter(([, level]) => level >= 100)
     .map(([word]) => word);
   const rolls = Array.from({ length: 1 + against.length }, () => rng.int(1, SKILL_DIE));
   const roll = Math.min(...rolls);
   const outcome = {
-    skill, dc, roll, rolls, against, bonus,
+    skill, dc, roll, rolls, against, for: [], bonus,
     total: roll + bonus,
     passed: roll + bonus >= dc,
   };
-  turn.check = outcome as any;
+  turn.check = outcome;
   return outcome;
 }
 
@@ -696,10 +713,9 @@ export function rollFate(turn: TurnT, rng: Rng = random): string | null {
  * Mid-fight this is nonsense — nobody stops swinging to be told they are weary —
  * so a draft carrying a fight is never sent back for it.
  */
-export function tooTired(campaign: CampaignT, draft: Record<string, any>): boolean {
+export function tooTired(campaign: CampaignT, draft: DraftT): boolean {
   if (draft.fight) return false;
-  const vitals = (campaign.vitals || { fatigue: 0 }) as any;
-  return (vitals.fatigue || 0) + Math.trunc(Number(draft.fatigue) || 0) > MAX_FATIGUE;
+  return campaign.vitals.fatigue + draft.fatigue > MAX_FATIGUE;
 }
 
 /**
@@ -708,7 +724,7 @@ export function tooTired(campaign: CampaignT, draft: Record<string, any>): boole
  * so it goes back for different words on the same blows, never a fresh fight.
  */
 export function redraftEdge(turn: TurnT): EdgeOn<"lore2"> {
-  if ((T(turn).fight?.blows || []).length) return "rewrite";
+  if (turn.fight?.blows.length) return "rewrite";
   if (!turn.looking) return "redraft";
   return "reanswer";
 }
@@ -716,26 +732,26 @@ export function redraftEdge(turn: TurnT): EdgeOn<"lore2"> {
 /** Lore 1 alone: read the world out of it, then hand the facts to the ruling. */
 export const stepLore1: Step<"lore1"> = async (world) => {
   const { turn } = world;
-  const draft = T(turn).draft;
+  const draft = drafted(turn);
 
   if (turn.opening) {
-    T(turn).verdicts = (draft.claims || []).map((c: any) => ({
+    turn.verdicts = draft.claims.map((c) => ({
       claim: c.id, result: "TRUE", why: "the world opens here",
       question: "", alternative: "", sources: [],
     }));
     return "opens";
   }
 
-  await readRecord(world, draft.narration || "");
+  await readRecord(world, draft.narration);
   return "read";
 };
 
 /** Lore 2 alone: rule on what lore 1 read, and decide where the draft goes. */
 export const stepLore2: Step<"lore2"> = async (world) => {
   const { campaign, turn } = world;
-  const draft = T(turn).draft;
-  const narration = draft.narration || "";
-  const [claims, verdicts] = await ruleRecord(world, narration, T(turn).facts || []);
+  const draft = drafted(turn);
+  const narration = draft.narration;
+  const [claims, verdicts] = await ruleRecord(world, narration, turn.facts);
 
   const wrong = verdicts.filter((v) => v.result === "FALSE");
   const unresolved = verdicts.filter((v) => v.result === "UNRESOLVED");
@@ -743,11 +759,10 @@ export const stepLore2: Step<"lore2"> = async (world) => {
   if (unresolved.length) return holdForLore(world, claims, unresolved);
 
   if (tooTired(campaign, draft) && !turn.fate && turn.gm_retries < MAX_GM_RETRIES) {
-    const vitals = (campaign.vitals || {}) as any;
     turn.gm_retries += 1;
     turn.correction = JSON.stringify({
       too_tired: {
-        fatigue_now: vitals.fatigue || 0,
+        fatigue_now: campaign.vitals.fatigue,
         this_action_would_add: draft.fatigue,
         maximum: MAX_FATIGUE,
       },
@@ -761,7 +776,7 @@ export const stepLore2: Step<"lore2"> = async (world) => {
   if (!wrong.length && !turn.rolled && !turn.looking) {
     const check = rollCheck(world);
     const fate = rollFate(turn);
-    const payload: Record<string, any> = {};
+    const payload: Record<string, unknown> = {};
 
     if (check && !check.passed) {
       payload.failed_check = check;
@@ -812,42 +827,42 @@ export const stepLore2: Step<"lore2"> = async (world) => {
  * One word back from the explorer, read the way an action is read. Anything that
  * does not parse is a swing, because a body in a fight does not stand still.
  */
-export function chosenBlow(said: string, campaign: CampaignT, running?: fight.Fight | null) {
+export function chosenBlow(said: string, campaign: CampaignT, running?: FightT | null): SwingT {
   const first = String(said ?? "").trim().split("\n");
   const head = (first[0] || "").trim().replace(/^["'`*]+|["'`*]+$/g, "").trim();
   const upper = head.toUpperCase();
-  if (upper.startsWith("FLEE")) return { verb: "FLEE", what: null };
+  if (upper.startsWith("FLEE")) return { verb: "FLEE" };
   if (upper.startsWith("ITEM")) {
     const want = canon.slug(head.slice(4));
-    const item = fight.usable(campaign).find((h) => canon.slug(h.name) === want);
-    return item ? { verb: "ITEM", what: item } : { verb: "ATTACK", what: null };
+    const found = fight.usable(campaign).find((h) => canon.slug(h.name) === want);
+    return found ? { verb: "ITEM", item: found.item } : { verb: "ATTACK" };
   }
   if (upper.startsWith("SKILL")) {
     const name = head.slice(5).split(/\s+/).filter(Boolean).join(" ").toLowerCase().replace(/^[:\- ]+|[:\- ]+$/g, "");
     if (sheet.skillBonus(campaign, name) !== null) {
-      return { verb: "SKILL", what: name, mark: aimed(head, running) };
+      return { verb: "SKILL", skill: name, mark: aimed(head, running) };
     }
   }
-  return { verb: "ATTACK", what: null, mark: aimed(head, running) };
+  return { verb: "ATTACK", mark: aimed(head, running) };
 }
 
 /**
  * `ATTACK the rat mother` picks its mark, and picks it by id. Naming nobody leaves
  * the choosing to the driver, which goes for whoever is closest to dropping.
  */
-export function aimed(head: string, running?: fight.Fight | null): string | null {
+export function aimed(head: string, running?: FightT | null): string | null {
   if (!running) return null;
   const rest = head.split(/\s+/).slice(1).join(" ");
   const want = canon.slug(rest);
   if (!want) return null;
   const found = running.them.find(
-    (x: fight.Fighter) => !x.dead && (x.id === want || canon.slug(x.name) === want)
+    (x) => !x.dead && (x.id === want || canon.slug(x.name) === want)
   );
   return found ? found.id : null;
 }
 
 /** The one line the explorer is handed before being asked again. */
-export function saidBlow(blow: fight.Blow): string {
+export function saidBlow(blow: BlowT): string {
   const who = blow.name || "somebody";
   if (blow.chose === "ASLEEP") return `${who} does not stir.`;
   if (blow.spawned) return `${who} ${blow.chose} — ${blow.spawned} is on you as well.`;
@@ -867,7 +882,7 @@ export function saidBlow(blow: fight.Blow): string {
 
 /** Ask them what they do with this turn of theirs. One line out, one word back. */
 export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
-  const running = T(turn).fight as fight.Fight;
+  const running = fightOf(turn);
   const me = running.us[0];
   const first = !running.blows.length;
   const message = first
@@ -876,45 +891,52 @@ export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
   const [text, session] = await ask(message, {
     system: prompts.EXPLORER_SYSTEM(),
     tools: ["Bash"],
-    session: (campaign.sessions as any).explorer,
+    session: campaign.sessions.explorer,
     model: MODELS.explorer,
-    permission: explorerPermission as any,
+    permission: explorerPermission,
   });
-  (campaign.sessions as any).explorer = session;
-  T(turn).swing = chosenBlow(firstUtterance(text) || text, campaign, running);
+  campaign.sessions.explorer = session;
+  turn.swing = chosenBlow(firstUtterance(text) || text, campaign, running);
   return "chose";
 };
 
 /** The explorer's turn, spent the way they said to spend it. */
 export function takeTurn(
-  world: World, running: fight.Fight, me: fight.Fighter, blow: fight.Blow, rng: Rng
+  world: World, running: FightT, me: FighterT, blow: BlowT, rng: Rng
 ) {
-  const picked = T(world.turn).swing || { verb: "ATTACK", what: null };
-  const { verb, what } = picked;
-  blow.chose = verb;
+  const picked: SwingT = world.turn.swing ?? { verb: "ATTACK" };
+  blow.chose = picked.verb;
 
-  if (verb === "ITEM") {
-    blow.chose = `ITEM ${what.name}`;
-    blow.mended = canon.does(what.effects);
-    (T(world.turn).spent ||= []).push(what.name);
-    me.health = Math.min(me.most, me.health + fight.mended(blow, "health"));
-    blow.left = me.health;
-    return;
+  if (picked.verb === "ITEM") {
+    const used = fight.usable(world.campaign).find((h) => h.item === picked.item);
+    if (used) {
+      blow.chose = `ITEM ${used.name}`;
+      blow.mended = canon.does(used.effects);
+      world.turn.spent.push(used.name);
+      me.health = Math.min(me.most, me.health + fight.mended(blow, "health"));
+      blow.left = me.health;
+      return;
+    }
+    blow.chose = "ATTACK";
   }
 
-  if (verb === "FLEE") {
-    const [check] = strike(world, running, me, null, me.skill, running.flee_dc, rng);
-    Object.assign(blow, { check, hit: check.passed });
+  if (picked.verb === "FLEE") {
+    const [check] = strike(world, running, me, null, me.skill ?? null, running.flee_dc, rng);
+    blow.check = check;
+    blow.hit = check.passed;
     if (check.passed) running.ended = "fled";
     return;
   }
 
-  const skill = verb === "SKILL" ? what : me.skill;
-  if (verb === "SKILL") blow.chose = `SKILL ${what}`;
-  const mark = fight.stillUp(running, picked.mark) || fight.marks(running, me);
+  const skill = picked.verb === "SKILL" ? picked.skill : me.skill ?? null;
+  if (picked.verb === "SKILL") blow.chose = `SKILL ${picked.skill}`;
+  const mark = fight.stillUp(running, "mark" in picked ? picked.mark : null) || fight.marks(running, me);
   if (!mark) return;
   const [check, hurt] = strike(world, running, me, mark, skill, mark.dc, rng);
-  Object.assign(blow, { check, hit: check.passed, at: mark.id, atname: mark.name });
+  blow.check = check;
+  blow.hit = check.passed;
+  blow.at = mark.id;
+  blow.atname = mark.name;
   fight.wound(running, mark, hurt, blow);
 }
 
@@ -923,17 +945,17 @@ export function takeTurn(
  * keeps the better, which is the one thing a body can have going for it.
  */
 export function strike(
-  world: World | null, running: fight.Fight, who: fight.Fighter, mark: fight.Fighter | null,
+  world: World | null, running: FightT, who: FighterT, mark: FighterT | null,
   skill: string | null, dc: number, rng: Rng, edge = false, hurts?: string | null
-): [any, number] {
-  let check: any;
+): [CheckT, number] {
+  let check: CheckT | null;
   if (who.kind === "explorer" && world) {
-    T(world.turn).draft.check = { skill, dc };
+    drafted(world.turn).check = { skill: skill ?? "", dc };
     check = rollCheck(world, rng);
     if (check === null) {
       const roll = rng.int(1, SKILL_DIE);
       check = {
-        skill, dc, roll, rolls: [roll], against: [], bonus: who.bonus,
+        skill: skill ?? "", dc, roll, rolls: [roll], against: [], for: [], bonus: who.bonus,
         total: roll + who.bonus, passed: roll + who.bonus >= dc,
       };
     }
@@ -959,16 +981,16 @@ export function strike(
 /** Whoever's turn it is takes it. The explorer is asked; everybody else is rolled. */
 export const stepFight: Step<"fight"> = async (world, rng = random) => {
   const { turn } = world;
-  const running = T(turn).fight as fight.Fight;
+  const running = fightOf(turn);
   const who = fight.whoseTurn(running);
   if (who === null) {
     running.ended = running.ended || "beaten";
     return "over";
   }
 
-  if (who.kind === "explorer" && !("swing" in T(turn))) return "theirs";
+  if (who.kind === "explorer" && turn.swing == null) return "theirs";
 
-  const blow: fight.Blow = {
+  const blow = Blow.parse({
     n: running.blows.length + 1,
     round: running.round,
     who: who.id,
@@ -980,24 +1002,24 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
     taken: 0,
     check: null,
     text: "",
-  };
+  });
 
   if (who.asleep > 0) {
     who.asleep -= 1;
-    Object.assign(blow, { chose: "ASLEEP", spent: true });
+    blow.chose = "ASLEEP";
+    blow.spent = true;
   } else if (who.kind === "explorer") {
     takeTurn(world, running, who, blow, rng);
   } else if (fight.ready(who) && who.ability?.spawn) {
     const power = who.ability;
+    const called = who.ability.spawn;
     const wait = Math.trunc(Number(power.delay) || 0);
     blow.chose = String(power.name || "spawns");
     if (wait) {
-      (running.owed ||= []).push({
-        at: running.round + wait, spawn: power.spawn, by: who.name,
-      });
-      blow.calling = `${power.spawn.name} x${power.spawn.count || 1}`;
+      running.owed.push({ at: running.round + wait, spawn: called, by: who.name });
+      blow.calling = `${called.name} x${called.count || 1}`;
     } else {
-      blow.spawned = fight.spawn(running, who, rng).map((x) => x.name).join(", ");
+      blow.spawned = fight.spawn(running, called).map((x) => x.name).join(", ");
     }
     who.asleep = Math.trunc(Number(power.sleep) || 0);
     who.cool = Math.trunc(Number(power.cooldown) || 0);
@@ -1008,10 +1030,13 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
     const mark = fight.marks(running, who);
     if (mark) {
       const [check, hurt] = strike(
-        null, running, who, mark, who.skill, mark.dc, rng,
+        null, running, who, mark, who.skill ?? null, mark.dc, rng,
         !!power?.advantage, power?.damage
       );
-      Object.assign(blow, { check, hit: check.passed, at: mark.id, atname: mark.name });
+      blow.check = check;
+      blow.hit = check.passed;
+      blow.at = mark.id;
+      blow.atname = mark.name;
       if (power) {
         blow.chose = String(power.name || "its best");
         who.cool = Math.trunc(Number(power.cooldown) || 0);
@@ -1023,12 +1048,12 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
 
   running.blows.push(blow);
   showFight(turn, running);
-  delete T(turn).swing;
+  turn.swing = null;
   running.turn += 1;
   if (running.turn >= fight.order(running).length) {
     running.turn = 0;
     running.round += 1;
-    fight.arrive(running, rng);
+    fight.arrive(running);
   }
 
   blow.us = fight.snapshot(running.us);
@@ -1041,46 +1066,50 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
 
 /** One game master call to put words on a settled exchange. */
 export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
-  const running = T(turn).fight as fight.Fight;
+  const running = fightOf(turn);
   if (!turn.rolled) rollFate(turn);
   const [text, session] = await ask(
-    prompts.gmBlows(running, T(turn).chosen, turn.correction),
+    prompts.gmBlows(running, turn.chosen, turn.correction),
     {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
       permission: sqliteGate({ also: ["tesbota kill", "tesbota traits", "tesbota around", "tesbota route"] }),
-      session: (campaign.sessions as any).gm,
+      session: campaign.sessions.gm,
       model: MODELS.gm,
     }
   );
-  (campaign.sessions as any).gm = session;
-  const out = extractJson<Record<string, any>>(text);
-  const lines = (out.blows || []).map((x: unknown) => String(x).trim()).filter(Boolean);
-  running.blows.forEach((blow: fight.Blow, n: number) => {
+  campaign.sessions.gm = session;
+  const out = extractJson<Record<string, unknown>>(text);
+  const lines = (Array.isArray(out.blows) ? out.blows : []).map((x: unknown) => String(x).trim()).filter(Boolean);
+  running.blows.forEach((blow, n) => {
     if (lines[n] !== undefined) blow.text = lines[n];
   });
 
   // The book keeps the whole of it; the page above the fight shows one line at a
   // time, and takes them from the blows themselves.
-  const draft = T(turn).draft;
-  draft.narration = [running.said, ...lines].filter(Boolean).join("\n\n").trim();
-  draft.destination = out.destination || draft.destination;
-  draft.transactions = [...(draft.transactions || []), ...(out.transactions || [])];
-  for (const name of T(turn).spent || []) {
-    draft.transactions.push({ from: EXPLORER, to: GODHEAD_ID, name, qty: 1 });
-  }
-  for (const key of ["quest_open", "quest_update", "quest_close"]) {
-    draft[key] = out[key] || draft[key] || [];
-  }
-
+  const was = drafted(turn);
   const me = running.us[0];
-  const mine = running.blows.filter((b: fight.Blow) => b.side === "us" && b.who === me.id).length;
-  draft.minutes = Math.max(2, running.round * BLOW_MINUTES);
-  draft.fatigue = mine * BLOW_FATIGUE;
-  draft.health = me.most ? me.health - me.most : 0;
-  const sated = running.blows.reduce((a: number, b: fight.Blow) => a + fight.mended(b, "hunger"), 0);
-  draft.hunger = sated || null;
-  draft.check = null;
+  const mine = running.blows.filter((b) => b.side === "us" && b.who === me.id).length;
+  const sated = running.blows.reduce((a, b) => a + fight.mended(b, "hunger"), 0);
+  const draft = Draft.parse({
+    ...was,
+    narration: [running.said, ...lines].filter(Boolean).join("\n\n").trim(),
+    destination: out.destination || was.destination,
+    transactions: [
+      ...was.transactions,
+      ...(Array.isArray(out.transactions) ? out.transactions : []),
+      ...turn.spent.map((name) => ({ from: EXPLORER, to: GODHEAD_ID, name, qty: 1 })),
+    ],
+    quest_open: out.quest_open || was.quest_open,
+    quest_update: out.quest_update || was.quest_update,
+    quest_close: out.quest_close || was.quest_close,
+    minutes: Math.max(2, running.round * BLOW_MINUTES),
+    fatigue: mine * BLOW_FATIGUE,
+    health: me.most ? me.health - me.most : 0,
+    hunger: sated || null,
+    check: null,
+  });
+  turn.draft = draft;
   turn.check = null;
 
   const told = showFight(turn, running);
@@ -1095,8 +1124,8 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
 
 // ── delivery ────────────────────────────────────────────────────────────────
 
-export function applyVitals(campaign: CampaignT, draft: Record<string, any>): CampaignT {
-  const vitals = (C(campaign).vitals ||= { health: MAX_HEALTH, fatigue: 0, hunger: 0 });
+export function applyVitals(campaign: CampaignT, draft: DraftT): CampaignT {
+  const vitals = campaign.vitals;
   vitals.fatigue = Math.max(0, Math.min(MAX_FATIGUE, (vitals.fatigue || 0) + Math.trunc(Number(draft.fatigue) || 0)));
   vitals.health = Math.max(0, Math.min(MAX_HEALTH, (vitals.health ?? MAX_HEALTH) + Math.trunc(Number(draft.health) || 0)));
 
@@ -1111,9 +1140,9 @@ export function applyVitals(campaign: CampaignT, draft: Record<string, any>): Ca
  * One ledger. `the-godhead` on either side is the world itself — where bread eaten
  * goes, and where a coin found in the mud comes from.
  */
-export function applyInventory(draft: Record<string, any>, turnId?: string | null) {
-  for (const entry of draft.transactions || []) {
-    if (!entry || typeof entry !== "object" || !entry.name) continue;
+export function applyInventory(draft: DraftT, turnId?: string | null) {
+  for (const entry of draft.transactions) {
+    if (!entry.name) continue;
     const src = canon.slug(entry.from || "");
     const dst = canon.slug(entry.to || "");
     canon.transfer(
@@ -1126,70 +1155,70 @@ export function applyInventory(draft: Record<string, any>, turnId?: string | nul
   }
 }
 
-const CLOSED = ["done", "failed", "abandoned"];
+const CLOSED = QuestStatus.exclude(["active"]);
 
 /**
  * A new errand gets a shape before the game master ever plays it. Nothing here is
  * canon: it is ideation, and the walls it runs into are the point.
  */
-export async function scriptFor(quest: any, campaign: CampaignT): Promise<string> {
+export async function scriptFor(quest: QuestT, campaign: CampaignT): Promise<string> {
   try {
-    const [text] = await ask(prompts.questmasterTurn(quest, campaign.location_path as any[]), {
+    const [text] = await ask(prompts.questmasterTurn(quest, campaign.location_path), {
       system: prompts.QUESTMASTER_SYSTEM(),
       tools: READ_TOOLS,
       permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
       session: null,
       model: MODELS.questmaster,
     });
-    return String(extractJson<any>(text).script || "").trim();
+    return String(extractJson<Record<string, unknown>>(text).script || "").trim();
   } catch (exc) {
     return `the questmaster fell over: ${(exc as Error).name}: ${exc}`.slice(0, 400);
   }
 }
 
-export async function applyQuests(campaign: CampaignT, draft: Record<string, any>, turnId: string) {
-  const quests = (C(campaign).quests ||= []) as any[];
-  const byId: Record<string, any> = Object.fromEntries(quests.map((q) => [q.id, q]));
+export async function applyQuests(campaign: CampaignT, draft: DraftT, turnId: string) {
+  const quests = campaign.quests;
+  const byId = new Map(quests.map((q) => [q.id, q]));
 
-  for (const entry of draft.quest_open || []) {
-    if (!entry || typeof entry !== "object" || !entry.id) continue;
+  for (const item of draft.quest_open) {
+    const entry = Written.safeParse(item).data;
+    if (!entry?.id) continue;
     const ident = canon.slug(String(entry.id));
-    if (byId[ident]) continue;
-    const quest: any = {
+    if (byId.has(ident)) continue;
+    const quest: QuestT = {
       id: ident,
-      at: worldclock.stamp(campaign.time as any),
+      at: worldclock.stamp(campaign.time),
       title: String(entry.title || ident.replace(/-/g, " ")),
       detail: String(entry.detail || ""),
       giver: String(entry.giver || ""),
       status: "active",
       opened: turnId,
       closed: null,
-      where: [...(campaign.location_path || [])],
+      where: [...campaign.location_path],
+      script: "",
     };
     quest.script = await scriptFor(quest, campaign);
     quests.push(quest);
-    byId[ident] = quest;
+    byId.set(ident, quest);
   }
 
-  for (const entry of draft.quest_update || []) {
-    if (!entry || typeof entry !== "object") continue;
-    const quest = byId[canon.slug(String(entry.id || ""))];
+  for (const item of draft.quest_update) {
+    const entry = Written.safeParse(item).data;
+    if (!entry) continue;
+    const quest = byId.get(canon.slug(String(entry.id || "")));
     if (!quest || quest.status !== "active") continue;
     if (entry.detail) quest.detail = String(entry.detail);
   }
 
-  for (const entry of draft.quest_close || []) {
-    const ident = entry && typeof entry === "object"
-      ? canon.slug(String(entry.id || ""))
-      : canon.slug(String(entry));
-    const outcome = entry && typeof entry === "object"
-      ? String(entry.outcome || "done").toLowerCase()
-      : "done";
-    const quest = byId[ident];
+  for (const item of draft.quest_close) {
+    const entry = item && typeof item === "object" ? Written.safeParse(item).data ?? {} : null;
+    const ident = entry ? canon.slug(String(entry.id || "")) : canon.slug(String(item));
+    const outcome = entry ? String(entry.outcome || "done").toLowerCase() : "done";
+    const quest = byId.get(ident);
     if (!quest || quest.status !== "active") continue;
-    quest.status = CLOSED.includes(outcome) ? outcome : "done";
+    quest.status = CLOSED.safeParse(outcome).data ?? "done";
     quest.closed = turnId;
-    quest.closed_at = worldclock.stamp(campaign.time as any);
+    quest.closed_at = worldclock.stamp(campaign.time);
   }
   return campaign;
 }
@@ -1200,21 +1229,22 @@ export async function applyQuests(campaign: CampaignT, draft: Record<string, any
  * before a fight could take you there.
  */
 export function settleFight(campaign: CampaignT, turn: TurnT): CampaignT {
-  const running = T(turn).fight as fight.Fight | undefined;
+  const running = turn.fight;
   if (!running) return campaign;
   if (running.ended === "broken") {
-    C(campaign).fight = {
+    campaign.fight = {
       skill: running.skill,
       flee_dc: running.flee_dc,
-      us: running.us.slice(1).filter((x: fight.Fighter) => !x.dead).map((x: fight.Fighter) => ({ ...x })),
-      them: running.them.filter((x: fight.Fighter) => !x.dead).map((x: fight.Fighter) => ({ ...x })),
+      name: running.name,
+      us: running.us.slice(1).filter((x) => !x.dead).map((x) => ({ ...x })),
+      them: running.them.filter((x) => !x.dead).map((x) => ({ ...x })),
     };
   } else {
-    C(campaign).fight = null;
+    campaign.fight = null;
   }
   if (running.ended === "killed" && !pendingDeath()) {
     const felled = [...running.blows].reverse()
-      .find((b: fight.Blow) => b.side === "them" && b.taken)?.name || running.name;
+      .find((b) => b.side === "them" && b.taken)?.name || running.name;
     recordDeath(`killed by ${felled}`);
   }
   return campaign;
@@ -1228,70 +1258,62 @@ export function settleFight(campaign: CampaignT, turn: TurnT): CampaignT {
 export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   if (turn.delivered) return "again";
 
-  const draft = T(turn).draft;
+  const draft = drafted(turn);
 
   applyVitals(campaign, draft);
   applyInventory(draft, turn.turn_id);
   await applyQuests(campaign, draft, turn.turn_id);
   settleFight(campaign, turn);
 
-  const heading = draft.destination ? canon.slug(String(draft.destination).replace(/^\[+|\]+$/g, "")) : "";
-  const where = turn.arrival ? String(turn.arrival) : campaign.location ? "" : heading;
+  const heading = draft.destination ? canon.slug(draft.destination.replace(/^\[+|\]+$/g, "")) : "";
+  const where = turn.arrival ? turn.arrival : campaign.location ? "" : heading;
   if (where) {
     campaign.location = canon.slug(where);
     canon.ensureEntity("places", campaign.location, null, turn.turn_id);
     campaign.location_path = canon.ancestry(campaign.location);
   }
 
-  const time = worldclock.advance(campaign.time as any, draft.minutes) as any;
+  const time = worldclock.advance(campaign.time, draft.minutes);
   time.stamp = worldclock.stamp(time);
   time.long = worldclock.longStamp(time);
-  C(campaign).time = time;
+  campaign.time = time;
   turn.at = time.long;
   campaign.last_narration = draft.narration;
 
-  const byVerdict: Record<string, any> = Object.fromEntries(
-    (turn.verdicts || []).map((v: any) => [v.claim, v])
-  );
+  const byVerdict = new Map(turn.verdicts.map((v) => [v.claim, v]));
   let current = openPhase(turn);
   if (current === null && draft.narration) current = phase(turn, "gm", "world", draft.narration);
   if (current) {
     current.status = "checked";
-    current.claims = (draft.claims || []).map((claim: any) => ({
-      ...claim, verdict: byVerdict[claim.id] ?? null,
+    current.claims = draft.claims.map((claim) => ({
+      ...claim, verdict: byVerdict.get(claim.id) ?? null,
     }));
-    if (["outcome", "world"].includes(current.kind)) {
+    if (current.kind === "outcome" || current.kind === "world") {
       current.minutes = Math.trunc(Number(draft.minutes) || 0);
       current.fatigue = Math.trunc(Number(draft.fatigue) || 0);
       current.roll = turn.roll;
-      current.outcomes = T(turn).outcomes || [];
-      current.chosen = T(turn).chosen;
-      current.fortune = T(turn).fortune;
-      current.transactions = draft.transactions || [];
+      current.outcomes = turn.outcomes;
+      current.chosen = turn.chosen;
+      current.fortune = turn.fortune;
       current.check = turn.check;
     }
   }
-  const told = [...(T(turn).phases || [])].reverse()
-    .find((p: any) => p.who === "gm" && ["outcome", "world"].includes(p.kind));
-  if (told && !(told.outcomes || []).length && (T(turn).outcomes || []).length) {
-    told.outcomes = T(turn).outcomes;
-    told.chosen = T(turn).chosen;
-    told.fortune = T(turn).fortune;
-  }
-  turn.location_path = campaign.location_path || [];
-  turn.vitals = { ...(campaign.vitals as any) };
-  const active = (campaign.quests as any[]).find((q) => q?.status === "active");
+  turn.location_path = campaign.location_path;
+  turn.vitals = { ...campaign.vitals };
+  const active = campaign.quests.find((q) => q.status === "active");
   turn.quest = active ? active.title : null;
 
   const clear = () => {
-    T(turn).draft = null;
-    T(turn).verdicts = [];
+    turn.draft = null;
+    turn.verdicts = [];
     turn.gm_retries = 0;
   };
 
   if (turn.looking) {
-    const bucket = { say: "talks", look: "looks" }[turn.mode as string] || "context";
-    (T(turn)[bucket] ||= []).push({ question: turn.question, answer: draft.narration });
+    const asked = { question: turn.question, answer: draft.narration };
+    if (turn.mode === "say") turn.talks.push(asked);
+    else if (turn.mode === "look") turn.looks.push(asked);
+    else turn.context.push(asked);
     turn.looking = false;
     turn.mode = null;
     turn.question = null;
@@ -1308,8 +1330,8 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   }
 
   turn.minutes = Math.trunc(Number(draft.minutes) || 0);
-  C(campaign).quiet = (campaign.quiet || 0) + 1;
-  C(campaign).calm = T(turn).pressed ? 0 : (campaign.calm || 0) + 1;
+  campaign.quiet = (campaign.quiet || 0) + 1;
+  campaign.calm = turn.pressed ? 0 : (campaign.calm || 0) + 1;
   turn.resolved = true;
   clear();
   return "spent";

@@ -33,11 +33,11 @@ export function ascend(value: number, table: Array<[number, string]>): string {
 
 export function renderQuestLog(campaign?: CampaignT | null): string {
   const c = campaign ?? loadCampaign();
-  const quests = (c.quests || []) as any[];
+  const quests = c.quests;
   if (!quests.length) return "you have taken nothing on";
 
-  const active = quests.filter((q) => q?.status === "active");
-  const past = quests.filter((q) => q?.status !== "active");
+  const active = quests.filter((q) => q.status === "active");
+  const past = quests.filter((q) => q.status !== "active");
 
   const out: string[] = [];
   if (active.length) {
@@ -69,8 +69,7 @@ export const stone = (weight: unknown) => String(Number((Number(weight) || 0).to
 /** What their back can take, in stone. Strength and nothing else decides it. */
 export function capacity(campaign?: CampaignT | null): number {
   const c = campaign ?? loadCampaign();
-  const abilities = ((c.skills as any)?.abilities || {}) as Record<string, number>;
-  return Number((Math.trunc(Number(abilities.str ?? 10)) * CARRY_PER_STR).toFixed(1));
+  return Number((Math.trunc(Number(c.skills.abilities.str ?? 10)) * CARRY_PER_STR).toFixed(1));
 }
 
 /**
@@ -86,6 +85,8 @@ export function carried(entries?: canon.Holding[] | null): number {
   return Number(total.toFixed(2));
 }
 
+export type Load = ReturnType<typeof load>;
+
 export function load(campaign?: CampaignT | null) {
   const weight = carried();
   const most = capacity(campaign);
@@ -99,12 +100,11 @@ export function load(campaign?: CampaignT | null) {
 }
 
 export function skillBonus(campaign: CampaignT, skill: string): number | null {
-  const skills = (campaign.skills || {}) as any;
-  const abilities = (skills.abilities || {}) as Record<string, number>;
+  const { abilities, proficient, proficiency } = campaign.skills;
   const ability = SKILL_ABILITY[skill];
   if (ability === undefined) return null;
   let total = modifier(abilities[ability] ?? 10);
-  if (new Set<string>(skills.proficient || []).has(skill)) total += Math.trunc(Number(skills.proficiency) || 0);
+  if (proficient.includes(skill)) total += proficiency;
   return total;
 }
 
@@ -114,10 +114,7 @@ const signed = (n: number) => `${n >= 0 ? "+" : ""}${n}`;
 
 export function renderStats(campaign?: CampaignT | null): string {
   const c = campaign ?? loadCampaign();
-  const v = c.vitals || ({} as any);
-  const health = v.health ?? MAX_HEALTH;
-  const fatigue = v.fatigue ?? 0;
-  const hunger = v.hunger ?? 0;
+  const { health, fatigue, hunger } = c.vitals;
   const heavy = load(c);
 
   const lines = [
@@ -132,8 +129,7 @@ export function renderStats(campaign?: CampaignT | null): string {
     "skills",
   ];
 
-  const skills = (c.skills || {}) as any;
-  const abilities = (skills.abilities || {}) as Record<string, number>;
+  const { abilities, proficient, proficiency } = c.skills;
   if (!Object.keys(abilities).length) {
     lines.push("  you have not found out what you are good at");
     return lines.join("\n");
@@ -146,12 +142,11 @@ export function renderStats(campaign?: CampaignT | null): string {
     ).join("   ")
   );
   lines.push("", "skills");
-  const proficient = new Set<string>(skills.proficient || []);
-  const bonus = Math.trunc(Number(skills.proficiency) || 0);
   for (const name of Object.keys(SKILL_ABILITY).sort()) {
     const ability = SKILL_ABILITY[name];
-    const total = modifier(abilities[ability] ?? 10) + (proficient.has(name) ? bonus : 0);
-    lines.push(`  ${proficient.has(name) ? "*" : " "} ${padEnd(name, 16)} ${ability}  ${signed(total)}`);
+    const trained = proficient.includes(name);
+    const total = modifier(abilities[ability] ?? 10) + (trained ? proficiency : 0);
+    lines.push(`  ${trained ? "*" : " "} ${padEnd(name, 16)} ${ability}  ${signed(total)}`);
   }
   lines.push("", "  * trained");
   return lines.join("\n");

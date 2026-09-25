@@ -57,7 +57,7 @@ export async function say(text: string) {
   if (turn.state !== "arbiter" && turn.state !== "lore3") {
     return { error: "nothing is pending" };
   }
-  const session = (campaign.sessions as any).lore3_sitting;
+  const session = campaign.sessions.lore3_sitting;
   const message = session
     ? text
     : prompts.lore3Turn(turn.gap || "") + "\n\n" + text;
@@ -65,7 +65,7 @@ export async function say(text: string) {
   if (turn.state === "arbiter") hand(turn, "arbiter", "said");
 
   let reply: string;
-  let next: unknown;
+  let next: string | null;
   try {
     [reply, next] = await ask(message, {
       system: prompts.LORE3_SYSTEM(),
@@ -86,7 +86,7 @@ export async function say(text: string) {
   const said = finished ? lines.slice(0, -1).join("\n").replace(/\s+$/, "") : reply;
 
   const held = loadCampaign();
-  (held.sessions as any).lore3_sitting = next;
+  held.sessions.lore3_sitting = next;
   saveCampaign(held);
   appendChat("lore master", said);
 
@@ -146,14 +146,14 @@ export async function resolve() {
   // goes through the same state on its way out.
   if (turn.state === "arbiter") turn = hand(turn, "arbiter", "said");
   if (turn.state !== "lore3") return { error: "nothing is pending" };
-  (campaign.sessions as any).lore3_sitting = null;
+  campaign.sessions.lore3_sitting = null;
   saveCampaign(campaign);
 
   canon.linkWriting();
 
   const transcript = chatLog();
-  if (transcript.length) (turn as any).lore = [...((turn as any).lore || []), ...transcript];
-  (turn as any).lore_gap = turn.gap || (turn as any).lore_gap;
+  if (transcript.length) turn.lore = [...turn.lore, ...transcript];
+  turn.lore_gap = turn.gap || turn.lore_gap;
 
   driver.resolveGap(campaign, turn);
   writeJson(CHAT_FILE, []);
@@ -188,10 +188,9 @@ export function pause(on = true) {
  */
 export function setSpeed(factor: unknown) {
   const campaign = loadCampaign();
-  const clock = ((campaign as any).clock ||= {});
-  clock.speed_factor = Math.max(1, Math.min(20000, Math.trunc(Number(factor))));
+  campaign.clock.speed_factor = Math.max(1, Math.min(20000, Math.trunc(Number(factor)) || 1));
   saveCampaign(campaign);
-  return { ok: true, speed: clock.speed_factor };
+  return { ok: true, speed: campaign.clock.speed_factor };
 }
 
 /**

@@ -46,8 +46,8 @@ export function pickName(rng: Rng = random): string {
 export const explorerName = (campaign?: CampaignT | null) =>
   (campaign ?? loadCampaign()).explorer || "the explorer";
 
-export function newCampaign(): Record<string, unknown> {
-  return {
+export function newCampaign(): CampaignT {
+  return Campaign.parse({
     explorer: null,
     sessions: { explorer: null, gm: null, lore3_sitting: null },
     sent: {},
@@ -65,7 +65,7 @@ export function newCampaign(): Record<string, unknown> {
     location_path: [],
     last_seen: null,
     created: stamp(),
-  };
+  });
 }
 
 type KitEntry = { name: string; effects?: Record<string, string>; [k: string]: unknown };
@@ -122,13 +122,13 @@ export function loadCampaign(): CampaignT {
     held.explorer = pickName();
     changed = true;
   }
-  for (const key of ["note", "location", "location_path", "quests", "time"]) {
+  for (const key of ["note", "location", "location_path", "quests", "time"] as const) {
     if (!(key in held)) {
       held[key] = blank[key];
       changed = true;
     }
   }
-  for (const key of ["skills", "clock"]) {
+  for (const key of ["skills", "clock"] as const) {
     if (!held[key]) {
       held[key] = blank[key];
       changed = true;
@@ -140,7 +140,7 @@ export function loadCampaign(): CampaignT {
     changed = true;
   }
   const vitals = (held.vitals ||= blank.vitals) as Record<string, number>;
-  for (const [key, value] of Object.entries(blank.vitals as Record<string, number>)) {
+  for (const [key, value] of Object.entries(blank.vitals)) {
     if (!(key in vitals)) {
       vitals[key] = value;
       changed = true;
@@ -202,7 +202,7 @@ export const allTurns = (): TurnT[] =>
   turnFiles().map((f) => Turn.parse(readJson(path.join(TURNS, f))));
 
 export function newTurn(
-  campaign: CampaignT, state: StateName = "explorer", fields: Record<string, unknown> = {}
+  campaign: CampaignT, state: StateName = "explorer", fields: Partial<TurnT> = {}
 ): TurnT {
   campaign.turn_counter += 1;
   const turnId = `t${String(campaign.turn_counter).padStart(4, "0")}`;

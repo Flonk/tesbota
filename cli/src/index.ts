@@ -42,8 +42,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     db.setup();
     chronicle.ensureBook();
     const campaign = loadCampaign();
-    if (canon.holdings(EXPLORER).length) catalogue(STARTING_INVENTORY as any);
-    else stock(STARTING_INVENTORY as any);
+    if (canon.holdings(EXPLORER).length) catalogue(STARTING_INVENTORY);
+    else stock(STARTING_INVENTORY);
     if (campaign.current_turn) {
       say(`already initialised — turn ${campaign.current_turn}`);
       return;
@@ -51,7 +51,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     const turn = await driver.openWorld(campaign);
     say(`tesbota initialised. ${turn.turn_id}:`);
     say("");
-    say(view.wrap((turn as any).draft?.narration));
+    say(view.wrap(turn.draft?.narration));
   },
 
   async step({ flags }) {
@@ -64,7 +64,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       say(String(turn.gap ?? "").trim());
     } else if (ran.state === "clock") {
       const left = parse(String(turn.wake_at)).getTime() - now().getTime();
-      say(`[${turn.turn_id}] travelling to ${(turn as any).destination} — ${Math.max(0, Math.floor(left / 60000))} min to go`);
+      say(`[${turn.turn_id}] travelling to ${turn.destination} — ${Math.max(0, Math.floor(left / 60000))} min to go`);
     } else {
       say(`[${turn.turn_id}] ${ran.state}`);
       const narration = loadCampaign().last_narration;
@@ -108,7 +108,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       say(written.length ? `wrote the sky for ${written.join(", ")}` : "the sky was already written");
     }
     const held = campaignIfAny();
-    const when = (held?.time as any) ?? WORLD_START;
+    const when = held?.time ?? WORLD_START;
     // Everywhere they have actually stood, so the map can tell what was walked
     // from what was only ever written down.
     const said = sky.describe(when, mapping.walked());
@@ -195,7 +195,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
 
   speed({ flags, rest }) {
     if (rest[0] === undefined) {
-      const speed = (loadCampaign().clock as any)?.speed_factor ?? null;
+      const speed = loadCampaign().clock.speed_factor;
       return say(flags.has("--json") ? { ok: true, speed } : `speed ${speed}`);
     }
     const result = actions.setSpeed(rest[0]);
@@ -224,8 +224,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 
   time() {
-    const campaign = loadCampaign();
-    const t = campaign.time as any;
+    const t = loadCampaign().time;
     say(`${worldclock.longStamp(t)}  (${worldclock.partOfDay(t)})`);
   },
 
