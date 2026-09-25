@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Globe from "./Globe";
 import Icon from "./icons";
+import { treeOf } from "./map/pins";
 import { Crumb, Empty, Note, openDossier, Row } from "./ui";
 
 /**
@@ -42,6 +43,9 @@ function ring(body, scale) {
 
 const spot = (at, scale) => ({ x: MIDDLE + at.x * scale, y: MIDDLE - at.y * scale });
 
+const holderOf = (bodies, id) =>
+  Object.values(bodies).find((b) => (b.standing || []).some((p) => p.id === id)) || null;
+
 export default function Orbit({ focus = null }) {
   const [sky, setSky] = useState(null);
   const [picked, setPicked] = useState(null);
@@ -80,10 +84,7 @@ export default function Orbit({ focus = null }) {
   const holder = useMemo(() => {
     if (!focus?.id || !sky?.bodies) return null;
     if (sky.bodies[focus.id]) return focus.id;
-    for (const body of Object.values(sky.bodies)) {
-      if ((body.standing || []).some((place) => place.id === focus.id)) return body.id;
-    }
-    return null;
+    return holderOf(sky.bodies, focus.id)?.id ?? null;
   }, [focus, sky]);
 
   useEffect(() => {
@@ -102,9 +103,7 @@ export default function Orbit({ focus = null }) {
     // Whoever is walking, if anybody is — and the world they are on. A life that
     // has not begun has nobody standing anywhere, and a map of the system is not
     // what anybody opened the map for: show the world itself, whole.
-    const under = sky.here
-      ? Object.values(sky.bodies).find((b) => (b.standing || []).some((p) => p.id === sky.here))
-      : null;
+    const under = sky.here ? holderOf(sky.bodies, sky.here) : null;
     const ground = under || (sky.home && sky.bodies[sky.home]) || null;
     if (!ground) return;
     landed.current = true;
@@ -148,15 +147,9 @@ export default function Orbit({ focus = null }) {
   // Below the world, the trail is whatever the middle of the map is standing on,
   // read upward through what holds it. Panning across a border rewrites it, the
   // way walking across one would.
-  const under = [];
-  if (ground) {
-    const all = new Map((ground.standing || []).map((p) => [p.id, p]));
-    let at = all.get(over);
-    while (at && under.length < 8) {
-      under.unshift({ id: at.id, name: at.name });
-      at = at.parent ? all.get(at.parent) : null;
-    }
-  }
+  const tree = ground ? treeOf(ground.standing || []) : null;
+  const at = tree?.byId.get(over);
+  const under = at ? [at, ...tree.up(over)].slice(0, 8).reverse() : [];
 
   const trail = [
     ...(ground?.above || plan.above),

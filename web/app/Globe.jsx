@@ -7,6 +7,7 @@ import {
 } from "./shaping";
 import { Act, Palette, Row } from "./ui";
 import { edit, IDLE, onRun, sum, UNWRITTEN } from "./map/editor";
+import { treeOf } from "./map/pins";
 
 /**
  * A world, flattened, with the line between its day and its night drawn on it.
@@ -120,19 +121,7 @@ const TOUCH = 22;
  * enough opens, loses its pin, and what it holds is asked the same question. So a
  * world map says the plains, and coming down to the plains it says the villages.
  */
-function resolve(standing, sizes, scale, open = null) {
-  const known = new Map(standing.map((p) => [p.id, p]));
-  const under = new Map();
-  for (const place of standing) {
-    const up = known.has(place.parent) ? place.parent : null;
-    if (!under.has(up)) under.set(up, []);
-    under.get(up).push(place);
-  }
-  const all_of = (place, seen = new Set()) => {
-    if (seen.has(place.id)) return [];
-    seen.add(place.id);
-    return [place, ...(under.get(place.id) || []).flatMap((kid) => all_of(kid, seen))];
-  };
+function resolve({ kids, down }, sizes, scale, open = null) {
   const pins = [];
   const visit = (place, seen) => {
     if (seen.has(place.id)) return;
@@ -140,16 +129,16 @@ function resolve(standing, sizes, scale, open = null) {
     const box = sizes.get(place.id);
     const wide = box ? Math.max(box.maxX - box.minX, box.maxY - box.minY) * scale : 0;
     if (wide >= OPEN || place.id === open) {
-      for (const kid of under.get(place.id) || []) visit(kid, seen);
+      for (const kid of kids.get(place.id) || []) visit(kid, seen);
       return;
     }
     const at = place.lat !== null && place.lon !== null
       ? { lat: place.lat, lon: place.lon }
       : box ? { lat: latOf((box.minY + box.maxY) / 2), lon: lonOf((box.minX + box.maxX) / 2) } : null;
-    if (at) pins.push({ place, ...at, all: all_of(place), wide });
+    if (at) pins.push({ place, ...at, all: [place, ...down(place.id)], wide });
   };
   const seen = new Set();
-  for (const top of under.get(null) || []) visit(top, seen);
+  for (const top of kids.get(null) || []) visit(top, seen);
   return pins;
 }
 
@@ -333,7 +322,8 @@ export default function Globe({
   const k = pane.w && pane.h ? Math.max(pane.w / view.w, pane.h / view.h) : W / view.w;
   const near = 1 / k;
   const standing = body?.standing || [];
-  const byId = useMemo(() => new Map(standing.map((p) => [p.id, p])), [standing]);
+  const tree = useMemo(() => treeOf(standing), [standing]);
+  const { byId } = tree;
 
   /**
    * What would be carried if this ground were moved — worked out from the shape as
@@ -345,8 +335,7 @@ export default function Globe({
     const ground = byId.get(chosen);
     const rings = ground?.extent ? runsOf(ground.extent) : null;
     if (!rings?.shut) return new Set();
-    const above = new Set();
-    for (let at = ground.parent; at && !above.has(at); at = byId.get(at)?.parent) above.add(at);
+    const above = new Set(tree.up(chosen).map((p) => p.id));
     return new Set(
       standing
         .filter(
@@ -355,7 +344,7 @@ export default function Globe({
         )
         .map((p) => p.id)
     );
-  }, [standing, byId, chosen]);
+  }, [standing, tree, chosen]);
 
   const total = carry || towed ? sum(carry, towed) : null;
   const towing = bringing && total && riders.size ? total : null;
@@ -383,7 +372,7 @@ export default function Globe({
         : place;
     });
     const sizes = new Map(base.map((place) => [place.id, place.box]));
-    return gather(resolve(moving, sizes, k, chosen), here, k);
+    return gather(resolve(treeOf(moving), sizes, k, chosen), here, k);
   }, [standing, base, here, k, rides, chosen, total?.lon, total?.lat]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
@@ -395,12 +384,11 @@ export default function Globe({
       .map((place) => {
         const by = rides(place.id);
         const rings = by ? carried(place.read.runs, by).map(project) : place.rings;
-        let depth = 0;
-        for (let at = byId.get(place.parent); at && depth < 6; at = byId.get(at.parent)) depth += 1;
+        const depth = Math.min(tree.up(place.id).length, 6);
         return { ...place, rings, box: by ? boxOf(rings.flat()) : place.box, depth };
       })
       .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2) || a.depth - b.depth);
-  }, [base, byId, chosen, rides]);
+  }, [base, tree, chosen, rides]);
   // Where the picture is measured from. A browser draws in single precision, and
   // six figures of zoom on a number near 800 leaves nothing of it below the pixel:
   // lines vanish, corners jitter, circles go square. So everything drawn is
@@ -674,23 +662,6 @@ export default function Globe({
     setNaming(null);
     setTool("draw");
   }
-
-  /** Everything nested inside a place, by what says it is inside what. */
-  const nested = useCallback(
-    (id) => {
-      const inside = [];
-      const walk = (at) => {
-        for (const place of standing) {
-          if (place.parent !== at || inside.includes(place.id)) continue;
-          inside.push(place.id);
-          walk(place.id);
-        }
-      };
-      walk(id);
-      return inside;
-    },
-    [standing]
-  );
 
   async function remove() {
     if (!asking || saving) return;
@@ -1496,7 +1467,7 @@ export default function Globe({
     )}
 
     {editing && asking && (() => {
-      const inside = nested(asking.id);
+      const inside = tree.down(asking.id);
       const going = asking.deep ? inside.length + 1 : 1;
       const up = byId.get(asking.id)?.parent;
       const upName = byId.get(up)?.name || body?.name || "the world";
