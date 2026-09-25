@@ -330,7 +330,6 @@ export const Turn = z.object({
   note: z.string().nullish(),
   event: z.string().nullish(),
   arrival: Id.nullish(),
-  opening: z.boolean().default(false),
   delivered: z.boolean().default(false),
   resolved: z.boolean().default(false),
   spent: z.array(z.string()).default([]),

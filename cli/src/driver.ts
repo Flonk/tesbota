@@ -23,7 +23,7 @@ import {
   clearDeath, ensureLayout, loadCampaign, loadTurn, newTurn, now,
   pendingDeath, pickName, retire, save, saveCampaign, saveTurn, stamp, stock,
 } from "./state.ts";
-import { Campaign, Draft, type CampaignT, type TurnT } from "./schema.ts";
+import { Campaign, Draft, Verdict, type CampaignT, type TurnT } from "./schema.ts";
 
 const SUSPENDED = ["arbiter", "lore3", "clock"];
 const TRAIL = 40;
@@ -62,10 +62,11 @@ export function took(turn: TurnT, cameFrom: StateName, edge: string) {
   return turn;
 }
 
-export async function openWorld(campaign: CampaignT): Promise<TurnT> {
-  const turn = newTurn(campaign, "lore1");
-  turn.draft = Draft.parse(OPENING);
-  turn.opening = true;
+export function openWorld(campaign: CampaignT): TurnT {
+  const turn = newTurn(campaign, "deliver", {
+    draft: Draft.parse(OPENING),
+    verdicts: OPENING.claims.map((c) => Verdict.parse({ claim: c.id, result: "TRUE", why: "the world opens here" })),
+  });
   const quests = campaign.quests;
   if (!quests.some((q) => q.id === OPENING_QUEST.id)) {
     quests.push({
@@ -77,10 +78,7 @@ export async function openWorld(campaign: CampaignT): Promise<TurnT> {
       where: [],
     });
   }
-  const world = { campaign, turn };
-  const edge = await STEPS.lore1(world);
-  turn.state = edgeFrom("lore1", edge).to;
-  save(campaign, turn);
+  saveCampaign(campaign);
   return turn;
 }
 
@@ -101,7 +99,7 @@ export async function bury(campaign: CampaignT, cause?: string | null): Promise<
   saveCampaign(life);
   stock(STARTING_INVENTORY);
 
-  const turn = await openWorld(life);
+  const turn = openWorld(life);
   chronicle.ensureBook(turn.turn_id);
   return turn;
 }
@@ -221,7 +219,7 @@ async function drive(limit: number): Promise<Ran> {
   for (;;) {
     const campaign = loadCampaign();
     // A world with no turn yet gets one before anything reads it.
-    const turn = loadTurn(campaign.current_turn ?? newTurn(campaign, "explorer").turn_id);
+    const turn = campaign.current_turn ? loadTurn(campaign.current_turn) : openWorld(campaign);
     if (campaign.paused) return { state: "paused", turn };
     const state = turn.state;
 

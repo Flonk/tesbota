@@ -49,7 +49,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       say(`already initialised — turn ${campaign.current_turn}`);
       return;
     }
-    const turn = await driver.openWorld(campaign);
+    const turn = driver.openWorld(campaign);
     say(`tesbota initialised. ${turn.turn_id}:`);
     say("");
     say(view.wrap(turn.draft?.narration));

@@ -28,7 +28,7 @@ import {
 import {
   BANDS, BLOW_FATIGUE, BLOW_MINUTES, DIE, EXPLORER, GODHEAD_ID, HUNGER_PER_HOUR,
   MAX_ASKS, MAX_BLOWS, MAX_FATIGUE, MAX_GM_RETRIES, MAX_HEALTH, MAX_HUNGER,
-  MAX_LOOKS, MAX_TALKS, MODELS, OPENING, PRESS_FLOOR, READ_TOOLS, SKILL_DIE,
+  MAX_LOOKS, MAX_TALKS, MODELS, PRESS_FLOOR, READ_TOOLS, SKILL_DIE,
   SPARK_FLOOR, TRIVIAL_FATIGUE, TRIVIAL_MINUTES, WEIGHT,
 } from "./config.ts";
 
@@ -416,12 +416,6 @@ export function duePress(turn: TurnT, campaign?: CampaignT | null): boolean {
 }
 
 export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
-  if (!campaign.sessions.gm && !campaign.last_narration) {
-    turn.draft = Draft.parse(OPENING);
-    turn.opening = true;
-    return "narrated";
-  }
-
   const agreed = turn.confirmed ? turn.proposal : null;
   const [text, session] = await ask(
     prompts.gmTurn(turn.action, {
@@ -723,18 +717,7 @@ export function redraftEdge(turn: TurnT): EdgeOn<"lore2"> {
 
 /** Lore 1 alone: read the world out of it, then hand the facts to the ruling. */
 export const stepLore1: Step<"lore1"> = async (world) => {
-  const { turn } = world;
-  const draft = drafted(turn);
-
-  if (turn.opening) {
-    turn.verdicts = draft.claims.map((c) => ({
-      claim: c.id, result: "TRUE", why: "the world opens here",
-      question: "", alternative: "", sources: [],
-    }));
-    return "opens";
-  }
-
-  await readRecord(world, draft.narration);
+  await readRecord(world, drafted(world.turn).narration);
   return "read";
 };
 

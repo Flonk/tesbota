@@ -150,10 +150,7 @@ export const STATES = {
     runs: "lore1",
     agents: ["lore1"],
     driven: "loop",
-    edges: [
-      { to: "lore2", on: "read", when: "the facts are out of it and want ruling on" },
-      { to: "deliver", on: "opens", when: "the world opens here and rules itself" },
-    ],
+    edges: [{ to: "lore2", on: "read", when: "the facts are out of it and want ruling on" }],
   },
 
   lore2: {
