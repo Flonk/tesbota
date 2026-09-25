@@ -287,7 +287,7 @@ export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
     {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
+      permission: sqliteGate({ also: ["tesbota traits", "tesbota around", "tesbota route"] }),
       session: campaign.sessions.gm,
       model: MODELS.gm,
     }

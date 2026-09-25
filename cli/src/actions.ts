@@ -13,7 +13,7 @@ import * as db from "./db.ts";
 import * as driver from "./driver.ts";
 import * as prompts from "./prompts.ts";
 import { ask } from "./agent.ts";
-import { sqliteGate } from "./gate.ts";
+import { MAP, sqliteGate } from "./gate.ts";
 import { MODELS, MYSTERY, PROFILES, roomOf, STATE, WRITE_TOOLS } from "./config.ts";
 import type { EdgeOn, StateName } from "./machine.ts";
 import type { TurnT } from "./schema.ts";
@@ -69,7 +69,7 @@ export async function say(text: string) {
     [reply, next] = await ask(message, {
       system: prompts.LORE3_SYSTEM(),
       tools: WRITE_TOOLS,
-      permission: sqliteGate({ readonly: false }),
+      permission: sqliteGate({ readonly: false, also: MAP }),
       session,
       model: MODELS.lore3,
     });
@@ -112,7 +112,7 @@ export async function talk(text: string) {
   const [reply, session] = await ask(text, {
     system: prompts.LORE4_SYSTEM(),
     tools: WRITE_TOOLS,
-    permission: sqliteGate({ readonly: false }),
+    permission: sqliteGate({ readonly: false, also: MAP }),
     session: book.session,
     model: MODELS.lore4,
   });

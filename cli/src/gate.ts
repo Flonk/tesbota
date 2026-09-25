@@ -41,6 +41,8 @@ export function spoken(raw: string): string[] {
 const allow = (): PermissionResult => ({ behavior: "allow" });
 const deny = (message: string): PermissionResult => ({ behavior: "deny", message });
 
+export const MAP = ["tesbota around", "tesbota route"];
+
 export function sqliteGate(
   { readonly = true, tables = null, also = [] }:
   { readonly?: boolean; tables?: string[] | null; also?: string[] } = {}
