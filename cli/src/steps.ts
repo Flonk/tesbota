@@ -276,7 +276,6 @@ export const stepAnswer: Step = async ({ campaign, turn }) => {
   (campaign.sessions as any).gm = session;
   const draft = extractJson<Record<string, any>>(text);
   draft.claims ??= [];
-  draft.travel = null;
   draft.minutes = 0;
   draft.fatigue = 0;
   draft.health = 0;
@@ -443,14 +442,12 @@ export const stepGm: Step = async ({ campaign, turn }) => {
 
   const draft = extractJson<Record<string, any>>(text);
   draft.claims ??= [];
-  draft.travel ??= null;
-  draft.destination ??= draft.travel?.destination ?? turn.arrival ?? campaign.location ?? null;
+  draft.destination ??= turn.arrival ?? turn.destination ?? campaign.location ?? null;
   draft.minutes ??= 0;
   draft.fatigue ??= 0;
   draft.health ??= 0;
   draft.hunger ??= null;
   draft.check ??= null;
-  draft.location ??= null;
   draft.transactions ??= [];
   draft.quest_open ??= [];
   draft.quest_update ??= [];
@@ -526,7 +523,7 @@ export async function readRecord(
       now: worldclock.longStamp(campaign.time as any),
       roster: roster ?? null,
       // The structured half of the draft goes the same way the prose does.
-      did: prompts.doings(T(turn).draft) || null,
+      did: prompts.doings(T(turn).draft, campaign.location) || null,
     }),
     { system: prompts.LORE1_SYSTEM(), tools: [], session: null, model: MODELS.lore1 }
   );
@@ -1065,7 +1062,7 @@ export const stepBlows: Step = async ({ campaign, turn }) => {
   // time, and takes them from the blows themselves.
   const draft = T(turn).draft;
   draft.narration = [running.said, ...lines].filter(Boolean).join("\n\n").trim();
-  draft.location = out.location || draft.location;
+  draft.destination = out.destination || draft.destination;
   draft.transactions = [...(draft.transactions || []), ...(out.transactions || [])];
   for (const name of T(turn).spent || []) {
     draft.transactions.push({ from: EXPLORER, to: GODHEAD_ID, name, qty: 1 });
@@ -1236,10 +1233,10 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
   await applyQuests(campaign, draft, turn.turn_id);
   settleFight(campaign, turn);
 
-  const opening = !campaign.location && typeof draft.location === "string" ? draft.location.trim() : "";
-  const where = turn.arrival ? String(turn.arrival) : opening;
+  const heading = draft.destination ? canon.slug(String(draft.destination).replace(/^\[+|\]+$/g, "")) : "";
+  const where = turn.arrival ? String(turn.arrival) : campaign.location ? "" : heading;
   if (where) {
-    campaign.location = canon.slug(where.replace(/^\[+|\]+$/g, ""));
+    campaign.location = canon.slug(where);
     canon.ensureEntity("places", campaign.location, null, turn.turn_id);
     campaign.location_path = canon.ancestry(campaign.location);
   }
@@ -1279,6 +1276,7 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
     told.chosen = T(turn).chosen;
     told.fortune = T(turn).fortune;
   }
+  turn.destination = heading || campaign.location || null;
   turn.location_path = campaign.location_path || [];
   turn.vitals = { ...(campaign.vitals as any) };
   const active = (campaign.quests as any[]).find((q) => q?.status === "active");

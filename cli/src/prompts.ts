@@ -228,7 +228,7 @@ Never write the tallies out. The numbers are on the page beside your line, and a
 
 Reply in the same json shape you always use, with \`blows\` in place of \`narration\`:
 
-    {"blows": ["…", "…"], "location": "kebab-id",
+    {"blows": ["…", "…"], "destination": "kebab-id",
      "transactions": [], "quest_open": [], "quest_update": [], "quest_close": []}
 
 \`claims\` are not yours this time either — the record was checked when the fight was declared, and a blow is a particular, which nobody rules on. \`minutes\`, \`fatigue\`, \`health\`, \`check\` and \`fight\` are not yours this time — the fight already cost what it cost. \`transactions\` still are: what comes off a body, what breaks, what is dropped.`;
@@ -466,17 +466,12 @@ const named = (where: any[]) =>
  * passing a lore master. The fields say as much about the world as the sentences
  * do, so they are read out here in plain words and go the same way.
  */
-export function doings(draft: Record<string, any> | null | undefined): string {
+export function doings(draft: Record<string, any> | null | undefined, here?: string | null): string {
   if (!draft) return "";
   const said: string[] = [];
 
-  if (typeof draft.location === "string" && draft.location.trim()) {
-    said.push(`They are now at: ${draft.location.trim()}`);
-  }
   const heading = typeof draft.destination === "string" ? draft.destination.trim() : "";
-  if (heading && heading !== String(draft.location || "").trim()) {
-    said.push(`They are heading for: ${heading}`);
-  }
+  if (heading && heading !== here) said.push(`They are heading for: ${heading}`);
   for (const t of draft.transactions || []) {
     if (!t?.name) continue;
     const from = t.from && t.from !== "the-godhead" ? t.from : "the world";
@@ -491,10 +486,6 @@ export function doings(draft: Record<string, any> | null | undefined): string {
   for (const q of draft.quest_close || []) {
     const id = typeof q === "object" ? q?.id : q;
     if (id) said.push(`An errand is finished: ${id}`);
-  }
-  const road = draft.travel;
-  if (road?.leagues) {
-    said.push(`They set out for ${road.destination || "somewhere"}, ${road.leagues} leagues off`);
   }
   return said.map((x) => `- ${x}`).join("\n");
 }

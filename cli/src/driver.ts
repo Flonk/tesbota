@@ -111,18 +111,14 @@ export async function bury(campaign: CampaignT, cause?: string | null): Promise<
  * Set them walking. The road either runs out at the destination or stops early,
  * and what is left of it comes back as another leg once the interruption is done.
  */
-export function walk(
-  campaign: CampaignT, leagues: number, destination: string | null, rng: Rng = random
-): TurnT {
+export function walk(campaign: CampaignT, destination: string, rng: Rng = random): TurnT {
   let path: Array<[number, number]> | null = null;
-  if (destination) {
-    try {
-      const found = ground.route(campaign.location ?? null, destination);
-      if (!("error" in found)) {
-        path = found.path;
-        leagues = found.leagues;
-      }
-    } catch {}
+  let leagues = 0;
+  const found = ground.route(campaign.location ?? null, destination);
+  if ("error" in found) console.error(`[walk] no route to ${destination}: ${found.error}`);
+  else {
+    path = found.path;
+    leagues = found.leagues;
   }
   const [minutes, left, cut] = travel.leg(
     campaign.clock as any, leagues, rng, travel.drag(sheet.load(campaign))
@@ -137,10 +133,8 @@ export function walk(
 }
 
 export function advance(campaign: CampaignT, turn: TurnT): TurnT {
-  const draft = (turn as any).draft || {};
-  const journey = draft.travel || {};
-  const goal = String(draft.destination || journey.destination || "").trim().toLowerCase();
-  if (goal && goal !== campaign.location) return walk(campaign, Number(journey.leagues) || 0, goal);
+  const goal = turn.destination;
+  if (goal && goal !== campaign.location) return walk(campaign, goal);
 
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {

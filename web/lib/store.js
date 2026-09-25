@@ -111,7 +111,6 @@ export async function snapshot(profile = PROFILES[0]) {
       roll: turn.roll || null,
       calamity: !!turn.calamity,
       retries: turn.gm_retries || 0,
-      travel: draft.travel || null,
       where:
         turn.location_path ||
         (turn.turn_id === campaign.current_turn ? campaign.location_path || [] : []),
