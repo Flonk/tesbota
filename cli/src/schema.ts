@@ -211,7 +211,7 @@ export const Result = z.enum(["TRUE", "WITHIN_BOUNDS", "FALSE", "UNRESOLVED"]);
 export const Verdict = z.object({
   claim: z.string(),
   result: z.preprocess(
-    (said) => String(said || "TRUE").toUpperCase().replace(/[^A-Z]+/g, "_").replace(/^_+|_+$/g, ""),
+    (said) => (String(said ?? "") || "TRUE").toUpperCase().replace(/[^A-Z]+/g, "_").replace(/^_+|_+$/g, ""),
     Result.catch("UNRESOLVED"),
   ),
   why: z.string().default(""),
@@ -220,17 +220,22 @@ export const Verdict = z.object({
   sources: z.array(z.coerce.string()).default([]),
 });
 
-const Whole = z.coerce.number().transform(Math.trunc);
+const Whole = z.preprocess(
+  (said) => (said === "" ? null : said),
+  z.coerce.number().transform(Math.trunc).pipe(z.number().int()).nullish(),
+);
+
+const WholeOr = (fallback: number) => Whole.transform((n) => n ?? fallback);
 
 const Holder = z.string().nullish().transform((said) => said || GODHEAD_ID);
 
-const Listed = <T extends z.ZodType>(item: T) => z.array(item).nullish().transform((items) => items ?? []);
+export const Listed = <T extends z.ZodType>(item: T) => z.array(item).nullish().transform((items) => items ?? []);
 
 export const Transaction = z.object({
   from: Holder,
   to: Holder,
   name: z.string(),
-  qty: Whole.default(1),
+  qty: WholeOr(1),
 });
 
 /** What the game master handed back, before anything has been applied. */
@@ -238,11 +243,11 @@ export const Draft = z.object({
   narration: z.string().default(""),
   claims: z.array(Claim).default([]),
   destination: z.string().nullish(),
-  minutes: Whole.transform((n) => Math.max(0, n)).default(0),
-  fatigue: Whole.default(0),
-  health: Whole.default(0),
-  hunger: Whole.nullish(),
-  check: z.object({ skill: z.string(), dc: Whole.default(10) }).nullish(),
+  minutes: WholeOr(0).transform((n) => Math.max(0, n)),
+  fatigue: WholeOr(0),
+  health: WholeOr(0),
+  hunger: Whole,
+  check: z.object({ skill: z.string(), dc: WholeOr(10) }).nullish(),
   fight: Written.nullish(),
   transactions: Listed(Transaction),
   quest_open: Listed(z.unknown()),

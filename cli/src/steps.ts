@@ -21,7 +21,7 @@ import type { EdgeOn, LoopState } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import { explorerName, pendingDeath, recordDeath } from "./state.ts";
 import {
-  Blow, Claim, Draft, QuestStatus, Verdict, Written,
+  Blow, Claim, Draft, Listed, QuestStatus, Verdict, Written,
   type BlowT, type CampaignT, type CheckT, type ClaimT, type DraftT, type FightT, type FighterT,
   type OutcomeT, type PhaseT, type QuestT, type SwingT, type TurnT, type VerdictT,
 } from "./schema.ts";
@@ -492,13 +492,13 @@ export function showFight(turn: TurnT, running: FightT): PhaseT {
 
 // ── the lore masters ────────────────────────────────────────────────────────
 
-const Facts = z.object({ facts: z.array(z.coerce.string()).default([]) });
+const Facts = z.object({ facts: Listed(z.coerce.string()) });
 
 const Ruled = z.object({
-  claims: z.array(Written).default([]),
-  bodies: z.array(z.object({
+  claims: Listed(Written),
+  bodies: Listed(z.object({
     declared: z.string().nullish(), is: z.string().nullish(), question: z.string().nullish(),
-  })).default([]),
+  })),
 });
 
 export function derived(ruled: Record<string, unknown>[]): [ClaimT[], VerdictT[]] {
@@ -513,7 +513,7 @@ export function derived(ruled: Record<string, unknown>[]): [ClaimT[], VerdictT[]
       why: entry.why || "",
       question: entry.question || "",
       alternative: entry.alternative || "",
-      sources: entry.sources ?? [],
+      sources: entry.sources || [],
     }));
   }
   return [claims, verdicts];
@@ -1058,7 +1058,7 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
 
 const Worded = Draft.pick({
   destination: true, transactions: true, quest_open: true, quest_update: true, quest_close: true,
-}).extend({ blows: z.array(z.coerce.string()).default([]) });
+}).extend({ blows: Listed(z.coerce.string()) });
 
 /** One game master call to put words on a settled exchange. */
 export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
