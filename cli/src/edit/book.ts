@@ -4,16 +4,9 @@ import { fields, named, oneOf, said } from "./shared.ts";
 
 export const narrated = (author: unknown) => String(author ?? "").trim().toLowerCase() === NARRATOR.toLowerCase();
 
-/** The chronicle is the record of what happened, and nobody writes in it but the driver. */
-export function unwritten(con: any, id: string) {
-  const was = con.prepare("SELECT author FROM book WHERE id = ?").get(id) as { author?: string } | undefined;
-  if (was && narrated(was.author)) throw new Error("the chronicle is the record of what happened and is never edited");
-}
-
 export default function book(con: any, id: string, value: unknown, ctx: Ctx) {
   if (ctx.kind !== "books") throw new Error(`${id} is one of the ${ctx.kind}, not a book`);
   const got = fields(value, "book", ["author", "author_id", "written", "rarity"]);
-  unwritten(con, id);
   const was = con.prepare("SELECT author, author_id, written, rarity FROM book WHERE id = ?").get(id) as
     | Record<string, string | null>
     | undefined;

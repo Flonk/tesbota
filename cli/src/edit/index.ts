@@ -8,7 +8,7 @@ import ways from "./ways.ts";
 import orbit from "./orbit.ts";
 import item from "./item.ts";
 import effects from "./effects.ts";
-import book from "./book.ts";
+import book, { narrated } from "./book.ts";
 import passages from "./passages.ts";
 import aspect from "./aspect.ts";
 import grants from "./grants.ts";
@@ -32,6 +32,9 @@ export function edit(id: string, patch: unknown) {
   if (!patch || typeof patch !== "object" || Array.isArray(patch)) return { error: "a patch is an object of sections" };
   const there = db.row("SELECT kind FROM entity WHERE id = ?", [ident]);
   if (!there) return { error: `nothing in the world is called ${ident}` };
+  if (there.kind === "books" && narrated(db.value("SELECT author FROM book WHERE id = ?", [ident]))) {
+    return { error: "the chronicle is the record of what happened and is never edited" };
+  }
   const sections = patch as Record<string, unknown>;
   const unknown = Object.keys(sections).filter((key) => !SECTIONS[key]);
   if (unknown.length) return { error: `no such section: ${unknown.join(", ")}` };

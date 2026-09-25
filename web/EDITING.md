@@ -40,7 +40,7 @@ Rules every section keeps:
 - A section refuses what its table's `CHECK` would refuse, and says so in words
   before the database gets to.
 - The chronicle — a book written by `The Narrator` — is the record of what
-  happened and is never edited. `book` and `passages` refuse it.
+  happened and is never edited: every patch to it is refused.
 - `entity.changed` is stamped on every successful edit.
 
 The answer is `{ ok: true, id, wrong: [...] }`, where `wrong` is whatever
