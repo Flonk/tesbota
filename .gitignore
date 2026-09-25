@@ -15,3 +15,4 @@ state/job.log
 canon.db-wal
 canon.db-shm
 state/*.log
+state/bin/
