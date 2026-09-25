@@ -55,14 +55,11 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   async init() {
     ensureLayout();
     db.setup();
-    chronicle.ensureBook();
     const campaign = loadCampaign();
+    chronicle.ensureBook();
+    if (campaign.current_turn) return say(`already initialised — turn ${campaign.current_turn}`);
     if (canon.holdings(EXPLORER).length) catalogue(STARTING_INVENTORY);
     else stock(STARTING_INVENTORY);
-    if (campaign.current_turn) {
-      say(`already initialised — turn ${campaign.current_turn}`);
-      return;
-    }
     const turn = driver.openWorld(campaign);
     say(`tesbota initialised. ${turn.turn_id}:`);
     say("");

@@ -41,7 +41,7 @@ export function pickName(rng: Rng = random): string {
 }
 
 export const explorerName = (campaign?: CampaignT | null) =>
-  (campaign ?? loadCampaign()).explorer || "the explorer";
+  (campaign ?? campaignIfAny())?.explorer || "the explorer";
 
 type KitEntry = { name: string; effects?: Record<string, string>; [k: string]: unknown };
 
