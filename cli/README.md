@@ -11,8 +11,8 @@ The world is moving here from `tesbota/`. What is already true:
   every boundary. Bodies are held by id, never as objects: keeping the object
   worked in memory and broke the moment a turn went to disk and came back.
 
-Run `node src/machine.ts` to print the table and audit it. Node 24 strips the
-types, so there is no build step.
+Run `node src/index.ts machine` to print the table and audit it. Node 24 strips
+the types, so there is no build step.
 
 Still in Python and still to move: canon, prompts, the agent calls, the steps
 themselves, and the driver loop. Until then `tesbota/machine.py` does not exist —

@@ -442,15 +442,6 @@ export function body(entityId: string): BodyRow | null {
   return Object.fromEntries(BODY.map((k) => [k, found[k]])) as BodyRow;
 }
 
-/** Every kind of body the world keeps for fighting, with what it brings. */
-export const mobs = () =>
-  db.rows(
-    "SELECT e.id, e.name, e.about FROM entity e" +
-      " JOIN tagged t ON t.entity = e.id AND t.aspect = 'mob' ORDER BY e.name"
-  ).map((r) => ({
-    id: String(r.id), name: String(r.name), about: r.about, body: body(String(r.id)),
-  }));
-
 type AbilityRow = Record<string, any>;
 
 function readAbility(r: db.Row | null): AbilityRow | null {

@@ -49,7 +49,7 @@ function underway(held: CampaignT | null) {
   return { path: [held.position, held.position], from: still, until: still, reach: 1, destination: null };
 }
 
-type Args = { flags: Set<string>; rest: string[] };
+type Args = { flags: Set<string>; opts: Partial<Record<string, string>>; rest: string[] };
 
 const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   async init() {
@@ -264,24 +264,24 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 
   /** Set a place's shape. The map writes through here and nowhere else. */
-  shape({ rest, flags }) {
+  shape({ rest, flags, opts }) {
     const [id, ...drawn] = rest;
     const said = flags.has("--clear") ? null : drawn.length ? drawn.join(" ") : undefined;
     // `--carry=<lon>,<lat>`: bring whatever stood on this ground along with it.
-    const by = [...flags].find((f) => f.startsWith("--carry="))?.slice(8);
+    const by = opts.carry;
     let carry: actions.Carry = null;
     if (by) {
       const [lon, lat] = by.split(",").map(Number);
       if (Number.isFinite(lon) && Number.isFinite(lat)) carry = { lon, lat };
     }
-    const wide = [...flags].find((f) => f.startsWith("--width="))?.slice(8);
+    const wide = opts.width;
     const width = wide === undefined ? undefined : wide === "" ? null : Number(wide);
     return say(actions.shape(id, said, carry, width, flags.has("--alone")));
   },
 
   /** What is around the explorer, or around a place or a point: `tesbota around [place | lat,lon] [--within=metres]`. */
-  around({ rest, flags }) {
-    const within = Number([...flags].find((f) => f.startsWith("--within="))?.slice(9)) || 3000;
+  around({ rest, flags, opts }) {
+    const within = Number(opts.within) || 3000;
     const found = ground.around(rest.join(" ") || null, within);
     return say(flags.has("--json") ? found : ground.tellAround(found));
   },
@@ -295,9 +295,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 
   /** Give a thing a new id, and its name with it: `tesbota rename <old> <new> [--name="New Name"]`. */
-  rename({ rest, flags }) {
-    const named = [...flags].find((f) => f.startsWith("--name="))?.slice(7) ?? null;
-    return say(rename(rest[0], rest[1], named));
+  rename({ rest, opts }) {
+    return say(rename(rest[0], rest[1], opts.name ?? null));
   },
 
   /** Change one thing in the record. `tesbota edit <id> '<patch json>'`, see web/EDITING.md. */
@@ -313,11 +312,9 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 
   /** Put down a place that did not exist. The map draws it afterwards. */
-  place({ rest, flags }) {
+  place({ rest, opts }) {
     const name = rest.join(" ");
-    const type = [...flags].find((f) => f.startsWith("--type="))?.slice(7) || "region";
-    const on = [...flags].find((f) => f.startsWith("--on="))?.slice(5) || "";
-    return say(actions.makePlace(name, type, on));
+    return say(actions.makePlace(name, opts.type || "region", opts.on || ""));
   },
 
   /** Take a place out. Its places come up a level unless `--deep` takes them too. */
@@ -386,8 +383,6 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         type, stats, icon,
         slots: slots.map((s) => ({ slot: s, icon: APPAREL_ICON[s] ?? icon })),
       })),
-      mobs: canon.mobs(),
-      machine: machine.describe(),
       prompts: prompts.catalogue(),
     };
     if (flags.has("--json")) return say(payload);
@@ -424,6 +419,9 @@ async function main() {
     return;
   }
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
+  const opts = Object.fromEntries(
+    [...flags].filter((f) => f.includes("=")).map((f) => [f.slice(2, f.indexOf("=")), f.slice(f.indexOf("=") + 1)])
+  );
   const rest = argv.filter((a) => !a.startsWith("--"));
 
   if (command !== MAKES && !NEEDS_NOBODY.has(command) && !campaignIfAny()) {
@@ -433,7 +431,7 @@ async function main() {
     return;
   }
 
-  await run({ flags, rest });
+  await run({ flags, opts, rest });
 }
 
 main().catch((exc) => {

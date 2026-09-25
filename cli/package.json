@@ -4,7 +4,7 @@
   "type": "module",
   "bin": { "tesbota": "./src/index.ts" },
   "scripts": {
-    "machine": "node src/machine.ts",
+    "machine": "node src/index.ts machine",
     "check": "tsc --noEmit"
   },
   "dependencies": {

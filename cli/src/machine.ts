@@ -298,16 +298,3 @@ export function audit(): string[] {
   }
   return wrong;
 }
-
-if (process.argv[1]?.endsWith("machine.ts")) {
-  const wrong = audit();
-  const { states, edges } = describe();
-  console.log(`${states.length} states, ${edges.length} edges`);
-  for (const e of edges) console.log(`  ${e.from} --${e.on}--> ${e.to}   (${e.when})`);
-  if (wrong.length) {
-    console.error("\nwrong:");
-    for (const w of wrong) console.error("  " + w);
-    process.exit(1);
-  }
-  console.log("\naudit clean");
-}
