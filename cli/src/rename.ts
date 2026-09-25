@@ -15,7 +15,7 @@ const POINTERS: Array<[string, string]> = [
   ["person", "id"], ["person", "lives"],
   ["book", "id"], ["book", "author_id"],
   ["passage", "book_id"],
-  ["orbit", "id"], ["orbit", "around"],
+  ["orbit", "id"],
   ["way", "src"], ["way", "dst"],
   ["item", "id"], ["effect", "item"],
   ["aspect", "id"], ["ability", "id"], ["ability", "within"], ["ability", "in_aspect"],

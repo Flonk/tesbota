@@ -68,7 +68,6 @@ CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
 -- a world can have a year before anybody has written down a sun.
 CREATE TABLE IF NOT EXISTS orbit (
   id           TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
-  around       TEXT REFERENCES entity(id),
   semi_major   REAL,
   eccentricity REAL NOT NULL DEFAULT 0,
   longitude    REAL NOT NULL DEFAULT 0,
@@ -232,7 +231,8 @@ export function connect(readonly = false): DatabaseSync {
 
 /**
  * Lay the shape down. Safe to run every time: a table that is already there is
- * left as it is, and the views, triggers and index are made again from it.
+ * left as it is, less any column dropped here, and the views, triggers and index
+ * are made again from it.
  */
 export function setup(): string {
   fs.mkdirSync(path.dirname(CANON_DB), { recursive: true });
@@ -247,6 +247,9 @@ export function setup(): string {
       con.exec(`DROP ${r.type === "view" ? "VIEW" : "TRIGGER"} IF EXISTS "${r.name}"`);
     }
     con.exec(SCHEMA);
+    if (con.prepare("SELECT 1 FROM pragma_table_info('orbit') WHERE name = 'around'").get()) {
+      con.exec("ALTER TABLE orbit DROP COLUMN around");
+    }
     reindex(con);
   });
   return CANON_DB;
