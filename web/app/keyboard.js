@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const TYPING = /^(INPUT|TEXTAREA)$/;
+export const typing = (el) => !!el?.closest?.("input, textarea, select, [contenteditable]");
 
 export function useKeyboardAvoid(threshold = 120, query = "(max-width: 640px)") {
   const [inset, setInset] = useState(0);
@@ -50,7 +50,7 @@ export function useKeyboardAvoid(threshold = 120, query = "(max-width: 640px)") 
     let letting = 0;
     const focused = (e) => {
       const el = e.target;
-      if (!TYPING.test(el.tagName || "") && !el.isContentEditable) return;
+      if (!typing(el)) return;
       clearTimeout(letting);
       setSide(el.closest(".turns") ? "turns" : el.closest(".tabsband") ? "tabs" : null);
     };

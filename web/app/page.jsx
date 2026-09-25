@@ -12,7 +12,7 @@ import Lore from "./Lore";
 import Settings from "./Settings";
 import Steer from "./Steer";
 import Talk from "./Talk";
-import { useKeyboardAvoid } from "./keyboard";
+import { typing, useKeyboardAvoid } from "./keyboard";
 import Orbit from "./Orbit";
 import Machine from "./Machine";
 import { Act, Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Row, Tabs, Tag } from "./ui";
@@ -725,7 +725,7 @@ export default function Page() {
 
   useEffect(() => {
     function onKey(e) {
-      if (e.target.tagName === "TEXTAREA" || dossier) return;
+      if (e.defaultPrevented || typing(e.target) || dossier) return;
       if (e.key === "ArrowLeft") go(at - 1);
       if (e.key === "ArrowRight") go(at + 1);
     }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PLACE_ICON, rare } from "./Data";
 import Icon from "./icons";
 import { Field, forget, Pick } from "./edit/fields";
+import { typing } from "./keyboard";
 import { Act, Btn, Empty, Mark, Note, Prose, rated, Row, Stub, Table, Tabs } from "./ui";
 
 const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
@@ -427,8 +428,7 @@ export default function Library({
     }
 
     function key(e) {
-      const el = document.activeElement;
-      const typing = /^(INPUT|TEXTAREA)$/.test(el?.tagName || "") || el?.isContentEditable;
+      const writing = typing(document.activeElement);
 
       if (editing && !dossier) {
         if (e.key === "Escape") {
@@ -450,7 +450,7 @@ export default function Library({
         box.current?.blur();
         return;
       }
-      if (typing || dossier) return;
+      if (writing || dossier) return;
 
       if (e.key === "/") {
         e.preventDefault();
