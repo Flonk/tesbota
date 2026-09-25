@@ -1,11 +1,12 @@
 /**
  * What has to be true of the machine before it is trusted to run.
  *
- * The round-trip is the one that earned its place: zod strips what it has not been
- * told about, so a field a step writes and a later step reads is silently lost the
- * moment the turn goes to disk and comes back. A proposal that vanishes between
- * `propose` and `gm` is a turn that quietly re-prices itself, and nothing about it
- * looks wrong until you read the narration.
+ * Reading what is on disk back through the schema is the one that earned its
+ * place: zod strips what it has not been told about, so a field a step writes
+ * and a later step reads is silently lost the moment the turn goes to disk and
+ * comes back. A proposal that vanishes between `propose` and `gm` is a turn that
+ * quietly re-prices itself, and nothing about it looks wrong until you read the
+ * narration.
  */
 
 import fs from "node:fs";
@@ -20,135 +21,37 @@ import { sqlite3 } from "./sqlite.ts";
 
 export type Wrong = { what: string; said: string };
 
-const CHECK = {
-  skill: "athletics", dc: 11, roll: 7, rolls: [7], against: ["spent"], for: ["the better of two"],
-  bonus: 0, total: 7, passed: false,
-};
-const OUTCOME = { band: "rare", text: "a stranger knows their name", p: 0.08 };
-const SPAWN = {
-  name: "Alheim Guard", who: "alheim-guard", count: 3, health: 100, most: 100, damage: "18–22",
-  dc: 17, bonus: 5, defense: 22, skill: "athletics",
-};
-const ABILITY = {
-  name: "call guards", damage: "3", advantage: true, cooldown: 10, sleep: 1, delay: 1,
-  spawn: SPAWN, within: "alheim", in_kind: "location", in_aspect: "guarded", from: "citizen", used: true,
-};
-const BODY = {
-  id: "greta-marsch", name: "Greta Marsch", kind: "foe", health: 20, most: 20, opened: 20,
-  damage: "1–2", weapon: "a ladle", dc: 11, bonus: 1, defense: 2, skill: "athletics", ability: ABILITY,
-  aspects: [{ name: "citizen", value: "alheim", of: "Alheim" }], asleep: 1, cool: 2, dead: false,
-  as_written: { who: "greta-marsch", health: 20 },
-};
-const BLOW = {
-  n: 1, round: 1, who: "greta-marsch", name: "Greta Marsch", side: "them", chose: "ATTACK", hit: true,
-  dealt: 0, taken: 3, blocked: 1, at: "the-explorer", atname: "Uwe Bota", left: 97, check: CHECK,
-  spawned: "Alheim Guard", calling: "Alheim Guard x3", mended: "+15 health", spent: true, text: "a blow",
-  us: [{ id: "the-explorer", health: 97, dead: false }], them: [{ id: "greta-marsch", health: 20, dead: false }],
-};
-const FIGHT = {
-  skill: "athletics", flee_dc: 10, name: "Greta Marsch", said: "she swings", round: 2, turn: 1,
-  ended: "broken", us: [BODY], them: [BODY], blows: [BLOW], owed: [{ at: 2, by: "Greta Marsch", spawn: SPAWN }],
-};
-const PLACED = [{ id: "the-greater-plains", name: "The Greater Plains" }];
-const CLAIM = { id: "c1", text: "a mill stands in Alheim", entity: "alheim-mill", kind: "places" };
-const VERDICT = {
-  claim: "c1", result: "TRUE", why: "it is written", question: "is it?", alternative: "a barn",
-  sources: ["alheim-mill"],
-};
-const CROSSING = { from: "gm", to: "lore1", at: "now", on: "narrated" };
-const TURN = {
-  turn_id: "t9999", state: "propose", created: "2026-01-01T00:00:00+00:00",
-  action: "I walk",
-  draft: {
-    narration: "a road", claims: [CLAIM], destination: "alheim", minutes: 5, fatigue: 2, health: -1,
-    hunger: 3, check: { skill: "athletics", dc: 11 }, fight: { them: [{ who: "rat" }] },
-    transactions: [{ from: "the-godhead", to: "the-explorer", name: "Bread", qty: 1 }],
-    quest_open: [{ id: "q" }], quest_update: [{ id: "q", detail: "d" }], quest_close: ["q"],
-  },
-  phases: [{
-    n: 1, who: "gm", kind: "fight", status: "checked", text: "a blow",
-    claims: [{ ...CLAIM, verdict: VERDICT }], fight: FIGHT, minutes: 5, fatigue: 2, roll: 257,
-    outcomes: [OUTCOME], chosen: OUTCOME, fortune: 0.5, check: CHECK,
-  }],
-  verdicts: [VERDICT], facts: ["roads exist"],
-  fight: FIGHT, swing: { verb: "SKILL", skill: "athletics", mark: "rat" },
-  correction: "redo", gm_retries: 1, gap: "do orcs exist",
-  looking: true, mode: "look", question: "what?", answers: [["q", "a"]],
-  roll: 257, rolled: true, fate: "lesser_fortune", chosen: OUTCOME, outcomes: [OUTCOME], check: CHECK,
-  note: "a note", event: "true", arrival: "alheim", opening: true, delivered: true,
-  resolved: true, spent: ["Bread"],
-  took: CROSSING, trail: [CROSSING],
-  proposal: { summary: "a walk", target: "alheim", minutes: 5, fatigue: 2, unpriced: true },
-  confirmed: true, propose_retries: 1,
-  blank: 1, nudge: 1, ready: "go", pressed: true, forced_strange: true, fortune: 0.5,
-  looks: [{ question: "q", answer: "a" }], talks: [{ question: "q", answer: "a" }],
-  context: [{ question: "q", answer: "a" }], destination: "alheim", leagues_left: 2,
-  path: [[9.1, 53.2]], reach: 0.5,
-  lore: [{ role: "you", text: "is there a mill" }], lore_gap: "a gap",
-  minutes: 7, wake_at: "later", at: "Firstday", vitals: { health: 62, fatigue: 27, hunger: 6 },
-  location_path: PLACED, quest: "Find the Mill Boy", chronicle: [{ ord: 1, text: "a passage" }],
-};
-
-const CAMPAIGN = {
-  created: "2026-01-01T00:00:00+00:00", explorer: "Uwe Bota", current_turn: "t9999", turn_counter: 9999,
-  location: "alheim", location_path: PLACED, vitals: { health: 62, fatigue: 27, hunger: 6 },
-  skills: { abilities: { str: 10 }, proficiency: 2, proficient: ["survival"] },
-  quests: [{
-    id: "q", title: "Q", detail: "d", giver: "Greta", script: "s", at: "1 Frostfall 4E202, 13:04",
-    status: "done", opened: "t0001", closed: "t0002", closed_at: "1 Frostfall 4E202, 14:04", where: PLACED,
-  }],
-  time: { era: 4, year: 202, day: 1, minute: 784, stamp: "1 Frostfall 4E202, 13:04", long: "Firstday" },
-  clock: { hours_per_league: 1.5, min_leg_minutes: 20, encounter_chance_per_league: 0.25, speed_factor: 10 },
-  sessions: { explorer: "a", gm: "b", lore3_sitting: "c" }, sent: { inventory: "abc" },
-  last_narration: "a road", last_seen: "t0001", note: "a note", paused: true, quiet: 1, calm: 2,
-  settled: ["a claim"], walked: ["alheim"], walked_through: "t0001",
-  fight: { skill: "athletics", flee_dc: 10, name: "Greta Marsch", us: [BODY], them: [BODY] },
-};
-
-function lost(written: unknown, back: unknown, at = ""): string[] {
-  if (!written || typeof written !== "object") return [];
+function unread(written: unknown, back: unknown, at = ""): string[] {
+  if (!written || typeof written !== "object") {
+    return Object.is(written, back) ? [] : [`${at} ${JSON.stringify(written)} reads back as ${JSON.stringify(back)}`];
+  }
   const kept = new Map(back && typeof back === "object" ? Object.entries(back) : []);
   return Object.entries(written).flatMap(([key, value]: [string, unknown]) => {
     const path = at ? `${at}.${key}` : key;
-    return kept.has(key) ? lost(value, kept.get(key), path) : [path];
+    if (!kept.has(key)) return [`${path} is not in the schema and is dropped on load`];
+    return unread(value, kept.get(key), path);
   });
-}
-
-/**
- * A turn and a campaign carrying every field anybody writes, put through the
- * schema and read back. Anything missing afterwards, however deep, is a field the
- * machine will lose.
- */
-function roundTrip(): Wrong[] {
-
-  return [
-    ...lost(TURN, Turn.parse(TURN)).map((path) => `turn.${path}`),
-    ...lost(CAMPAIGN, Campaign.parse(CAMPAIGN)).map((path) => `campaign.${path}`),
-  ].map((path) => ({ what: "round-trip", said: `${path} is dropped by the schema` }));
 }
 
 /** Every turn and campaign actually on disk, through the schema. */
 function onDisk(): Wrong[] {
   const wrong: Wrong[] = [];
+  const read = (file: string, name: string, shape: typeof Turn | typeof Campaign) => {
+    const raw = JSON.parse(fs.readFileSync(file, "utf8"));
+    const held = shape.safeParse(raw);
+    const said = held.success
+      ? unread(raw, held.data)
+      : held.error.issues.slice(0, 3).map((issue) => `${issue.path.join(".")}: ${issue.message}`);
+    for (const line of said) wrong.push({ what: "on disk", said: `${name} ${line}` });
+  };
   for (const profile of PROFILES) {
     const room = roomOf(profile);
     const camp = path.join(room, "campaign.json");
-    if (fs.existsSync(camp)) {
-      const held = Campaign.safeParse(JSON.parse(fs.readFileSync(camp, "utf8")));
-      if (!held.success) {
-        for (const issue of held.error.issues.slice(0, 4)) {
-          wrong.push({ what: "on disk", said: `${profile}/campaign.json ${issue.path.join(".")}: ${issue.message}` });
-        }
-      }
-    }
+    if (fs.existsSync(camp)) read(camp, `${profile}/campaign.json`, Campaign);
     const turns = path.join(room, "turns");
     if (!fs.existsSync(turns)) continue;
     for (const file of fs.readdirSync(turns).filter((f) => f.endsWith(".json")).sort()) {
-      const held = Turn.safeParse(JSON.parse(fs.readFileSync(path.join(turns, file), "utf8")));
-      if (held.success) continue;
-      for (const issue of held.error.issues.slice(0, 3)) {
-        wrong.push({ what: "on disk", said: `${profile}/${file} ${issue.path.join(".")}: ${issue.message}` });
-      }
+      read(path.join(turns, file), `${profile}/${file}`, Turn);
     }
   }
   return wrong;
@@ -206,8 +109,8 @@ function orphans(): Wrong[] {
           AND NOT EXISTS (SELECT 1 FROM place q WHERE q.id = p.parent)
         ORDER BY p.id`
     );
-  } catch {
-    return [];
+  } catch (err) {
+    return [{ what: "canon", said: `could not read places: ${(err as Error).message}` }];
   }
   return lost.map((r) => ({
     what: "orphan",
@@ -233,8 +136,8 @@ function unplaced(): Wrong[] {
         ORDER BY p.id`,
       ["celestial-body", "celestial-system", "realm"]
     );
-  } catch {
-    return [];
+  } catch (err) {
+    return [{ what: "canon", said: `could not read places: ${(err as Error).message}` }];
   }
   return lost.map((r) => ({
     what: "unplaced",
@@ -257,7 +160,6 @@ export function check(): Wrong[] {
     ...unplaced(),
     ...agents(),
     ...machine.audit().map((said) => ({ what: "machine", said })),
-    ...roundTrip(),
     ...onDisk(),
   ];
 }
