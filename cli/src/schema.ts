@@ -24,7 +24,7 @@ export const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab
 /** `1–2`, `2-5`, or a bare number — what one blow takes off. */
 export const BAND = /(\d+)\s*[–—-]\s*(\d+)|^\s*(\d+)\s*$/;
 
-export const Band = z.string().regex(BAND, "a damage band reads `1–2`");
+const Band = z.string().regex(BAND, "a damage band reads `1–2`");
 
 export const Written = z.record(z.string(), z.unknown());
 
