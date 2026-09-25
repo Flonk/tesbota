@@ -862,6 +862,7 @@ export default function Globe({
         if (back?.error || !back?.id) return setWrong(back?.error || "the place was not written");
         id = back.id;
         setFresh({ ...fresh, id });
+        setChosen(id);
       }
       const res = await fetch("/api/shape", {
         method: "POST",
@@ -873,10 +874,7 @@ export default function Globe({
       });
       const back = await res.json().catch(() => null);
       if (back?.error) {
-        if (id !== chosen) {
-          setChosen(id);
-          if (onSaved) onSaved();
-        }
+        if (id !== chosen && onSaved) onSaved();
         return setWrong(back.error);
       }
       // Whatever the new shape now holds, or has let go of, it says so.
