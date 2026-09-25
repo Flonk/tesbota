@@ -66,14 +66,13 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
     return () => onUnsaved(false);
   }, [editing, unsaved, onUnsaved]);
 
-  const read = useCallback(
-    () =>
-      fetch("/api/sky", { cache: "no-store" })
-        .then((r) => (r.ok ? r.json() : { error: "the sky could not be read" }))
-        .then(setSky)
-        .catch(() => setSky({ error: "the sky could not be read" })),
-    []
-  );
+  const read = useCallback(() => {
+    const land = (next) => setSky((was) => (next?.error && was?.bodies ? { ...was, stale: next.error } : next));
+    return fetch("/api/sky", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { error: "the sky could not be read" }))
+      .then(land)
+      .catch(() => land({ error: "the sky could not be read" }));
+  }, []);
 
   useEffect(() => {
     read();
@@ -145,7 +144,6 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
   if (sky.error) return <Note tone="warn">{sky.error}</Note>;
   if (!plan) return <Empty>no bodies</Empty>;
 
-
   const ground =
     picked && sky.bodies[picked]?.type !== "celestial-system" ? sky.bodies[picked] : null;
 
@@ -158,6 +156,8 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
   const tree = ground ? treeOf(ground.standing || []) : null;
   const at = tree?.byId.get(over);
   const under = at ? [at, ...tree.up(over)].slice(0, 8).reverse() : [];
+
+  const stale = sky.stale && <Note tone="warn">{sky.stale}</Note>;
 
   const trail = [
     ...(ground?.above || plan.above),
@@ -196,6 +196,7 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
             <Icon name="pen" size={14} />
           </button>
         </Row>
+        {stale}
         <Globe
           body={ground}
           here={sky.here}
@@ -219,6 +220,7 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
       <Row pad={false} middled={false} className="maprow">
         <Crumb className="maptrail" where={trail} onPick={step} />
       </Row>
+      {stale}
       <div className="orbitpane">
         <div className="orbitbox">
           <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="orbitsvg" role="img">
