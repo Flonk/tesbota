@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { openDossier } from "./ui";
 import {
-  added, carried, covers, dropped, extentOf, moved, opened, rerun, rework, runsOf, straighten,
+  added, carried, covers, dropped, extentOf, moved, onto, opened, rerun, rework, runsOf, straighten,
 } from "./shaping";
 import { Act, Palette, Row } from "./ui";
 
@@ -55,35 +55,28 @@ const hold = (n, low, high) => Math.max(low, Math.min(high, n));
 const lonOf = (x) => (x / W) * 360 - 180;
 const latOf = (y) => 2 * (Math.atan(Math.exp(TALL * (1 - (2 * y) / H))) / RAD - 45);
 
-/** Whether a drawn shape covers a point — even-odd, over every ring it has. */
-function holds(d, x, y) {
-  let inside = false;
-  for (const run of d.split("M ").slice(1)) {
-    const numbers = run.match(/-?\d+(?:\.\d+)?/g);
-    if (!numbers) continue;
-    const ring = [];
-    for (let n = 0; n + 1 < numbers.length; n += 2) ring.push([+numbers[n], +numbers[n + 1]]);
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const [xi, yi] = ring[i];
-      const [xj, yj] = ring[j];
-      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-    }
-  }
-  return inside;
-}
+const project = (run) => run.map(([lon, lat]) => [across(lon), down(lat)]);
+const offset = (points, o) => points.map(([x, y]) => [x - o.x, y - o.y]);
 
-/** What a drawn path takes up, read back off the path itself. */
-function bounds(d) {
-  const numbers = d.match(/-?\d+(?:\.\d+)?/g);
-  if (!numbers || numbers.length < 2) return null;
+function boxOf(points) {
+  if (!points.length) return null;
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (let n = 0; n + 1 < numbers.length; n += 2) {
-    const x = Number(numbers[n]);
-    const y = Number(numbers[n + 1]);
+  for (const [x, y] of points) {
     minX = Math.min(minX, x); maxX = Math.max(maxX, x);
     minY = Math.min(minY, y); maxY = Math.max(maxY, y);
   }
   return { minX, maxX, minY, maxY };
+}
+
+const pathOf = (points, shut = false) =>
+  points.length ? "M " + points.map(([x, y]) => `${x} ${y}`).join(" L ") + (shut ? " Z" : "") : "";
+
+function lengths(points) {
+  const upto = [0];
+  for (let n = 1; n < points.length; n++) {
+    upto.push(upto[n - 1] + Math.hypot(points[n][0] - points[n - 1][0], points[n][1] - points[n - 1][1]));
+  }
+  return upto;
 }
 
 /**
@@ -101,46 +94,12 @@ function night(subsolar, o = HOME) {
     const lat = Math.atan(-Math.cos(hour) / tilt) / RAD;
     edge.push([across(lon) - o.x, down(lat) - o.y]);
   }
-  const drawn = edge.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L ");
   // The dark half is closed off along whichever edge of the picture is the pole
   // leaning away from the primary. No line is drawn along the curve itself: the sun
   // does not set at an edge, and an edge is what a stroke would draw.
   const pole = (subsolar.lat >= 0 ? H : 0) - o.y;
-  return `M ${drawn} L ${W - o.x} ${pole} L ${-o.x} ${pole} Z`;
-}
-
-/**
- * A shape, in the picture's own units. Roads and rivers are runs and are drawn as
- * one; everything else has ground and is drawn closed.
- */
-function outline(extent, o = null) {
-  let drawn;
-  try {
-    drawn = JSON.parse(extent);
-  } catch {
-    return null;
-  }
-  const runs = [];
-  const walk = (node) => {
-    if (!Array.isArray(node)) return;
-    if (node.length && Array.isArray(node[0]) && typeof node[0][0] === "number") runs.push(node);
-    else node.forEach(walk);
-  };
-  walk(drawn.coordinates);
-  if (!runs.length) return null;
-  const shut = drawn.type === "Polygon" || drawn.type === "MultiPolygon";
-  return runs
-    .map(
-      (run) =>
-        "M " +
-        run
-          .map(([lon, lat]) =>
-            o ? `${across(lon) - o.x} ${down(lat) - o.y}` : `${across(lon).toFixed(5)} ${down(lat).toFixed(5)}`
-          )
-          .join(" L ") +
-        (shut ? " Z" : "")
-    )
-    .join(" ");
+  const drawn = edge.map(([x, y]) => [x.toFixed(1), y.toFixed(1)]);
+  return pathOf([...drawn, [W - o.x, pole], [-o.x, pole]], true);
 }
 
 /** How many pixels across a place has to be on screen before it opens into what it holds. */
@@ -419,6 +378,17 @@ export default function Globe({
     [towing, riders]
   );
 
+  const base = useMemo(
+    () =>
+      standing.flatMap((place) => {
+        const read = runsOf(place.extent);
+        if (!read) return [];
+        const rings = read.runs.map(project);
+        return [{ ...place, read, rings, box: boxOf(rings.flat()) }];
+      }),
+    [standing]
+  );
+
   const marks = useMemo(() => {
     const moving = standing.map((place) => {
       const by = rides(place.id) || (place.id === chosen ? total : null);
@@ -426,51 +396,45 @@ export default function Globe({
         ? { ...place, lat: place.lat + by.lat, lon: place.lon + by.lon }
         : place;
     });
-    const sizes = new Map();
-    for (const place of moving) {
-      const d = place.extent && outline(place.extent);
-      const box = d && bounds(d);
-      if (box) sizes.set(place.id, box);
-    }
+    const sizes = new Map(base.map((place) => [place.id, place.box]));
     const scale = pane.w && pane.h ? Math.max(pane.w / view.w, pane.h / view.h) : W / view.w;
     return gather(resolve(moving, sizes, scale, chosen), here, scale);
-  }, [standing, here, view.w, pane, rides, chosen, total?.lon, total?.lat]);
+  }, [standing, base, here, view.w, pane, rides, chosen, total?.lon, total?.lat]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
   const drawn = useMemo(() => {
     const order = { water: 0, region: 1, location: 2, road: 3, river: 3 };
-    return standing
-      .filter((place) => place.extent && place.id !== chosen)
+    return base
+      .filter((place) => place.id !== chosen)
       .map((place) => {
         const by = rides(place.id);
-        const read = by && runsOf(place.extent);
-        const shape = read
-          ? JSON.stringify(extentOf({ ...read, runs: carried(read.runs, by) }))
-          : place.extent;
+        const rings = by ? carried(place.read.runs, by).map(project) : place.rings;
         let depth = 0;
         for (let at = byId.get(place.parent); at && depth < 6; at = byId.get(at.parent)) depth += 1;
-        return { ...place, shape, d: outline(shape), depth };
+        return { ...place, rings, box: by ? boxOf(rings.flat()) : place.box, depth };
       })
-      .filter((place) => place.d)
       .sort((a, b) => (order[a.type] ?? 2) - (order[b.type] ?? 2) || a.depth - b.depth);
-  }, [standing, byId, chosen, rides]);
+  }, [base, byId, chosen, rides]);
   // Where the picture is measured from. A browser draws in single precision, and
   // six figures of zoom on a number near 800 leaves nothing of it below the pixel:
   // lines vanish, corners jitter, circles go square. So everything drawn is
   // measured from a point near the middle of the view, which only moves when the
   // view has moved a whole screen away from it.
-  const origin = useMemo(() => {
-    const q = view.w;
-    return { x: Math.round((view.x + view.w / 2) / q) * q, y: Math.round((view.y + view.h / 2) / q) * q };
-  }, [view.x, view.y, view.w, view.h]);
-  const ox = origin.x;
-  const oy = origin.y;
+  const ox = Math.round((view.x + view.w / 2) / view.w) * view.w;
+  const oy = Math.round((view.y + view.h / 2) / view.w) * view.w;
+  const origin = useMemo(() => ({ x: ox, y: oy }), [ox, oy]);
   const local = useMemo(
-    () => new Map(drawn.map((place) => [place.id, outline(place.shape, { x: ox, y: oy })])),
-    [drawn, ox, oy]
+    () =>
+      new Map(
+        drawn.map((place) => [
+          place.id,
+          place.rings.map((ring) => pathOf(offset(ring, origin), place.read.shut)).join(" "),
+        ])
+      ),
+    [drawn, origin]
   );
-  const dark = useMemo(() => (sun ? night(sun, { x: ox, y: oy }) : null), [sun, ox, oy]);
+  const dark = useMemo(() => (sun ? night(sun, origin) : null), [sun, origin]);
 
   // The runs a name can be written along, and the ground it can be written inside:
   // each line put the way it reads, left to right, so no name stands on its head.
@@ -478,20 +442,14 @@ export default function Globe({
     const lines = [];
     const waters = [];
     for (const place of drawn) {
-      const read = runsOf(place.shape);
-      if (!read) continue;
       if (place.type === "road" || place.type === "river") {
-        let run = read.runs[0].map(([lon, lat]) => [across(lon) - ox, down(lat) - oy]);
+        let run = offset(place.rings[0], origin);
         if (run.length < 2) continue;
         if (run[0][0] > run[run.length - 1][0]) run = [...run].reverse();
-        const upto = [0];
-        for (let n = 1; n < run.length; n++) {
-          upto.push(upto[n - 1] + Math.hypot(run[n][0] - run[n - 1][0], run[n][1] - run[n - 1][1]));
-        }
-        lines.push({ place, run, upto, long: upto[upto.length - 1], d: "M " + run.map(([x, y]) => `${x} ${y}`).join(" L ") });
+        const upto = lengths(run);
+        lines.push({ place, run, upto, long: upto[upto.length - 1], d: pathOf(run) });
       } else if (place.type === "water") {
-        const box = bounds(place.d);
-        if (!box) continue;
+        const { box } = place;
         const at = place.lat !== null && place.lon !== null
           ? [across(place.lon) - ox, down(place.lat) - oy]
           : [(box.minX + box.maxX) / 2 - ox, (box.minY + box.maxY) / 2 - oy];
@@ -499,7 +457,7 @@ export default function Globe({
       }
     }
     return { lines, waters };
-  }, [drawn, ox, oy]);
+  }, [drawn, origin]);
 
   /**
    * What the middle of the picture is standing on: the smallest written shape that
@@ -512,19 +470,18 @@ export default function Globe({
     let best = null;
     for (const place of drawn) {
       if (place.type === "road" || place.type === "river") continue;
-      const box = bounds(place.d);
-      if (!box) continue;
+      const { box } = place;
       const fills = Math.max(
         (box.maxX - box.minX) / view.w,
         (box.maxY - box.minY) / view.h
       );
       if (fills < ENOUGH) continue;
-      if (!holds(place.d, x, y)) continue;
+      if (!covers(place.rings, [x, y])) continue;
       const size = (box.maxX - box.minX) * (box.maxY - box.minY);
       if (!best || size < best.size) best = { id: place.id, size };
     }
     return best?.id ?? null;
-  }, [drawn, view]);
+  }, [drawn, view.x, view.y, view.w, view.h]);
 
   useEffect(() => {
     if (onCentre) onCentre(centred);
@@ -584,8 +541,8 @@ export default function Globe({
       const y = down(place.lat);
       return { x: x - w / 2, y: y - (w * H) / W / 2, w, h: (w * H) / W };
     }
-    const d = place.extent && outline(place.extent);
-    const box = d ? bounds(d) : null;
+    const read = runsOf(place.extent);
+    const box = read && boxOf(read.runs.flatMap(project));
     const wide = box ? Math.max(box.maxX - box.minX, (box.maxY - box.minY) * (W / H)) * 3 : W / 400;
     const x = box ? (box.minX + box.maxX) / 2 : across(place.lon);
     const y = box ? (box.minY + box.maxY) / 2 : down(place.lat);
@@ -929,14 +886,6 @@ export default function Globe({
     if (places[0]) choose(places[0]);
   }
 
-  const fence = (runs) => {
-    let w = Infinity, e = -Infinity, s = Infinity, n = -Infinity;
-    for (const run of runs) for (const [lon, lat] of run) {
-      w = Math.min(w, lon); e = Math.max(e, lon); s = Math.min(s, lat); n = Math.max(n, lat);
-    }
-    return { w, e, s, n };
-  };
-
   function finish(stroke) {
     const now = live.current.draft;
     const f = framed();
@@ -1016,7 +965,7 @@ export default function Globe({
       g.kind = "shove";
       g.start = spot(e.clientX, e.clientY);
       g.runs = live.current.draft.runs;
-      g.fence = fence(g.runs.filter((r) => r.length));
+      g.fence = boxOf(g.runs.flat());
     }
   }
 
@@ -1070,7 +1019,7 @@ export default function Globe({
         now && { ...now, runs: now.runs.map((r, n) => (n === g.run ? moved(r, g.at, point) : r)) }
       );
     } else if (g.kind === "shove") {
-      const { w, e: east, s, n } = g.fence;
+      const { minX: w, maxX: east, minY: s, maxY: n } = g.fence;
       const by = {
         lon: hold(point[0] - g.start[0], -180 - w, 180 - east),
         lat: hold(point[1] - g.start[1], -LIMIT - s, LIMIT - n),
@@ -1273,9 +1222,8 @@ export default function Globe({
   // they are by now — worked out from when they set out and when they will stop.
   const trip = (() => {
     if (!journey?.path || journey.path.length < 2) return null;
-    const pts = journey.path.map(([lon, lat]) => [across(lon) - ox, down(lat) - oy]);
-    const upto = [0];
-    for (let n = 1; n < pts.length; n++) upto.push(upto[n - 1] + Math.hypot(pts[n][0] - pts[n - 1][0], pts[n][1] - pts[n - 1][1]));
+    const pts = offset(project(journey.path), origin);
+    const upto = lengths(pts);
     const long = upto[upto.length - 1];
     const from = Date.parse(journey.from);
     const until = Date.parse(journey.until);
@@ -1285,17 +1233,13 @@ export default function Globe({
     while (n < pts.length - 1 && upto[n] < want) n++;
     const t = upto[n] > upto[n - 1] ? (want - upto[n - 1]) / (upto[n] - upto[n - 1]) : 0;
     const at = [pts[n - 1][0] + (pts[n][0] - pts[n - 1][0]) * t, pts[n - 1][1] + (pts[n][1] - pts[n - 1][1]) * t];
-    const line = (list) => "M " + list.map(([x, y]) => `${x} ${y}`).join(" L ");
     return {
-      behind: line([...pts.slice(0, n), at]),
-      ahead: line([at, ...pts.slice(n)]),
+      behind: pathOf([...pts.slice(0, n), at]),
+      ahead: pathOf([at, ...pts.slice(n)]),
       at,
     };
   })();
-  const traced = (run) =>
-    run.length
-      ? "M " + run.map(([lon, lat]) => `${ax(lon)} ${ay(lat)}`).join(" L ") + (draft.shut ? " Z" : "")
-      : "";
+  const traced = (run) => pathOf(offset(project(run), origin), draft.shut);
 
   return (
     <>
@@ -1427,20 +1371,11 @@ export default function Globe({
           const size = px * 0.62;
           const said = size * 0.62 * place.name.length * near;
           if (px < 11 || said + size * 2 * near > long) return null;
-          const mid = [view.x + view.w / 2 - ox, view.y + view.h / 2 - oy];
-          let best = { gap: Infinity, at: long / 2 };
-          for (let n = 1; n < run.length; n++) {
-            const [ax_, ay_] = run[n - 1];
-            const dx = run[n][0] - ax_;
-            const dy = run[n][1] - ay_;
-            const span = dx * dx + dy * dy;
-            const t = span ? Math.max(0, Math.min(1, ((mid[0] - ax_) * dx + (mid[1] - ay_) * dy) / span)) : 0;
-            const gap = Math.hypot(ax_ + t * dx - mid[0], ay_ + t * dy - mid[1]);
-            if (gap < best.gap) best = { gap, at: upto[n - 1] + t * Math.sqrt(span) };
-          }
+          const hit = onto(run, [view.x + view.w / 2 - ox, view.y + view.h / 2 - oy], false);
+          const middle = upto[hit.i] + hit.t * (upto[hit.i + 1] - upto[hit.i]);
           const every = Math.max(said * 3, 420 * near);
           const spots = [-2, -1, 0, 1, 2]
-            .map((k) => best.at + k * every)
+            .map((k) => middle + k * every)
             .filter((at) => at - said / 2 > 0 && at + said / 2 < long);
           return (
             <g key={`words-${place.id}`} className={`globeline ${place.type}`}>
@@ -1647,7 +1582,7 @@ export default function Globe({
         <path
           className="globepen"
           style={{ strokeWidth: 2 * near }}
-          d={"M " + pen.map(([lon, lat]) => `${ax(lon)} ${ay(lat)}`).join(" L ")}
+          d={pathOf(offset(project(pen), origin))}
         />
       )}
     </svg>
