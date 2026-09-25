@@ -1,6 +1,7 @@
 /**
- * The world is a SQLite file. This lays out its shape, brings an older one up to
- * it, and hands out the three ways anybody reads it: `rows`, `row`, `value`.
+ * The world is a SQLite file. This lays out the shape of a new one and hands out
+ * the three ways anybody reads it: `rows`, `row`, `value`. A table already on
+ * disk keeps the shape it has; changing one takes a migration written for it.
  *
  * `node:sqlite` is synchronous, which suits a driver that does one thing at a
  * time and makes a transaction a plain try/finally rather than a promise chain.
@@ -9,12 +10,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { CANON_DB } from "./config.ts";
+import { CANON_DB, KINDS, PLACE_TYPES, SLOTS } from "./config.ts";
+
+const listed = (values: readonly string[]) => values.map((v) => `'${v}'`).join(",");
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS entity (
   id         TEXT PRIMARY KEY,
-  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects','abilities')),
+  kind       TEXT NOT NULL CHECK (kind IN (${listed(KINDS)})),
   name       TEXT NOT NULL,
   introduced TEXT,
   extent     TEXT,
@@ -50,7 +53,7 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS place (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm')),
+  type   TEXT CHECK (type IN (${listed(PLACE_TYPES.map(([type]) => type))})),
   lat    REAL,
   lon    REAL,
   width  REAL
@@ -94,7 +97,7 @@ CREATE TABLE IF NOT EXISTS item (
   worth      TEXT,
   owed_by    TEXT,
   rarity     TEXT,
-  slot       TEXT CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))
+  slot       TEXT CHECK (slot IN (${listed(SLOTS)}))
 );
 
 CREATE TABLE IF NOT EXISTS effect (
@@ -228,191 +231,31 @@ export function connect(readonly = false): DatabaseSync {
 }
 
 /**
- * A `type` is a CHECK and sqlite cannot alter one, so widening the list means
- * building the table again. Whatever a place already carries comes across with
- * it — which is why this is written rather than declared: an older file may not
- * have a position to bring.
+ * Lay the shape down. Safe to run every time: a table that is already there is
+ * left as it is, and the views, triggers and index are made again from it.
  */
-const resortPlace = (has: Set<string>) => {
-  const held = ["lat", "lon", "width"].filter((c) => has.has(c));
-  const also = held.length ? ", " + held.join(", ") : "";
-  return `
-CREATE TABLE place_sorted (
-  id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
-  parent TEXT,
-  type   TEXT CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm')),
-  lat    REAL,
-  lon    REAL,
-  width  REAL
-);
-INSERT INTO place_sorted (id, parent, type${also})
-  SELECT id, parent, type${also} FROM place;
-DROP TABLE place;
-ALTER TABLE place_sorted RENAME TO place;
-CREATE INDEX IF NOT EXISTS place_parent ON place(parent);
-`;
-};
-
-const WIDEN_KINDS = `
-DROP VIEW IF EXISTS writing;
-DROP VIEW IF EXISTS unwritten;
-CREATE TABLE entity_kinds (
-  id         TEXT PRIMARY KEY,
-  kind       TEXT NOT NULL CHECK (kind IN ('people','places','books','items','aspects','abilities')),
-  name       TEXT NOT NULL,
-  introduced TEXT,
-  extent     TEXT,
-  about      TEXT,
-  made       TEXT,
-  changed    TEXT
-);
-INSERT INTO entity_kinds (id, kind, name, introduced, extent, about, made, changed)
-  SELECT id, kind, name, introduced, extent, about, made, changed FROM entity;
-DROP TABLE entity;
-ALTER TABLE entity_kinds RENAME TO entity;
-`;
-
-const ANCHOR_ITEM = `
-CREATE TABLE item_anchored (
-  id         TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
-  type       TEXT,
-  weight     REAL,
-  worth      TEXT,
-  owed_by    TEXT,
-  rarity     TEXT,
-  slot       TEXT CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))
-);
-INSERT INTO item_anchored (id, type, weight, worth, owed_by, rarity, slot)
-  SELECT id, type, weight, worth, owed_by, rarity, slot FROM item;
-DROP TABLE item;
-ALTER TABLE item_anchored RENAME TO item;
-`;
-
-const MOVED: ReadonlyArray<readonly [string, string, string]> = [
-  ["damage", "damage", ""],
-  ["protection", "defense", ""],
-  ["heals", "health", "+"],
-  ["sates", "hunger", "−"],
-];
-
-const columnsOf = (db: DatabaseSync, table: string) =>
-  new Set((db.prepare(`PRAGMA table_info(${table})`).all() as Row[]).map((r) => String(r.name)));
-
-const sqlOf = (db: DatabaseSync, table: string) =>
-  String(
-    (db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name=?").get(table) as Row)
-      ?.sql ?? ""
-  );
-
-/** Lay the shape down, and carry an older file up to it. Safe to run every time. */
 export function setup(): string {
   fs.mkdirSync(path.dirname(CANON_DB), { recursive: true });
   const db = connect();
   try {
     db.exec("PRAGMA journal_mode = WAL");
-    db.exec(
-      "DROP VIEW IF EXISTS writing; DROP VIEW IF EXISTS unwritten;" +
-        " DROP TRIGGER IF EXISTS entity_about_ai;"
-    );
-    db.exec(SCHEMA);
-
-    const shape = columnsOf(db, "entity");
-    if (!shape.has("extent")) db.exec("ALTER TABLE entity ADD COLUMN extent TEXT");
-    if (!shape.has("about")) db.exec("ALTER TABLE entity ADD COLUMN about TEXT");
-    for (const when of ["made", "changed"]) {
-      if (!shape.has(when)) db.exec(`ALTER TABLE entity ADD COLUMN ${when} TEXT`);
-    }
-    db.exec(
-      "UPDATE entity SET made = coalesce(made, datetime('now')), " +
-        "changed = coalesce(changed, datetime('now')) " +
-        "WHERE made IS NULL OR changed IS NULL"
-    );
-
-    const held = columnsOf(db, "person");
-    for (const column of ["born", "died", "traits"]) {
-      if (!held.has(column)) db.exec(`ALTER TABLE person ADD COLUMN ${column} TEXT`);
-    }
-
-    const placeSql = sqlOf(db, "place");
-    if (!placeSql.includes("'water'") && placeSql.includes("type")) {
-      db.exec("PRAGMA foreign_keys = OFF");
-      db.exec(resortPlace(columnsOf(db, "place")));
-      db.exec("PRAGMA foreign_keys = ON");
-    }
-    if (!columnsOf(db, "place").has("type")) {
-      db.exec(
-        "ALTER TABLE place ADD COLUMN type TEXT " +
-          "CHECK (type IN ('location','region','road','river','water','celestial-body','celestial-system','realm'))"
-      );
-    }
-    const stood = columnsOf(db, "place");
-    for (const where of ["lat", "lon", "width"]) {
-      if (!stood.has(where)) db.exec(`ALTER TABLE place ADD COLUMN ${where} REAL`);
-    }
-
-    if (columnsOf(db, "holding").has("note")) db.exec("ALTER TABLE holding DROP COLUMN note");
-
-    const carried = columnsOf(db, "item");
-    if (!carried.has("rarity")) db.exec("ALTER TABLE item ADD COLUMN rarity TEXT");
-    if (!carried.has("weight")) db.exec("ALTER TABLE item ADD COLUMN weight REAL");
-    if (carried.has("uses")) db.exec("ALTER TABLE item DROP COLUMN uses");
-    for (const [column, stat, sign] of MOVED) {
-      if (!carried.has(column)) continue;
-      db.prepare(
-        "INSERT OR IGNORE INTO effect (item, stat, amount) " +
-          `SELECT id, ?, ? || ${column} FROM item ` +
-          `WHERE ${column} IS NOT NULL AND trim(${column}) <> ''`
-      ).run(stat, sign);
-      db.exec(`ALTER TABLE item DROP COLUMN ${column}`);
-    }
-    if (!carried.has("slot")) {
-      db.exec(
-        "ALTER TABLE item ADD COLUMN slot TEXT " +
-          "CHECK (slot IN ('helmet','chest','legs','feet','mainhand','offhand','ring'))"
-      );
-    }
-
-    // A description written at insert once missed the index entirely. This puts
-    // back anything the index does not already hold, every time it is run.
-    db.exec(`INSERT INTO search(ref, entity, section, body)
-             SELECT 'bota://' || kind || '/' || id || '#about', id, 'about', about
-               FROM entity
-              WHERE trim(coalesce(about, '')) <> ''
-                AND 'bota://' || kind || '/' || id || '#about' NOT IN
-                    (SELECT ref FROM search)`);
-
-    if (!sqlOf(db, "entity").includes("'abilities'")) {
-      // Rebuilding entity takes its view and its triggers with it, so the schema
-      // is laid down again afterwards to put them back.
-      db.exec("PRAGMA foreign_keys = OFF");
-      db.exec(WIDEN_KINDS);
-      db.exec(SCHEMA);
-      db.exec("PRAGMA foreign_keys = ON");
-    }
-
-    const borne = columnsOf(db, "ability");
-    if (borne.size && !borne.has("in_aspect")) db.exec("ALTER TABLE ability ADD COLUMN in_aspect TEXT");
-    if (borne.has("doing")) {
-      // An ability had two descriptions: its own `about` like everything else, and
-      // this. One thing, one description.
-      db.exec(
-        "UPDATE entity SET about = trim(coalesce(about, '') || ' ' || " +
-          "coalesce((SELECT doing FROM ability WHERE ability.id = entity.id), '')) " +
-          "WHERE id IN (SELECT id FROM ability WHERE trim(coalesce(doing, '')) <> '')"
-      );
-      db.exec("ALTER TABLE ability DROP COLUMN doing");
-    }
-
-    if (!sqlOf(db, "item").includes("REFERENCES entity")) {
-      db.exec("DELETE FROM item WHERE id NOT IN (SELECT id FROM entity)");
-      db.exec("PRAGMA foreign_keys = OFF");
-      db.exec(ANCHOR_ITEM);
-      db.exec("PRAGMA foreign_keys = ON");
-    }
   } finally {
     db.close();
   }
+  writing((con) => {
+    for (const r of con.prepare("SELECT type, name FROM sqlite_master WHERE type IN ('view', 'trigger')").all() as Row[]) {
+      con.exec(`DROP ${r.type === "view" ? "VIEW" : "TRIGGER"} IF EXISTS "${r.name}"`);
+    }
+    con.exec(SCHEMA);
+    reindex(con);
+  });
   return CANON_DB;
+}
+
+/** The search index, made again from everything written. */
+export function reindex(con: DatabaseSync) {
+  con.exec("DELETE FROM search");
+  con.exec("INSERT INTO search(ref, entity, section, body) SELECT ref, entity, section, body FROM writing");
 }
 
 /** A write, and the checkpoint after it, so a reader never sees half of one. */

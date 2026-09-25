@@ -1,7 +1,8 @@
 import type { Ctx } from "./index.ts";
+import { PLACE_TYPES } from "../config.ts";
 import { fields, named, number, oneOf } from "./shared.ts";
 
-export const TYPES = ["location", "region", "road", "river", "water", "celestial-body", "celestial-system", "realm"] as const;
+const TYPES = PLACE_TYPES.map(([type]) => type);
 export const CELESTIAL = ["celestial-body", "celestial-system"];
 const WIDE = ["road", "river"];
 
