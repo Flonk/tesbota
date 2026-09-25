@@ -211,7 +211,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
 
   speed({ flags, rest }) {
     if (rest[0] === undefined) {
-      const speed = loadCampaign().clock.speed_factor;
+      const speed = loadCampaign().pace.speed_factor;
       return say(flags.has("--json") ? { ok: true, speed } : `speed ${speed}`);
     }
     const result = actions.setSpeed(rest[0]);

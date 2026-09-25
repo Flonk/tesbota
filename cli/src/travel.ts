@@ -4,7 +4,7 @@
  */
 
 import type { Rng } from "./rng.ts";
-import type { ClockT } from "./schema.ts";
+import type { PaceT } from "./schema.ts";
 
 export const POINTS = [
   "north", "north-north-east", "north-east", "east-north-east",
@@ -79,8 +79,8 @@ export function distanceBand(text: unknown): [number, number] | null {
 }
 
 /** How long a stretch of world-time takes in real seconds, at the current speed. */
-export function realDelayMs(clock: ClockT, inWorldMinutes: number): number {
-  const factor = Number(clock?.speed_factor) || 1;
+export function realDelayMs(pace: PaceT, inWorldMinutes: number): number {
+  const factor = Number(pace?.speed_factor) || 1;
   return ((Number(inWorldMinutes) * 60) / factor) * 1000;
 }
 
@@ -89,11 +89,11 @@ export function realDelayMs(clock: ClockT, inWorldMinutes: number): number {
  * league; the first that lands says where the walking stops.
  */
 export function leg(
-  clock: ClockT, leagues: number, rng: Rng, slowed = 1.0
+  pace: PaceT, leagues: number, rng: Rng, slowed = 1.0
 ): [number, number, boolean] {
-  const hoursPerLeague = Number(clock.hours_per_league);
-  const minLeg = Math.trunc(Number(clock.min_leg_minutes));
-  const chance = Number(clock.encounter_chance_per_league);
+  const hoursPerLeague = Number(pace.hours_per_league);
+  const minLeg = Math.trunc(Number(pace.min_leg_minutes));
+  const chance = Number(pace.encounter_chance_per_league);
 
   const total = Math.max(
     minLeg,

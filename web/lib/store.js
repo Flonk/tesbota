@@ -117,7 +117,7 @@ export async function snapshot(profile = PROFILES[0]) {
         (turn.turn_id === campaign.current_turn ? campaign.location_path || [] : []),
       vitals: turn.vitals || null,
       quest: turn.quest || null,
-      at: turn.at || null,
+      at: turn.when || null,
       note: turn.note || null,
       lore: turn.lore || [],
       loreGap: turn.lore_gap || null,
@@ -131,7 +131,7 @@ export async function snapshot(profile = PROFILES[0]) {
   const status = {
     state: current?.state || "uninitialised",
     who: campaign.explorer || null,
-    speed: campaign.clock?.speed_factor ?? null,
+    speed: campaign.pace?.speed_factor ?? null,
     paused: !!campaign.paused,
     turn: campaign.current_turn || null,
     where: campaign.location_path || [],

@@ -109,7 +109,7 @@ export async function bury(campaign: CampaignT, cause?: string | null): Promise<
   clearDeath();
 
   const life = Campaign.parse({
-    created: stamp(), turn_counter: 0, explorer: pickName(), time: campaign.time, clock: campaign.clock,
+    created: stamp(), turn_counter: 0, explorer: pickName(), time: campaign.time, pace: campaign.pace,
   });
   saveCampaign(life);
   stock(STARTING_INVENTORY);
@@ -127,9 +127,9 @@ export function walk(campaign: CampaignT, destination: string, rng: Rng = random
   const found = ground.route(ground.standsAt(campaign), destination);
   if ("error" in found) console.error(`[walk] no route to ${destination}: ${found.error}`);
   const way = "error" in found ? { path: [], leagues: 0 } : found;
-  const [minutes, left, cut] = travel.leg(campaign.clock, way.leagues, rng, sheet.load(campaign).drag);
+  const [minutes, left, cut] = travel.leg(campaign.pace, way.leagues, rng, sheet.load(campaign).drag);
   return begin(campaign, "walks", {
-    wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
+    wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.pace, minutes))),
     journey: {
       to: destination,
       path: way.path,
@@ -148,7 +148,7 @@ export function advance(campaign: CampaignT, turn: TurnT): TurnT {
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {
     return begin(campaign, "walks", {
-      wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
+      wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.pace, minutes))),
     });
   }
   return begin(campaign, "next");
@@ -200,7 +200,7 @@ const steer = (campaign: CampaignT) => ({
   paused: campaign.paused,
   note: campaign.note,
   last_seen: campaign.last_seen,
-  speed: campaign.clock.speed_factor,
+  speed: campaign.pace.speed_factor,
 });
 
 function steered(campaign: CampaignT, was: ReturnType<typeof steer>) {
@@ -208,7 +208,7 @@ function steered(campaign: CampaignT, was: ReturnType<typeof steer>) {
   if (now.paused !== was.paused) campaign.paused = now.paused;
   if (now.note !== was.note) campaign.note = now.note;
   if (now.last_seen !== was.last_seen) campaign.last_seen = now.last_seen;
-  if (now.speed !== was.speed) campaign.clock.speed_factor = now.speed;
+  if (now.speed !== was.speed) campaign.pace.speed_factor = now.speed;
 }
 
 export async function run(limit = 1): Promise<Ran> {

@@ -184,7 +184,7 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   applyInventory(draft, turn.turn_id);
   await applyQuests(campaign, draft, turn.turn_id);
   settleFight(campaign, turn);
-  turn.at = passTime(campaign, draft.minutes);
+  turn.when = passTime(campaign, draft.minutes);
 
   turn.location_path = campaign.location_path;
   turn.vitals = { ...campaign.vitals };

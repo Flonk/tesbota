@@ -43,7 +43,7 @@ export const Time = z.object({
   long: z.string().optional(),
 });
 
-export const Clock = z.object({
+export const Pace = z.object({
   hours_per_league: z.number().default(DEFAULTS.hours_per_league),
   min_leg_minutes: z.number().default(DEFAULTS.min_leg_minutes),
   encounter_chance_per_league: z.number().default(DEFAULTS.encounter_chance_per_league),
@@ -358,7 +358,7 @@ export const Turn = z.object({
 
   minutes: z.number().int().min(0).default(0),
   wake_at: z.string().nullish(),
-  at: z.string().nullish(),
+  when: z.string().nullish(),
   vitals: Vitals.nullish(),
   location_path: z.array(Placed).default([]),
   quest: z.string().nullish(),
@@ -381,7 +381,7 @@ export const Campaign = z.object({
   skills: Skills.default(() => structuredClone(STARTING_SKILLS)),
   quests: z.array(Quest).default([]),
   time: Time.default(() => ({ ...WORLD_START })),
-  clock: Clock.prefault({}),
+  pace: Pace.prefault({}),
   sessions: Sessions.prefault({}),
   sent: z.record(z.string(), z.string()).default({}),
   last_narration: z.string().nullish(),
@@ -415,6 +415,6 @@ export type JourneyT = z.infer<typeof Journey>;
 export type QuestT = z.infer<typeof Quest>;
 export type PlacedT = z.infer<typeof Placed>;
 export type TimeT = z.infer<typeof Time>;
-export type ClockT = z.infer<typeof Clock>;
+export type PaceT = z.infer<typeof Pace>;
 export type VitalsT = z.infer<typeof Vitals>;
 export type CarriedT = z.infer<typeof Carried>;

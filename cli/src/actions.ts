@@ -174,9 +174,9 @@ export function pause(on = true) {
  */
 export function setSpeed(factor: unknown) {
   const campaign = loadCampaign();
-  campaign.clock.speed_factor = Math.max(1, Math.min(20000, Math.trunc(Number(factor)) || 1));
+  campaign.pace.speed_factor = Math.max(1, Math.min(20000, Math.trunc(Number(factor)) || 1));
   saveCampaign(campaign);
-  return { ok: true, speed: campaign.clock.speed_factor };
+  return { ok: true, speed: campaign.pace.speed_factor };
 }
 
 /**
