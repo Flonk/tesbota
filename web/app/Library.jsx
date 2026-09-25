@@ -520,7 +520,6 @@ export default function Library({
       {hits === null && kind === "people" && (
         <Tabs
           sub
-          className="folk"
           items={FOLK.map((f) => ({
             ...f,
             count: (world?.people || []).filter((r) => (f.id === "mob" ? r.mob : !r.mob)).length,

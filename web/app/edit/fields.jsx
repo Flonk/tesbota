@@ -222,7 +222,7 @@ export function Chips({ label, values, onChange, placeholder = "add" }) {
     <Section label={label}>
       <div className="dtraits echips">
         {values.map((v) => (
-          <span className="pill echip" key={v}>
+          <span className="pill flat echip" key={v}>
             {v}
             <button onClick={() => onChange(values.filter((w) => w !== v))} title="remove" aria-label={`remove ${v}`}>
               ×

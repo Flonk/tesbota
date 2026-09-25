@@ -13,7 +13,7 @@ export function Tag({ tone = "dim", children }) {
 }
 
 export function Pill({ on, onClick, title, className = "", children }) {
-  const look = `toggle pill${on ? " on" : ""}${onClick ? "" : " flat"} ${className}`.trim();
+  const look = `pill${on ? " on" : ""}${onClick ? "" : " flat"} ${className}`.trim();
   if (!onClick) {
     return (
       <span className={look} title={title}>
@@ -335,9 +335,9 @@ export function Palette({ items, value, onChange, across = false, className = ""
   );
 }
 
-export function Tabs({ items, value, onChange, sub = false, className = "" }) {
+export function Tabs({ items, value, onChange, sub = false }) {
   return (
-    <div className={`tabs${sub ? " sub pad ruled" : ""} ${className}`.trim()}>
+    <div className={`tabs${sub ? " sub pad ruled" : ""}`}>
       {items.map((t) => (
         <button
           key={t.id}

@@ -15,6 +15,10 @@
   --hush: #6f9c95;
   --sea: #16293a;
   --moon: #b9c3d6;
+  --space: #000000;
+  --night: #020812;
+  --ground: #2a2a20;
+  --on-gold: #1a1408;
   --mono: 10px/1.6 ui-monospace, SFMono-Regular, monospace;
 
   /* Bars. Every row of controls in this app is one of these, and every one of
@@ -251,13 +255,6 @@ textarea {
   text-transform: uppercase;
 }
 .brand .word { font-weight: 700; letter-spacing: .26em; flex: 0 0 auto; }
-.brand .who {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .brand .cog {
   flex: 0 0 auto;
   display: flex;
@@ -342,11 +339,6 @@ textarea {
 .tquest { font: var(--mono); letter-spacing: .06em; color: var(--gold); }
 .tquest .qmark { opacity: .55; margin-right: .5em; }
 
-.steer .cap { color: var(--gold); }
-.steer .queued { border-left: 1px solid var(--gold); padding-left: .9rem; }
-.steered { border-left: 1px solid var(--line); padding-left: .9rem; margin-bottom: .8rem; }
-.steered .cap { color: var(--dim); }
-
 /* ---- tabs ---- */
 
 .row.tabbar {
@@ -373,7 +365,6 @@ textarea {
 .row.pad, .tabs.pad { padding: 0 var(--bar-x); }
 .row.ruled, .tabs.ruled { border-bottom: 1px solid var(--line); }
 .row.middled { align-items: center; gap: var(--bar-gap); }
-.row.grown, .tabs.grown { flex: 1 1 auto; }
 
 .tabs { flex: 0 1 auto; }
 .tabs.sub { flex: 0 0 auto; }
@@ -408,7 +399,6 @@ textarea {
 .tab.on .icon { opacity: 1; }
 .tab .pip { width: 5px; height: 5px; border-radius: 50%; background: var(--warn); }
 .tab .count { color: var(--gold); }
-
 
 .tabbody { flex: 1 1 auto; min-height: 0; position: relative; display: flex; }
 .tabpanel { flex: 1 1 auto; min-width: 0; min-height: 0; overflow-y: auto; padding: .9rem 1.2rem 1.4rem; }
@@ -464,12 +454,6 @@ textarea {
 .slot.worn:hover { border-color: var(--gold); background: var(--panel); }
 .slot.worn:hover .slotname { color: var(--gold); }
 
-.ability { white-space: nowrap; color: var(--dim); }
-.ability b { color: var(--ink); font-weight: 400; }
-.ability i { color: var(--gold); font-style: normal; }
-
-.bdate { color: var(--place); }
-
 /* The row the trail sits in is a bar like the others — same height, same rule
    underneath. What sits in it is the trail itself, which looks the way a trail
    looks everywhere else in here and is not restyled to pass as tabs. */
@@ -492,7 +476,6 @@ textarea {
 .crumbtool.on { color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, transparent); }
 
 .lore .cap { color: var(--warn); }
-.lore .ask { border-left: 1px solid var(--warn); padding-left: .9rem; }
 
 .chat { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .thread { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-anchor: none; padding: .9rem 1.2rem 1rem; }
@@ -546,7 +529,6 @@ textarea {
    measured against. Tightening one bar's own padding is how they drift apart. */
 @media (max-width: 640px) {
   :root { --bar-x: .5rem; --track: .08em; }
-  .roomy { display: none; }
   body { font-size: 15px; }
   .slide { padding: .8rem .9rem 1.2rem; }
   .thead { gap: .7rem; }
@@ -642,22 +624,11 @@ textarea.prompt:focus { outline: none; }
 .seekbox:focus { outline: none; }
 .seekbox::placeholder { color: var(--dim); }
 
-.filters { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 .7rem; }
-.toggle {
-  background: none; border: 1px solid var(--line); border-radius: 2px;
-  color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
-  padding: .1rem .4rem; cursor: pointer; white-space: nowrap;
-}
-.toggle:hover { color: var(--ink); }
-.toggle.on { color: var(--gold); border-color: var(--gold); }
-.toggle.clear { border-style: dashed; }
-
 .hits { display: flex; flex-direction: column; gap: .6rem; max-width: 62rem; }
 .hit { min-width: 0; }
 .hitref { display: flex; gap: .6rem; margin-bottom: .1rem; text-transform: none; letter-spacing: .06em; }
 .hitsec { color: var(--place); }
 .hitline { margin: 0; font-size: .9rem; line-height: 1.45; }
-.hitline mark { background: none; color: var(--gold); }
 .named { margin-bottom: .3rem; }
 
 .dline { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem; margin: 0 0 .1rem; }
@@ -671,7 +642,7 @@ textarea.prompt:focus { outline: none; }
 .dossier {
   position: absolute; inset: 0; z-index: 20;
   display: flex; justify-content: flex-end;
-  background: rgba(15, 14, 12, .72);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
 }
 .dpanel {
   flex: 0 1 40rem; min-width: 0;
@@ -692,7 +663,7 @@ textarea.prompt:focus { outline: none; }
 .dhead > .icon { flex: 0 0 auto; color: var(--dim); }
 .dtitle { flex: 1 1 auto; min-width: 0; font-size: 1.1rem; display: flex; flex-direction: column; gap: .15rem; }
 .dtitle .dname { min-width: 0; overflow-wrap: anywhere; }
-.dtitle .daddr, .dtitle .dmeta, .dtitle .dwho { align-self: flex-start; margin: 0; text-align: left; }
+.dtitle .dmeta, .dtitle .dwho { align-self: flex-start; margin: 0; text-align: left; }
 .dtitle .chip { margin-left: .6em; margin-right: 0; }
 .dclose {
   flex: 0 0 auto; background: none; border: 0; color: var(--dim);
@@ -717,13 +688,6 @@ textarea.prompt:focus { outline: none; }
 .dial { width: 100%; max-width: 22rem; accent-color: var(--gold); display: block; margin: .2rem 0 0; }
 .dbody > .etable { margin: 0 0 1.1rem; }
 .dbody > .etable .erow { padding-left: 0; margin-left: -1px; }
-.daddr {
-  background: none; border: 1px dashed var(--line); border-radius: 2px;
-  color: var(--place); font: var(--mono); letter-spacing: .06em;
-  padding: .1rem .35rem; cursor: pointer;
-}
-.daddr:hover { color: var(--gold); border-color: var(--gold); }
-.dbody > .daddr { margin-bottom: 1.1rem; }
 .leaves { display: flex; flex-direction: column; gap: 1rem; }
 .leaf { display: flex; gap: .8rem; align-items: baseline; }
 .leaf .rord { flex: 0 0 1.2rem; margin: 0; text-align: right; }
@@ -732,7 +696,6 @@ textarea.prompt:focus { outline: none; }
 
 .dsec { margin: 1.1rem 0; }
 .dsection { font: var(--mono); letter-spacing: .06em; color: var(--place); }
-.dclaim { margin: 0 0 .5rem; font-size: .9rem; line-height: 1.45; }
 .dclaimhead { display: flex; gap: .6rem; margin: 0 0 .1rem; text-transform: none; letter-spacing: .06em; }
 .dmention { margin-bottom: .55rem; }
 .dsnip { margin: 0; font-size: .85rem; line-height: 1.45; color: var(--ink); }
@@ -767,7 +730,6 @@ textarea.prompt:focus { outline: none; }
   text-decoration-style: dashed;
   text-decoration-color: var(--bad);
 }
-.dclaim.lit { border-left: 1px solid var(--gold); padding-left: .5rem; }
 .dclaimtext { margin: 0; }
 .body mark, .dsnip mark, .hitline mark { background: none; color: var(--gold); }
 
@@ -785,8 +747,6 @@ textarea.prompt:focus { outline: none; }
 }
 .mark > .markface { flex: 0 0 auto; display: inline-flex; align-items: center; }
 .mark > .markface > .icon { display: block; vertical-align: baseline; }
-.tab > .mark { gap: .4rem; }
-.glass { flex: 0 0 auto; color: var(--dim); }
 .markface.worn { color: var(--gold); }
 .erow.heavy .ecell.num { color: var(--bad); }
 
@@ -796,7 +756,6 @@ textarea.prompt:focus { outline: none; }
 .gtool.walker.on { color: var(--bg); border-color: color-mix(in srgb, var(--bg) 35%, transparent); }
 
 .fight { display: flex; flex-direction: column; gap: .7rem; }
-.fightwho { color: var(--dim); margin: 0; }
 
 .arena { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; align-items: start; }
 .cornername {
@@ -808,7 +767,6 @@ textarea.prompt:focus { outline: none; }
 .cornerhp { color: var(--dim); flex: 0 0 auto; white-space: nowrap; }
 .hbar { display: block; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
 .hfill { display: block; height: 100%; transition: width .45s ease; }
-.hbar.them .hfill { background: var(--bad); }
 .statline {
   display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); gap: .45rem; margin: 0;
   align-items: baseline; min-width: 0;
@@ -820,7 +778,6 @@ textarea.prompt:focus { outline: none; }
 .statwhat { min-width: 0; display: flex; flex-direction: column; gap: .05rem; }
 .statname { font-size: .8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .statdoes { font: var(--mono); font-size: .64rem; color: var(--dim); }
-.statline.reach .statslot { color: var(--place); }
 
 .replay { align-self: flex-start; }
 
@@ -852,14 +809,13 @@ textarea.prompt:focus { outline: none; }
 .hbar.us .hfill { background: var(--good); }
 .hbar.them .hfill { background: var(--bad); }
 
-.tilecap { margin: .45rem 0 .3rem; }
-.tilecap:first-child { margin-top: 0; }
-.pills { display: flex; flex-wrap: wrap; gap: .3rem; }
-
-.pill { max-width: 100%; min-width: 0; padding: .14rem .45rem; }
-.pill .mark { min-width: 0; }
-.pill .mark > :last-child { overflow: hidden; text-overflow: ellipsis; }
-.pill:hover { border-color: var(--gold); }
+.pill {
+  background: none; border: 1px solid var(--line); border-radius: 2px;
+  color: var(--dim); font: var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  max-width: 100%; min-width: 0; padding: .14rem .45rem; cursor: pointer; white-space: nowrap;
+}
+.pill:hover { color: var(--ink); border-color: var(--gold); }
+.pill.on { color: var(--gold); border-color: var(--gold); }
 
 .statline.stacked { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: .15rem; }
 .statline.stacked .statslot { color: var(--gold); white-space: normal; }
@@ -874,8 +830,6 @@ textarea.prompt:focus { outline: none; }
 .grant { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .5rem; }
 .granted { align-self: flex-start; font-size: .9rem; }
 .statdoes.dim { opacity: .7; }
-
-.tabs.folk { flex: 0 0 auto; }
 
 .dface {
   flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
@@ -892,17 +846,11 @@ textarea.prompt:focus { outline: none; }
 .orbit {
   flex: 1 1 auto; min-width: 0; min-height: 14rem;
   display: flex; flex-direction: column; align-items: stretch;
-  position: relative; background: #000; overflow: hidden;
+  position: relative; background: var(--space); overflow: hidden;
 }
 .orbitpane { flex: 1 1 auto; min-height: 0; display: flex; align-items: center;
              justify-content: center; padding: .8rem; }
 .orbitbox { width: 100%; max-width: min(30rem, 100%); max-height: 100%; }
-/* The system is the one thing in here that is not drawn, because it is the space
-   the drawing is of. So it is said instead. */
-.orbitwhere { background: none; border: 0; padding: 0; cursor: pointer;
-              font: inherit; letter-spacing: inherit; color: var(--dim); }
-.orbitwhere:hover { color: var(--gold); }
-.orbitwhere.on { color: var(--ink); }
 
 /* A world flattened. Mercator cannot reach a pole, so the picture stops at 85°
    and the dark cap runs off the top or the bottom of it. */
@@ -924,7 +872,7 @@ textarea.prompt:focus { outline: none; }
 /* Night is a deep blue laid over the world, not black. Painting it black takes
    the sea with it, and half the map stops being a map — the night side of a world
    is still a world, and you can still see where its water is. */
-.globenight { fill: rgba(2, 8, 18, .55); pointer-events: none; }
+.globenight { fill: color-mix(in srgb, var(--night) 55%, transparent); pointer-events: none; }
 .globegrid { stroke: color-mix(in srgb, var(--line) 70%, transparent); }
 .globegrid.equator { stroke: var(--line); }
 .globegrid.tropic { stroke: color-mix(in srgb, var(--warn) 45%, transparent);
@@ -968,7 +916,7 @@ textarea.prompt:focus { outline: none; }
    anywhere the adventurer has actually stood is said a little louder than
    somewhere only ever read about. */
 .globeshape { cursor: pointer; vector-effect: non-scaling-stroke; stroke-width: 1; }
-.globeshape.region { fill: color-mix(in srgb, var(--good) calc(22% + var(--depth, 0) * 12%), #2a2a20);
+.globeshape.region { fill: color-mix(in srgb, var(--good) calc(22% + var(--depth, 0) * 12%), var(--ground));
                      stroke: color-mix(in srgb, var(--good) calc(45% + var(--depth, 0) * 15%), transparent); }
 /* Ground is held lightly so that ground inside ground still reads: a village is
    an outline, and the houses on its street are outlines within it. */
@@ -1050,14 +998,14 @@ input.gtype:focus { outline: none; border-color: var(--gold); }
 input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spacing: .04em; }
 .globemoved {
   position: absolute; left: .5rem; right: .5rem; bottom: .5rem; z-index: 3; cursor: pointer;
-  background: rgba(0, 0, 0, .8); border: 1px solid var(--line); border-radius: 2px;
+  background: color-mix(in srgb, var(--space) 80%, transparent); border: 1px solid var(--line); border-radius: 2px;
   color: var(--dim); padding: .3rem .5rem; font-size: .85rem;
 }
 /* Asking before taking something out of the record. */
 .globeask {
   position: absolute; inset: 0; z-index: 5; display: flex;
   align-items: center; justify-content: center; padding: 1rem;
-  background: rgba(0, 0, 0, .6);
+  background: color-mix(in srgb, var(--space) 60%, transparent);
 }
 .asked {
   max-width: 22rem; display: flex; flex-direction: column; gap: .5rem;
@@ -1075,7 +1023,7 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 
 .globewrong {
   position: absolute; left: .5rem; right: .5rem; bottom: .5rem; z-index: 3;
-  background: rgba(0, 0, 0, .8); border: 1px solid var(--bad); border-radius: 2px;
+  background: color-mix(in srgb, var(--space) 80%, transparent); border: 1px solid var(--bad); border-radius: 2px;
   color: var(--bad); padding: .3rem .5rem; font-size: .85rem;
 }
 
@@ -1140,11 +1088,11 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 .r-cli         { --who: var(--faint); }
 .r-human       { --who: var(--ink); }
 
-/* Who runs it always governs the colour — `.toggle.on` would otherwise paint the
+/* Who runs it always governs the colour — `.pill.on` would otherwise paint the
    current state gold and lose the one thing the colour is there to say. Being
    here, or being tapped, is said with fill instead. The hover is named too,
-   because `.pill:hover` and `.toggle:hover` outweigh a bare `.mpill`, and a
-   touch leaves the pill hovered after the tap that let it go. */
+   because `.pill:hover` outweighs a bare `.mpill`, and a touch leaves the pill
+   hovered after the tap that let it go. */
 .mpill, .mpill.on, .mpill:hover, .mpill.on:hover {
   border-color: var(--who, var(--line)); color: var(--who, var(--dim));
 }
@@ -1192,7 +1140,7 @@ input.gtype::placeholder { color: var(--faint); text-transform: none; letter-spa
 /* Shown only when the tab is running code the server has since replaced. */
 .stale {
   position: fixed; left: 0; right: 0; top: 0; z-index: 40; cursor: pointer;
-  background: var(--gold); color: #1a1408; border: 0;
+  background: var(--gold); color: var(--on-gold); border: 0;
   font: var(--mono); letter-spacing: .08em; text-transform: uppercase;
   padding: .45rem .8rem; text-align: center;
 }
