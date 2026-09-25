@@ -112,6 +112,8 @@ export function page(origin: Pt, radius: number) {
   };
 }
 
+export type Page = ReturnType<typeof page>;
+
 export const gap = (a: Pt, b: Pt) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 
 /** Great-circle metres, so a long road is not measured on a flat page. */
@@ -143,7 +145,7 @@ export function bearing(a: Pt, b: Pt) {
 }
 
 /** The nearest point of a run of points, in page metres: where, how far, which segment, how far along it. */
-export function nearest(run: Pt[], p: Pt) {
+function nearest(run: Pt[], p: Pt) {
   let best = { q: run[0], d: gap(run[0], p), seg: 0, t: 0 };
   for (let i = 1; i < run.length; i++) {
     const a = run[i - 1];
@@ -155,6 +157,16 @@ export function nearest(run: Pt[], p: Pt) {
     const q: Pt = [a[0] + t * dx, a[1] + t * dy];
     const d = gap(q, p);
     if (d < best.d) best = { q, d, seg: i - 1, t };
+  }
+  return best;
+}
+
+export function closest(runs: Pt[][], p: Pt, flat: Page) {
+  const at = flat.to(p);
+  let best: { q: Pt; d: number; seg: number; t: number } | null = null;
+  for (const run of runs) {
+    const hit = nearest(run.map(flat.to), at);
+    if (!best || hit.d < best.d) best = { ...hit, q: flat.from(hit.q) };
   }
   return best;
 }
