@@ -443,6 +443,7 @@ export const stepGm: Step = async ({ campaign, turn }) => {
   const draft = extractJson<Record<string, any>>(text);
   draft.claims ??= [];
   draft.travel ??= null;
+  draft.destination ??= draft.travel?.destination ?? draft.location ?? null;
   draft.minutes ??= 0;
   draft.fatigue ??= 0;
   draft.health ??= 0;

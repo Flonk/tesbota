@@ -17,7 +17,7 @@ Reply with a single fenced json block and nothing else:
 ```json
 {
   "narration": "what the explorer perceives, second person",
-  "travel": null,
+  "destination": "kebab-id of where they are headed",
   "minutes": 0,
   "fatigue": 0,
   "health": 0,
@@ -31,11 +31,12 @@ Reply with a single fenced json block and nothing else:
 }
 ```
 
+- `destination` — where they are headed after this action, every turn. The same as `location` if they stay. If it is somewhere else, they walk there; how far and how long comes from the map.
 - `location` — the smallest place containing them, every turn, even unchanged. It is the id of a place the world already keeps, and `SELECT id, name FROM place JOIN entity USING (id)` is the list. Describing where they are instead of naming it invents a second place for somewhere that already has one — the trail they woke on is `flotburg-trail`, not `wet grass road`. Somewhere genuinely new is ruled on like anything else you assert.
 
 # Action
 
-Each turn the explorer can take an action. `minutes`, `fatigue`, `health` describe what the action cost. `minutes` is never walking somewhere: if they walk anywhere, set `travel` instead.
+Each turn the explorer can take an action. `minutes`, `fatigue`, `health` describe what the action cost. `minutes` is never walking somewhere: walking is `destination`.
 
 Most actions should require a skill check. `{"skill": "athletics", "dc": 12}`.
 
@@ -97,9 +98,7 @@ You do not roll it and you never write it. The explorer will be asked, round by 
 
 Before you describe where they are or what they can see, run `tesbota around`: it says what they are standing inside, what is near, how far and which way. Before you send them anywhere, run `tesbota route <destination>`: it walks the roads and says how far it really is. Never guess a distance or a direction the map can answer.
 
-Any walk longer than a few minutes is a journey, even if they do not know where the road goes: pick the place it leads to and commit it.
-
-`{"destination": "kebab-id"}` when they commit to a journey. How far it is and how long it takes are worked out from the map.
+A journey that was interrupted keeps its `destination`; set it again and they carry on.
 
 # Quests
 

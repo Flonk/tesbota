@@ -137,10 +137,10 @@ export function walk(
 }
 
 export function advance(campaign: CampaignT, turn: TurnT): TurnT {
-  const journey = ((turn as any).draft || {}).travel || {};
-  if (journey.leagues || journey.destination) {
-    return walk(campaign, Number(journey.leagues) || 0, journey.destination ?? null);
-  }
+  const draft = (turn as any).draft || {};
+  const journey = draft.travel || {};
+  const goal = String(draft.destination || journey.destination || "").trim().toLowerCase();
+  if (goal && goal !== campaign.location) return walk(campaign, Number(journey.leagues) || 0, goal);
 
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {
