@@ -1265,10 +1265,10 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   await applyQuests(campaign, draft, turn.turn_id);
   settleFight(campaign, turn);
 
-  const heading = draft.destination ? canon.slug(draft.destination.replace(/^\[+|\]+$/g, "")) : "";
+  const heading = canon.slug(draft.destination);
   const where = turn.arrival ? turn.arrival : campaign.location ? "" : heading;
   if (where) {
-    campaign.location = canon.slug(where);
+    campaign.location = where;
     canon.ensureEntity("places", campaign.location, null, turn.turn_id);
     campaign.location_path = canon.ancestry(campaign.location);
   }

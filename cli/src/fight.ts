@@ -75,7 +75,7 @@ export function swungWith(campaign: CampaignT): [string, string] {
  * for this fight only and is never written back.
  */
 export function fighter(said: Record<string, unknown>, kind: FighterT["kind"], fallbackDc = 11): FighterT {
-  const ident = canon.slug(said.who || said.name || kind);
+  const ident = canon.slug(said.who || said.name || kind) || kind;
   const kept: Record<string, unknown> = canon.body(ident) ?? {};
   const written = canon.called(ident);
 

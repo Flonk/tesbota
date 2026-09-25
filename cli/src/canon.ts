@@ -15,12 +15,12 @@ export const ATTESTED = "attested";
 
 export const slug = (text: unknown): string =>
   String(text ?? "")
-    .replace(/['’]/g, "")
-    .split(/\s+/)
-    .filter(Boolean)
-    .join("-")
-    .replace(/^-+|-+$/g, "")
-    .toLowerCase();
+    .normalize("NFKD")
+    .replace(/[̀-ͯ'’]/g, "")
+    .toLowerCase()
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 const SMALL = new Set([
   "a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into",

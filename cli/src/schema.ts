@@ -313,7 +313,7 @@ export const Turn = z.object({
 
   note: z.string().nullish(),
   event: z.string().nullish(),
-  arrival: z.string().nullish(),
+  arrival: Id.nullish(),
   opening: z.boolean().default(false),
   delivered: z.boolean().default(false),
   resolved: z.boolean().default(false),
@@ -341,7 +341,7 @@ export const Turn = z.object({
   talks: z.array(Exchange).default([]),
   context: z.array(Exchange).default([]),
   /** where the road is taking them, and how much of it is left */
-  destination: z.string().nullish(),
+  destination: Id.nullish(),
   leagues_left: z.number().default(0),
   /** the way the map says they are going, and how much of it this stretch covers */
   path: z.array(z.tuple([z.number(), z.number()])).nullish(),
