@@ -276,6 +276,14 @@ export function Act({ on, className = "", type = "button", ...rest }) {
   return <button type={type} className={`gtool${on ? " on" : ""} ${className}`.trim()} {...rest} />;
 }
 
+export function Pen({ on, onClick, title }) {
+  return (
+    <button type="button" className={`crumbtool${on ? " on" : ""}`} onClick={onClick} title={title} aria-label="edit">
+      <Icon name="pen" size={14} />
+    </button>
+  );
+}
+
 export function EditBar({ dirty, note, saving, onCancel, onSave }) {
   return (
     <Row>

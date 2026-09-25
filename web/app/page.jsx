@@ -19,7 +19,7 @@ import { useKeyboardAvoid } from "./keyboard";
 import Orbit from "./Orbit";
 import { given, KIND_ICON, KINDS } from "./world";
 import Machine from "./Machine";
-import { Act, Btn, Empty, knowNames, openDossier, Row, Tabs } from "./ui";
+import { Act, Empty, knowNames, openDossier, Row, Tabs } from "./ui";
 
 const MOOD = {
   explorer: "the adventurer is deciding",
@@ -381,17 +381,14 @@ export default function Page() {
             }}
           />
           <span className="grip" />
-          <div className="tabright">
-            <Btn
-              className="jump"
-              onClick={() => go(count - 1)}
-              disabled={at >= count - 1}
-              aria-label="latest"
-              title="jump to the latest turn"
-            >
-              »
-            </Btn>
-          </div>
+          <Act
+            onClick={() => go(count - 1)}
+            disabled={at >= count - 1}
+            aria-label="latest"
+            title="jump to the latest turn"
+          >
+            »
+          </Act>
         </Row>
 
         {SUBS[tab] && (

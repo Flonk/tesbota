@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KINDS, PLACE_ICON, PLACE_TYPES, RARITIES } from "./world";
-import Icon from "./icons";
 import { saveEdits } from "./edit";
 import { Field, Pick } from "./edit/fields";
 import { typing, useSaveKey } from "./keyboard";
-import { Btn, EditBar, Empty, Mark, Note, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
+import { Act, EditBar, Empty, Mark, Note, Pen, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
 
 const TYPE_CHOICES = PLACE_TYPES.map((t) => [t, t.replace(/-/g, " ")]);
 const NARRATOR = "the narrator";
@@ -543,25 +542,17 @@ export default function Library({
             setHits(null);
           }}
         />
-        {hits !== null && (
-          <Btn onClick={() => setHits(null)} type="button">
-            back to {kind}
-          </Btn>
-        )}
+        {hits !== null && <Act onClick={() => setHits(null)}>back to {kind}</Act>}
         {hits === null && (
-          <button
-            type="button"
-            className={`crumbtool${editing ? " on" : ""}`}
+          <Pen
+            on={editing}
             onClick={() => {
               if (editing) return cancel();
               setSaid([]);
               setEditing(true);
             }}
             title={editing ? "stop editing" : "edit"}
-            aria-label="edit"
-          >
-            <Icon name="pen" size={14} />
-          </button>
+          />
         )}
       </Row>
 
