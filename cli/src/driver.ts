@@ -14,7 +14,8 @@ import * as chronicle from "./chronicle.ts";
 import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
 import * as ground from "./ground.ts";
-import { applyVitals, passTime, standIn, standingIn, STEPS } from "./steps.ts";
+import { STEPS } from "./steps/index.ts";
+import { applyVitals, passTime, standIn, standingIn } from "./steps/deliver.ts";
 import { edgeFrom, STATES, type EdgeOn, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import {
