@@ -165,8 +165,8 @@ function records(): Wrong[] {
     for (const r of db.rows("SELECT item, amount FROM effect WHERE stat = 'damage' ORDER BY item")) {
       read(r.item, () => band(r.amount, "damage"));
     }
-  } catch {
-    return [];
+  } catch (err) {
+    return [{ what: "canon", said: `could not read records: ${(err as Error).message}` }];
   }
   return wrong;
 }
