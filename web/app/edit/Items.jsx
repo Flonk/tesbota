@@ -2,9 +2,9 @@
 
 import { Field, Many, reader } from "./fields";
 import { Tags } from "./Common";
+import { RARITIES } from "../world";
 
 const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand", "ring"];
-const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "unique"];
 
 export default function ItemsEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "item", thing.item);

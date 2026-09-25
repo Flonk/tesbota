@@ -1,8 +1,8 @@
 "use client";
 
-import { face as itemFace, PLACE_ICON, rare, tone } from "./Data";
+import { abilityLine, abilityWhere, face as itemFace, KIND_ICON, PLACE_ICON, rare } from "./world";
 import { useCallback, useEffect, useState } from "react";
-import { Act, Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, rated, Row, Stub, Table, Tag, unrated } from "./ui";
+import { Act, Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, rated, Row, settled, Stub, Table, Tag, tint, told, unrated } from "./ui";
 import Icon from "./icons";
 import { EDITORS, merged } from "./edit";
 import { Field, forget } from "./edit/fields";
@@ -34,8 +34,7 @@ const WROTE = {
   cols: "minmax(9rem, 2fr) 6rem 5rem",
   fields: [
     { key: "name", label: "authored", strong: true, cell: (r) => r.name },
-    { key: "written", label: "written", dim: true,
-      cell: (r) => (String(r.written || "").includes("$BOTA") || !r.written ? <Stub /> : r.written) },
+    { key: "written", label: "written", dim: true, cell: (r) => told(r.written) },
     { key: "rarity", label: "rarity", cell: (r) => (r.rarity ? rare(r.rarity) : <Stub />) },
   ],
 };
@@ -47,29 +46,6 @@ const CONTAINS = {
     { key: "kind", label: "kind", dim: true, cell: (r) => r.kind || <Stub /> },
   ],
 };
-
-function says(a) {
-  return [
-    a.damage ? `${a.damage} dmg` : null,
-    a.spawn ? `calls ${a.spawn.count || 1} × ${a.spawn.name}` : null,
-    a.advantage ? "advantage" : null,
-    a.cooldown ? `cooldown ${a.cooldown}` : null,
-    a.delay ? `arrives ${a.delay} round${a.delay > 1 ? "s" : ""} later` : null,
-    a.sleep ? `sleep ${a.sleep}` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-}
-
-function where(a) {
-  return [
-    a.within ? `within ${a.within.replace(/-/g, " ")}` : null,
-    a.in_aspect ? `somewhere ${a.in_aspect.replace(/-/g, " ")}` : null,
-    a.in_kind ? `in a ${a.in_kind.replace(/-/g, " ")}` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-}
 
 const MARKS = {
   cols: "minmax(8rem, 2fr) minmax(5rem, 1fr)",
@@ -145,13 +121,13 @@ const HELD_BY = {
   ],
 };
 
-const KIND = { people: "person", places: "pin", books: "book", items: "box", aspects: "aspect", abilities: "pulse" };
+const FACE = { ...KIND_ICON, people: "person" };
 
 function face_of(thing) {
   if (!thing) return null;
   if (thing.kind === "items") return itemFace(thing.item);
-  if (thing.kind === "places") return PLACE_ICON[thing.place?.type] || KIND.places;
-  return KIND[thing.kind] || null;
+  if (thing.kind === "places") return PLACE_ICON[thing.place?.type] || FACE.places;
+  return FACE[thing.kind] || null;
 }
 
 function Head({ thing }) {
@@ -313,11 +289,6 @@ function Who({ person }) {
   );
 }
 
-const settled = (v) => {
-  const text = String(v || "").trim();
-  return text && !text.includes("$BOTA") ? text : "";
-};
-
 function Lifespan({ person }) {
   return (
     <span className="lifespan">
@@ -461,7 +432,7 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
     <Overlay
       onClose={onClose}
       face={face_of(thing) || "search"}
-      tone={thing?.kind === "items" ? tone(thing.item?.rarity) : ""}
+      tone={thing?.kind === "items" ? tint(thing.item?.rarity) : ""}
       title={
         editing ? (
           <input
@@ -564,8 +535,8 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
                     <button className="dlink granted" onClick={() => openDossier(a.id)}>
                       {a.name}
                     </button>
-                    <span className="statdoes">{says(a)}</span>
-                    {where(a) && <span className="statdoes dim">{where(a)}</span>}
+                    <span className="statdoes">{abilityLine(a)}</span>
+                    {abilityWhere(a) && <span className="statdoes dim">{abilityWhere(a)}</span>}
                   </div>
                 ))}
               </Section>
@@ -575,9 +546,9 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
 
             {thing.kind === "abilities" && thing.ability && (
               <Section label="what it does">
-                <p className="statdoes">{says(thing.ability)}</p>
-                {where(thing.ability) && (
-                  <p className="statdoes dim">{where(thing.ability)}</p>
+                <p className="statdoes">{abilityLine(thing.ability)}</p>
+                {abilityWhere(thing.ability) && (
+                  <p className="statdoes dim">{abilityWhere(thing.ability)}</p>
                 )}
               </Section>
             )}

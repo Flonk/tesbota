@@ -2,8 +2,8 @@
 
 import { Field, Group, Many, Pick, reader } from "./fields";
 import { Tags } from "./Common";
+import { PLACE_TYPES } from "../world";
 
-const TYPES = ["location", "region", "road", "river", "water", "celestial-body", "celestial-system", "realm"];
 const CELESTIAL = ["celestial-body", "celestial-system"];
 
 const ORBIT = [
@@ -30,7 +30,7 @@ export default function PlacesEdit({ thing, draft, change }) {
   return (
     <>
       <div className="efields">
-        <Field kind="choice" label="type" options={TYPES} value={type} onChange={put("type")} />
+        <Field kind="choice" label="type" options={PLACE_TYPES} value={type} onChange={put("type")} />
         <Pick kind="places" label="inside" value={get("parent")} onChange={put("parent")} />
         <Field kind="number" label="latitude" value={get("lat")} onChange={put("lat")} />
         <Field kind="number" label="longitude" value={get("lon")} onChange={put("lon")} />

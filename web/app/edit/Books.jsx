@@ -5,8 +5,7 @@ import { Act } from "../ui";
 import Icon from "../icons";
 import { Field, Group, Pick, reader } from "./fields";
 import { Tags } from "./Common";
-
-const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "unique"];
+import { RARITIES } from "../world";
 
 export default function BooksEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "book", thing.book);

@@ -1,21 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PLACE_ICON, rare } from "./Data";
+import { KINDS, PLACE_ICON, PLACE_TYPES, RARITIES } from "./world";
 import Icon from "./icons";
 import { Field, forget, Pick } from "./edit/fields";
 import { typing } from "./keyboard";
-import { Act, Btn, Empty, Mark, Note, Prose, rated, Row, Stub, Table, Tabs } from "./ui";
+import { Act, Btn, Empty, Mark, Note, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
 
-const ORDER = ["unique", "legendary", "epic", "rare", "uncommon", "common", ""];
-const RARITIES = ORDER.filter(Boolean).reverse();
-const PLACE_TYPES = Object.keys(PLACE_ICON).map((t) => [t, t.replace(/-/g, " ")]);
+const TYPE_CHOICES = PLACE_TYPES.map((t) => [t, t.replace(/-/g, " ")]);
 const NARRATOR = "the narrator";
 const COUNT = (n) => (n ? String(n) : "");
-
-const OPEN = (v) => !String(v || "").trim() || String(v).includes("$BOTA");
-const settled = (v) => (OPEN(v) ? "" : String(v).trim());
-const told = (v) => (OPEN(v) ? <Stub /> : String(v).trim());
 
 function span(person) {
   const born = settled(person.born);
@@ -24,8 +18,6 @@ function span(person) {
   if (born && died) return `${born}–${died}`;
   return born ? `${born}–` : `–${died}`;
 }
-
-const WRITTEN = ["places", "people", "books", "items", "aspects", "abilities"];
 
 // Somebody in particular, or a kind of thing. The people shelf holds both and they
 // are not read the same way.
@@ -134,7 +126,7 @@ const COLUMNS = {
       { key: "name", strong: true, label: "person", cell: (r) => r.name },
       { key: "work", label: "trade", dim: true, cell: (r) => told(r.work) },
       { key: "livesName", label: "where", dim: true,
-        cell: (r) => (OPEN(r.lives) ? <Stub /> : r.livesName) },
+        cell: (r) => (unwritten(r.lives) ? <Stub /> : r.livesName) },
       { key: "born", label: "lived", dim: true, cell: (r) => span(r) },
     ],
   },
@@ -187,7 +179,7 @@ function editShape(kind, ed, toggle) {
       cols: "minmax(9rem, 3fr) minmax(6rem, 1.3fr) minmax(6rem, 1.5fr) 3.6rem 3rem 1.2rem",
       fields: [
         { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle, name(r)) },
-        { key: "type", label: "type", dim: true, cell: choice("place", "type", PLACE_TYPES) },
+        { key: "type", label: "type", dim: true, cell: choice("place", "type", TYPE_CHOICES) },
         { key: "parent", label: "in", dim: true, cell: pick("place", "parent", "places") },
         { key: "exits", label: "doors", num: true, cell: (r) => COUNT(r.exits) },
         { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
@@ -297,7 +289,6 @@ export default function Library({
   dossier,
   onOpen,
   kind,
-  kinds,
   onKind,
   onCounts,
 }) {
@@ -490,19 +481,12 @@ export default function Library({
 
   useEffect(() => {
     if (books === null || world === null) return;
-    onCounts({
-      places: (world.places || []).length,
-      people: (world.people || []).length,
-      aspects: (world.aspects || []).length,
-      abilities: (world.abilities || []).length,
-      books: books.length,
-      items: (world.items || []).length,
-    });
+    onCounts(Object.fromEntries(KINDS.map((k) => [k, (k === "books" ? books : world[k] || []).length])));
   }, [books, world, onCounts]);
 
   function pick(step) {
-    const at = kinds.indexOf(kind);
-    onKind(kinds[(at + step + kinds.length) % kinds.length]);
+    const at = KINDS.indexOf(kind);
+    onKind(KINDS[(at + step + KINDS.length) % KINDS.length]);
   }
 
   function search(e) {

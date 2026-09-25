@@ -2,8 +2,7 @@
 
 import { Field, Group, Many, Pick, reader } from "./fields";
 import { Tags } from "./Common";
-
-const PLACE_TYPES = ["location", "region", "road", "river", "water", "celestial-body", "celestial-system", "realm"];
+import { PLACE_TYPES } from "../world";
 
 export default function AbilitiesEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "ability", thing.ability);

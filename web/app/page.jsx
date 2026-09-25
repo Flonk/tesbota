@@ -6,7 +6,7 @@ import Kit, { Doll } from "./Kit";
 import Sheet from "./Sheet";
 import Quests, { QuestPanel } from "./Quests";
 import Library from "./Library";
-import Data, { rare } from "./Data";
+import Data from "./Data";
 import Dossier from "./Dossier";
 import Lore from "./Lore";
 import Settings from "./Settings";
@@ -14,6 +14,7 @@ import Steer from "./Steer";
 import Talk from "./Talk";
 import { typing, useKeyboardAvoid } from "./keyboard";
 import Orbit from "./Orbit";
+import { abilityLine, given, KIND_ICON, KINDS, rare } from "./world";
 import Machine from "./Machine";
 import { Act, Bar, Block, Btn, Bubble, Crumb, Empty, Fold, knowNames, Note, openDossier, Pill, Prose, Row, Tabs, Tag } from "./ui";
 
@@ -53,8 +54,6 @@ function mood(status, busy) {
   }
   return MOOD[status.state] || "the world sleeps";
 }
-
-const given = (who) => String(who || "").split(" ")[0];
 
 const WALKERS = ["corda", "debug"];
 
@@ -204,15 +203,7 @@ function Tile({ who, now, down, acting, side }) {
   const ours = side === "us";
   const power = who.ability;
   const says = power
-    ? [
-        power.damage ? `${power.damage} dmg` : null,
-        power.spawn ? `calls a ${power.spawn.name}` : null,
-        power.advantage ? "advantage" : null,
-        power.cooldown ? `cooldown ${power.cooldown}` : power.spawn ? "once" : null,
-        power.sleep ? `sleep ${power.sleep}` : null,
-      ]
-        .filter(Boolean)
-        .join(" · ")
+    ? [abilityLine(power), power.spawn && !power.cooldown ? "once" : null].filter(Boolean).join(" · ")
     : null;
   const powers = [
     ["attack", `${who.damage} dmg`],
@@ -477,10 +468,8 @@ function Turn({ s, last, blocked, vitals }) {
   );
 }
 
-const KINDS = ["places", "people", "books", "items", "aspects", "abilities"];
 const REMEMBER = "tesbota.sub";
 
-const ICONS = { places: "pin", people: "people", books: "book", items: "box", aspects: "aspect", abilities: "pulse" };
 
 const LAYER_ICON = {
   common: "lines",
@@ -508,7 +497,7 @@ const SUBS = {
     { id: "quests", label: "quests", icon: "flag" },
   ],
   library: [
-    ...KINDS.map((id) => ({ id, label: id, icon: ICONS[id] })),
+    ...KINDS.map((id) => ({ id, label: id, icon: KIND_ICON[id] })),
   ],
   dev: [
     { id: "states", label: "states", icon: "pulse" },
@@ -1100,7 +1089,6 @@ export default function Page() {
               dossier={dossier}
               onOpen={openDossier}
               kind={sub.library}
-              kinds={KINDS}
               onKind={(next) => pickSub("library", next)}
               onCounts={setCounts}
             />

@@ -1,7 +1,7 @@
 "use client";
 
-import { does, face, lit, tone } from "./Data";
-import { Mark, openDossier, rated, Table } from "./ui";
+import { does, face, lit } from "./world";
+import { Mark, openDossier, rated, Table, tint } from "./ui";
 
 const RINGS = 4;
 
@@ -35,12 +35,11 @@ function Slot({ slot, item }) {
     );
   }
   const said = does(item);
-  const tint = tone(item.rarity);
   return (
     <button className={`${cls} worn`} onClick={() => openDossier(item.id)} title={item.name}>
       <span className="slotname">{slot}</span>
       <Mark className="slotitem" name={face(item)} gap=".3rem">
-        <span className={`slottext ${tint}`}>{item.name}</span>
+        <span className={`slottext ${tint(item.rarity)}`}>{item.name}</span>
       </Mark>
       <span className="slotstat">{said}</span>
     </button>

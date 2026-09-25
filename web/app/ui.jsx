@@ -324,7 +324,7 @@ export const rated = (row) => row?.rarity ?? null;
 /** For a table whose rows have no rarity to speak of. Saying so is still required. */
 export const unrated = () => null;
 
-const tint = (rarity) => (rarity && rarity !== "common" ? `tint-${rarity}` : "");
+export const tint = (rarity) => (rarity && rarity !== "common" ? `tint-${rarity}` : "");
 
 export function Table({
   cols,
@@ -466,6 +466,10 @@ export function Stub() {
     </span>
   );
 }
+
+export const unwritten = (v) => !String(v ?? "").trim() || String(v).includes("$BOTA");
+export const settled = (v) => (unwritten(v) ? "" : String(v).trim());
+export const told = (v) => (unwritten(v) ? <Stub /> : String(v).trim());
 
 export function Empty({ children = "nothing" }) {
   return <p className="empty">{children}</p>;

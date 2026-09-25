@@ -1,5 +1,6 @@
 "use client";
 
+import { face, given, lit, rare } from "./world";
 import { Empty, Mark, openDossier, rated, Table, unrated } from "./ui";
 
 const NAMES = {
@@ -9,34 +10,6 @@ const NAMES = {
     { key: "state", label: "spoken for", dim: true, cell: (r) => r.state },
   ],
 };
-
-export const ICON = {
-  weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer", valuable: "coin", material: "sack",
-};
-
-export const PLACE_ICON = {
-  location: "pin", region: "map", road: "map", river: "river", water: "river",
-  "celestial-body": "world", "celestial-system": "orbit", realm: "realm",
-};
-
-export const APPAREL_ICON = {
-  helmet: "helm", chest: "shirt", legs: "trousers", feet: "boot", offhand: "shield", ring: "ring",
-};
-
-export const face = (item) =>
-  (item?.type === "apparel" && APPAREL_ICON[item?.slot]) || ICON[item?.type] || "box";
-
-export const does = (item) =>
-  (item?.effects || []).map((e) => `${e.amount} ${e.stat}`).join(", ");
-
-export const tone = (rarity) =>
-  rarity && rarity !== "common" ? `tint-${rarity}` : "";
-
-export const lit = (item) => (item?.worn ? "worn" : `tint-${item?.rarity || "common"}`);
-
-export const rare = (name) => (
-  <span className={`rare-${name}`}>{String(name || "").replace(/_/g, " ")}</span>
-);
 
 const TRAITS = {
   cols: "minmax(9rem, 2fr) 6rem",
@@ -95,11 +68,11 @@ export default function Data({ catalogue, at, draft, onDraft, boxRef }) {
 
   if (at === "names") {
     const { surname, current, pool = [] } = catalogue.names || {};
-    const given = String(current || "").split(" ")[0].toLowerCase();
+    const walking = given(current).toLowerCase();
     const rows = pool.map((entry) => ({
       id: entry.name,
       name: `${entry.name} ${surname}`,
-      state: entry.name.toLowerCase() === given ? "walking" : entry.taken ? "spoken for" : "",
+      state: entry.name.toLowerCase() === walking ? "walking" : entry.taken ? "spoken for" : "",
       taken: entry.taken,
     }));
     return (
