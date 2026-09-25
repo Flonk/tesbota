@@ -47,29 +47,26 @@ function titled(name: unknown): string {
 export const findEntity = (id: string) =>
   db.row("SELECT * FROM entity WHERE id = ?", [slug(id)]);
 
-type Kind = (typeof KINDS)[number];
+type Minted = Exclude<(typeof KINDS)[number], "books">;
 
-const TABLE: Partial<Record<Kind, string>> = {
+const TABLE: Record<Minted, string> = {
   people: "person", places: "place", items: "item", aspects: "aspect", abilities: "ability",
 };
 
 function mint(
-  con: DatabaseSync, kind: Kind, entityId: string, name?: string | null, turnId?: string | null
+  con: DatabaseSync, kind: Minted, entityId: string, name?: string | null, turnId?: string | null
 ): string {
   const ident = slug(entityId);
   let called = name || ident.replace(/-/g, " ");
-  if (["items", "books", "aspects", "abilities"].includes(kind)) called = titled(called);
+  if (["items", "aspects", "abilities"].includes(kind)) called = titled(called);
   con.prepare("INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)")
     .run(ident, kind, called, turnId ?? null);
-  const table = TABLE[kind];
-  if (table) {
-    con.prepare(`INSERT OR IGNORE INTO ${table} (id) SELECT id FROM entity WHERE id = ? AND kind = ?`)
-      .run(ident, kind);
-  }
+  con.prepare(`INSERT OR IGNORE INTO ${TABLE[kind]} (id) SELECT id FROM entity WHERE id = ? AND kind = ?`)
+    .run(ident, kind);
   return ident;
 }
 
-export const ensureEntity = (kind: Kind, entityId: string, name?: string | null, turnId?: string | null) =>
+export const ensureEntity = (kind: Minted, entityId: string, name?: string | null, turnId?: string | null) =>
   db.writing((con) => mint(con, kind, entityId, name, turnId));
 
 export const passages = (bookId: string) =>
