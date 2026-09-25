@@ -13,6 +13,7 @@ import Settings from "./Settings";
 import Steer from "./Steer";
 import Talk from "./Talk";
 import Turn from "./Turn";
+import { send } from "./http";
 import { typing, useKeyboardAvoid } from "./keyboard";
 import Orbit from "./Orbit";
 import { given, KIND_ICON, KINDS } from "./world";
@@ -437,38 +438,22 @@ export default function Page() {
     setError(null);
     shown.current = null;
     flight.current += 1;
-    try {
-      const res = await fetch(path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body || {}),
-      });
-      let payload = null;
-      try {
-        payload = await res.json();
-      } catch {}
-      let ok = true;
-      if (!res.ok) {
-        setError(`${res.status} — ${label} did not start`);
-        ok = false;
-      } else if (payload?.busy) {
-        setError(`already running: ${payload.label || "a step"}`);
-        ok = false;
-      } else if (payload?.error && payload.error !== "nothing is pending") {
-        setError(payload.error);
-        ok = false;
-      }
-      flight.current -= 1;
-      await load();
-      // Whoever asked has to be told whether it was taken, so that what they
-      // wrote can be put back in front of them rather than quietly dropped.
-      return { ok, payload };
-    } catch (err) {
-      flight.current -= 1;
+    const { status, payload, error } = await send(path, body);
+    flight.current -= 1;
+    if (status === null) {
       setPending(null);
-      setError(String(err));
-      return { ok: false, payload: null };
+      setError(error);
+      return { ok: false, payload };
     }
+    let refused = null;
+    if (status >= 300) refused = `${status} — ${label} did not start`;
+    else if (payload?.busy) refused = `already running: ${payload.label || "a step"}`;
+    else if (payload?.error && payload.error !== "nothing is pending") refused = payload.error;
+    if (refused) setError(refused);
+    await load();
+    // Whoever asked has to be told whether it was taken, so that what they
+    // wrote can be put back in front of them rather than quietly dropped.
+    return { ok: !refused, payload };
   }
 
   if (!data) return <div className="empty pad">loading…</div>;

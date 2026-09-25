@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useJSON } from "./http";
 import { Empty, Pill } from "./ui";
 
 /**
@@ -177,22 +178,10 @@ function wire(from, to, width) {
 }
 
 export default function Machine({ status }) {
-  const [table, setTable] = useState(null);
-  const [wrong, setWrong] = useState(null);
+  const { data: table, error: wrong } = useJSON("/api/machine");
   const [picked, setPicked] = useState(null);
   const [width, setWidth] = useState(0);
   const box = useRef(null);
-
-  useEffect(() => {
-    let live = true;
-    fetch("/api/machine", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((t) => live && (t.error ? setWrong(t.error) : setTable(t)))
-      .catch((e) => live && setWrong(String(e)));
-    return () => {
-      live = false;
-    };
-  }, []);
 
   // The pills are laid out in the page's own pixels, so the edges underneath have
   // to be told how wide the page turned out to be.
