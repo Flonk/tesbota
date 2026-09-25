@@ -1,7 +1,7 @@
 /** What every section needs to say no properly. */
 
 import type { DatabaseSync, SQLInputValue } from "node:sqlite";
-import { Band } from "../schema.ts";
+import { BAND } from "../schema.ts";
 
 const KINDS: Record<string, string> = {
   people: "people", person: "people",
@@ -52,7 +52,7 @@ export function flag(value: unknown, what: string): 0 | 1 {
 
 export function band(value: unknown, what: string): string | null {
   const text = said(value);
-  if (text !== null && !Band.safeParse(text).success) throw new Error(`${what} reads like 2-5, or one number`);
+  if (text !== null && BAND.exec(text)?.[0] !== text) throw new Error(`${what} reads like 2-5, or one number`);
   return text;
 }
 
