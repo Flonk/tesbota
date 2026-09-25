@@ -228,7 +228,7 @@ export const STATES = {
     driven: "held",
     edges: [
       { to: "explorer", on: "next", when: "another turn" },
-      { to: "clock", on: "walks", when: "the turn put them on the road" },
+      { to: "clock", on: "walks", when: "the turn took time or put them on the road" },
     ],
   },
 } as const satisfies Record<StateName, State>;

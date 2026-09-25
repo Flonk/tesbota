@@ -15,7 +15,7 @@ import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
 import * as ground from "./ground.ts";
 import { AgentError, STEPS } from "./steps.ts";
-import { edgeFrom, STATES, type StateName } from "./machine.ts";
+import { edgeFrom, STATES, type EdgeOn, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY, STATE } from "./config.ts";
 import * as worldclock from "./worldclock.ts";
@@ -25,7 +25,6 @@ import {
 } from "./state.ts";
 import { Campaign, Draft, Verdict, type CampaignT, type TurnT } from "./schema.ts";
 
-const SUSPENDED = ["arbiter", "lore3", "clock"];
 const TRAIL = 40;
 const LOCK = path.join(STATE, "run.lock");
 
@@ -48,18 +47,23 @@ export function writePending(turn: TurnT): string {
 }
 
 /**
- * The edge the world just crossed, kept on the turn. Two states name an edge on
- * their own, which is why no two edges in the machine may share a pair.
+ * Take one edge out of a state: the machine says where it leads, and the turn keeps
+ * the crossing. Two states name an edge on their own, which is why no two edges in
+ * the machine may share a pair.
  */
-export function took(turn: TurnT, cameFrom: StateName, edge: string) {
-  const landed = turn.state;
-  if (!landed || landed === cameFrom) return turn;
-  const crossing = { from: cameFrom, to: landed, at: stamp(), on: edge };
-  turn.took = crossing;
-  const trail = turn.trail;
-  trail.push(crossing);
-  if (trail.length > TRAIL) trail.splice(0, trail.length - TRAIL);
+export function cross<S extends StateName>(turn: TurnT, from: S, on: EdgeOn<S>): TurnT {
+  turn.state = edgeFrom(from, on).to;
+  if (turn.state === from) return turn;
+  turn.took = { from, to: turn.state, at: stamp(), on };
+  turn.trail.push(turn.took);
+  if (turn.trail.length > TRAIL) turn.trail.splice(0, turn.trail.length - TRAIL);
   return turn;
+}
+
+function begin(campaign: CampaignT, on: EdgeOn<"done">, fields: Partial<TurnT> = {}): TurnT {
+  const to = edgeFrom("done", on).to;
+  const took = { from: "done" as const, to, at: stamp(), on };
+  return newTurn(campaign, to, { ...fields, took, trail: [took] });
 }
 
 export function openWorld(campaign: CampaignT): TurnT {
@@ -120,7 +124,7 @@ export function walk(campaign: CampaignT, destination: string, rng: Rng = random
   const [minutes, left, cut] = travel.leg(
     campaign.clock, leagues, rng, travel.drag(sheet.load(campaign))
   );
-  return newTurn(campaign, "clock", {
+  return begin(campaign, "walks", {
     wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
     destination,
     leagues_left: cut ? left : 0,
@@ -135,29 +139,20 @@ export function advance(campaign: CampaignT, turn: TurnT): TurnT {
 
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {
-    return newTurn(campaign, "clock", {
+    return begin(campaign, "walks", {
       wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
     });
   }
-  return newTurn(campaign, "explorer");
+  return begin(campaign, "next");
 }
 
 /** Whether the walking is done, and what the world does about it if so. */
 export function tickClock(turn: TurnT, moment: Date): boolean {
   if (!travel.arrived(turn, moment)) return false;
-  const destination = turn.destination;
   turn.wake_at = null;
-  if (turn.leagues_left) {
-    turn.event = "true";
-    turn.state = edgeFrom("clock", "arrived").to;
-    return true;
-  }
-  if (destination) {
-    turn.arrival = destination;
-    turn.state = edgeFrom("clock", "arrived").to;
-  } else {
-    turn.state = edgeFrom("clock", "woken").to;
-  }
+  if (turn.leagues_left) turn.event = "true";
+  else if (turn.destination) turn.arrival = turn.destination;
+  cross(turn, "clock", turn.leagues_left || turn.destination ? "arrived" : "woken");
   return true;
 }
 
@@ -224,7 +219,7 @@ async function drive(limit: number): Promise<Ran> {
     const state = turn.state;
 
     const death = pendingDeath();
-    if (death && (state === "done" || SUSPENDED.includes(state))) {
+    if (death && STATES[state].driven === "held") {
       return { state: "done", turn: await bury(campaign, death.cause) };
     }
 
@@ -254,8 +249,7 @@ async function drive(limit: number): Promise<Ran> {
     const edge = await STEPS[state]({ campaign, turn });
     // The machine decides where an edge goes. A step that names one its state does
     // not have stops here rather than putting the world somewhere unwritten.
-    turn.state = edgeFrom(state, edge).to;
-    took(turn, state, edge);
+    cross(turn, state, edge);
     steered(campaign, was);
     save(campaign, turn);
     if (turn.state === "done") completed += 1;
@@ -297,7 +291,7 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
   }, null, 2);
 
   const edge = turn.fight?.blows.length ? "ruled_fight" : turn.looking ? "ruled_answer" : "ruled";
-  turn.state = edgeFrom("lore3", edge).to;
+  cross(turn, "lore3", edge);
   save(campaign, turn);
   const file = pendingPath(turn.turn_id);
   if (fs.existsSync(file)) fs.rmSync(file);

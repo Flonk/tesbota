@@ -15,7 +15,7 @@ import * as prompts from "./prompts.ts";
 import { ask } from "./agent.ts";
 import { sqliteGate } from "./gate.ts";
 import { MODELS, MYSTERY, PROFILES, roomOf, STATE, WRITE_TOOLS } from "./config.ts";
-import { edgeFrom, type EdgeOn, type StateName } from "./machine.ts";
+import type { EdgeOn, StateName } from "./machine.ts";
 import type { TurnT } from "./schema.ts";
 import {
   loadCampaign, loadTurn, readJson, recordDeath, saveCampaign, saveTurn, writeJson,
@@ -39,8 +39,7 @@ export function appendChat(role: string, text: string) {
  * change hands or nothing watching can tell which of you is holding it.
  */
 function hand<S extends StateName>(turn: TurnT, from: S, on: EdgeOn<S>): TurnT {
-  turn.state = edgeFrom(from, on).to;
-  driver.took(turn, from, on);
+  driver.cross(turn, from, on);
   saveTurn(turn);
   return turn;
 }
