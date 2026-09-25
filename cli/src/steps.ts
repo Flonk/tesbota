@@ -444,7 +444,7 @@ export const stepGm: Step = async ({ campaign, turn }) => {
   const draft = extractJson<Record<string, any>>(text);
   draft.claims ??= [];
   draft.travel ??= null;
-  draft.destination ??= draft.travel?.destination ?? draft.location ?? null;
+  draft.destination ??= draft.travel?.destination ?? turn.arrival ?? campaign.location ?? null;
   draft.minutes ??= 0;
   draft.fatigue ??= 0;
   draft.health ??= 0;
@@ -1236,9 +1236,8 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
   await applyQuests(campaign, draft, turn.turn_id);
   settleFight(campaign, turn);
 
-  let where = typeof draft.location === "string" ? draft.location.trim() : "";
-  const going = typeof draft.destination === "string" ? draft.destination.trim() : "";
-  if (going && where === going && campaign.location && campaign.location !== going) where = campaign.location;
+  const opening = !campaign.location && typeof draft.location === "string" ? draft.location.trim() : "";
+  const where = turn.arrival ? String(turn.arrival) : opening;
   if (where) {
     campaign.location = canon.slug(where.replace(/^\[+|\]+$/g, ""));
     canon.ensureEntity("places", campaign.location, null, turn.turn_id);
