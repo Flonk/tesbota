@@ -45,19 +45,14 @@ function down(lat) {
 }
 
 /** Longitude to the left edge. Wrapped, so anything written outside ±180 lands. */
-const wrapped = (lon) => ((((lon + 180) % 360) + 360) % 360) - 180;
+const wrapped = (lon) => (lon >= -180 && lon <= 180 ? lon : ((((lon + 180) % 360) + 360) % 360) - 180);
 const across = (lon) => ((wrapped(lon) + 180) / 360) * W;
-
-// The terminator is walked from one edge of the picture to the other, so its last
-// point has to stay at the right-hand edge rather than wrapping round to the
-// left — which folded the night in half and drew it across the map.
-const straight = (lon) => ((lon + 180) / 360) * W;
 
 const hold = (n, low, high) => Math.max(low, Math.min(high, n));
 
 // The projection read backwards. Looking at a map never needs this; putting a
 // finger on one and saying "there" does.
-const lonOf = (x) => wrapped((x / W) * 360 - 180);
+const lonOf = (x) => (x / W) * 360 - 180;
 const latOf = (y) => 2 * (Math.atan(Math.exp(TALL * (1 - (2 * y) / H))) / RAD - 45);
 
 /** Whether a drawn shape covers a point — even-odd, over every ring it has. */
@@ -104,7 +99,7 @@ function night(subsolar, o = HOME) {
   for (let lon = -180; lon <= 180; lon += 1) {
     const hour = (lon - subsolar.lon) * RAD;
     const lat = Math.atan(-Math.cos(hour) / tilt) / RAD;
-    edge.push([straight(lon) - o.x, down(lat) - o.y]);
+    edge.push([across(lon) - o.x, down(lat) - o.y]);
   }
   const drawn = edge.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L ");
   // The dark half is closed off along whichever edge of the picture is the pole
@@ -256,9 +251,8 @@ const SLOP = 4;
 const REACH = 16;
 const UNWRITTEN = "\u0000new";
 
-const unwrapped = (x) => (x / W) * 360 - 180;
-const onto_map = ([lon, lat]) => [straight(lon), down(lat)];
-const off_map = ([x, y]) => [unwrapped(x), latOf(y)];
+const onto_map = ([lon, lat]) => [across(lon), down(lat)];
+const off_map = ([x, y]) => [lonOf(x), latOf(y)];
 
 export default function Globe({
   body,
@@ -651,8 +645,8 @@ export default function Globe({
     const b = onto_map(before);
     const long = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1;
     const reach = 26 * (pane.w && pane.h ? Math.min(view.w / pane.w, view.h / pane.h) : view.w / W);
-    const out = off_map([a[0] + ((a[0] - b[0]) / long) * reach, a[1] + ((a[1] - b[1]) / long) * reach]);
-    return [at === "end" ? run.length : 0, out];
+    const [lon, lat] = off_map([a[0] + ((a[0] - b[0]) / long) * reach, a[1] + ((a[1] - b[1]) / long) * reach]);
+    return [at === "end" ? run.length : 0, [hold(lon, -180, 180), hold(lat, -LIMIT, LIMIT)]];
   }
 
   /** Where a finger is on the world, rather than on the screen. */
@@ -662,7 +656,7 @@ export default function Globe({
       if (!f) return null;
       const now = held.current;
       return [
-        hold(unwrapped(now.x + (clientX - f.ox) / f.k), -180, 180),
+        hold(lonOf(now.x + (clientX - f.ox) / f.k), -180, 180),
         hold(latOf(now.y + (clientY - f.oy) / f.k), -LIMIT, LIMIT),
       ];
     },
@@ -1262,11 +1256,11 @@ export default function Globe({
     const length = [5, 2, 1].map((n) => n * ten).find((n) => n <= most) ?? ten;
     const tall = (length / round) * 360;
     const wide = tall / Math.cos(steady * RAD);
-    const west = unwrapped(view.x);
-    const east = unwrapped(view.x + view.w);
+    const west = Math.max(lonOf(view.x), -180);
+    const east = Math.min(lonOf(view.x + view.w), 180);
     const xs = [];
     const ys = [];
-    for (let lon = Math.floor(west / wide) * wide; lon <= east && xs.length < 400; lon += wide) xs.push(straight(lon));
+    for (let lon = Math.ceil(west / wide) * wide; lon <= east && xs.length < 400; lon += wide) xs.push(across(lon));
     for (let lat = Math.floor(bottom / tall) * tall; lat <= top && ys.length < 400; lat += tall) ys.push(down(lat));
     return { xs, ys };
   })();
@@ -1279,7 +1273,7 @@ export default function Globe({
   // they are by now — worked out from when they set out and when they will stop.
   const trip = (() => {
     if (!journey?.path || journey.path.length < 2) return null;
-    const pts = journey.path.map(([lon, lat]) => [straight(lon) - ox, down(lat) - oy]);
+    const pts = journey.path.map(([lon, lat]) => [across(lon) - ox, down(lat) - oy]);
     const upto = [0];
     for (let n = 1; n < pts.length; n++) upto.push(upto[n - 1] + Math.hypot(pts[n][0] - pts[n - 1][0], pts[n][1] - pts[n - 1][1]));
     const long = upto[upto.length - 1];
