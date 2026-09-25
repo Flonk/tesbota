@@ -32,11 +32,20 @@ list section replaces the whole list.
 
 Rules every section keeps:
 
-- An empty string is silence and is written as `NULL`. `$BOTA` is written as
-  itself: it marks something owed, which is not the same as nothing.
+- A section belongs to some kinds of thing: `person` to people; `place`, `ways`
+  and `orbit` to places; `item` and `effects` to items; `book` and `passages` to
+  books; `aspect` and `grants` to aspects; `ability` and `granted` to abilities;
+  `holdings` to people and places. `entity`, `body` and `tags` belong to every
+  kind. A patch with a section its thing cannot have is refused whole.
+- An empty string is silence and is written as `NULL`, or as `0` where the
+  column cannot be empty: a body's bonus and defense, an orbit's angles,
+  eccentricity and oblateness, an ability's counters and advantage.
+- `$BOTA` is written as itself: it marks something owed, which is not the same
+  as nothing. Of the references only `lives` and `parent` can be owed.
 - A reference (`lives`, `parent`, `author_id`, `dst`, an aspect, an ability, an
   item) must name an entity that exists and is of the right kind, or the whole
   patch is refused with a sentence saying which.
+- A list section refuses a row that says again what another row said.
 - A section refuses what its table's `CHECK` would refuse, and what a fight
   could not use — a damage band that does not read like `2-5`, a health or dc
   under 1, a defense under 0 — and says so in words before the database gets to.
@@ -50,17 +59,21 @@ a refusal. A refusal is `{ error: "…" }`.
 
 ## Where the code lives
 
-    cli/src/edit/index.ts        the command: dispatch, transaction, answer
+    cli/src/edit/index.ts        the command: every section and the kinds it
+                                 belongs to, dispatch, transaction, answer
+    cli/src/edit/shared.ts       the refusals every section shares, and upsert
     cli/src/edit/<section>.ts    one file per section, default export
-                                 (con, id, value, ctx) => void, throws Error(words)
+                                 (con, id, value, all) => void, throws Error(words);
+                                 grants.ts holds both ends of `grants`
     web/app/api/edit/route.js    the door
+    web/app/edit/index.js        EDITORS by kind, and merged()
     web/app/edit/fields.jsx      the pieces every editor is made of
     web/app/edit/<Kind>.jsx      one editor per kind, default export
                                  ({ thing, draft, change }) => JSX
-    web/app/edit/Common.jsx      tags and holdings, which any kind can have
+    web/app/edit/Common.jsx      tags, which any kind has, and holdings, which
+                                 people and places have
 
-`ctx` is `{ kind, all }` — the entity's kind and the whole patch, for a section
-that has to know what else is changing.
+`all` is the whole patch, for a section that has to know what else is changing.
 
 ## The detail view in edit mode
 
@@ -80,10 +93,11 @@ trail does. While editing:
   save that succeeds reloads the entry, leaves editing, and shows any `wrong`
   under the bar until the next edit.
 
-`draft` is the patch being built. An editor reads `draft.section?.field ??
-thing's value` and calls `change("section", value)`: for an object section the
-value is merged into what is already in the draft, for a list section it
-replaces it.
+`draft` is the patch being built. An editor gets `[get, put] = reader(draft,
+change, section, saved)`: `get(key)` is the draft's value when the key is in
+the draft, `null` included, and the saved value otherwise; `put(key)` merges
+`{ [key]: value }` into the section. A list section is replaced whole with
+`change(section, rows)`.
 
 ## Fields
 

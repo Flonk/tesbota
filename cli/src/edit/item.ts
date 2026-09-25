@@ -1,22 +1,21 @@
-import type { Ctx } from "./index.ts";
+import type { DatabaseSync } from "node:sqlite";
 import { RARITIES, SLOTS } from "../config.ts";
-import { fields, number, oneOf, said } from "./shared.ts";
+import { fields, number, oneOf, said, upsert } from "./shared.ts";
 
 const FIELDS = ["type", "slot", "rarity", "weight", "worth", "owed_by"] as const;
 
-export default function item(con: any, id: string, value: unknown, ctx: Ctx) {
-  if (ctx.kind !== "items") throw new Error(`item: ${id} is one of the ${ctx.kind}, not the items`);
+export default function item(con: DatabaseSync, id: string, value: unknown) {
   const got = fields(value, "item", FIELDS);
-  con.prepare("INSERT INTO item (id) VALUES (?) ON CONFLICT(id) DO NOTHING").run(id);
+  const row: Record<string, string | number | null> = {};
   for (const key of FIELDS) {
     if (!(key in got)) continue;
-    let v: string | number | null;
-    if (key === "slot") v = oneOf(got.slot, "slot", SLOTS);
-    else if (key === "rarity") v = oneOf(said(got.rarity)?.toLowerCase(), "rarity", RARITIES);
+    if (key === "slot") row.slot = oneOf(got.slot, "slot", SLOTS);
+    else if (key === "rarity") row.rarity = oneOf(said(got.rarity)?.toLowerCase(), "rarity", RARITIES);
     else if (key === "weight") {
-      v = number(got.weight, "weight");
-      if (v !== null && v < 0) throw new Error("weight cannot be less than nothing");
-    } else v = said(got[key]);
-    con.prepare(`UPDATE item SET ${key} = ? WHERE id = ?`).run(v, id);
+      const weight = number(got.weight, "weight");
+      if (weight !== null && weight < 0) throw new Error("weight cannot be less than nothing");
+      row.weight = weight;
+    } else row[key] = said(got[key]);
   }
+  upsert(con, "item", id, row);
 }

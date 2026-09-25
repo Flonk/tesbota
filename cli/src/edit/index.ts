@@ -1,5 +1,7 @@
+import type { DatabaseSync } from "node:sqlite";
 import * as db from "../db.ts";
 import { canonWrong } from "../check.ts";
+import type { KINDS } from "../config.ts";
 import entity from "./entity.ts";
 import person from "./person.ts";
 import body from "./body.ts";
@@ -11,18 +13,30 @@ import effects from "./effects.ts";
 import book, { narrated } from "./book.ts";
 import passages from "./passages.ts";
 import aspect from "./aspect.ts";
-import grants from "./grants.ts";
+import { granted, grants } from "./grants.ts";
 import ability from "./ability.ts";
-import granted from "./granted.ts";
 import tags from "./tags.ts";
 import holdings from "./holdings.ts";
 
-export type Ctx = { kind: string; all: Record<string, unknown> };
-export type Section = (con: any, id: string, value: any, ctx: Ctx) => void;
+type Section = (con: DatabaseSync, id: string, value: unknown, all: Record<string, unknown>) => void;
 
-const SECTIONS: Record<string, Section> = {
-  entity, person, body, place, ways, orbit, item, effects,
-  book, passages, aspect, grants, ability, granted, tags, holdings,
+const SECTIONS: Record<string, { apply: Section; kinds?: readonly (typeof KINDS)[number][] }> = {
+  entity: { apply: entity },
+  person: { apply: person, kinds: ["people"] },
+  body: { apply: body },
+  place: { apply: place, kinds: ["places"] },
+  ways: { apply: ways, kinds: ["places"] },
+  orbit: { apply: orbit, kinds: ["places"] },
+  item: { apply: item, kinds: ["items"] },
+  effects: { apply: effects, kinds: ["items"] },
+  book: { apply: book, kinds: ["books"] },
+  passages: { apply: passages, kinds: ["books"] },
+  aspect: { apply: aspect, kinds: ["aspects"] },
+  grants: { apply: grants, kinds: ["aspects"] },
+  ability: { apply: ability, kinds: ["abilities"] },
+  granted: { apply: granted, kinds: ["abilities"] },
+  tags: { apply: tags },
+  holdings: { apply: holdings, kinds: ["people", "places"] },
 };
 
 /** Change one thing in the record: every section of the patch, or none of it. */
@@ -36,12 +50,16 @@ export function edit(id: string, patch: unknown) {
     return { error: "the chronicle is the record of what happened and is never edited" };
   }
   const sections = patch as Record<string, unknown>;
-  const unknown = Object.keys(sections).filter((key) => !SECTIONS[key]);
+  const unknown = Object.keys(sections).filter((key) => !Object.hasOwn(SECTIONS, key));
   if (unknown.length) return { error: `no such section: ${unknown.join(", ")}` };
-  const ctx: Ctx = { kind: String(there.kind), all: sections };
+  const kind = String(there.kind);
+  for (const key of Object.keys(sections)) {
+    const kinds: readonly string[] | undefined = SECTIONS[key].kinds;
+    if (kinds && !kinds.includes(kind)) return { error: `${key}: ${ident} is one of the ${kind}, not the ${kinds.join(" or ")}` };
+  }
   try {
     db.writing((con) => {
-      for (const [key, value] of Object.entries(sections)) SECTIONS[key](con, ident, value, ctx);
+      for (const [key, value] of Object.entries(sections)) SECTIONS[key].apply(con, ident, value, sections);
       con.prepare("UPDATE entity SET changed = datetime('now') WHERE id = ?").run(ident);
     });
   } catch (err) {

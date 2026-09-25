@@ -1,27 +1,29 @@
-import type { Ctx } from "./index.ts";
+import type { DatabaseSync } from "node:sqlite";
 import { CELESTIAL, PLACE_TYPE_NAMES, WIDE } from "../config.ts";
-import { fields, named, number, oneOf } from "./shared.ts";
+import type { PlaceRow } from "../places.ts";
+import { fields, named, number, oneOf, upsert } from "./shared.ts";
+
+type Kept = Pick<PlaceRow, "type" | "parent" | "lat" | "lon" | "width">;
 
 /** The type a place will have once the whole patch is in. */
-export function typeAfter(con: any, id: string, ctx: Ctx): string | null {
-  const next = ctx.all.place as Record<string, unknown> | null | undefined;
+export function typeAfter(con: DatabaseSync, id: string, all: Record<string, unknown>): string | null {
+  const next = all.place as Record<string, unknown> | null | undefined;
   if (next && typeof next === "object" && "type" in next) return oneOf(next.type, "type", PLACE_TYPE_NAMES);
   const row = con.prepare("SELECT type FROM place WHERE id = ?").get(id) as { type?: string } | undefined;
   return row?.type ?? null;
 }
 
-export default function place(con: any, id: string, value: unknown, ctx: Ctx) {
-  if (ctx.kind !== "places") throw new Error(`${id} is not a place`);
+export default function place(con: DatabaseSync, id: string, value: unknown) {
   const got = fields(value, "place", ["type", "parent", "lat", "lon", "width"]);
   const was = (con.prepare("SELECT type, parent, lat, lon, width FROM place WHERE id = ?").get(id) ?? {
     type: null, parent: null, lat: null, lon: null, width: null,
-  }) as Record<string, any>;
+  }) as Kept;
   const row = { ...was };
 
   if ("type" in got) row.type = oneOf(got.type, "type", PLACE_TYPE_NAMES);
 
   if ("parent" in got) {
-    const parent = named(con, got.parent, "inside", "places");
+    const parent = named(con, got.parent, "inside", "places", true);
     if (parent === id) throw new Error("a place cannot be inside itself");
     const seen = new Set<string>();
     for (let at = parent; at && !seen.has(at); ) {
@@ -68,11 +70,5 @@ export default function place(con: any, id: string, value: unknown, ctx: Ctx) {
     }
   }
 
-  con
-    .prepare(
-      `INSERT INTO place (id, type, parent, lat, lon, width) VALUES (?, ?, ?, ?, ?, ?)
-       ON CONFLICT(id) DO UPDATE SET type = excluded.type, parent = excluded.parent,
-         lat = excluded.lat, lon = excluded.lon, width = excluded.width`
-    )
-    .run(id, row.type, row.parent, row.lat, row.lon, row.width);
+  upsert(con, "place", id, row);
 }

@@ -1,7 +1,7 @@
-import type { Ctx } from "./index.ts";
+import type { DatabaseSync } from "node:sqlite";
 import { ABILITY } from "../canon.ts";
 import { PLACE_TYPE_NAMES } from "../config.ts";
-import { band, fields, named, oneOf, said, whole } from "./shared.ts";
+import { band, fields, flag, named, oneOf, said, upsert, whole } from "./shared.ts";
 
 const SPAWN = ["name", "who", "count", "health", "most", "damage", "dc", "bonus", "defense", "skill"] as const;
 
@@ -40,26 +40,19 @@ export function spawn(value: unknown): string | null {
   return JSON.stringify(out);
 }
 
-export default function ability(con: any, id: string, value: unknown, ctx: Ctx) {
-  if (ctx.kind !== "abilities") throw new Error(`ability: ${id} is one of the ${ctx.kind}, not the abilities`);
+export default function ability(con: DatabaseSync, id: string, value: unknown) {
   const got = fields(value, "ability", ABILITY);
-  con.prepare("INSERT INTO ability (id) VALUES (?) ON CONFLICT(id) DO NOTHING").run(id);
+  const row: Record<string, string | number | null> = {};
   for (const key of ABILITY) {
     if (!(key in got)) continue;
     const v = got[key];
-    let out: string | number | null;
-    if (key === "damage") out = band(v, "damage");
-    else if (key === "advantage") {
-      const on = v === true || v === 1 || v === "1" || v === "true" || v === "yes";
-      const off = v === false || v === 0 || v === "0" || v === "false" || v === "no" || said(v) === null;
-      if (!on && !off) throw new Error("advantage is yes or no");
-      out = on ? 1 : 0;
-    } else if (key === "spawn") out = spawn(v);
-    else if (key === "within") out = named(con, v, "within", "places");
-    else if (key === "in_aspect") out = named(con, v, "in aspect", "aspects");
-    else if (key === "in_kind") out = oneOf(v, "in kind", PLACE_TYPE_NAMES);
-    else out = counted(v, key);
-    if (out === "$BOTA" && (key === "within" || key === "in_aspect")) throw new Error(`${key.replace("_", " ")} names a thing, not something owed`);
-    con.prepare(`UPDATE ability SET ${key} = ? WHERE id = ?`).run(out, id);
+    if (key === "damage") row.damage = band(v, "damage");
+    else if (key === "advantage") row.advantage = flag(v, "advantage");
+    else if (key === "spawn") row.spawn = spawn(v);
+    else if (key === "within") row.within = named(con, v, "within", "places");
+    else if (key === "in_aspect") row.in_aspect = named(con, v, "in aspect", "aspects");
+    else if (key === "in_kind") row.in_kind = oneOf(v, "in kind", PLACE_TYPE_NAMES);
+    else row[key] = counted(v, key);
   }
+  upsert(con, "ability", id, row);
 }

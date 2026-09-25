@@ -1,6 +1,6 @@
-import type { Ctx } from "./index.ts";
+import type { DatabaseSync } from "node:sqlite";
 import { BODY } from "../canon.ts";
-import { band, fields, said, whole } from "./shared.ts";
+import { band, fields, said, upsert, whole } from "./shared.ts";
 
 const ZERO = ["bonus", "defense"];
 
@@ -20,12 +20,10 @@ export function fightStats(value: unknown): Record<string, string | number | nul
   return row;
 }
 
-export default function body(con: any, id: string, value: unknown, _ctx: Ctx) {
+export default function body(con: DatabaseSync, id: string, value: unknown) {
   if (value === null) {
     con.prepare("DELETE FROM body WHERE id = ?").run(id);
     return;
   }
-  const row = fightStats(value);
-  con.prepare("INSERT INTO body (id) VALUES (?) ON CONFLICT(id) DO NOTHING").run(id);
-  for (const [key, v] of Object.entries(row)) con.prepare(`UPDATE body SET ${key} = ? WHERE id = ?`).run(v, id);
+  upsert(con, "body", id, fightStats(value));
 }

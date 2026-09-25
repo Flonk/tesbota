@@ -1,7 +1,7 @@
-import type { Ctx } from "./index.ts";
+import type { DatabaseSync } from "node:sqlite";
 import { CELESTIAL } from "../config.ts";
 import { typeAfter } from "./place.ts";
-import { fields, number } from "./shared.ts";
+import { fields, number, upsert } from "./shared.ts";
 
 const WORDS: Record<string, string> = {
   semi_major: "semi-major axis",
@@ -18,9 +18,8 @@ const WORDS: Record<string, string> = {
 const ZEROED = ["eccentricity", "longitude", "periapsis", "oblateness", "tilt", "meridian"];
 const POSITIVE = ["mass", "radius", "rotation"];
 
-export default function orbit(con: any, id: string, value: unknown, ctx: Ctx) {
-  if (ctx.kind !== "places") throw new Error(`${id} is not a place, so it has no orbit`);
-  const type = typeAfter(con, id, ctx);
+export default function orbit(con: DatabaseSync, id: string, value: unknown, all: Record<string, unknown>) {
+  const type = typeAfter(con, id, all);
   if (!CELESTIAL.includes(String(type))) throw new Error("only a celestial-body or a celestial-system has an orbit");
   const got = fields(value, "orbit", Object.keys(WORDS));
   const set: Record<string, number | null> = {};
@@ -32,10 +31,5 @@ export default function orbit(con: any, id: string, value: unknown, ctx: Ctx) {
     if (key === "eccentricity" && n !== null && (n < 0 || n >= 1)) throw new Error("eccentricity is at least 0 and less than 1");
     set[key] = n;
   }
-  con.prepare("INSERT OR IGNORE INTO orbit (id) VALUES (?)").run(id);
-  const keys = Object.keys(set);
-  if (!keys.length) return;
-  con
-    .prepare(`UPDATE orbit SET ${keys.map((k) => `${k} = ?`).join(", ")} WHERE id = ?`)
-    .run(...keys.map((k) => set[k]), id);
+  upsert(con, "orbit", id, set);
 }

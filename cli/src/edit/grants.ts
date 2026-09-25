@@ -1,19 +1,24 @@
-import type { Ctx } from "./index.ts";
-import { list, named } from "./shared.ts";
+import type { DatabaseSync } from "node:sqlite";
+import { list, named, once, upsert } from "./shared.ts";
 
-export default function grants(con: any, id: string, value: unknown, ctx: Ctx) {
-  if (ctx.kind !== "aspects") throw new Error(`grants: ${id} is one of the ${ctx.kind}, not the aspects`);
-  const seen = new Set<string>();
-  const abilities = list(value, "grants").map((v) => {
-    const ability = named(con, v, "grants", "abilities");
-    if (!ability || ability === "$BOTA") throw new Error("grants: every row names an ability");
-    if (seen.has(ability)) throw new Error(`grants: ${ability} is granted twice`);
-    seen.add(ability);
-    return ability;
-  });
-  con.prepare("DELETE FROM grants WHERE aspect = ?").run(id);
-  for (const ability of abilities) {
-    con.prepare("INSERT INTO ability (id) VALUES (?) ON CONFLICT(id) DO NOTHING").run(ability);
-    con.prepare("INSERT INTO grants (aspect, ability) VALUES (?, ?)").run(id, ability);
-  }
-}
+const KIND = { aspect: "aspects", ability: "abilities" } as const;
+
+const joined = (mine: keyof typeof KIND, what: string) => (con: DatabaseSync, id: string, value: unknown) => {
+  const other = mine === "aspect" ? "ability" : "aspect";
+  const them = once(
+    list(value, what).map((v) => {
+      const it = named(con, v, what, KIND[other]);
+      if (!it) throw new Error(`${what}: every row names an ${other}`);
+      return it;
+    }),
+    (it) => it,
+    (it) => `${what}: ${it} is named twice`
+  );
+  for (const ability of mine === "ability" ? [id] : them) upsert(con, "ability", ability, {});
+  con.prepare(`DELETE FROM grants WHERE ${mine} = ?`).run(id);
+  const put = con.prepare(`INSERT INTO grants (${mine}, ${other}) VALUES (?, ?)`);
+  for (const it of them) put.run(id, it);
+};
+
+export const grants = joined("aspect", "grants");
+export const granted = joined("ability", "granted by");

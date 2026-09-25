@@ -1,5 +1,6 @@
 /** What every section needs to say no properly. */
 
+import type { DatabaseSync, SQLInputValue } from "node:sqlite";
 import { Band } from "../schema.ts";
 
 const KINDS: Record<string, string> = {
@@ -40,6 +41,15 @@ export function whole(value: unknown, what: string): number | null {
   return n;
 }
 
+const YES: unknown[] = [true, 1, "1", "true", "yes"];
+const NO: unknown[] = [false, 0, "0", "false", "no"];
+
+export function flag(value: unknown, what: string): 0 | 1 {
+  if (YES.includes(value)) return 1;
+  if (NO.includes(value) || said(value) === null) return 0;
+  throw new Error(`${what} is yes or no`);
+}
+
 export function band(value: unknown, what: string): string | null {
   const text = said(value);
   if (text !== null && !Band.safeParse(text).success) throw new Error(`${what} reads like 2-5, or one number`);
@@ -47,9 +57,15 @@ export function band(value: unknown, what: string): string | null {
 }
 
 /** An entity that exists, and of the right kind when one is asked for. */
-export function named(con: any, value: unknown, what: string, kind: string | string[] | null = null): string | null {
+export function named(
+  con: DatabaseSync, value: unknown, what: string, kind: string | string[] | null = null, owed = false
+): string | null {
   const id = said(value)?.toLowerCase() ?? null;
-  if (id === null || id === "$bota") return id === "$bota" ? "$BOTA" : null;
+  if (id === null) return null;
+  if (id === "$bota") {
+    if (!owed) throw new Error(`${what}: $BOTA names nothing yet`);
+    return "$BOTA";
+  }
   const row = con.prepare("SELECT kind FROM entity WHERE id = ?").get(id) as { kind?: string } | undefined;
   if (!row) throw new Error(`${what}: nothing in the world is called ${id}`);
   const kinds = kind === null ? null : Array.isArray(kind) ? kind : [kind];
@@ -79,4 +95,23 @@ export function fields(value: unknown, what: string, allowed: readonly string[])
 export function list(value: unknown, what: string): unknown[] {
   if (!Array.isArray(value)) throw new Error(`${what} is a list`);
   return value;
+}
+
+export function once<T>(rows: T[], keyOf: (row: T) => string, twice: (row: T) => string): T[] {
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const key = keyOf(row);
+    if (seen.has(key)) throw new Error(twice(row));
+    seen.add(key);
+  }
+  return rows;
+}
+
+export function upsert(con: DatabaseSync, table: string, id: string, row: Record<string, SQLInputValue>) {
+  const keys = Object.keys(row);
+  const columns = ["id", ...keys];
+  const then = keys.length ? `DO UPDATE SET ${keys.map((k) => `${k} = excluded.${k}`).join(", ")}` : "DO NOTHING";
+  con
+    .prepare(`INSERT INTO ${table} (${columns.join(", ")}) VALUES (${columns.map(() => "?").join(", ")}) ON CONFLICT(id) ${then}`)
+    .run(id, ...keys.map((k) => row[k]));
 }
