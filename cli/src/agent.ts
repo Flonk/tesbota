@@ -100,8 +100,27 @@ async function once(
     cwd: ROOT,
     model: model ?? undefined,
   };
-  if (permission) options.canUseTool = permission;
-  else options.allowedTools = [...tools];
+  options.tools = [...tools];
+  if (permission) {
+    options.canUseTool = permission;
+    // Read-only commands are approved before canUseTool is ever asked, so the gate
+    // also stands in front of every call as a hook, where nothing gets round it.
+    options.hooks = {
+      PreToolUse: [{
+        hooks: [async (input: any) => {
+          const verdict: any = await permission(input.tool_name, input.tool_input ?? {}, {} as any);
+          if (verdict?.behavior === "allow") return { continue: true };
+          return {
+            hookSpecificOutput: {
+              hookEventName: "PreToolUse",
+              permissionDecision: "deny",
+              permissionDecisionReason: verdict?.message || "Nothing happens.",
+            },
+          };
+        }],
+      }],
+    };
+  } else options.allowedTools = [...tools];
 
   for await (const message of query({ prompt, options: options as any })) {
     if (message.type === "assistant") {
