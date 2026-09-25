@@ -672,7 +672,7 @@ export function rollCheck({ campaign, turn }: World, rng: Rng = random): CheckT 
   const skill = String(asked?.skill || "").trim().toLowerCase();
   const bonus = sheet.skillBonus(campaign, skill);
   if (bonus === null) return null;
-  const dc = Math.trunc(Number(asked?.dc) || 10);
+  const dc = asked?.dc || 10;
   const { fatigue, hunger } = campaign.vitals;
   const against = ([["spent", fatigue], ["starving", hunger]] as const)
     .filter(([, level]) => level >= 100)
@@ -1122,13 +1122,11 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
 
 export function applyVitals(campaign: CampaignT, draft: DraftT): CampaignT {
   const vitals = campaign.vitals;
-  vitals.fatigue = Math.max(0, Math.min(MAX_FATIGUE, (vitals.fatigue || 0) + Math.trunc(Number(draft.fatigue) || 0)));
-  vitals.health = Math.max(0, Math.min(MAX_HEALTH, (vitals.health ?? MAX_HEALTH) + Math.trunc(Number(draft.health) || 0)));
+  vitals.fatigue = Math.max(0, Math.min(MAX_FATIGUE, vitals.fatigue + draft.fatigue));
+  vitals.health = Math.max(0, Math.min(MAX_HEALTH, vitals.health + draft.health));
 
-  const stated = draft.hunger;
-  const drift = ((Math.trunc(Number(draft.minutes) || 0)) / 60) * HUNGER_PER_HOUR;
-  const change = stated == null ? drift : Math.trunc(Number(stated));
-  vitals.hunger = Math.max(0, Math.min(MAX_HUNGER, Math.round((vitals.hunger || 0) + change)));
+  const drift = (draft.minutes / 60) * HUNGER_PER_HOUR;
+  vitals.hunger = Math.max(0, Math.min(MAX_HUNGER, Math.round(vitals.hunger + (draft.hunger ?? drift))));
   return campaign;
 }
 
@@ -1285,8 +1283,8 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
       ...claim, verdict: byVerdict.get(claim.id) ?? null,
     }));
     if (current.kind === "outcome" || current.kind === "world") {
-      current.minutes = Math.trunc(Number(draft.minutes) || 0);
-      current.fatigue = Math.trunc(Number(draft.fatigue) || 0);
+      current.minutes = draft.minutes;
+      current.fatigue = draft.fatigue;
       current.roll = turn.roll;
       current.outcomes = turn.outcomes;
       current.chosen = turn.chosen;
@@ -1320,12 +1318,12 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   turn.destination = heading || campaign.location || null;
 
   if ((turn.arrival || turn.event) && !turn.action) {
-    turn.minutes = Math.trunc(Number(draft.minutes) || 0);
+    turn.minutes = draft.minutes;
     clear();
     return "spent";
   }
 
-  turn.minutes = Math.trunc(Number(draft.minutes) || 0);
+  turn.minutes = draft.minutes;
   campaign.quiet = (campaign.quiet || 0) + 1;
   campaign.calm = turn.pressed ? 0 : (campaign.calm || 0) + 1;
   turn.resolved = true;
