@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Crumb, EditBar, Empty, Mark, Note, openDossier, openMap, Overlay, Pill, Prose, rated, Section, settled, Stub, Table, Tabs, tint, told, unrated } from "./ui";
 import Icon from "./icons";
 import { EDITORS, merged, saveEdits } from "./edit";
-import { Field } from "./edit/fields";
+import { Field, reader } from "./edit/fields";
 import { useSaveKey } from "./keyboard";
 
 function Leaves({ thing, fragment }) {
@@ -357,7 +357,7 @@ export default function Dossier({ at, onClose, who }) {
 
   const Editor = thing ? EDITORS[thing.kind] : null;
   const locked = !!thing?.book?.chronicle;
-  const name = draft.entity && "name" in draft.entity ? draft.entity.name : thing?.name;
+  const [entity, putEntity] = reader(draft, change, "entity", thing);
 
   return (
     <Overlay
@@ -368,8 +368,8 @@ export default function Dossier({ at, onClose, who }) {
         editing ? (
           <input
             className="einput ename"
-            value={name ?? ""}
-            onChange={(e) => change("entity", { name: e.target.value })}
+            value={entity("name") ?? ""}
+            onChange={(e) => putEntity("name")(e.target.value)}
             aria-label="name"
           />
         ) : (
@@ -411,8 +411,8 @@ export default function Dossier({ at, onClose, who }) {
             <Field
               kind="text"
               label="about"
-              value={draft.entity && "about" in draft.entity ? draft.entity.about : thing.about}
-              onChange={(v) => change("entity", { about: v })}
+              value={entity("about")}
+              onChange={putEntity("about")}
             />
             {Editor && <Editor thing={thing} draft={draft} change={change} />}
           </div>

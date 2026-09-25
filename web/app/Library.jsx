@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KINDS, PLACE_ICON, PLACE_TYPES, RARITIES } from "./world";
 import { saveEdits } from "./edit";
-import { Field, Pick } from "./edit/fields";
+import { Field, Pick, valueOf } from "./edit/fields";
 import { typing, useSaveKey } from "./keyboard";
 import { Act, Cap, EditBar, Empty, Mark, Note, Pen, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
 
@@ -356,10 +356,7 @@ export default function Library({
   useSaveKey(editing && !dossier, save);
 
   const ed = {
-    get: (r, section, key, saved) => {
-      const part = draft[r.id]?.[section];
-      return part && key in part ? part[key] : saved;
-    },
+    get: (r, section, key, saved) => valueOf(draft[r.id], section, key, saved),
     put: (r, section, key, saved) => (value) => {
       setRefused((was) => {
         if (!(r.id in was)) return was;

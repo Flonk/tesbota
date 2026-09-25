@@ -247,9 +247,14 @@ export function Chips({ label, values, onChange, placeholder = "add" }) {
   );
 }
 
+export function valueOf(patch, section, key, saved) {
+  const part = patch?.[section];
+  return part && key in part ? part[key] : saved ?? null;
+}
+
 /** The fields of one object section, read from the draft first and the record second. */
 export function reader(draft, change, section, saved) {
-  const get = (key) => (draft[section] && key in draft[section] ? draft[section][key] : saved?.[key] ?? null);
+  const get = (key) => valueOf(draft, section, key, saved?.[key]);
   const put = (key) => (v) => change(section, { [key]: v });
   return [get, put];
 }
