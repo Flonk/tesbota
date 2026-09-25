@@ -80,3 +80,30 @@ export function night(subsolar, o) {
   const drawn = edge.map(([x, y]) => [x.toFixed(1), y.toFixed(1)]);
   return pathOf([...drawn, [W - o.x, pole], [-o.x, pole]], true);
 }
+
+export const IDENTITY = [1, 0, 0, 1, 0, 0];
+
+export const still = (m) => !m || m.every((v, i) => Math.abs(v - IDENTITY[i]) < 1e-12);
+
+export const through = (m, [x, y]) => [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+
+export const then = ([a1, b1, c1, d1, e1, f1], [a2, b2, c2, d2, e2, f2]) => [
+  a2 * a1 + c2 * b1, b2 * a1 + d2 * b1,
+  a2 * c1 + c2 * d1, b2 * c1 + d2 * d1,
+  a2 * e1 + c2 * f1 + e2, b2 * e1 + d2 * f1 + f2,
+];
+
+export const shifted = (dx, dy) => [1, 0, 0, 1, dx, dy];
+
+export const about = ([x, y], m) => then(then(shifted(-x, -y), m), shifted(x, y));
+
+export const turned = (angle) => [Math.cos(angle), Math.sin(angle), -Math.sin(angle), Math.cos(angle), 0, 0];
+
+export const stretched = (sx, sy) => [sx, 0, 0, sy, 0, 0];
+
+export const carriedTo = (m, point) => offMap(through(m, onMap(point)));
+
+export const carried = (runs, m) => runs.map((run) => run.map((point) => carriedTo(m, point)));
+
+export const onWorld = (runs) =>
+  runs.every((run) => run.every(([lon, lat]) => lon >= -180 && lon <= 180 && lat >= -LIMIT && lat <= LIMIT));

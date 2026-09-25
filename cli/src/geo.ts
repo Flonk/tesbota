@@ -39,8 +39,23 @@ export function shapeOf(extent: string | null): Shape {
   return { rings: [], line: null };
 }
 
-/** Every coordinate in a shape, moved by the same amount. */
-export function dragged(extent: string, by: { lon: number; lat: number }): string | null {
+const PLANE = { W: 1440, H: 900, LIMIT: 85 };
+const TALL = Math.log(Math.tan((45 + PLANE.LIMIT / 2) * RAD));
+
+export type Affine = [number, number, number, number, number, number];
+
+export const still = (m: Affine | null) => !m || m.every((v, i) => Math.abs(v - [1, 0, 0, 1, 0, 0][i]) < 1e-12);
+
+export function carriedTo(m: Affine, [lon, lat]: PtT): PtT {
+  const held = Math.max(-PLANE.LIMIT, Math.min(PLANE.LIMIT, lat));
+  const x = ((lon + 180) / 360) * PLANE.W;
+  const y = ((1 - Math.log(Math.tan((45 + held / 2) * RAD)) / TALL) / 2) * PLANE.H;
+  const [u, v] = [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+  return [(u / PLANE.W) * 360 - 180, 2 * (Math.atan(Math.exp(TALL * (1 - (2 * v) / PLANE.H))) * DEG - 45)];
+}
+
+/** Every coordinate in a shape, put through the same transform. */
+export function dragged(extent: string, by: Affine): string | null {
   let drawn: { coordinates?: unknown };
   try {
     drawn = JSON.parse(extent);
@@ -50,7 +65,7 @@ export function dragged(extent: string, by: { lon: number; lat: number }): strin
   const walk = (node: unknown): unknown => {
     if (!Array.isArray(node)) return node;
     if (node.length === 2 && typeof node[0] === "number" && typeof node[1] === "number") {
-      return [node[0] + by.lon, node[1] + by.lat];
+      return carriedTo(by, [node[0], node[1]]);
     }
     return node.map(walk);
   };

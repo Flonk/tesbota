@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { carried, covers, runsOf } from "./shaping";
+import { covers, runsOf } from "./shaping";
 import { useMedia } from "./ui";
 import { isRun } from "./world";
 import { EditPalette, Notices, Palettes, RemoveDialog, ShapeBar, useShown } from "./map/controls";
 import { useShapeEditor } from "./map/editor";
 import { useGestures } from "./map/gestures";
 import {
-  Draft, Graticule, Handles, LAYER, Moons, Night, Pins, Ruled, Scale, Shapes, Stroke, Sun, Trip, Words,
+  Draft, Gizmo, Graticule, Handles, LAYER, Moons, Night, Pins, Ruled, Scale, Shapes, Stroke, Sun, Trip, Words,
 } from "./map/layers";
 import { gather, resolve, treeOf } from "./map/pins";
-import { boxOf, H, project, W } from "./map/projection";
+import { boxOf, carried, carriedTo, H, project, W } from "./map/projection";
 import { useViewport } from "./map/viewport";
 
 /**
@@ -70,13 +70,13 @@ export default function Globe({
   const marks = useMemo(() => {
     const moving = standing.map((place) => {
       const by = rides(place.id) || (place.id === chosen ? total : null);
-      return by && place.lat !== null && place.lon !== null
-        ? { ...place, lat: place.lat + by.lat, lon: place.lon + by.lon }
-        : place;
+      if (!by || place.lat === null || place.lon === null) return place;
+      const [lon, lat] = carriedTo(by, [place.lon, place.lat]);
+      return { ...place, lon, lat };
     });
     const sizes = new Map(base.map((place) => [place.id, place.box]));
     return gather(resolve(treeOf(moving), sizes, k, chosen), here, k);
-  }, [standing, base, here, k, rides, chosen, total?.lon, total?.lat]);
+  }, [standing, base, here, k, rides, chosen, total]);
 
   // Ground first, then what runs across it, then what stands on it — so a house
   // is not painted over by the village holding it.
@@ -161,6 +161,9 @@ export default function Globe({
       {/* Last, so a corner is never hidden under the name of something else —
           a label that swallows the handle you are reaching for is a handle that
           does not work. */}
+      {draft && editing && tool === "select" && (
+        <Gizmo draft={draft} coarse={coarse} origin={origin} near={near} />
+      )}
       {draft && editing && (
         <Handles draft={draft} tool={tool} picked={editor.picked} coarse={coarse} origin={origin} near={near} />
       )}

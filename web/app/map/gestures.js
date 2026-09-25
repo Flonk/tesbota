@@ -2,12 +2,42 @@
 
 import { useEffect, useRef, useState } from "react";
 import { typing } from "../keyboard";
-import { carried } from "../shaping";
 import { openDossier } from "../ui";
 import { grown, TOOLS } from "./editor";
-import { boxOf, hold, LIMIT } from "./projection";
+import { about, boxOf, carried, H, hold, onMap, onWorld, project, shifted, stretched, turned, W } from "./projection";
 
 const SLOP = 4;
+const SNAP = Math.PI / 12;
+
+function gripped({ grip, start, box }, at, e) {
+  const middle = [(box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2];
+  if (grip === "move") {
+    return shifted(hold(at[0] - start[0], -box.minX, W - box.maxX), hold(at[1] - start[1], -box.minY, H - box.maxY));
+  }
+  if (grip === "spin") {
+    let angle = Math.atan2(at[1] - middle[1], at[0] - middle[0]) - Math.atan2(start[1] - middle[1], start[0] - middle[0]);
+    if (e.shiftKey) angle = Math.round(angle / SNAP) * SNAP;
+    return about(middle, turned(angle));
+  }
+  const east = grip.includes("e"), west = grip.includes("w");
+  const south = grip.includes("s"), north = grip.includes("n");
+  const edgeX = east ? box.maxX : west ? box.minX : null;
+  const edgeY = south ? box.maxY : north ? box.minY : null;
+  const fixed = [e.altKey ? middle[0] : east ? box.minX : box.maxX, e.altKey ? middle[1] : south ? box.minY : box.maxY];
+  const ratio = (edge, moved, anchor) => {
+    const span = edge - anchor;
+    if (edge === null || Math.abs(span) < 1e-12) return null;
+    const r = (edge + moved - anchor) / span;
+    return Math.abs(r) < 1e-3 ? Math.sign(r || 1) * 1e-3 : r;
+  };
+  let sx = ratio(edgeX, at[0] - start[0], fixed[0]);
+  let sy = ratio(edgeY, at[1] - start[1], fixed[1]);
+  if (e.shiftKey) {
+    const even = sx === null ? sy : sy === null ? sx : Math.abs(sx) > Math.abs(sy) ? sx : sy;
+    sx = sy = even;
+  }
+  return about(fixed, stretched(sx ?? 1, sy ?? 1));
+}
 
 function hitsAt(svg, x, y, chosen, draft) {
   const hits = [];
@@ -15,6 +45,7 @@ function hitsAt(svg, x, y, chosen, draft) {
     if (!svg?.contains(el)) continue;
     const d = el.dataset || {};
     if (d.corner) hits.push({ corner: d.corner.split(":").map(Number) });
+    else if (d.grip) hits.push({ grip: d.grip });
     else if (d.ghost) {
       const [run, at] = d.ghost.split(":");
       hits.push({ ghost: [Number(run), at === "start" || at === "end" ? at : Number(at)] });
@@ -105,11 +136,14 @@ export function useGestures({ viewport, editor, editing, body }) {
       g.kind = "stroke";
       const point = viewport.spot(e.clientX, e.clientY);
       g.points = point ? [point] : [];
-    } else if (tool === "select" && top.draft) {
+    } else if (tool === "select" && (top.draft || top.grip) && draft?.runs.some((r) => r.length)) {
+      const at = viewport.spot(e.clientX, e.clientY);
+      if (!at) return;
       g.kind = "shove";
-      g.start = viewport.spot(e.clientX, e.clientY);
+      g.grip = top.grip || "move";
+      g.start = onMap(at);
       g.runs = draft.runs;
-      g.fence = boxOf(g.runs.flat());
+      g.box = boxOf(g.runs.flatMap(project));
     }
   }
 
@@ -153,14 +187,12 @@ export function useGestures({ viewport, editor, editing, body }) {
     if (g.kind === "corner") {
       dispatch({ type: "corner", run: g.run, at: g.at, point });
     } else if (g.kind === "shove") {
-      const { minX: w, maxX: east, minY: s, maxY: n } = g.fence;
-      const by = {
-        lon: hold(point[0] - g.start[0], -180 - w, 180 - east),
-        lat: hold(point[1] - g.start[1], -LIMIT - s, LIMIT - n),
-      };
-      // The ground and what stands on it move together while the hand is still
+      const by = gripped(g, onMap(point), e);
+      const runs = carried(g.runs, by);
+      if (!onWorld(runs)) return;
+      // The ground and what stands on it go together while the hand is still
       // down, not only once it has let go.
-      dispatch({ type: "shove", runs: carried(g.runs, by), by });
+      dispatch({ type: "shove", runs, by });
       g.by = by;
     } else if (g.kind === "stroke") {
       editor.setPen([...g.points]);

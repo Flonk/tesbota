@@ -6,7 +6,7 @@ import { isRun } from "../world";
 import { grown } from "./editor";
 import { labelled } from "./pins";
 import {
-  across, down, H, latOf, lengths, local, lonOf, metresPerPixel, nice, night, offset, pathOf, RAD, W, wrapped,
+  across, boxOf, down, H, latOf, lengths, local, lonOf, metresPerPixel, nice, night, offset, pathOf, RAD, W, wrapped,
 } from "./projection";
 
 export const LAYER = { region: 1, water: 0, location: 2, road: 3, river: 3 };
@@ -372,6 +372,37 @@ export function Handles({ draft, tool, picked, coarse, origin, near }) {
           );
         })
       )}
+    </g>
+  );
+}
+
+const GRIPS = [["nw", 0, 0], ["n", 1, 0], ["ne", 2, 0], ["e", 2, 1], ["se", 2, 2], ["s", 1, 2], ["sw", 0, 2], ["w", 0, 1]];
+
+export function Gizmo({ draft, coarse, origin, near }) {
+  const box = boxOf(draft.runs.flat().map((point) => local(point, origin)));
+  if (!box) return null;
+  const pad = 8 * near;
+  const band = (coarse ? 36 : 24) * near;
+  const size = (coarse ? 14 : 8) * near;
+  const xs = [box.minX - pad, (box.minX + box.maxX) / 2, box.maxX + pad];
+  const ys = [box.minY - pad, (box.minY + box.maxY) / 2, box.maxY + pad];
+  const frame = (grow) =>
+    `M ${xs[0] - grow} ${ys[0] - grow} H ${xs[2] + grow} V ${ys[2] + grow} H ${xs[0] - grow} Z`;
+  return (
+    <g className="globegizmo">
+      <path className="gizmospin" data-grip="spin" d={`${frame(band)} ${frame(0)}`} />
+      <path className="gizmoframe" data-draft="" d={frame(0)} />
+      {GRIPS.map(([grip, i, j]) => (
+        <rect
+          key={grip}
+          className={`gizmogrip ${grip}`}
+          data-grip={grip}
+          x={xs[i] - size / 2}
+          y={ys[j] - size / 2}
+          width={size}
+          height={size}
+        />
+      ))}
     </g>
   );
 }

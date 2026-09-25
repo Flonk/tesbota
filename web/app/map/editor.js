@@ -6,7 +6,7 @@ import {
   added, covers, dropped, extentOf, moved, opened, rerun, rework, runsOf, spread, straighten,
 } from "../shaping";
 import { isRun } from "../world";
-import { hold, LIMIT, offMap, onMap, project } from "./projection";
+import { hold, IDENTITY, LIMIT, offMap, onMap, project, still, then } from "./projection";
 
 export const UNWRITTEN = "\u0000new";
 
@@ -23,17 +23,15 @@ const IDLE = {
   chosen: null,
   fresh: null,
   draft: null,
-  // How far the whole shape has been carried, and whether what stood on it comes.
+  // What the whole shape has been put through, and whether what stood on it comes.
   carry: null,
   bringing: true,
-  // How far the hand has got this drag, before it has let go.
+  // What the hand has done to it this drag, before it has let go.
   towed: null,
   past: [],
   future: [],
   picked: null,
 };
-
-const sum = (a, b) => ({ lon: (a?.lon || 0) + (b?.lon || 0), lat: (a?.lat || 0) + (b?.lat || 0) });
 
 function draftOf(place) {
   const read = runsOf(place.extent);
@@ -74,8 +72,8 @@ function edit(state, a) {
     case "cornered":
       return { ...state, ...remember(state, a.before) };
     case "shoved":
-      return a.by && (a.by.lon || a.by.lat)
-        ? { ...state, ...remember(state, a.before), towed: null, carry: sum(state.carry, a.by) }
+      return !still(a.by)
+        ? { ...state, ...remember(state, a.before), towed: null, carry: then(state.carry || IDENTITY, a.by) }
         : { ...state, towed: null };
     case "abandon":
       return { ...state, ...a.before, towed: null };
@@ -179,7 +177,7 @@ export function useShapeEditor({ body, tree, editing, onSaved, onDirty }) {
     );
   }, [tree, byId, chosen]);
 
-  const total = carry || towed ? sum(carry, towed) : null;
+  const total = towed ? then(carry || IDENTITY, towed) : carry;
   const towing = bringing && total && riders.size ? total : null;
   const rides = useCallback(
     (id) => (towing && riders.has(id) ? towing : null),
@@ -292,7 +290,7 @@ export function useShapeEditor({ body, tree, editing, onSaved, onDirty }) {
         dispatch({ type: "written", id });
       }
       const shaped = await send("/api/shape", {
-        id, extent, carry, alone: !bringing,
+        id, extent, carry: still(carry) ? null : carry, alone: !bringing,
         ...(draft.shut ? {} : { width: draft.width ?? null }),
       });
       if (shaped.error) {

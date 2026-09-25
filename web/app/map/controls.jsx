@@ -6,7 +6,7 @@ import { TOOLS, UNWRITTEN } from "./editor";
 import { LAYER } from "./layers";
 
 const HINT = {
-  select: "click a place to select it",
+  select: "drag to move, a handle to resize, just outside to rotate; shift keeps proportions and snaps the angle, alt works from the middle",
   corners: "click a place, then drag its corners",
   draw: "click a place, then draw across its outline",
   erase: "click a place, then click corners to remove them",

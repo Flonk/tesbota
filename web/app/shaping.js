@@ -252,7 +252,3 @@ export function covers(runs, [x, y]) {
   }
   return inside;
 }
-
-/** The same shape, every point of it moved by the same amount. */
-export const carried = (runs, by) =>
-  runs.map((run) => run.map(([x, y]) => [x + by.lon, y + by.lat]));

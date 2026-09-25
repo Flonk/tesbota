@@ -265,13 +265,10 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   shape({ rest, flags, opts }) {
     const [id, ...drawn] = rest;
     const said = flags.has("--clear") ? null : drawn.length ? drawn.join(" ") : undefined;
-    // `--carry=<lon>,<lat>`: bring whatever stood on this ground along with it.
-    const by = opts.carry;
-    let carry: places.Carry = null;
-    if (by) {
-      const [lon, lat] = by.split(",").map(Number);
-      if (Number.isFinite(lon) && Number.isFinite(lat)) carry = { lon, lat };
-    }
+    // `--carry=<a,b,c,d,e,f>`: put whatever stood on this ground through what the map put the ground through.
+    const by = (opts.carry ?? "").split(",").map(Number);
+    const [a, b, c, d, e, f] = by;
+    const carry: places.Carry = by.length === 6 && by.every(Number.isFinite) ? [a, b, c, d, e, f] : null;
     const wide = opts.width;
     const width = wide === undefined ? undefined : wide === "" ? null : Number(wide);
     return say(places.shape(id, said, carry, width, flags.has("--alone")));

@@ -8,7 +8,7 @@ import path from "node:path";
 import * as db from "./db.ts";
 import { slug } from "./canon.ts";
 import { HEAVENS, PLACE_TYPE_NAMES, PROFILES, roomOf, WIDE } from "./config.ts";
-import { area, covers, dragged, interior, pinOf, runsIn, shapeOf } from "./geo.ts";
+import { type Affine, area, carriedTo, covers, dragged, interior, pinOf, runsIn, shapeOf, still } from "./geo.ts";
 
 export type PlaceRow = {
   id: string; name: string; type: string | null; parent: string | null;
@@ -76,7 +76,7 @@ export function placesUnder(world: string): PlaceRow[] {
     }));
 }
 
-export type Carry = { lon: number; lat: number } | null;
+export type Carry = Affine | null;
 
 /**
  * Set the shape of a place.
@@ -155,10 +155,7 @@ export function shape(
   const pin = db.row("SELECT lat, lon FROM place WHERE id = ?", [ident]);
   let lat = num(pin?.lat);
   let lon = num(pin?.lon);
-  if (carry && (carry.lon || carry.lat) && lat !== null && lon !== null) {
-    lat += carry.lat;
-    lon += carry.lon;
-  }
+  if (carry && !still(carry) && lat !== null && lon !== null) [lon, lat] = carriedTo(carry, [lon, lat]);
   const rings = shut ? shapeOf(said).rings : [];
   if (rings.length && lat !== null && lon !== null && !covers(rings, [lon, lat])) {
     const inside = interior(rings);
@@ -167,7 +164,7 @@ export function shape(
   if (lat !== null && lon !== null && (lat !== Number(pin?.lat) || lon !== Number(pin?.lon))) {
     db.writing((con) => con.prepare("UPDATE place SET lat = ?, lon = ? WHERE id = ?").run(lat, lon, ident));
   }
-  if (carry && (carry.lon || carry.lat) && !alone) {
+  if (carry && !still(carry) && !alone) {
     const held = shapeOf(before ?? null).rings;
     const size = area(held);
     const above = new Set(ancestry(ident).slice(0, -1).map((a) => a.id));
@@ -188,7 +185,8 @@ export function shape(
       db.writing((con) => {
         for (const r of inside) {
           if (r.lat !== null && r.lon !== null) {
-            con.prepare("UPDATE place SET lat = ?, lon = ? WHERE id = ?").run(r.lat + carry.lat, r.lon + carry.lon, r.id);
+            const [lon, lat] = carriedTo(carry, [r.lon, r.lat]);
+            con.prepare("UPDATE place SET lat = ?, lon = ? WHERE id = ?").run(lat, lon, r.id);
           }
           const shifted = r.extent ? dragged(r.extent, carry) : null;
           if (shifted) {
