@@ -27,6 +27,7 @@ const LISTS = [
   { id: "kit", label: "kit", icon: "shirt" },
 ];
 
+const opened = { lists: "names", prompts: "common" };
 const drafts = {};
 
 const NAMES = {
@@ -154,10 +155,9 @@ function List({ catalogue, at }) {
 
 export default function Data({ sheaf, onPost }) {
   const { data: catalogue, error, reload } = useJSON("/api/data");
-  const [pick, setPick] = useState({ lists: "names", prompts: "common" });
   const [, redraw] = useState(0);
   const pen = useRef(null);
-  const at = pick[sheaf];
+  const at = opened[sheaf];
   const prompt = (catalogue?.prompts || []).find((p) => p.id === at);
   const draft = drafts[at] ?? null;
   const text = draft ?? prompt?.source ?? "";
@@ -197,7 +197,10 @@ export default function Data({ sheaf, onPost }) {
             : (catalogue?.prompts || []).map((p) => ({ id: p.id, label: p.label, icon: LAYER_ICON[p.id] || "lines" }))
         }
         value={at}
-        onChange={(next) => setPick((was) => ({ ...was, [sheaf]: next }))}
+        onChange={(next) => {
+          opened[sheaf] = next;
+          redraw((n) => n + 1);
+        }}
       />
       {sheaf === "prompts" && (
         <Row>

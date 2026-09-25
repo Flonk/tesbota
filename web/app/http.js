@@ -23,8 +23,10 @@ export async function send(path, body, method = "POST") {
   }
 }
 
+const seen = new Map();
+
 export function useJSON(url) {
-  const [got, setGot] = useState({ data: null, error: null });
+  const [got, setGot] = useState(() => ({ data: seen.get(url) ?? null, error: null }));
   const asked = useRef(null);
 
   const reload = useCallback(() => {
@@ -34,6 +36,7 @@ export function useJSON(url) {
       .then(answer)
       .catch((err) => ({ ok: false, payload: null, error: String(err) }))
       .then(({ ok, payload, error }) => {
+        if (ok) seen.set(url, payload);
         if (asked.current === mine) setGot(ok ? { data: payload, error: null } : { data: null, error });
       });
   }, [url]);
