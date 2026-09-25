@@ -15,7 +15,7 @@ import path from "node:path";
 import * as machine from "./machine.ts";
 import { AGENTS } from "./agents.ts";
 import { Campaign, Turn } from "./schema.ts";
-import { DAYS_PER_MONTH, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
+import { DAYS_PER_MONTH, DAYS_PER_YEAR, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
 import * as db from "./db.ts";
 import * as sky from "./sky.ts";
 import { sqlite3 } from "./sqlite.ts";
@@ -80,13 +80,12 @@ function agents(): Wrong[] {
 function calendar(): Wrong[] {
   const { days, derived } = sky.calendar();
   if (!derived) return [];
-  const tiled = MONTH_NAMES.length * DAYS_PER_MONTH;
-  if (days === tiled) return [];
+  if (days === DAYS_PER_YEAR) return [];
   return [{
     what: "calendar",
     said:
       `terra takes ${days} days to go round but the calendar cuts the year into ` +
-      `${MONTH_NAMES.length} months of ${DAYS_PER_MONTH} — ${tiled} days. ` +
+      `${MONTH_NAMES.length} months of ${DAYS_PER_MONTH} — ${DAYS_PER_YEAR} days. ` +
       "Every date written since is off by the difference.",
   }];
 }

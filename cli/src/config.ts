@@ -159,11 +159,8 @@ export const OPENING_QUEST = {
   script: "Nudge the explorer towards Alheim. Make them fight a rat along the way.",
 };
 
-export const DAYS_PER_WEEK = 7;
-const WEEKS_PER_MONTH = 4;
-const MONTHS_PER_YEAR = 8;
-export const DAYS_PER_MONTH = DAYS_PER_WEEK * WEEKS_PER_MONTH;
-export const DAYS_PER_YEAR = DAYS_PER_MONTH * MONTHS_PER_YEAR;
+export const MINUTES_PER_HOUR = 60;
+export const MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;
 
 export const MONTH_NAMES = [
   "Frostfall", "Deepfrost", "Frostbreak", "Seedwake",
@@ -173,6 +170,11 @@ export const MONTH_NAMES = [
 export const DAY_NAMES = [
   "Firstday", "Millday", "Waterday", "Midweek", "Marketday", "Restday", "Lastday",
 ];
+
+export const DAYS_PER_WEEK = DAY_NAMES.length;
+const WEEKS_PER_MONTH = 4;
+export const DAYS_PER_MONTH = DAYS_PER_WEEK * WEEKS_PER_MONTH;
+export const DAYS_PER_YEAR = DAYS_PER_MONTH * MONTH_NAMES.length;
 
 export const WORLD_START = { era: 4, year: 202, day: 1, minute: 13 * 60 + 4 };
 

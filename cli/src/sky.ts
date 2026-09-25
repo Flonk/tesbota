@@ -17,12 +17,10 @@
  */
 
 import * as db from "./db.ts";
-import { DAYS_PER_YEAR, WORLD_SKY } from "./config.ts";
+import { DAYS_PER_YEAR, MINUTES_PER_DAY, WORLD_SKY } from "./config.ts";
 
 /** m³ kg⁻¹ s⁻². */
 export const G = 6.6743e-11;
-
-export const MINUTES_PER_DAY = 24 * 60;
 
 /** How far below the horizon the sun's centre is when its upper limb touches it. */
 export const REFRACTION = -0.833;
