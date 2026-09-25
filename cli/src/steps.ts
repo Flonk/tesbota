@@ -93,15 +93,16 @@ export const explorerPermission = async (toolName: string, toolInput: Record<str
     };
   }
   const raw = String((toolInput as any)?.command ?? "");
-  if ([...";|&$`><\n"].some((ch) => raw.includes(ch))) {
-    return { behavior: "deny" as const, message: "Nothing happens." };
+  const parts = raw.split(/&&|;|\n/).map(normaliseCommand).filter((p) => p && !/^echo\b/.test(p));
+  const shell = [..."|&$`><"].some((ch) => raw.replace(/&&/g, "").includes(ch));
+  if (!shell && parts.length && parts.every((p) => EXPLORER_COMMANDS.includes(p))) {
+    return { behavior: "allow" as const };
   }
-  if (EXPLORER_COMMANDS.includes(normaliseCommand(raw))) return { behavior: "allow" as const };
   return {
     behavior: "deny" as const,
     message:
       "Nothing happens. The only things you can do are `tesbota stats`, " +
-      "`tesbota inventory` and `tesbota quests`.",
+      "`tesbota inventory` and `tesbota quests`, one at a time.",
   };
 };
 
