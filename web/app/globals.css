@@ -659,15 +659,12 @@ textarea.prompt:focus { outline: none; }
 .hitline { margin: 0; font-size: .9rem; line-height: 1.45; }
 .hitline mark { background: none; color: var(--gold); }
 .named { margin-bottom: .3rem; }
-.hitname { display: flex; align-items: baseline; gap: .6rem; padding: .04rem 0; line-height: 1.35; }
-.hitname .eid { font: var(--mono); letter-spacing: .06em; color: var(--dim); }
-.hitname .ename { font-size: .82rem; }
 
 .dline { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem; margin: 0 0 .1rem; }
 .hit.sel .hitref { color: var(--gold); }
-.erow.sel, .hitname.sel { background: var(--panel); border-color: var(--line); }
-.erow.sel .ename, .hitname.sel .ename { color: var(--gold); }
-.erow.pick, .hit, .hitname { cursor: pointer; }
+.erow.sel { background: var(--panel); border-color: var(--line); }
+.erow.sel .ename { color: var(--gold); }
+.erow.pick, .hit { cursor: pointer; }
 
 /* ---- dossier ---- */
 

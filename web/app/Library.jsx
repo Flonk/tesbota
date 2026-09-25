@@ -5,7 +5,7 @@ import { KINDS, PLACE_ICON, PLACE_TYPES, RARITIES } from "./world";
 import { saveEdits } from "./edit";
 import { Field, Pick } from "./edit/fields";
 import { typing, useSaveKey } from "./keyboard";
-import { Act, EditBar, Empty, Mark, Note, Pen, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
+import { Act, Cap, EditBar, Empty, Mark, Note, Pen, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
 
 const TYPE_CHOICES = PLACE_TYPES.map((t) => [t, t.replace(/-/g, " ")]);
 const NARRATOR = "the narrator";
@@ -253,18 +253,18 @@ function Hits({ named, hits, selected, onOpen }) {
     <div className="hits">
       {named.length > 0 && (
         <div className="named">
-          <p className="cap">named</p>
-          {named.map((r) => (
-            <div
-              className={`hitname${r.id === selected ? " sel" : ""}`}
-              key={r.id}
-              data-sel={r.id === selected ? "1" : undefined}
-              onClick={() => onOpen(r.id)}
-            >
-              <span className="ename">{r.name}</span>
-              <span className="eid">{r.kind}</span>
-            </div>
-          ))}
+          <Cap>named</Cap>
+          <Table
+            rarity={rated}
+            cols="minmax(8rem, 1fr) 6rem"
+            fields={[
+              { key: "name", strong: true, cell: (r) => r.name },
+              { key: "kind", dim: true, cell: (r) => r.kind },
+            ]}
+            rows={named}
+            selected={selected}
+            onOpen={onOpen}
+          />
         </div>
       )}
       {hits.map((h) => (
