@@ -221,7 +221,7 @@ export const WORLD_SKY = {
   },
 } as const;
 
-export const SPEED_FACTOR = 6000;
+export const SPEED_FACTOR = 10;
 
 export const CARRY_PER_STR = 0.5;
 export const OVER_DRAG = 10.0;
