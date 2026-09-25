@@ -165,8 +165,8 @@ export const OPENING = {
  * alone: a direction to play toward, not a railroad.
  */
 export const OPENING_QUEST = {
-  id: "the-way-to-alheim",
-  title: "Find your way to Alheim",
+  id: "where-am-i",
+  title: "Where Am I?",
   detail: "",
   script: "Nudge the explorer towards Alheim. Make them fight a rat along the way.",
 };
