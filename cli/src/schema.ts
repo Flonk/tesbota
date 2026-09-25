@@ -305,7 +305,6 @@ export const Turn = z.object({
   verdicts: z.array(Verdict).default([]),
   facts: z.array(z.string()).default([]),
 
-  fight: Fight.nullish(),
   swing: Swing.nullish(),
 
   correction: z.string().nullish(),

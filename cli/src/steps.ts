@@ -43,9 +43,13 @@ function drafted(turn: TurnT): DraftT {
   return turn.draft;
 }
 
+const fighting = (turn: TurnT) =>
+  turn.phases.find((x) => x.kind === "fight" && x.status !== "checked")?.fight ?? null;
+
 export function fightOf(turn: TurnT): FightT {
-  if (!turn.fight) throw new Error(`${turn.turn_id} has no fight`);
-  return turn.fight;
+  const running = fighting(turn);
+  if (!running) throw new Error(`${turn.turn_id} has no fight`);
+  return running;
 }
 
 // ── phases ──────────────────────────────────────────────────────────────────
@@ -75,6 +79,7 @@ export function gmPhase(turn: TurnT, kind: PhaseT["kind"], text: string, extra: 
   if (last) {
     last.kind = kind;
     last.text = text;
+    delete last.fight;
     Object.assign(last, extra);
     return last;
   }
@@ -195,7 +200,6 @@ function commit(turn: TurnT, action: string) {
   turn.roll = null;
   turn.fate = null;
   turn.check = null;
-  turn.fight = null;
   turn.spent = [];
   phase(turn, "explorer", "action", action);
 }
@@ -458,33 +462,18 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
     ...(agreed ? { minutes: agreed.minutes, fatigue: agreed.fatigue } : {}),
   });
   turn.draft = draft;
-  gmPhase(turn, world ? "world" : "outcome", draft.narration);
   turn.correction = null;
 
-  if ((draft.fight || campaign.fight) && !turn.fight?.blows.length) {
+  if (draft.fight) {
     const opened = fight.openFight(campaign, draft);
-    turn.fight = opened;
     // The page draws whatever is on the turn, so the fight goes on the turn the
     // moment it is declared. Waiting for the last blow means nobody sees any of it.
-    showFight(turn, opened);
+    gmPhase(turn, "fight", opened.said, { fight: opened });
     return "declares";
   }
+  gmPhase(turn, world ? "world" : "outcome", draft.narration);
   return "narrated";
 };
-
-/**
- * Keep the drawn phase pointing at the fight as it stands. Saving and loading the
- * turn parts the two copies, so this re-marries them every blow.
- */
-export function showFight(turn: TurnT, running: FightT): PhaseT {
-  for (const entry of turn.phases) {
-    if (entry.kind === "fight" && entry.status !== "checked") {
-      entry.fight = running;
-      return entry;
-    }
-  }
-  return gmPhase(turn, "fight", running.said, { fight: running });
-}
 
 // ── the lore masters ────────────────────────────────────────────────────────
 
@@ -601,7 +590,7 @@ function sendBack<E extends string>(world: World, wrong: VerdictT[], failed: str
  * the game master and nobody checks a blow.
  */
 export const stepMuster: Step<"muster"> = async (world) => {
-  const { turn } = world;
+  const { campaign, turn } = world;
   const running = fightOf(turn);
   const strangers = fight.unbound(running).map((x) => ({ id: x.id, name: x.name }));
   const said = running.said;
@@ -614,7 +603,7 @@ export const stepMuster: Step<"muster"> = async (world) => {
   for (const bound of ruled.bodies) {
     const declared = canon.slug(bound.declared);
     const became = canon.slug(bound.is);
-    if (became && canon.called(became) && fight.rebind(running, declared, became)) continue;
+    if (became && canon.called(became) && fight.rebind(running, declared, became, campaign)) continue;
     const was = strangers.find((x) => x.id === declared)?.name || declared;
     asked.push(bound.question?.trim() || `does ${was} exist, and what is it`);
   }
@@ -624,7 +613,6 @@ export const stepMuster: Step<"muster"> = async (world) => {
       asked.push(`does ${stray.name} exist, and what is it`);
     }
   }
-  showFight(turn, running);
   if (asked.length) return hold(world, listed(asked));
 
   const unresolved = verdicts.filter((v) => v.result === "UNRESOLVED");
@@ -636,7 +624,6 @@ export const stepMuster: Step<"muster"> = async (world) => {
       world, wrong, "The game master could not declare a fight that survives adjudication.", "rejected"
     );
     if (edge === "rejected") {
-      turn.fight = null;
       turn.phases = turn.phases.filter((x) => x.kind !== "fight" || x.status === "checked");
     }
     return edge;
@@ -1015,7 +1002,6 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
   }
 
   running.blows.push(blow);
-  showFight(turn, running);
   turn.swing = null;
   running.turn += 1;
   if (running.turn >= fight.order(running).length) {
@@ -1084,9 +1070,8 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   turn.draft = draft;
   turn.check = null;
 
-  const told = showFight(turn, running);
-  told.text = draft.narration;
-  told.status = "pending";
+  const told = openPhase(turn);
+  if (told) told.text = draft.narration;
   // The record was checked when the fight was declared. Swinging is the game
   // master's alone — every blow is a particular, and particulars are never the
   // lore master's to rule on.
@@ -1194,12 +1179,16 @@ export async function applyQuests(campaign: CampaignT, draft: DraftT, turnId: st
 
 /**
  * A fight that outran the guard is carried with everybody's wounds on them. Any
- * other ending closes it. Nought health kills, which nothing in this machine did
- * before a fight could take you there.
+ * other ending closes it, and so does a turn that leaves a carried fight out.
+ * Nought health kills, which nothing in this machine did before a fight could
+ * take you there.
  */
 export function settleFight(campaign: CampaignT, turn: TurnT): CampaignT {
-  const running = turn.fight;
-  if (!running) return campaign;
+  const running = fighting(turn);
+  if (!running) {
+    campaign.fight = null;
+    return campaign;
+  }
   if (running.ended === "broken") {
     campaign.fight = {
       skill: running.skill,

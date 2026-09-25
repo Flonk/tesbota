@@ -118,7 +118,7 @@ export const unbound = (fight: FightT): FighterT[] =>
  * that thing, with that thing's stats, keeping whatever the game master wrote
  * over them and whatever it called it in the scene.
  */
-export function rebind(fight: FightT, declared: string, bound: string): FighterT | null {
+export function rebind(fight: FightT, declared: string, bound: string, campaign: CampaignT): FighterT | null {
   for (const side of ["them", "us"] as const) {
     for (let at = 0; at < fight[side].length; at++) {
       const who = fight[side][at];
@@ -127,6 +127,7 @@ export function rebind(fight: FightT, declared: string, bound: string): FighterT
       said.who = bound;
       if (said.name === undefined) said.name = who.name;
       fight[side][at] = fighter(said, who.kind);
+      if (who.kind === "foe") borne(fight[side][at], campaign);
       return fight[side][at];
     }
   }
@@ -218,12 +219,12 @@ const Bodies = z.array(Written);
  * has now walked back into. Everybody on both sides, in the order they act.
  */
 export function openFight(campaign: CampaignT, draft: DraftT): FightT {
-  let said: Record<string, unknown> = draft.fight ?? {};
-  const held: Record<string, unknown> = campaign.fight ?? {};
-  if (!Object.keys(said).length && Object.keys(held).length) said = held;
-  const them = Bodies.safeParse(said.them).data ?? (said.name || said.health ? [said] : []);
+  const said: Record<string, unknown> = draft.fight ?? {};
+  const held = campaign.fight;
+  const them = Bodies.safeParse(said.them).data ?? (said.name || said.health ? [said] : null);
+  const allies = Bodies.safeParse(said.us).data;
   const [weapon, hurt] = swungWith(campaign);
-  const skill = String(said.skill || "athletics").toLowerCase();
+  const skill = String(said.skill || held?.skill || "athletics").toLowerCase();
 
   const me = Fighter.parse({
     id: EXPLORER,
@@ -243,17 +244,16 @@ export function openFight(campaign: CampaignT, draft: DraftT): FightT {
     dead: false,
   });
 
-  const foes = them.map((x) => fighter(x, "foe"));
-  for (const foe of foes) borne(foe, campaign);
+  const foes = them ? them.map((x) => borne(fighter(x, "foe"), campaign)) : structuredClone(held?.them ?? []);
   return {
     skill,
-    flee_dc: Math.trunc(Number(said.flee_dc) || 10),
+    flee_dc: Math.trunc(Number(said.flee_dc) || held?.flee_dc || 10),
     name: foes.length ? foes[0].name : "it",
     said: draft.narration.trim(),
     round: 1,
     turn: 0,
     ended: null,
-    us: [me, ...(Bodies.safeParse(said.us).data ?? []).map((x) => fighter(x, "ally"))],
+    us: [me, ...(allies ? allies.map((x) => fighter(x, "ally")) : structuredClone(held?.us ?? []))],
     them: foes,
     blows: [],
     owed: [],
