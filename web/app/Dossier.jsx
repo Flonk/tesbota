@@ -2,7 +2,7 @@
 
 import { abilityLine, abilityWhere, face as itemFace, KIND_ICON, PLACE_ICON, rare } from "./world";
 import { useCallback, useEffect, useState } from "react";
-import { Crumb, EditBar, Empty, Mark, Note, openDossier, openMap, Overlay, Pill, Prose, rated, Section, settled, Stub, Table, Tabs, Tag, tint, told, unrated } from "./ui";
+import { Crumb, EditBar, Empty, Mark, Note, openDossier, openMap, Overlay, Pill, Prose, rated, Section, settled, Stub, Table, Tabs, tint, told, unrated } from "./ui";
 import Icon from "./icons";
 import { EDITORS, merged, saveEdits } from "./edit";
 import { Field } from "./edit/fields";
@@ -77,42 +77,15 @@ const KEEPS = {
   ],
 };
 
-const WRITING = {
-  cols: "minmax(8rem, 2fr) minmax(5rem, 1fr)",
-  fields: [
-    {
-      key: "author",
-      label: "author",
-      strong: true,
-      cell: (r) => (
-        <>
-          {r.author || <Stub />}
-          {r.godhead && <Tag tone="gold">godhead</Tag>}
-        </>
-      ),
-    },
-    {
-      key: "written",
-      label: "written",
-      dim: true,
-      cell: (r) => (settled(r.written) ? r.written : <Stub />),
-    },
-  ],
-};
-
-const STATS = {
-  cols: "minmax(6rem, 1fr) minmax(6rem, 2fr)",
-  fields: [
-    { key: "stat", label: "stats", strong: true, cell: (r) => r.stat },
-    { key: "value", label: "", dim: true, cell: (r) => r.value },
-  ],
-};
-
-const FIGHTS = { ...STATS, fields: [{ ...STATS.fields[0], label: "in a fight" }, STATS.fields[1]] };
-
 // A village has a latitude and nothing else; a world has the rest of it. Same
 // table either way, named for what is actually in it.
-const sky_of = (label) => ({ ...STATS, fields: [{ ...STATS.fields[0], label }, STATS.fields[1]] });
+const stats = (label) => ({
+  cols: "minmax(6rem, 1fr) minmax(6rem, 2fr)",
+  fields: [
+    { key: "stat", label, strong: true, cell: (r) => r.stat },
+    { key: "value", label: "", dim: true, cell: (r) => r.value },
+  ],
+});
 
 const HELD_BY = {
   cols: "minmax(9rem, 2fr) 4rem",
@@ -184,7 +157,7 @@ function Stats({ item }) {
       .map((k) => ({ id: k, stat: k.replace("_", " "), value: <Prose as="span" text={String(item[k])} /> })),
   ];
   if (!rows.length) return <Empty>nothing is written about what it does</Empty>;
-  return <Table rarity={unrated} {...STATS} rows={rows} />;
+  return <Table rarity={unrated} {...stats("stats")} rows={rows} />;
 }
 
 function Body({ body }) {
@@ -203,7 +176,7 @@ function Body({ body }) {
     body.skill && { id: "skill", stat: "fights with", value: <Prose as="span" text={body.skill} /> },
   ].filter(Boolean);
   if (!rows.length) return null;
-  return <Table rarity={unrated} {...FIGHTS} rows={rows} />;
+  return <Table rarity={unrated} {...stats("in a fight")} rows={rows} />;
 }
 
 const AU = 1.495978707e11;
@@ -271,7 +244,7 @@ function Sky({ sky, where }) {
   ].filter(Boolean);
   if (!rows.length) return null;
   const overhead = sky?.semiMajor != null || sky?.mass != null;
-  return <Table rarity={unrated} {...sky_of(overhead ? "in the sky" : "where it is")} rows={rows} />;
+  return <Table rarity={unrated} {...stats(overhead ? "in the sky" : "where it is")} rows={rows} />;
 }
 
 function Who({ person }) {

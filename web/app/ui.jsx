@@ -430,14 +430,6 @@ export function Table({
   );
 }
 
-export function Toggle({ on, onClick, className = "", children }) {
-  return (
-    <button className={`toggle${on ? " on" : ""} ${className}`.trim()} onClick={onClick}>
-      {children}
-    </button>
-  );
-}
-
 export function Overlay({ title, tags, face, tone, under, copy, onClose, tools, bar, onEscape, holding, children }) {
   const panel = useRef(null);
   useEffect(() => {
@@ -531,7 +523,7 @@ const KINDS = {
   abilities: "abilities", ability: "abilities",
 };
 
-export function target(address) {
+function target(address) {
   const found = /^bota:\/\/([A-Za-z]+)\/([A-Za-z0-9][A-Za-z0-9-]*)(?:#([pc]\d+))?$/.exec(
     String(address || "")
   );
