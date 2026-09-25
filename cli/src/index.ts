@@ -224,11 +224,11 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 
   stats() {
-    say(sheet.renderStats());
+    say(sheet.renderStats(loadCampaign()));
   },
 
   inventory() {
-    say(sheet.renderInventory());
+    say(sheet.renderInventory(loadCampaign()));
   },
 
   holdings({ rest }) {
@@ -236,7 +236,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   },
 
   quests() {
-    say(sheet.renderQuestLog());
+    say(sheet.renderQuestLog(loadCampaign()));
   },
 
   time() {

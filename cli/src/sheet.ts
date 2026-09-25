@@ -7,11 +7,11 @@ import {
   ABILITIES, CARRY_PER_STR, EXPLORER, MAX_FATIGUE, MAX_HEALTH, MAX_HUNGER,
   OVER_DRAG, SKILL_ABILITY,
 } from "./config.ts";
-import { explorerName, loadCampaign } from "./state.ts";
+import { explorerName } from "./state.ts";
 import type { CampaignT } from "./schema.ts";
 
 const HEALTH_WORDS: Array<[number, string]> = [
-  [90, "unhurt"], [70, "bruised"], [45, "hurt"], [20, "badly hurt"], [0, "failing"],
+  [0, "failing"], [20, "badly hurt"], [45, "hurt"], [70, "bruised"], [90, "unhurt"],
 ];
 const FATIGUE_WORDS: Array<[number, string]> = [
   [0, "rested"], [25, "warm"], [50, "tiring"], [75, "weary"], [90, "spent"],
@@ -20,19 +20,13 @@ const HUNGER_WORDS: Array<[number, string]> = [
   [0, "fed"], [25, "peckish"], [50, "hungry"], [75, "very hungry"], [90, "starving"],
 ];
 
-export function descend(value: number, table: Array<[number, string]>): string {
-  for (const [threshold, word] of table) if (value >= threshold) return word;
-  return table[table.length - 1][1];
-}
-
-export function ascend(value: number, table: Array<[number, string]>): string {
+function wordFor(value: number, table: Array<[number, string]>): string {
   let word = table[0][1];
   for (const [threshold, name] of table) if (value >= threshold) word = name;
   return word;
 }
 
-export function renderQuestLog(campaign?: CampaignT | null): string {
-  const c = campaign ?? loadCampaign();
+export function renderQuestLog(c: CampaignT): string {
   const quests = c.quests;
   if (!quests.length) return "you have taken nothing on";
 
@@ -58,17 +52,16 @@ export function renderQuestLog(campaign?: CampaignT | null): string {
   return out.join("\n");
 }
 
-export const modifier = (score: unknown) => Math.floor((Number(score) - 10) / 2);
+const modifier = (score: unknown) => Math.floor((Number(score) - 10) / 2);
 
 /**
  * The plains reckon weight in stone, and a number nobody would say aloud reads
  * worse than a rounded one.
  */
-export const stone = (weight: unknown) => String(Number((Number(weight) || 0).toFixed(1)));
+const stone = (weight: unknown) => String(Number((Number(weight) || 0).toFixed(1)));
 
 /** What their back can take, in stone. Strength and nothing else decides it. */
-export function capacity(campaign?: CampaignT | null): number {
-  const c = campaign ?? loadCampaign();
+function capacity(c: CampaignT): number {
   return Number((Math.trunc(Number(c.skills.abilities.str ?? 10)) * CARRY_PER_STR).toFixed(1));
 }
 
@@ -76,9 +69,9 @@ export function capacity(campaign?: CampaignT | null): number {
  * What they have on them. A promise weighs nothing, being a thing they owe rather
  * than a thing they hold.
  */
-export function carried(entries?: canon.Holding[] | null): number {
+function carried(entries: canon.Holding[]): number {
   let total = 0;
-  for (const e of entries ?? canon.holdings(EXPLORER)) {
+  for (const e of entries) {
     const qty = Math.trunc(Number(e.qty) || 1);
     if (qty > 0) total += (Number(e.weight) || 0) * qty;
   }
@@ -87,8 +80,8 @@ export function carried(entries?: canon.Holding[] | null): number {
 
 export type Load = ReturnType<typeof load>;
 
-export function load(campaign?: CampaignT | null) {
-  const weight = carried();
+export function load(campaign: CampaignT, held = canon.holdings(EXPLORER)) {
+  const weight = carried(held);
   const most = capacity(campaign);
   const over = weight > most;
   return {
@@ -112,24 +105,23 @@ const pad = (s: string | number, n: number) => String(s).padStart(n);
 const padEnd = (s: string | number, n: number) => String(s).padEnd(n);
 const signed = (n: number) => `${n >= 0 ? "+" : ""}${n}`;
 
-export function renderStats(campaign?: CampaignT | null): string {
-  const c = campaign ?? loadCampaign();
+export function renderStats(c: CampaignT): string {
   const { health, fatigue, hunger } = c.vitals;
   const heavy = load(c);
 
   const lines = [
     explorerName(c),
     "",
-    `health    ${pad(health, 3)} / ${MAX_HEALTH}   ${descend(health, HEALTH_WORDS)}`,
-    `fatigue   ${pad(fatigue, 3)} / ${MAX_FATIGUE}   ${ascend(fatigue, FATIGUE_WORDS)}`,
-    `hunger    ${pad(hunger, 3)} / ${MAX_HUNGER}   ${ascend(hunger, HUNGER_WORDS)}`,
-    `load      ${pad(stone(carried()), 3)} / ${stone(capacity(c))} stone` +
+    `health    ${pad(health, 3)} / ${MAX_HEALTH}   ${wordFor(health, HEALTH_WORDS)}`,
+    `fatigue   ${pad(fatigue, 3)} / ${MAX_FATIGUE}   ${wordFor(fatigue, FATIGUE_WORDS)}`,
+    `hunger    ${pad(hunger, 3)} / ${MAX_HUNGER}   ${wordFor(hunger, HUNGER_WORDS)}`,
+    `load      ${pad(stone(heavy.carried), 3)} / ${stone(heavy.capacity)} stone` +
       (heavy.over ? `   overloaded — the road takes ${heavy.drag}x as long` : ""),
     "",
     "skills",
   ];
 
-  const { abilities, proficient, proficiency } = c.skills;
+  const { abilities, proficient } = c.skills;
   if (!Object.keys(abilities).length) {
     lines.push("  you have not found out what you are good at");
     return lines.join("\n");
@@ -143,54 +135,33 @@ export function renderStats(campaign?: CampaignT | null): string {
   );
   lines.push("", "skills");
   for (const name of Object.keys(SKILL_ABILITY).sort()) {
-    const ability = SKILL_ABILITY[name];
-    const trained = proficient.includes(name);
-    const total = modifier(abilities[ability] ?? 10) + (trained ? proficiency : 0);
-    lines.push(`  ${trained ? "*" : " "} ${padEnd(name, 16)} ${ability}  ${signed(total)}`);
+    const total = skillBonus(c, name) ?? 0;
+    lines.push(`  ${proficient.includes(name) ? "*" : " "} ${padEnd(name, 16)} ${SKILL_ABILITY[name]}  ${signed(total)}`);
   }
   lines.push("", "  * trained");
   return lines.join("\n");
 }
 
-export type Item = {
-  name: string; qty: number; about: string; weight?: number | null; does: string; worn: boolean;
-};
+export function renderInventory(c: CampaignT): string {
+  const held = canon.holdings(EXPLORER);
+  if (!held.length) return "you are carrying nothing";
 
-export function asItem(entry: canon.Holding | string): Item {
-  if (typeof entry === "object" && entry !== null) {
-    return {
-      name: entry.name ?? "something",
-      qty: Math.trunc(Number(entry.qty) || 1),
-      about: entry.about || "",
-      weight: entry.weight,
-      does: canon.does(entry.effects),
-      worn: !!entry.worn,
-    };
-  }
-  return { name: String(entry), qty: 1, about: "", does: "", worn: false };
-}
+  const worn = held.filter((e) => e.worn);
+  const stowed = held.filter((e) => !e.worn);
 
-export const items = (): Item[] => canon.holdings(EXPLORER).map(asItem);
-
-export function renderInventory(): string {
-  const entries = items();
-  if (!entries.length) return "you are carrying nothing";
-
-  const worn = entries.filter((e) => e.worn);
-  const stowed = entries.filter((e) => !e.worn);
-
-  const line = (e: Item) => {
+  const line = (e: canon.Holding) => {
     const count = e.qty > 1 ? ` x${e.qty}` : "";
-    const does = e.does ? ` — ${e.does}` : "";
+    const effect = canon.does(e.effects);
+    const does = effect ? ` — ${effect}` : "";
     const heft = e.weight ? ` [${stone(e.weight)} st]` : "";
     const said = [`  ${e.name}${count}${does}${heft}`];
     if (e.about) said.push(view.wrap(canon.plain(e.about), 70, "      "));
     return said.join("\n");
   };
 
-  const heavy = load();
+  const heavy = load(c, held);
   const out = [
-    `carrying ${stone(carried(canon.holdings(EXPLORER)))} of ${stone(capacity())} stone` +
+    `carrying ${stone(heavy.carried)} of ${stone(heavy.capacity)} stone` +
       (heavy.over ? ` — more than you can carry, and walking takes ${heavy.drag}x as long` : ""),
     "",
   ];
