@@ -167,14 +167,8 @@ export const OPENING = {
 export const OPENING_QUEST = {
   id: "the-way-to-alheim",
   title: "Find your way to Alheim",
-  detail: "There is a village west along the trail. Somebody there will know where you are.",
-  giver: "",
-  script: [
-    "Keep them on Flotburg Trail, drifting west toward Alheim. Nudge, never order: a smell of woodsmoke, a cart track, a signpost.",
-    "Somewhere on the way a rat comes at them out of the wet grass. Make it a real fight — small, one they should win, one that costs them a scratch.",
-    "After the rat, let the fog thin and Alheim come into sight.",
-    "Close the quest as done when they walk into Alheim.",
-  ].join("\n"),
+  detail: "",
+  script: "Nudge the explorer towards Alheim. Make them fight a rat along the way.",
 };
 
 export const DAYS_PER_WEEK = 7;
