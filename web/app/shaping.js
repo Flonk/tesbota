@@ -76,7 +76,6 @@ export function runsOf(extent) {
   if (!Array.isArray(c)) return null;
   const polys =
     drawn.type === "LineString" ? [[c]]
-    : drawn.type === "MultiLineString" ? c.map((line) => [line])
     : drawn.type === "Polygon" ? [c]
     : drawn.type === "MultiPolygon" ? c
     : null;
