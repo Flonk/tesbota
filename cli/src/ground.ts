@@ -289,6 +289,36 @@ export function around(target?: string | null, within = 3000, most = 16) {
   }
   near.sort((a, b) => a.metres - b.metres);
 
+  const leads: Array<{ id: string; name: string; bearing: string; metres: number }> = [];
+  if (where.spot?.line && where.spot.line.length >= 2) {
+    const run = where.spot.line;
+    for (const end of [run[0], run[run.length - 1]]) {
+      let best: { s: Spot; d: number } | null = null;
+      const holding = all
+        .filter((s) => s.type === "location" && s.rings.length && covers(s.rings, end))
+        .sort((a, b) => area(b.rings) - area(a.rings))[0];
+      if (holding) best = { s: holding, d: 0 };
+      for (const s of holding ? [] : all) {
+        if (s.id === where.spot.id || s.line || (s.type !== "location" && s.type !== "water")) continue;
+        const pin = pinOf(s);
+        if (!pin) continue;
+        const d = metres(end, pin, radius);
+        if (d < 2000 && (!best || d < best.d)) best = { s, d };
+      }
+      const byId = new Map(all.map((s) => [s.id, s]));
+      for (let up = best && byId.get(best.s.parent ?? ""); best && up && up.type === "location"; up = byId.get(up.parent ?? "")) {
+        best = { s: up, d: best.d };
+      }
+      if (best && !leads.some((l) => l.id === best!.s.id)) {
+        leads.push({
+          id: best.s.id, name: best.s.name,
+          bearing: point16(bearing(where.at, end)),
+          metres: Math.round(metres(where.at, end, radius)),
+        });
+      }
+    }
+  }
+
   const contains = where.spot
     ? all.filter((s) => s.parent === where.spot!.id).map((s) => ({ id: s.id, name: s.name, type: s.type }))
     : [];
@@ -304,6 +334,7 @@ export function around(target?: string | null, within = 3000, most = 16) {
     contains,
     near: near.slice(0, most),
     doors: doorsOf(where.spot?.id ?? null),
+    leads,
   };
 }
 
@@ -464,6 +495,7 @@ export function tellAround(found: ReturnType<typeof around>): string {
   if (found.standing.length) out.push(`  standing inside: ${found.standing.map((s) => s.name).join(", ")}`);
   if (found.contains.length) out.push(`  holds: ${found.contains.map((s) => s.name).join(", ")}`);
   if (found.doors.length) out.push(`  doors: ${found.doors.map((d) => d.name).join(", ")}`);
+  if (found.leads.length) out.push(`  leads to: ${found.leads.map((l) => `${l.name} (${spoken(l.metres)} ${l.bearing})`).join(", ")}`);
   if (found.near.length) {
     out.push("  nearby:");
     for (const n of found.near) {
