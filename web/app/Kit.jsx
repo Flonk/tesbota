@@ -1,11 +1,9 @@
 "use client";
 
-import { does, face, lit } from "./world";
+import { does, face, lit, SLOTS } from "./world";
 import { Mark, openDossier, rated, Table, tint } from "./ui";
 
 const RINGS = 4;
-
-const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand"];
 
 const CARRYING = {
   cols: "minmax(6rem, 1.4fr) minmax(6rem, 1.4fr) 3.4rem 2.4rem",
@@ -52,7 +50,7 @@ export function Doll({ inventory = [] }) {
 
   return (
     <div className="doll">
-      {SLOTS.map((slot) => (
+      {SLOTS.filter((slot) => slot !== "ring").map((slot) => (
         <Slot key={slot} slot={slot} item={worn.find((r) => r.slot === slot) || null} />
       ))}
       <div className="rings">

@@ -8,6 +8,8 @@ export const KIND_ICON = {
 
 export const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "unique"];
 
+export const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand", "ring"];
+
 const ICON = {
   weapon: "sword", apparel: "shirt", consumable: "flask", tool: "hammer", valuable: "coin", material: "sack",
 };
