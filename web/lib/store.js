@@ -76,12 +76,20 @@ export async function snapshot(profile = PROFILES[0]) {
     const verdicts = {};
     for (const v of turn.verdicts || []) verdicts[v.claim] = v;
 
-    const phases = (turn.phases || []).map((x) => ({
-      ...x,
-      text: plain(x.text),
-      outcomes: (x.outcomes || []).map((o) => ({ ...o, band: band(o.band) })),
-      chosen: x.chosen ? { ...x.chosen, band: band(x.chosen.band) } : x.chosen,
-    }));
+    const lastSaid = [...(turn.phases || [])].reverse()
+      .find((x) => x.who === "gm" && ["outcome", "world"].includes(x.kind));
+    const phases = (turn.phases || []).map((x) => {
+      const borrowed = x === lastSaid && !(x.outcomes || []).length && (turn.outcomes || []).length;
+      const rows = borrowed ? turn.outcomes : x.outcomes || [];
+      const chosen = borrowed ? turn.chosen : x.chosen;
+      return {
+        ...x,
+        text: plain(x.text),
+        outcomes: rows.map((o) => ({ ...o, band: band(o.band) })),
+        chosen: chosen ? { ...chosen, band: band(chosen.band) } : chosen,
+        fortune: borrowed ? turn.fortune : x.fortune,
+      };
+    });
     if (!phases.length && !turn.action && !draft.narration && !cue) continue;
 
     slides.push({

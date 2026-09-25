@@ -1236,7 +1236,9 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
   await applyQuests(campaign, draft, turn.turn_id);
   settleFight(campaign, turn);
 
-  const where = typeof draft.location === "string" ? draft.location.trim() : "";
+  let where = typeof draft.location === "string" ? draft.location.trim() : "";
+  const going = typeof draft.destination === "string" ? draft.destination.trim() : "";
+  if (going && where === going && campaign.location && campaign.location !== going) where = campaign.location;
   if (where) {
     campaign.location = canon.slug(where.replace(/^\[+|\]+$/g, ""));
     canon.ensureEntity("places", campaign.location, null, turn.turn_id);
@@ -1270,6 +1272,13 @@ export const stepDeliver: Step = async ({ campaign, turn }) => {
       current.transactions = draft.transactions || [];
       current.check = turn.check;
     }
+  }
+  const told = [...(T(turn).phases || [])].reverse()
+    .find((p: any) => p.who === "gm" && ["outcome", "world"].includes(p.kind));
+  if (told && !(told.outcomes || []).length && (T(turn).outcomes || []).length) {
+    told.outcomes = T(turn).outcomes;
+    told.chosen = T(turn).chosen;
+    told.fortune = T(turn).fortune;
   }
   turn.location_path = campaign.location_path || [];
   turn.vitals = { ...(campaign.vitals as any) };

@@ -32,7 +32,7 @@ Reply with a single fenced json block and nothing else:
 ```
 
 - `destination` — where they are headed after this action, every turn. The same as `location` if they stay. A road is never a destination: walking along one is heading for a place it leads to. If it is somewhere else, they walk there; how far and how long comes from the map.
-- `location` — the smallest place containing them, every turn, even unchanged. It is the id of a place the world already keeps, and `SELECT id, name FROM place JOIN entity USING (id)` is the list. Describing where they are instead of naming it invents a second place for somewhere that already has one — the trail they woke on is `flotburg-trail`, not `wet grass road`. Somewhere genuinely new is ruled on like anything else you assert.
+- `location` — where this action leaves them, before any walking to `destination`: the smallest place containing them, every turn, even unchanged. It is the id of a place the world already keeps, and `SELECT id, name FROM place JOIN entity USING (id)` is the list. Describing where they are instead of naming it invents a second place for somewhere that already has one — the trail they woke on is `flotburg-trail`, not `wet grass road`. Somewhere genuinely new is ruled on like anything else you assert.
 
 # Action
 
