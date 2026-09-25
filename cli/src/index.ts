@@ -19,12 +19,13 @@ import * as sky from "./sky.ts";
 import * as editing from "./edit/index.ts";
 import * as ground from "./ground.ts";
 import { rename } from "./rename.ts";
-import { reachable } from "./sqlite.ts";
+import { launcher, reachable } from "./sqlite.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
 import {
   APPAREL_ICON, EXPLORER, FIRST_NAMES, ITEM_TYPES, PLACE_TYPES, PROFILE, RARITY,
   STARTING_INVENTORY, SURNAME, TRAITS, WORLD_START,
+  ROOT,
 } from "./config.ts";
 import {
   allTurns, campaignIfAny, catalogue, ensureLayout, explorerName, loadCampaign,
@@ -395,6 +396,7 @@ async function main() {
   // Before anything is asked of an agent, make sure the one command it reads the
   // world with is on the PATH it will inherit.
   reachable();
+  launcher(ROOT);
   const [, , command, ...argv] = process.argv;
   if (!command || command === "--help" || command === "-h") {
     say(`tesbota — ${Object.keys(COMMANDS).sort().join(", ")}`);

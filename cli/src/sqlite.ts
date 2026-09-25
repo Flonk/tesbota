@@ -76,3 +76,18 @@ export function reachable(): string | null {
   if (!parts.includes(dir)) process.env.PATH = [dir, ...parts].join(path.delimiter);
   return at;
 }
+
+/**
+ * The agents are told to run `tesbota`, and nothing installs it. So every process
+ * that spawns them lays a launcher down and puts it first on the PATH they inherit.
+ */
+export function launcher(root: string): string {
+  const dir = path.join(root, "state", "bin");
+  const file = path.join(dir, "tesbota");
+  const body = `#!/bin/sh\nexec "${process.execPath}" "${path.join(root, "cli", "src", "index.ts")}" "$@"\n`;
+  fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== body) fs.writeFileSync(file, body, { mode: 0o755 });
+  const parts = (process.env.PATH || "").split(path.delimiter);
+  if (!parts.includes(dir)) process.env.PATH = [dir, ...parts].join(path.delimiter);
+  return file;
+}
