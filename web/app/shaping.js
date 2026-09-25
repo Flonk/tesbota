@@ -11,17 +11,7 @@
 /** How far a point may sit off the line between its neighbours before it matters. */
 export const LOOSE = 0.45;
 
-const far = (p, a, b) => {
-  const [px, py] = p;
-  const [ax, ay] = a;
-  const [bx, by] = b;
-  const dx = bx - ax;
-  const dy = by - ay;
-  const span = dx * dx + dy * dy;
-  if (!span) return Math.hypot(px - ax, py - ay);
-  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / span));
-  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
-};
+const far = (p, a, b) => onto([a, b], p, false).d;
 
 /**
  * Ramer–Douglas–Peucker: keep the point that strays furthest from the line, then
@@ -126,10 +116,7 @@ export function extentOf({ shut, runs, groups }) {
 }
 
 function closeRing(run) {
-  const open = run.length > 1 &&
-    run[0][0] === run[run.length - 1][0] && run[0][1] === run[run.length - 1][1]
-      ? run.slice(0, -1)
-      : run;
+  const open = opened(run);
   return open.length < 3 ? open : [...open, open[0]];
 }
 
