@@ -1,5 +1,6 @@
 /** What the terminal sees. Nothing here decides anything; it only sets it out. */
 
+import { compose } from "./chronicle.ts";
 import { allTurns, now, parse } from "./state.ts";
 import type { CampaignT, TurnT } from "./schema.ts";
 
@@ -38,7 +39,7 @@ export function* beats(turns: TurnT[]) {
     let cue: string | null = null;
     if (turn.arrival) cue = `arrives at ${turn.arrival}`;
     else if (turn.event) cue = "something on the road";
-    yield { turn, cue, action: turn.action ?? null, narration: turn.draft?.narration ?? null };
+    yield { turn, cue, action: turn.action ?? null, narration: compose(turn) || null };
   }
 }
 
@@ -62,7 +63,7 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
 
   if (state === "clock") {
     const left = parse(String(turn.wake_at)).getTime() - now().getTime();
-    lines.push(`  the adventurer is on the road to ${turn.destination}`);
+    lines.push(turn.destination ? `  the adventurer is on the road to ${turn.destination}` : "  the adventurer is resting");
     lines.push(
       `  wakes in ${duration(left)}` +
         (turn.leagues_left ? ", and the road does not get them there" : "")

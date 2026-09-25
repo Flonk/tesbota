@@ -65,7 +65,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
       say(String(turn.gap ?? "").trim());
     } else if (ran.state === "clock") {
       const left = parse(String(turn.wake_at)).getTime() - now().getTime();
-      say(`[${turn.turn_id}] travelling to ${turn.destination} — ${Math.max(0, Math.floor(left / 60000))} min to go`);
+      const going = turn.destination ? `travelling to ${turn.destination}` : "resting";
+      say(`[${turn.turn_id}] ${going} — ${Math.max(0, Math.floor(left / 60000))} min to go`);
     } else {
       say(`[${turn.turn_id}] ${ran.state}`);
       const narration = loadCampaign().last_narration;
