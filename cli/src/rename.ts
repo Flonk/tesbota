@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import * as db from "./db.ts";
 import { ROOT } from "./config.ts";
+import { Id } from "./schema.ts";
 
 const POINTERS: Array<[string, string]> = [
   ["place", "id"], ["place", "parent"],
@@ -24,14 +25,14 @@ const POINTERS: Array<[string, string]> = [
   ["holding", "holder"], ["holding", "item"],
 ];
 
-const SLUG = /^[a-z0-9][a-z0-9-]*$/;
+const LINKED = "LIKE '%bota://%/' || ? || '%'";
 
 const escaped = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** Every whole mention of the id in a piece of text, and nothing that merely contains it. */
-const swap = (from: string, to: string) => {
-  const whole = new RegExp(`(?<![a-z0-9-])${escaped(from)}(?![a-z0-9-])`, "g");
-  return (text: string) => text.replace(whole, to);
+/** Every link to the id in a piece of text, and nothing else: prose that happens to use the word is left alone. */
+const relink = (from: string, to: string) => {
+  const address = new RegExp(`(bota://[a-z]+/)${escaped(from)}(?![a-z0-9-])`, "g");
+  return (text: string) => text.replace(address, `$1${to}`);
 };
 
 function files(dir: string): string[] {
@@ -46,63 +47,55 @@ function files(dir: string): string[] {
 export function rename(from: string, to: string, name: string | null = null) {
   const old = String(from || "").trim().toLowerCase();
   const next = String(to || "").trim().toLowerCase();
-  if (!SLUG.test(next)) return { error: `${to} is not an id: lowercase words joined by hyphens` };
+  if (!Id.safeParse(next).success) return { error: `${to} is not an id: lowercase words joined by hyphens` };
   const was = db.row("SELECT kind FROM entity WHERE id = ?", [old]);
   if (!was) return { error: `nothing in the world is called ${old}` };
   if (old !== next && db.row("SELECT 1 FROM entity WHERE id = ?", [next])) return { error: `${next} is already taken` };
-  const change = swap(old, next);
+  const change = relink(old, next);
 
-  const conn = db.connect();
   try {
-    conn.exec("PRAGMA foreign_keys = OFF");
-    conn.exec("BEGIN");
-    try {
+    db.writing((con) => {
+      con.exec("PRAGMA defer_foreign_keys = ON");
       if (old !== next) {
-        conn.prepare("UPDATE entity SET id = ? WHERE id = ?").run(next, old);
+        con.prepare("UPDATE entity SET id = ? WHERE id = ?").run(next, old);
         for (const [table, column] of POINTERS) {
-          try {
-            conn.prepare(`UPDATE "${table}" SET "${column}" = ? WHERE "${column}" = ?`).run(next, old);
-          } catch {}
+          con.prepare(`UPDATE "${table}" SET "${column}" = ? WHERE "${column}" = ?`).run(next, old);
         }
-        const abouts = conn.prepare("SELECT id, about FROM entity WHERE about LIKE ?").all(`%${old}%`) as db.Row[];
-        const putAbout = conn.prepare("UPDATE entity SET about = ? WHERE id = ?");
+        const abouts = con.prepare(`SELECT id, about FROM entity WHERE about ${LINKED}`).all(old) as db.Row[];
+        const putAbout = con.prepare("UPDATE entity SET about = ? WHERE id = ?");
         for (const r of abouts) putAbout.run(change(String(r.about)), r.id);
-        const texts = conn.prepare("SELECT book_id, ord, text FROM passage WHERE text LIKE ?").all(`%${old}%`) as db.Row[];
-        const putText = conn.prepare("UPDATE passage SET text = ? WHERE book_id = ? AND ord = ?");
+        const texts = con.prepare(`SELECT book_id, ord, text FROM passage WHERE text ${LINKED}`).all(old) as db.Row[];
+        const putText = con.prepare("UPDATE passage SET text = ? WHERE book_id = ? AND ord = ?");
         for (const r of texts) putText.run(change(String(r.text)), r.book_id, r.ord);
       }
-      if (name && name.trim()) conn.prepare("UPDATE entity SET name = ? WHERE id = ?").run(name.trim(), next);
-      conn.exec("DELETE FROM search");
-      conn.exec("INSERT INTO search(ref, entity, section, body) SELECT ref, entity, section, body FROM writing");
-      const broken = conn.prepare("PRAGMA foreign_key_check").all();
+      if (name && name.trim()) con.prepare("UPDATE entity SET name = ? WHERE id = ?").run(name.trim(), next);
+      db.reindex(con);
+      const broken = con.prepare("PRAGMA foreign_key_check").all();
       if (broken.length) throw new Error(`renaming would leave ${broken.length} rows pointing at nothing`);
-      conn.exec("COMMIT");
-    } catch (err) {
-      conn.exec("ROLLBACK");
-      throw err;
-    }
-  } finally {
-    conn.exec("PRAGMA foreign_keys = ON");
-    conn.close();
+    });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : String(err) };
   }
 
   const touched: string[] = [];
   if (old !== next) {
+    const walk = (v: unknown): unknown =>
+      typeof v === "string" ? (v === old ? next : change(v))
+      : Array.isArray(v) ? v.map(walk)
+      : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x)]))
+      : v;
     for (const file of files(path.join(ROOT, "state"))) {
       const text = fs.readFileSync(file, "utf8");
       if (!text.includes(old)) continue;
-      const walk = (v: any): any =>
-        typeof v === "string" ? change(v)
-        : Array.isArray(v) ? v.map(walk)
-        : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x)]))
-        : v;
       let parsed: unknown;
       try {
         parsed = JSON.parse(text);
       } catch {
         continue;
       }
-      fs.writeFileSync(file, JSON.stringify(walk(parsed), null, 2) + (text.endsWith("\n") ? "\n" : ""));
+      const walked = walk(parsed);
+      if (JSON.stringify(walked) === JSON.stringify(parsed)) continue;
+      fs.writeFileSync(file, JSON.stringify(walked, null, 2) + (text.endsWith("\n") ? "\n" : ""));
       touched.push(path.relative(ROOT, file));
     }
   }
