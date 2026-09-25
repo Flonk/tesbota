@@ -284,8 +284,6 @@ export const Proposal = z.object({
   unpriced: z.boolean().optional(),
 });
 
-export const Exchange = z.object({ question: z.string().nullish(), answer: z.string() });
-
 export const StateName = z.enum(STATE_NAMES);
 
 /** One edge of the machine, crossed. Two states name it; `on` is what the step said. */
@@ -314,24 +312,18 @@ export const Turn = z.object({
   gm_retries: z.number().int().min(0).default(0),
   gap: z.string().nullish(),
 
-  looking: z.boolean().default(false),
-  mode: z.enum(["look", "say"]).nullish(),
-  question: z.string().nullish(),
+  asking: z.object({ mode: z.enum(["look", "say"]), question: z.string() }).nullish(),
   /** a question and the answer to it — written as a pair, and read as one */
   answers: z.array(z.tuple([z.string(), z.string()])).default([]),
 
   roll: z.number().int().nullish(),
-  rolled: z.boolean().default(false),
   fate: z.string().nullish(),
   chosen: Outcome.nullish(),
   outcomes: z.array(Outcome).default([]),
   check: Check.nullish(),
 
   note: z.string().nullish(),
-  event: z.string().nullish(),
   arrival: Id.nullish(),
-  delivered: z.boolean().default(false),
-  resolved: z.boolean().default(false),
   spent: z.array(z.string()).default([]),
 
   /** the edge the driver last crossed, and the ones before it — what the dev tab draws */
@@ -344,17 +336,11 @@ export const Turn = z.object({
   // that vanishes between `propose` and `gm` is a turn that quietly re-prices
   // itself.
   proposal: Proposal.nullish(),
-  confirmed: z.boolean().default(false),
   propose_retries: z.number().int().min(0).default(0),
   blank: z.number().int().min(0).default(0),
   nudge: z.number().int().min(0).default(0),
-  ready: z.string().nullish(),
   pressed: z.boolean().nullish(),
-  forced_strange: z.boolean().default(false),
   fortune: z.number().nullish(),
-  looks: z.array(Exchange).default([]),
-  talks: z.array(Exchange).default([]),
-  context: z.array(Exchange).default([]),
   /** where the road is taking them, and how much of it is left */
   destination: Id.nullish(),
   leagues_left: z.number().default(0),
@@ -371,7 +357,6 @@ export const Turn = z.object({
   vitals: Vitals.nullish(),
   location_path: z.array(Placed).default([]),
   quest: z.string().nullish(),
-  chronicle: z.array(z.object({ ord: z.number().int(), text: z.string() })).default([]),
 });
 
 export const Carried = Fight.pick({ skill: true, flee_dc: true, name: true, us: true, them: true });

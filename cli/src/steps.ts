@@ -154,6 +154,10 @@ const DONE_WORDS = [
 
 const QUOTES = "\"'“‘„«";
 
+const room = (turn: TurnT, kind: "look" | "say") =>
+  (kind === "look" ? MAX_LOOKS : MAX_TALKS) -
+  turn.phases.filter((p) => p.who === "explorer" && p.kind === kind).length;
+
 /**
  * Work out whether an utterance is a look, a say, or the end of the turn. The
  * prefixes are honoured when given; otherwise a question is a look and speech is
@@ -172,8 +176,8 @@ export function classify(text: string, turn: TurnT): ["look" | "say" | "done", s
   }
   if (bare.length <= 48 && DONE_WORDS.some((w) => bare.includes(w))) return ["done", stripped];
 
-  const looksLeft = turn.looks.length < MAX_LOOKS;
-  const talksLeft = turn.talks.length < MAX_TALKS;
+  const looksLeft = room(turn, "look") > 0;
+  const talksLeft = room(turn, "say") > 0;
 
   if (QUOTES.includes(stripped.slice(0, 1)) && talksLeft) {
     return ["say", stripped.replace(new RegExp(`^[${QUOTES}”’»]+|[${QUOTES}”’»]+$`, "g"), "")];
@@ -185,7 +189,19 @@ export function classify(text: string, turn: TurnT): ["look" | "say" | "done", s
   return ["done", stripped];
 }
 
+function commit(turn: TurnT, action: string) {
+  turn.action = action;
+  turn.nudge = 0;
+  turn.roll = null;
+  turn.fate = null;
+  turn.check = null;
+  turn.fight = null;
+  turn.spent = [];
+  phase(turn, "explorer", "action", action);
+}
+
 export const stepExplorer: Step<"explorer"> = async ({ campaign, turn }) => {
+  if (pendingDeath()) return "quiet";
   const [text, session] = await ask(
     prompts.explorerTurn(campaign.last_narration ?? null, turn.nudge, turn.check),
     {
@@ -212,46 +228,32 @@ export const stepExplorer: Step<"explorer"> = async ({ campaign, turn }) => {
     }
     return "again";
   }
+  turn.blank = 0;
 
   if (!turn.action && !asked) {
-    turn.action = stripped;
-    phase(turn, "explorer", "action", stripped);
+    commit(turn, stripped);
     return "acts";
   }
 
   if (!turn.action && asked) {
     turn.nudge += 1;
     if (turn.nudge < MAX_ASKS) return "again";
-    turn.action = stripped.split(":").slice(1).join(":").trim();
-    phase(turn, "explorer", "action", turn.action);
+    commit(turn, stripped.split(":").slice(1).join(":").trim());
     return "acts";
   }
 
   const [kind, said] = classify(stripped, turn);
-  const room = { look: MAX_LOOKS - turn.looks.length, say: MAX_TALKS - turn.talks.length };
-
-  if (kind !== "done" && room[kind] > 0) {
-    turn.question = said;
-    turn.mode = kind;
-    turn.looking = true;
+  if (kind !== "done" && room(turn, kind) > 0) {
+    turn.asking = { mode: kind, question: said };
     phase(turn, "explorer", kind, said);
     return "looks";
   }
-
-  turn.ready = said;
-  if (turn.resolved) {
-    turn.delivered = true;
-    return "quiet";
-  }
-  return "acts";
+  return "quiet";
 };
 
 /** The turn is over and it survived adjudication. It is set down as it stands. */
 export const stepNarrate: Step<"narrate"> = async ({ turn }) => {
-  if (chronicle.played(turn)) {
-    const written = chronicle.write(turn);
-    if (written.length) turn.chronicle = [...turn.chronicle, ...written];
-  }
+  if (chronicle.played(turn)) chronicle.write(turn);
   return "written";
 };
 
@@ -264,11 +266,14 @@ export function ledger(campaign: CampaignT): Record<string, string> {
   return campaign.sent;
 }
 
+const Answered = Draft.pick({ narration: true });
+
 export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
+  const { mode, question } = turn.asking ?? { mode: "look", question: "" };
   const [text, session] = await ask(
-    prompts.gmAnswer(turn.question ?? "", {
+    prompts.gmAnswer(question, {
       previous: campaign.last_narration ?? null,
-      mode: turn.mode || "look",
+      mode,
       inventory: canon.holdings(EXPLORER),
       load: sheet.load(campaign),
       others: canon.holdingsAt(campaign.location),
@@ -284,9 +289,7 @@ export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
     }
   );
   campaign.sessions.gm = session;
-  const draft = Draft.parse({
-    ...extractJson(text, Written), claims: [], destination: null, minutes: 0, fatigue: 0, health: 0, check: null,
-  });
+  const draft = Draft.parse(extractJson(text, Answered));
   turn.draft = draft;
   gmPhase(turn, "answer", draft.narration);
   turn.correction = null;
@@ -404,10 +407,7 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
     turn.outcomes = outcomes;
     turn.fortune = fortune;
     turn.chosen = spin(outcomes, fortune, strange ? ["epic", "legendary"] : null);
-    turn.forced_strange = strange;
   }
-
-  turn.confirmed = true;
   return "priced";
 };
 
@@ -415,16 +415,19 @@ export function duePress(turn: TurnT, campaign?: CampaignT | null): boolean {
   return (turn.pressed ??= (campaign?.calm || 0) >= PRESS_FLOOR);
 }
 
+const onRoad = (turn: TurnT) => !turn.action && (!!turn.arrival || turn.leagues_left > 0);
+
 export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
-  const agreed = turn.confirmed ? turn.proposal : null;
+  const agreed = turn.proposal ?? null;
+  const world = onRoad(turn);
   const [text, session] = await ask(
     prompts.gmTurn(turn.action, {
       previous: campaign.last_narration ?? null,
       vitals: campaign.vitals,
       correction: turn.correction ?? null,
-      event: turn.event ?? null,
-      left: turn.leagues_left,
-      arrival: turn.arrival ?? null,
+      event: world && turn.leagues_left > 0,
+      left: world ? turn.leagues_left : null,
+      arrival: world ? turn.arrival : null,
       agreed,
       note: turn.note ?? null,
       chosen: turn.chosen ?? null,
@@ -455,7 +458,6 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
     ...(agreed ? { minutes: agreed.minutes, fatigue: agreed.fatigue } : {}),
   });
   turn.draft = draft;
-  const world = (turn.arrival || turn.event) && !turn.action;
   gmPhase(turn, world ? "world" : "outcome", draft.narration);
   turn.correction = null;
 
@@ -476,7 +478,7 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
  */
 export function showFight(turn: TurnT, running: FightT): PhaseT {
   for (const entry of turn.phases) {
-    if (entry.kind === "fight") {
+    if (entry.kind === "fight" && entry.status !== "checked") {
       entry.fight = running;
       return entry;
     }
@@ -635,7 +637,7 @@ export const stepMuster: Step<"muster"> = async (world) => {
     );
     if (edge === "rejected") {
       turn.fight = null;
-      turn.phases = turn.phases.filter((x) => x.kind !== "fight");
+      turn.phases = turn.phases.filter((x) => x.kind !== "fight" || x.status === "checked");
     }
     return edge;
   }
@@ -688,7 +690,6 @@ export function rollCheck({ campaign, turn }: World, rng: Rng = random): CheckT 
 export function rollFate(turn: TurnT, rng: Rng = random): string | null {
   const roll = rng.int(1, DIE);
   turn.roll = roll;
-  turn.rolled = true;
   let fate: string | null = null;
   if (roll <= 1) fate = "greater_calamity";
   else if (roll <= 2) fate = "lesser_calamity";
@@ -712,7 +713,7 @@ export function tooTired(campaign: CampaignT, draft: DraftT): boolean {
  * else to the game master. A rolled fight never comes here — it was checked at its
  * muster, and its dice are not the lore master's to overturn.
  */
-export const redraftEdge = (turn: TurnT) => (turn.looking ? "reanswer" : "redraft");
+export const redraftEdge = (turn: TurnT) => (turn.asking ? "reanswer" : "redraft");
 
 /** Lore 1 alone: read the world out of it, then hand the facts to the ruling. */
 export const stepLore1: Step<"lore1"> = async (world) => {
@@ -747,7 +748,7 @@ export const stepLore2: Step<"lore2"> = async (world) => {
     return redraftEdge(turn);
   }
 
-  if (!wrong.length && !turn.rolled && !turn.looking) {
+  if (!wrong.length && turn.roll == null && !turn.asking) {
     const check = rollCheck(world);
     const fate = rollFate(turn);
     const payload: Record<string, unknown> = {};
@@ -1038,7 +1039,7 @@ const Worded = Draft.pick({
 /** One game master call to put words on a settled exchange. */
 export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const running = fightOf(turn);
-  if (!turn.rolled) rollFate(turn);
+  if (turn.roll == null) rollFate(turn);
   const [text, session] = await ask(
     prompts.gmBlows(running, turn.chosen),
     {
@@ -1218,15 +1219,44 @@ export function settleFight(campaign: CampaignT, turn: TurnT): CampaignT {
   return campaign;
 }
 
+function setDown(turn: TurnT, draft: DraftT) {
+  const byVerdict = new Map(turn.verdicts.map((v) => [v.claim, v]));
+  let current = openPhase(turn);
+  if (current === null && draft.narration) current = phase(turn, "gm", "world", draft.narration);
+  if (current) {
+    current.status = "checked";
+    current.claims = draft.claims.map((claim) => ({
+      ...claim, verdict: byVerdict.get(claim.id) ?? null,
+    }));
+    if (current.kind === "outcome" || current.kind === "world") {
+      current.minutes = draft.minutes;
+      current.fatigue = draft.fatigue;
+      current.roll = turn.roll;
+      current.outcomes = turn.outcomes;
+      current.chosen = turn.chosen;
+      current.fortune = turn.fortune;
+      current.check = turn.check;
+    }
+  }
+  turn.draft = null;
+  turn.verdicts = [];
+  turn.gm_retries = 0;
+}
+
 /**
  * Everything a turn changes about the world, applied in one place. Nothing above
  * it writes to the campaign, so a turn that never reaches here leaves no mark —
  * which is what makes a rejected draft safe to throw away.
  */
 export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
-  if (turn.delivered) return "again";
-
   const draft = drafted(turn);
+  campaign.last_narration = draft.narration;
+
+  if (turn.asking) {
+    turn.asking = null;
+    setDown(turn, draft);
+    return "spent";
+  }
 
   applyVitals(campaign, draft);
   applyInventory(draft, turn.turn_id);
@@ -1246,62 +1276,19 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   time.long = worldclock.longStamp(time);
   campaign.time = time;
   turn.at = time.long;
-  campaign.last_narration = draft.narration;
 
-  const byVerdict = new Map(turn.verdicts.map((v) => [v.claim, v]));
-  let current = openPhase(turn);
-  if (current === null && draft.narration) current = phase(turn, "gm", "world", draft.narration);
-  if (current) {
-    current.status = "checked";
-    current.claims = draft.claims.map((claim) => ({
-      ...claim, verdict: byVerdict.get(claim.id) ?? null,
-    }));
-    if (current.kind === "outcome" || current.kind === "world") {
-      current.minutes = draft.minutes;
-      current.fatigue = draft.fatigue;
-      current.roll = turn.roll;
-      current.outcomes = turn.outcomes;
-      current.chosen = turn.chosen;
-      current.fortune = turn.fortune;
-      current.check = turn.check;
-    }
-  }
   turn.location_path = campaign.location_path;
   turn.vitals = { ...campaign.vitals };
   const active = campaign.quests.find((q) => q.status === "active");
   turn.quest = active ? active.title : null;
-
-  const clear = () => {
-    turn.draft = null;
-    turn.verdicts = [];
-    turn.gm_retries = 0;
-  };
-
-  if (turn.looking) {
-    const asked = { question: turn.question, answer: draft.narration };
-    if (turn.mode === "say") turn.talks.push(asked);
-    else if (turn.mode === "look") turn.looks.push(asked);
-    else turn.context.push(asked);
-    turn.looking = false;
-    turn.mode = null;
-    turn.question = null;
-    clear();
-    return "spent";
-  }
-
   turn.destination = heading || campaign.location || null;
-
-  if ((turn.arrival || turn.event) && !turn.action) {
-    turn.minutes = draft.minutes;
-    clear();
-    return "spent";
-  }
-
   turn.minutes = draft.minutes;
-  campaign.quiet = (campaign.quiet || 0) + 1;
-  campaign.calm = turn.pressed ? 0 : (campaign.calm || 0) + 1;
-  turn.resolved = true;
-  clear();
+
+  if (!onRoad(turn)) {
+    campaign.quiet = (campaign.quiet || 0) + 1;
+    campaign.calm = turn.pressed ? 0 : (campaign.calm || 0) + 1;
+  }
+  setDown(turn, draft);
   return "spent";
 };
 

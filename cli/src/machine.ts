@@ -171,10 +171,7 @@ export const STATES = {
     runs: "cli",
     agents: ["questmaster"],
     driven: "loop",
-    edges: [
-      { to: "explorer", on: "spent", when: "the turn is applied — they get the rest of it" },
-      { to: "done", on: "again", when: "it was already applied" },
-    ],
+    edges: [{ to: "explorer", on: "spent", when: "the turn is applied — they get the rest of it" }],
   },
 
   narrate: {

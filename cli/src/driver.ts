@@ -150,8 +150,7 @@ export function advance(campaign: CampaignT, turn: TurnT): TurnT {
 export function tickClock(turn: TurnT, moment: Date): boolean {
   if (!travel.arrived(turn, moment)) return false;
   turn.wake_at = null;
-  if (turn.leagues_left) turn.event = "true";
-  else if (turn.destination) turn.arrival = turn.destination;
+  if (!turn.leagues_left && turn.destination) turn.arrival = turn.destination;
   cross(turn, "clock", turn.leagues_left || turn.destination ? "arrived" : "woken");
   return true;
 }
@@ -293,7 +292,7 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
         "was made so that you could say it, not so that you would drop it. " +
         "Change only what canon actually contradicts.",
     }, null, 2);
-    cross(turn, "lore3", turn.looking ? "ruled_answer" : "ruled");
+    cross(turn, "lore3", turn.asking ? "ruled_answer" : "ruled");
   }
   save(campaign, turn);
   const file = pendingPath(turn.turn_id);

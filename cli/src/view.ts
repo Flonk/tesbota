@@ -38,7 +38,7 @@ export function* beats(turns: TurnT[]) {
   for (const turn of turns) {
     let cue: string | null = null;
     if (turn.arrival) cue = `arrives at ${turn.arrival}`;
-    else if (turn.event) cue = "something on the road";
+    else if (turn.leagues_left > 0 && !turn.wake_at) cue = "something on the road";
     yield { turn, cue, action: turn.action ?? null, narration: compose(turn) || null };
   }
 }

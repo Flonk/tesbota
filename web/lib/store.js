@@ -71,7 +71,7 @@ export async function snapshot(profile = PROFILES[0]) {
     const draft = turn.draft || {};
     let cue = null;
     if (turn.arrival) cue = `arrives at ${turn.arrival.replace(/-/g, " ")}`;
-    else if (turn.event) cue = "something on the road";
+    else if (turn.leagues_left > 0 && !turn.wake_at) cue = "something on the road";
 
     const verdicts = {};
     for (const v of turn.verdicts || []) verdicts[v.claim] = v;
@@ -99,9 +99,9 @@ export async function snapshot(profile = PROFILES[0]) {
       cue,
       phases,
       action: plain(turn.action),
-      narration: turn.looking ? null : draft.narration,
-      pending: turn.looking
-        ? { mode: turn.mode || "look", question: turn.question, answer: draft.narration || null }
+      narration: turn.asking ? null : draft.narration,
+      pending: turn.asking
+        ? { mode: turn.asking.mode, question: turn.asking.question, answer: draft.narration || null }
         : null,
       claims: phases.flatMap((x) =>
         (x.claims || []).map((c) => ({ ...c, key: `${x.n}-${c.id}` }))

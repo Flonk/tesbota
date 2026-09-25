@@ -348,11 +348,11 @@ export const STRANGE =
 
 export function gmTurn(
   action: string | null | undefined,
-  { previous = null, vitals = null, correction = null, event = null, left = null, arrival = null,
+  { previous = null, vitals = null, correction = null, event = false, left = null, arrival = null,
     agreed = null, note = null, chosen = null, press = false, inventory = null, others = null,
     quests = null, now = null, load = null, sent = null, standing = null }:
   { previous?: string | null; vitals?: VitalsT | null; correction?: string | null;
-    event?: string | null; left?: number | null; arrival?: string | null;
+    event?: boolean; left?: number | null; arrival?: string | null;
     agreed?: ProposalT | null; note?: string | null; chosen?: OutcomeT | null; press?: boolean;
     inventory?: Holding[] | null; others?: Keeps | null; quests?: QuestT[] | null;
     now?: string | null; load?: Load | null; sent?: Record<string, string> | null;
