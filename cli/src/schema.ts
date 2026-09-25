@@ -22,7 +22,9 @@ import { DEFAULTS, MAX_HEALTH, STARTING_SKILLS, WORLD_START } from "./config.ts"
 export const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab-case");
 
 /** `1–2`, `2-5`, or a bare number — what one blow takes off. */
-export const Band = z.string().regex(/^\s*\d+\s*(?:[–—-]\s*\d+\s*)?$/, "a damage band reads `1–2`");
+export const BAND = /(\d+)\s*[–—-]\s*(\d+)|^\s*(\d+)\s*$/;
+
+export const Band = z.string().regex(BAND, "a damage band reads `1–2`");
 
 export const Written = z.record(z.string(), z.unknown());
 

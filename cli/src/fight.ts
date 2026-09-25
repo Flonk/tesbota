@@ -17,11 +17,9 @@ import {
 import { explorerName } from "./state.ts";
 import type { Rng } from "./rng.ts";
 import {
-  Ability, Blow, Fighter, Written,
+  Ability, BAND, Blow, Fighter, Written,
   type AbilityT, type BlowT, type CampaignT, type DraftT, type FightT, type FighterT, type SpawnT,
 } from "./schema.ts";
-
-export const BAND = /(\d+)\s*[–—-]\s*(\d+)|^\s*(\d+)\s*$/;
 
 /**
  * A damage band the way the item table writes one — `1–2`, `2-5`, or a bare
@@ -62,8 +60,9 @@ export function wornDefense(holder: string = EXPLORER): number {
 export function swungWith(campaign: CampaignT): [string, string] {
   for (const held of canon.holdings(EXPLORER)) {
     if (held.worn && held.type === "weapon") {
-      const hurt = (held.effects || []).find((e) => e.stat === "damage")?.amount;
-      if (hurt) return [held.name, String(hurt)];
+      const said = (held.effects || []).find((e) => e.stat === "damage")?.amount;
+      const hurt = BAND.exec(String(said ?? ""))?.[0];
+      if (hurt) return [held.name, hurt];
     }
   }
   return ["bare hands", UNARMED];
@@ -86,19 +85,19 @@ export function fighter(said: Record<string, unknown>, kind: FighterT["kind"], f
     return held === undefined || held === null || held === "" ? undefined : held;
   };
 
-  const health = Math.trunc(Number(take("health")) || 10);
+  const health = Math.max(1, Math.trunc(Number(take("health")) || 10));
   return Fighter.parse({
     id: ident,
     as_written: { ...said },
     name: String(said.name || written || said.who || kind),
     kind,
     health,
-    most: Math.trunc(Number(said.most) || health),
+    most: Math.max(1, Math.trunc(Number(said.most) || health)),
     opened: health,
-    damage: String(take("damage") || UNARMED),
-    dc: Math.trunc(Number(take("dc")) || fallbackDc),
+    damage: BAND.exec(String(take("damage") ?? ""))?.[0] ?? UNARMED,
+    dc: Math.max(1, Math.trunc(Number(take("dc")) || fallbackDc)),
     bonus: Math.trunc(Number(take("bonus")) || 0),
-    defense: Math.trunc(Number(take("defense")) || 0) + wornDefense(ident),
+    defense: Math.max(0, Math.trunc(Number(take("defense")) || 0)) + wornDefense(ident),
     skill: String(take("skill") || "").toLowerCase() || null,
     ability: Ability.safeParse(said.ability).data ?? null,
     asleep: 0,
@@ -235,7 +234,7 @@ export function openFight(campaign: CampaignT, draft: DraftT): FightT {
     opened: campaign.vitals.health,
     damage: hurt,
     weapon,
-    dc: Math.trunc(Number(said.their_dc) || 11),
+    dc: Math.max(1, Math.trunc(Number(said.their_dc) || 11)),
     bonus: sheet.skillBonus(campaign, skill) || 0,
     defense: wornDefense(),
     skill,
