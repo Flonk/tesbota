@@ -3,9 +3,16 @@
 import { useRef, useState } from "react";
 import { Act, Section } from "../ui";
 import Icon from "../icons";
-import { Field, Pick, reader } from "./fields";
+import { Field, Fields, reader } from "./fields";
 import { Tags } from "./Common";
 import { RARITIES } from "../world";
+
+const BOOK = [
+  { key: "author", label: "author" },
+  { key: "author_id", label: "author entry", pick: "people" },
+  { key: "written", label: "written" },
+  { key: "rarity", label: "rarity", kind: "choice", options: RARITIES },
+];
 
 export default function BooksEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "book", thing.book);
@@ -46,10 +53,7 @@ export default function BooksEdit({ thing, draft, change }) {
   return (
     <>
       <div className="efields">
-        <Field label="author" value={get("author")} onChange={put("author")} />
-        <Pick label="author entry" kind="people" value={get("author_id")} onChange={put("author_id")} />
-        <Field label="written" value={get("written")} onChange={put("written")} />
-        <Field label="rarity" kind="choice" options={RARITIES} value={get("rarity")} onChange={put("rarity")} />
+        <Fields spec={BOOK} get={get} put={put} />
       </div>
       <Section label="text">
         <div className="epassages" ref={list}>

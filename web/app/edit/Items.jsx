@@ -1,10 +1,17 @@
 "use client";
 
-import { Field, Many, reader } from "./fields";
+import { Fields, Many, reader } from "./fields";
 import { Tags } from "./Common";
-import { RARITIES } from "../world";
+import { RARITIES, SLOTS } from "../world";
 
-const SLOTS = ["helmet", "chest", "legs", "feet", "mainhand", "offhand", "ring"];
+const ITEM = [
+  { key: "type", label: "type" },
+  { key: "slot", label: "slot", kind: "choice", options: SLOTS },
+  { key: "rarity", label: "rarity", kind: "choice", options: RARITIES },
+  { key: "weight", label: "weight (stone)", kind: "number" },
+  { key: "worth", label: "worth" },
+  { key: "owed_by", label: "owed by" },
+];
 
 export default function ItemsEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "item", thing.item);
@@ -12,12 +19,7 @@ export default function ItemsEdit({ thing, draft, change }) {
   return (
     <>
       <div className="efields">
-        <Field label="type" value={get("type")} onChange={put("type")} />
-        <Field label="slot" kind="choice" options={SLOTS} value={get("slot")} onChange={put("slot")} />
-        <Field label="rarity" kind="choice" options={RARITIES} value={get("rarity")} onChange={put("rarity")} />
-        <Field label="weight (stone)" kind="number" value={get("weight")} onChange={put("weight")} />
-        <Field label="worth" value={get("worth")} onChange={put("worth")} />
-        <Field label="owed by" value={get("owed_by")} onChange={put("owed_by")} />
+        <Fields spec={ITEM} get={get} put={put} />
       </div>
       <Many
         label="effects"

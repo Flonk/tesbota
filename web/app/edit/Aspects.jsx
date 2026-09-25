@@ -1,7 +1,9 @@
 "use client";
 
-import { Field, Many, reader } from "./fields";
+import { Fields, Many, reader } from "./fields";
 import { Tags } from "./Common";
+
+const ASPECT = [{ key: "applies", label: "applies", kind: "choice", options: ["always", "within"] }];
 
 export default function AspectsEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "aspect", thing.aspect);
@@ -9,16 +11,7 @@ export default function AspectsEdit({ thing, draft, change }) {
   return (
     <>
       <div className="efields">
-        <Field
-          kind="choice"
-          label="applies"
-          options={[
-            ["always", "always"],
-            ["within", "within"],
-          ]}
-          value={get("applies")}
-          onChange={put("applies")}
-        />
+        <Fields spec={ASPECT} get={get} put={put} />
       </div>
       <Many
         label="grants"

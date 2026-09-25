@@ -1,9 +1,26 @@
 "use client";
 
-import { Field, Many, Pick, reader } from "./fields";
+import { Field, Fields, Many, reader } from "./fields";
 import { Tags } from "./Common";
 import { Section } from "../ui";
 import { PLACE_TYPES } from "../world";
+
+const WAITS = [
+  { key: "cooldown", label: "cooldown", kind: "number" },
+  { key: "sleep", label: "sleep", kind: "number" },
+  { key: "delay", label: "delay", kind: "number" },
+];
+
+const CALLS = [
+  { key: "name", label: "calls" },
+  { key: "count", label: "count", kind: "number" },
+];
+
+const WHERE = [
+  { key: "within", label: "within", pick: "places" },
+  { key: "in_kind", label: "in a", kind: "choice", options: PLACE_TYPES },
+  { key: "in_aspect", label: "somewhere", pick: "aspects" },
+];
 
 export default function AbilitiesEdit({ thing, draft, change }) {
   const [get, put] = reader(draft, change, "ability", thing.ability);
@@ -28,14 +45,9 @@ export default function AbilitiesEdit({ thing, draft, change }) {
             value={get("advantage") === null ? null : Number(get("advantage")) ? "1" : "0"}
             onChange={(v) => put("advantage")(v === "1" ? 1 : 0)}
           />
-          <Field kind="number" label="cooldown" value={get("cooldown")} onChange={put("cooldown")} />
-          <Field kind="number" label="sleep" value={get("sleep")} onChange={put("sleep")} />
-          <Field kind="number" label="delay" value={get("delay")} onChange={put("delay")} />
-          <Field label="calls" value={spawn?.name} onChange={call("name")} />
-          <Field kind="number" label="count" value={spawn?.count} onChange={call("count")} />
-          <Pick label="within" kind="places" value={get("within")} onChange={put("within")} />
-          <Field kind="choice" label="in a" options={PLACE_TYPES} value={get("in_kind")} onChange={put("in_kind")} />
-          <Pick label="somewhere" kind="aspects" value={get("in_aspect")} onChange={put("in_aspect")} />
+          <Fields spec={WAITS} get={get} put={put} />
+          <Fields spec={CALLS} get={(key) => spawn?.[key]} put={call} />
+          <Fields spec={WHERE} get={get} put={put} />
         </div>
       </Section>
       <Many

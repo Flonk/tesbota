@@ -1,11 +1,20 @@
 "use client";
 
-import { Field, Many, Pick, reader } from "./fields";
+import { Fields, Many, reader } from "./fields";
 import { Tags } from "./Common";
 import { Section } from "../ui";
-import { PLACE_TYPES } from "../world";
+import { isRun, PLACE_TYPES } from "../world";
 
 const CELESTIAL = ["celestial-body", "celestial-system"];
+
+const PLACE = [
+  { key: "type", label: "type", kind: "choice", options: PLACE_TYPES },
+  { key: "parent", label: "inside", pick: "places" },
+  { key: "lat", label: "latitude", kind: "number" },
+  { key: "lon", label: "longitude", kind: "number" },
+];
+
+const RUN = [{ key: "width", label: "width in metres", kind: "number" }];
 
 const ORBIT = [
   ["semi_major", "semi-major axis (m)"],
@@ -18,7 +27,7 @@ const ORBIT = [
   ["tilt", "axial tilt (°)"],
   ["rotation", "sidereal rotation (s)"],
   ["meridian", "meridian (°)"],
-];
+].map(([key, label]) => ({ key, label, kind: "number" }));
 
 const WAYS = [{ key: "dst", label: "leads into", pick: "places" }];
 
@@ -31,20 +40,13 @@ export default function PlacesEdit({ thing, draft, change }) {
   return (
     <>
       <div className="efields">
-        <Field kind="choice" label="type" options={PLACE_TYPES} value={type} onChange={put("type")} />
-        <Pick kind="places" label="inside" value={get("parent")} onChange={put("parent")} />
-        <Field kind="number" label="latitude" value={get("lat")} onChange={put("lat")} />
-        <Field kind="number" label="longitude" value={get("lon")} onChange={put("lon")} />
-        {(type === "road" || type === "river") && (
-          <Field kind="number" label="width in metres" value={get("width")} onChange={put("width")} />
-        )}
+        <Fields spec={PLACE} get={get} put={put} />
+        {isRun(type) && <Fields spec={RUN} get={get} put={put} />}
       </div>
       {CELESTIAL.includes(type) && (
         <Section label="orbit">
           <div className="efields">
-            {ORBIT.map(([key, label]) => (
-              <Field key={key} kind="number" label={label} value={orbit(key)} onChange={putOrbit(key)} />
-            ))}
+            <Fields spec={ORBIT} get={orbit} put={putOrbit} />
           </div>
         </Section>
       )}

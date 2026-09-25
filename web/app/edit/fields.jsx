@@ -163,6 +163,14 @@ export function Pick({ label, kind, value, onChange, placeholder = "" }) {
   );
 }
 
+export function Input({ pick, ...field }) {
+  return pick ? <Pick {...field} kind={pick} /> : <Field {...field} />;
+}
+
+export function Fields({ spec, get, put }) {
+  return spec.map(({ key, ...field }) => <Input key={key} {...field} value={get(key)} onChange={put(key)} />);
+}
+
 /**
  * A list of rows, each a line of fields, with a way to add one and take any away.
  * `columns` are `{ key, label, kind, options, pick }` — `pick` names the kind an
@@ -186,19 +194,9 @@ export function Many({ label, rows, onChange, columns, blank, empty = "none" }) 
         {rows.length === 0 && <p className="empty">{empty}</p>}
         {rows.map((row, n) => (
           <div className="erow" key={n}>
-            {columns.map((c) =>
-              c.pick ? (
-                <Pick key={c.key} kind={c.pick} value={row[c.key]} onChange={(v) => set(n, c.key, v)} />
-              ) : (
-                <Field
-                  key={c.key}
-                  kind={c.kind}
-                  options={c.options}
-                  value={row[c.key]}
-                  onChange={(v) => set(n, c.key, v)}
-                />
-              )
-            )}
+            {columns.map(({ key, label, ...column }) => (
+              <Input key={key} {...column} value={row[key]} onChange={(v) => set(n, key, v)} />
+            ))}
             <Act onClick={() => onChange(rows.filter((_, m) => m !== n))} title="remove">
               ×
             </Act>

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KINDS, PLACE_ICON, PLACE_TYPES, RARITIES } from "./world";
 import { saveEdits } from "./edit";
-import { Field, Pick, valueOf } from "./edit/fields";
+import { Input, valueOf } from "./edit/fields";
 import { typing, useSaveKey } from "./keyboard";
 import { Act, Cap, EditBar, Empty, Mark, Note, Pen, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
 
@@ -159,28 +159,17 @@ const COLUMNS = {
 const hold = (node) => <span onClick={(e) => e.stopPropagation()}>{node}</span>;
 
 function editShape(kind, ed, toggle) {
-  const line = (section, key, saved = (r) => r[key]) => (r) =>
-    hold(<Field value={ed.get(r, section, key, saved(r))} onChange={ed.put(r, section, key, saved(r))} />);
-  const choice = (section, key, options) => (r) =>
-    hold(
-      <Field
-        kind="choice"
-        options={options}
-        value={ed.get(r, section, key, r[key])}
-        onChange={ed.put(r, section, key, r[key])}
-      />
-    );
-  const pick = (section, key, of) => (r) =>
-    hold(<Pick kind={of} value={ed.get(r, section, key, r[key])} onChange={ed.put(r, section, key, r[key])} />);
-  const name = line("entity", "name");
+  const input = (section, key, field = {}) => (r) =>
+    hold(<Input {...field} value={ed.get(r, section, key, r[key])} onChange={ed.put(r, section, key, r[key])} />);
+  const name = input("entity", "name");
   const dot = { key: "dot", label: "", cell: (r) => ed.mark(r) };
   const shapes = {
     places: {
       cols: "minmax(9rem, 3fr) minmax(6rem, 1.3fr) minmax(6rem, 1.5fr) 3.6rem 3rem 1.2rem",
       fields: [
         { key: "name", label: "place", strong: true, cell: (r) => branch(r, toggle, name(r)) },
-        { key: "type", label: "type", dim: true, cell: choice("place", "type", TYPE_CHOICES) },
-        { key: "parent", label: "in", dim: true, cell: pick("place", "parent", "places") },
+        { key: "type", label: "type", dim: true, cell: input("place", "type", { kind: "choice", options: TYPE_CHOICES }) },
+        { key: "parent", label: "in", dim: true, cell: input("place", "parent", { pick: "places" }) },
         { key: "exits", label: "doors", num: true, cell: (r) => COUNT(r.exits) },
         { key: "keeps", label: "keeps", num: true, cell: (r) => COUNT(r.keeps) },
         dot,
@@ -191,9 +180,9 @@ function editShape(kind, ed, toggle) {
       fields: [
         { key: "name", label: "book", strong: true, cell: name },
         { key: "author", label: "author", dim: true,
-          cell: (r) => (chronicle(r) ? r.author : line("book", "author")(r)) },
+          cell: (r) => (chronicle(r) ? r.author : input("book", "author")(r)) },
         { key: "written", label: "written", dim: true,
-          cell: (r) => (chronicle(r) ? told(r.written) : line("book", "written")(r)) },
+          cell: (r) => (chronicle(r) ? told(r.written) : input("book", "written")(r)) },
         dot,
       ],
     },
@@ -201,10 +190,10 @@ function editShape(kind, ed, toggle) {
       cols: "minmax(6rem, 2fr) minmax(4.5rem, 1.1fr) minmax(5rem, 1.4fr) 5.5rem 5.5rem 1.2rem",
       fields: [
         { key: "name", strong: true, label: "person", cell: name },
-        { key: "work", label: "trade", dim: true, cell: line("person", "work") },
-        { key: "livesName", label: "where", dim: true, cell: pick("person", "lives", "places") },
-        { key: "born", label: "born", dim: true, cell: line("person", "born") },
-        { key: "died", label: "died", dim: true, cell: line("person", "died") },
+        { key: "work", label: "trade", dim: true, cell: input("person", "work") },
+        { key: "livesName", label: "where", dim: true, cell: input("person", "lives", { pick: "places" }) },
+        { key: "born", label: "born", dim: true, cell: input("person", "born") },
+        { key: "died", label: "died", dim: true, cell: input("person", "died") },
         dot,
       ],
     },
@@ -212,7 +201,7 @@ function editShape(kind, ed, toggle) {
       cols: "minmax(8rem, 2fr) minmax(6rem, 1.2fr) minmax(6rem, 1.4fr) 5rem 1.2rem",
       fields: [
         { key: "name", strong: true, label: "item", cell: name },
-        { key: "rarity", label: "rarity", dim: true, cell: choice("item", "rarity", RARITIES) },
+        { key: "rarity", label: "rarity", dim: true, cell: input("item", "rarity", { kind: "choice", options: RARITIES }) },
         ...COLUMNS.items.fields.slice(1),
         dot,
       ],

@@ -1,8 +1,24 @@
 "use client";
 
 import { Act, Section } from "../ui";
-import { Chips, Field, Pick, reader } from "./fields";
+import { Chips, Fields, reader } from "./fields";
 import { Holdings, Tags } from "./Common";
+
+const BODY = [
+  { key: "health", label: "health", kind: "number" },
+  { key: "damage", label: "damage" },
+  { key: "dc", label: "hard to hit", kind: "number" },
+  { key: "bonus", label: "swings at", kind: "number" },
+  { key: "defense", label: "defense", kind: "number" },
+  { key: "skill", label: "fights with" },
+];
+
+const PERSON = [
+  { key: "work", label: "trade" },
+  { key: "lives", label: "lives", pick: "places" },
+  { key: "born", label: "born" },
+  { key: "died", label: "died" },
+];
 
 const words = (text) =>
   String(text || "")
@@ -18,12 +34,7 @@ function Fight({ thing, draft, change }) {
       {has ? (
         <>
           <div className="efields">
-            <Field kind="number" label="health" value={get("health")} onChange={put("health")} />
-            <Field label="damage" value={get("damage")} onChange={put("damage")} />
-            <Field kind="number" label="hard to hit" value={get("dc")} onChange={put("dc")} />
-            <Field kind="number" label="swings at" value={get("bonus")} onChange={put("bonus")} />
-            <Field kind="number" label="defense" value={get("defense")} onChange={put("defense")} />
-            <Field label="fights with" value={get("skill")} onChange={put("skill")} />
+            <Fields spec={BODY} get={get} put={put} />
           </div>
           <Act onClick={() => change("body", null)}>remove fight stats</Act>
         </>
@@ -39,10 +50,7 @@ export default function PeopleEdit({ thing, draft, change }) {
   return (
     <>
       <div className="efields">
-        <Field label="trade" value={get("work")} onChange={put("work")} />
-        <Pick label="lives" kind="places" value={get("lives")} onChange={put("lives")} />
-        <Field label="born" value={get("born")} onChange={put("born")} />
-        <Field label="died" value={get("died")} onChange={put("died")} />
+        <Fields spec={PERSON} get={get} put={put} />
       </div>
       <Tags thing={thing} draft={draft} change={change} />
       <Fight thing={thing} draft={draft} change={change} />
