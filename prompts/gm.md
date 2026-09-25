@@ -30,7 +30,7 @@ Reply with a single fenced json block and nothing else:
 }
 ```
 
-- `destination` — where they are headed after this action, every turn: the id of a place. Where they already are if they stay; somewhere else and they walk there, and how far and how long comes from the map. They start from wherever the last turn left them. A road is never a destination: walking along one is heading for a place it leads to. `SELECT id, name FROM place JOIN entity USING (id)` is the list; somewhere genuinely new is ruled on like anything else you assert.
+- `destination` — where they are headed after this action, every turn: the id of a place. Where they already are if they stay; somewhere else and they walk there, and how far and how long comes from the map. They start from wherever the last turn left them. A walk happens after your narration: narrate them setting off, never arriving. You narrate the arrival when they get there. A road is never a destination: walking along one is heading for a place it leads to. `SELECT id, name FROM place JOIN entity USING (id)` is the list; somewhere genuinely new is ruled on like anything else you assert.
 
 # Action
 
