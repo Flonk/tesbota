@@ -169,14 +169,14 @@ body {
   .dots i { animation: none; opacity: .6; }
 }
 
-.bar { display: inline-flex; align-items: center; gap: .4rem; font: var(--mono); color: var(--dim); }
-.barlabel { width: 1.8rem; display: inline-block; }
-.bartrack { display: inline-block; width: 60px; height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; }
-.barfill { display: block; height: 100%; }
-.barfill.hp { background: var(--good); }
-.barfill.fat { background: var(--warn); }
-.barfill.hun { background: var(--bad); }
-.barnum { min-width: 1.8em; text-align: right; }
+.meter { display: inline-flex; align-items: center; gap: .4rem; font: var(--mono); color: var(--dim); }
+.meterlabel { width: 1.8rem; display: inline-block; }
+.metertrack { display: inline-block; width: 60px; height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.meterfill { display: block; height: 100%; }
+.meterfill.hp { background: var(--good); }
+.meterfill.fat { background: var(--warn); }
+.meterfill.hun { background: var(--bad); }
+.meternum { min-width: 1.8em; text-align: right; }
 
 .empty { color: var(--dim); font-style: italic; margin: .2rem 0 .8rem; }
 .pad { padding: 2rem; }
@@ -358,7 +358,7 @@ textarea {
   user-select: none;
 }
 /* A bar: one row of controls, the same height and the same air as every other
-   row of controls. `.tabs` is a bar of tabs; `.bar` is a bar of anything else. */
+   row of controls. `.tabs` is a bar of tabs; `.row` is a bar of anything else. */
 .row, .tabs {
   flex: 0 0 auto;
   min-width: 0;
@@ -555,8 +555,8 @@ textarea {
   body { font-size: 15px; }
   .slide { padding: .8rem .9rem 1.2rem; }
   .thead { gap: .7rem; }
-  .bartrack { width: 38px; }
-  .barlabel { width: 1.6rem; }
+  .metertrack { width: 38px; }
+  .meterlabel { width: 1.6rem; }
   .tabpanel { padding: .8rem .9rem 1.2rem; }
   .stat { display: none; }
   .btn { padding: var(--bar-y) .6rem; }

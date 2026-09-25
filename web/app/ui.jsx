@@ -94,15 +94,15 @@ export function Block({ label, kind, children }) {
   );
 }
 
-export function Bar({ label, value, max, tone }) {
+export function Meter({ label, value, max, tone }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   return (
-    <span className="bar" title={`${label} ${value}/${max}`}>
-      <span className="barlabel">{label}</span>
-      <span className="bartrack">
-        <span className={`barfill ${tone}`} style={{ width: `${pct}%` }} />
+    <span className="meter" title={`${label} ${value}/${max}`}>
+      <span className="meterlabel">{label}</span>
+      <span className="metertrack">
+        <span className={`meterfill ${tone}`} style={{ width: `${pct}%` }} />
       </span>
-      <span className="barnum">{value}</span>
+      <span className="meternum">{value}</span>
     </span>
   );
 }
