@@ -169,26 +169,32 @@ export function shape(
   }
   if (carry && (carry.lon || carry.lat) && !alone) {
     const held = shapeOf(before ?? null).rings;
+    const size = area(held);
     const above = new Set(ancestry(ident).slice(0, -1).map((a) => a.id));
     if (held.length) {
       const inside = db
         .rows(
           `SELECT p.id, p.lat, p.lon, e.extent FROM place p JOIN entity e ON e.id = p.id
-            WHERE p.id <> ? AND p.lat IS NOT NULL AND p.lon IS NOT NULL`,
+            WHERE p.id <> ? AND ((p.lat IS NOT NULL AND p.lon IS NOT NULL) OR e.extent IS NOT NULL)`,
           [ident]
         )
-        .filter((r) => covers(held, [Number(r.lon), Number(r.lat)]))
-        .filter((r) => !above.has(String(r.id)) && (!world || worldOf(String(r.id)) === world));
+        .map((r) => ({ id: String(r.id), lat: num(r.lat), lon: num(r.lon), extent: r.extent ?? null, ...shapeOf(r.extent ?? null) }))
+        .filter((r) => {
+          const at = pinOf(r);
+          const own = area(r.rings);
+          return !!at && covers(held, at) && (!own || own < size);
+        })
+        .filter((r) => !above.has(r.id) && (!world || worldOf(r.id) === world));
       db.writing((con) => {
         for (const r of inside) {
-          con
-            .prepare("UPDATE place SET lat = ?, lon = ? WHERE id = ?")
-            .run(Number(r.lat) + carry.lat, Number(r.lon) + carry.lon, r.id);
-          const shifted = r.extent ? dragged(String(r.extent), carry) : null;
+          if (r.lat !== null && r.lon !== null) {
+            con.prepare("UPDATE place SET lat = ?, lon = ? WHERE id = ?").run(r.lat + carry.lat, r.lon + carry.lon, r.id);
+          }
+          const shifted = r.extent ? dragged(r.extent, carry) : null;
           if (shifted) {
             con.prepare("UPDATE entity SET extent = ? WHERE id = ?").run(shifted, r.id);
           }
-          carried.push(String(r.id));
+          carried.push(r.id);
         }
       });
     }
