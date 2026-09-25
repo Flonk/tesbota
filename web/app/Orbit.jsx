@@ -209,7 +209,7 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
           editing={editing}
           onSaved={read}
           onDirty={setUnsaved}
-          journey={sky.journey || null}
+          journey={sky.journey && holderOf(sky.bodies, sky.here)?.id === ground.id ? sky.journey : null}
         />
       </div>
     );
