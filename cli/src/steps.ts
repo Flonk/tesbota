@@ -1017,9 +1017,8 @@ export async function applyQuests(campaign: CampaignT, draft: DraftT, turnId: st
 
   for (const item of draft.quest_open) {
     const entry = Written.safeParse(item).data;
-    if (!entry?.id) continue;
-    const ident = canon.slug(String(entry.id));
-    if (byId.has(ident)) continue;
+    const ident = canon.slug(String(entry?.id || entry?.title || ""));
+    if (!entry || !ident || byId.has(ident)) continue;
     const quest: QuestT = {
       id: ident,
       at: worldclock.stamp(campaign.time),
@@ -1048,7 +1047,7 @@ export async function applyQuests(campaign: CampaignT, draft: DraftT, turnId: st
   for (const item of draft.quest_close) {
     const entry = item && typeof item === "object" ? Written.safeParse(item).data ?? {} : null;
     const ident = entry ? canon.slug(String(entry.id || "")) : canon.slug(String(item));
-    const outcome = entry ? String(entry.outcome || "done").toLowerCase() : "done";
+    const outcome = entry ? String(entry.outcome || entry.status || "done").toLowerCase() : "done";
     const quest = byId.get(ident);
     if (!quest || quest.status !== "active") continue;
     quest.status = CLOSED.safeParse(outcome).data ?? "done";

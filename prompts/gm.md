@@ -107,7 +107,15 @@ Your primary job as GM is to drive open quests forward and lead the explorer to 
 
 Make an effort to step into $BOTA territory and invent new things—exploring the unknown is the literal point of BOTA.
 
-Close with `done`, `failed` or `abandoned`, update quest state with `quest_update`.
+Open, update and close them like this:
+
+    "quest_open": [{"id": "find-the-mill-boy", "title": "Find the Mill Boy",
+                    "detail": "what they were asked, as it was put to them",
+                    "giver": "greta-marsch"}],
+    "quest_update": [{"id": "find-the-mill-boy", "detail": "what the errand is now"}],
+    "quest_close": [{"id": "find-the-mill-boy", "outcome": "done"}]
+
+`outcome` is `done`, `failed` or `abandoned`.
 
 An open quest may carry a `script`. It is a suggestion, not canon and not binding. Play toward it but if the dice tell a different story that is okay.
 
