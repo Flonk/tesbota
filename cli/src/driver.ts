@@ -17,7 +17,7 @@ import * as ground from "./ground.ts";
 import { AgentError, STEPS } from "./steps.ts";
 import { edgeFrom, STATES, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
-import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY } from "./config.ts";
+import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY, STATE } from "./config.ts";
 import * as worldclock from "./worldclock.ts";
 import {
   clearDeath, ensureLayout, loadCampaign, loadTurn, newTurn, now,
@@ -27,6 +27,7 @@ import { Campaign, Draft, type CampaignT, type TurnT } from "./schema.ts";
 
 const SUSPENDED = ["arbiter", "lore3", "clock"];
 const TRAIL = 40;
+const LOCK = path.join(STATE, "run.lock");
 
 export const pendingPath = (turnId: string) => path.join(PENDING, `${turnId}.md`);
 
@@ -164,17 +165,64 @@ export function tickClock(turn: TurnT, moment: Date): boolean {
 
 export type Ran = { state: string; turn: TurnT };
 
+const alive = (pid: number) => {
+  try {
+    return pid > 0 && process.kill(pid, 0);
+  } catch (err) {
+    return (err as NodeJS.ErrnoException).code === "EPERM";
+  }
+};
+
+function claim(): boolean {
+  for (let tries = 0; tries < 3; tries++) {
+    try {
+      fs.writeFileSync(LOCK, String(process.pid), { flag: "wx" });
+      return true;
+    } catch {
+      const holder = Number(fs.existsSync(LOCK) ? fs.readFileSync(LOCK, "utf8") : 0);
+      if (alive(holder)) return false;
+      fs.rmSync(LOCK, { force: true });
+    }
+  }
+  return false;
+}
+
+const steer = (campaign: CampaignT) => ({
+  paused: campaign.paused,
+  note: campaign.note,
+  last_seen: campaign.last_seen,
+  speed: campaign.clock.speed_factor,
+});
+
+function steered(campaign: CampaignT, was: ReturnType<typeof steer>) {
+  const now = steer(loadCampaign());
+  if (now.paused !== was.paused) campaign.paused = now.paused;
+  if (now.note !== was.note) campaign.note = now.note;
+  if (now.last_seen !== was.last_seen) campaign.last_seen = now.last_seen;
+  if (now.speed !== was.speed) campaign.clock.speed_factor = now.speed;
+}
+
 export async function run(limit = 1): Promise<Ran> {
   ensureLayout();
-  const campaign = loadCampaign();
+  if (!claim()) {
+    const held = loadCampaign().current_turn;
+    if (!held) throw new Error("another driver is opening the world");
+    return { state: "busy", turn: loadTurn(held) };
+  }
+  try {
+    return await drive(limit);
+  } finally {
+    fs.rmSync(LOCK, { force: true });
+  }
+}
 
-  // A world with no turn yet gets one before anything reads it.
-  const opened = campaign.current_turn ?? newTurn(campaign, "explorer").turn_id;
-  if (campaign.paused) return { state: "paused", turn: loadTurn(opened) };
-
+async function drive(limit: number): Promise<Ran> {
   let completed = 0;
   for (;;) {
-    const turn = loadTurn(campaign.current_turn ?? opened);
+    const campaign = loadCampaign();
+    // A world with no turn yet gets one before anything reads it.
+    const turn = loadTurn(campaign.current_turn ?? newTurn(campaign, "explorer").turn_id);
+    if (campaign.paused) return { state: "paused", turn };
     const state = turn.state;
 
     const death = pendingDeath();
@@ -204,12 +252,13 @@ export async function run(limit = 1): Promise<Ran> {
       continue;
     }
 
-    const world = { campaign, turn };
-    const edge = await STEPS[state](world);
+    const was = steer(campaign);
+    const edge = await STEPS[state]({ campaign, turn });
     // The machine decides where an edge goes. A step that names one its state does
     // not have stops here rather than putting the world somewhere unwritten.
     turn.state = edgeFrom(state, edge).to;
     took(turn, state, edge);
+    steered(campaign, was);
     save(campaign, turn);
     if (turn.state === "done") completed += 1;
   }
@@ -251,7 +300,7 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
 
   const edge = turn.fight?.blows.length ? "ruled_fight" : turn.looking ? "ruled_answer" : "ruled";
   turn.state = edgeFrom("lore3", edge).to;
-  saveTurn(turn);
+  save(campaign, turn);
   const file = pendingPath(turn.turn_id);
   if (fs.existsSync(file)) fs.rmSync(file);
   return turn;
