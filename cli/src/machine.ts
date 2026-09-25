@@ -11,14 +11,14 @@
  * given, and a state added here appears there without anybody drawing it.
  */
 
+import type { AgentId } from "./agents.ts";
+
 /**
- * Who does the work in a state. Every prompt layer is one of these, and so are the
- * two that are not agents at all: `cli` for what the driver does on its own, and
+ * Who does the work in a state. Every agent is one of these, and so are the two
+ * that are not agents at all: `cli` for what the driver does on its own, and
  * `human` for what waits on a person.
  */
-export type Runs =
-  | "explorer" | "propose" | "gm" | "lore1" | "lore2" | "lore3" | "questmaster"
-  | "cli" | "human";
+export type Runs = AgentId | "cli" | "human";
 
 /**
  * The states, named once. Everything else is derived from this, so adding one
@@ -46,12 +46,12 @@ export type State = {
   /** who does the work here, which is what the diagram colours by */
   readonly runs: Runs;
   /**
-   * Which prompt layers this state asks, in the order it asks them. This is the
-   * honest count of what a turn costs, and it is here because a state named after
-   * one agent quietly calling a second is exactly the kind of thing a table like
-   * this exists to stop.
+   * Which agents this state asks, in the order it asks them. This is the honest
+   * count of what a turn costs, and it is here because a state named after one
+   * agent quietly calling a second is exactly the kind of thing a table like this
+   * exists to stop.
    */
-  readonly agents: readonly string[];
+  readonly agents: readonly AgentId[];
   /**
    * Who advances it. The loop runs most of them; a `held` state waits on the
    * clock or on a person, and the driver will not step it on its own.
@@ -78,7 +78,7 @@ export const STATES = {
   answer: {
     does: "the game master answers without the world moving",
     runs: "gm",
-    agents: ["gm"],
+    agents: ["answer"],
     driven: "loop",
     edges: [{ to: "lore1", on: "answered", when: "the answer needs checking" }],
   },

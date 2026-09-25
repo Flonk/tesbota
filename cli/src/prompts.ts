@@ -10,10 +10,10 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { AGENTS } from "./agents.ts";
 import { does, type Holding, type holdingsAt } from "./canon.ts";
-import { FLEE_FLOOR, ROOT } from "./config.ts";
+import { EXPLORER, FLEE_FLOOR, ROOT } from "./config.ts";
 import { bookId, bookTitle } from "./chronicle.ts";
-import { EXPLORER } from "./config.ts";
 import { explorerName } from "./state.ts";
 import { ARRIVED } from "./fight.ts";
 import type { Load } from "./sheet.ts";
@@ -53,20 +53,6 @@ export const fill = (text: string | null | undefined): string =>
     .split("$CHRONICLE_NAME").join(bookTitle())
     .split("$EXPLORER").join(explorerName())
     .split("$HOLDER").join(EXPLORER);
-
-const system = (name: string) => () => block(name);
-
-export const EXPLORER_SYSTEM = system("explorer");
-export const GM_SYSTEM = system("gm");
-export const GM_PROPOSE_SYSTEM = system("propose");
-export const LORE1_SYSTEM = system("lore1");
-export const LORE2_SYSTEM = system("lore2");
-export const LORE3_SYSTEM = system("lore3");
-export const LORE4_SYSTEM = system("lore4");
-export const LORE1_QUERY_SYSTEM = system("queries");
-export const QUESTMASTER_SYSTEM = system("questmaster");
-export const READING = system("common");
-export const LORE_WRITING = system("writing");
 
 /** One of a thing says nothing; a debt has to say itself. */
 export function tally(qty: unknown): string {
@@ -456,8 +442,6 @@ export function gmTurn(
   return parts.join("\n\n");
 }
 
-export const lore1Query = (question: string) => `${question}`;
-
 export function gmPropose(
   action: string | null | undefined,
   { previous = null, vitals = null, answers = null, note = null, inventory = null,
@@ -623,15 +607,7 @@ export function questmasterTurn(quest: QuestT, where?: PlacedT[] | null): string
 export const LAYERS: ReadonlyArray<readonly [string, string]> = [
   ["common", "common"],
   ["writing", "writing"],
-  ["explorer", "explorer"],
-  ["gm", "game master"],
-  ["propose", "propose"],
-  ["lore1", "lore 1"],
-  ["lore2", "lore 2"],
-  ["queries", "queries"],
-  ["lore3", "lore 3"],
-  ["lore4", "lore 4"],
-  ["questmaster", "questmaster"],
+  ...new Map(Object.values(AGENTS).map((a) => [a.prompt, a.label])),
 ];
 
 /**

@@ -13,6 +13,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import * as machine from "./machine.ts";
+import { AGENTS } from "./agents.ts";
 import { Campaign, Turn } from "./schema.ts";
 import { DAYS_PER_MONTH, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
 import * as db from "./db.ts";
@@ -64,9 +65,7 @@ function onDisk(): Wrong[] {
  */
 function agents(): Wrong[] {
   const declared = new Set<string>(machine.STATE_NAMES.flatMap((n) => [...machine.STATES[n].agents]));
-  const layers = ["explorer", "gm", "propose", "lore1", "lore2", "queries",
-                  "lore3", "lore4", "questmaster"];
-  return layers
+  return Object.keys(AGENTS)
     .filter((l) => !declared.has(l) && l !== "lore4")
     .map((l) => ({ what: "agents", said: `${l} is called but no state declares it` }));
 }

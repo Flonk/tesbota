@@ -8,8 +8,8 @@
 import { query, type HookCallback, type Options } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 import { ROOT } from "./config.ts";
-import type { Gate } from "./gate.ts";
-import { fill } from "./prompts.ts";
+import { AGENTS, type Agent, type AgentId } from "./agents.ts";
+import { block, fill } from "./prompts.ts";
 import { Written } from "./schema.ts";
 
 export class AgentError extends Error {
@@ -87,20 +87,12 @@ export function extractJson<S extends z.ZodType>(text: string | null | undefined
   throw new AgentError(`agent's json is not the shape asked for:\n${z.prettifyError(read.error)}\n\n${said}`);
 }
 
-export type Asked = {
-  system: string;
-  tools?: readonly string[];
-  session?: string | null;
-  model?: string | null;
-  permission?: Gate | null;
-  attempts?: number;
-};
-
 async function once(
-  prompt: string, { system, tools, session, model, permission }: Required<Omit<Asked, "attempts">>
+  prompt: string, system: string, { model, gate: permission }: Agent, session: string | null
 ): Promise<[string, string | null]> {
   const chunks: string[] = [];
-  let sessionId: string | null = session ?? null;
+  let sessionId: string | null = session;
+  const tools = permission ? ["Bash"] : [];
 
   // A bare name in `allowedTools` auto-approves the whole tool and the gate is
   // never consulted — which silently handed every agent an unrestricted shell.
@@ -111,9 +103,9 @@ async function once(
     permissionMode: "acceptEdits",
     resume: session ?? undefined,
     cwd: ROOT,
-    model: model ?? undefined,
+    model,
   };
-  options.tools = [...tools];
+  options.tools = tools;
   if (permission) {
     options.canUseTool = permission;
     // Read-only commands are approved before canUseTool is ever asked, so the gate
@@ -131,12 +123,12 @@ async function once(
       };
     };
     options.hooks = { PreToolUse: [{ hooks: [gate] }] };
-  } else options.allowedTools = [...tools];
+  } else options.allowedTools = tools;
 
   for await (const message of query({ prompt, options })) {
     if (message.type === "assistant") {
-      for (const block of message.message.content) {
-        if (block.type === "text") chunks.push(block.text);
+      for (const part of message.message.content) {
+        if (part.type === "text") chunks.push(part.text);
       }
     } else if (message.type === "result") {
       sessionId = message.session_id;
@@ -147,18 +139,22 @@ async function once(
 
 const rest = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export async function ask(prompt: string, opts: Asked): Promise<[string, string | null]> {
-  const { system, tools = [], session = null, model = null, permission = null, attempts = 2 } = opts;
-  const said = fill(prompt);
-  const told = fill(system);
+const ATTEMPTS = 2;
+
+export async function ask(
+  agent: AgentId, message: string, session?: string | null
+): Promise<[string, string | null]> {
+  const asked = AGENTS[agent];
+  const said = fill(message);
+  const told = fill(block(asked.prompt));
   let last: unknown = null;
-  for (let attempt = 0; attempt < attempts; attempt++) {
+  for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
     try {
-      return await once(said, { system: told, tools, session, model, permission });
+      return await once(said, told, asked, session ?? null);
     } catch (err) {
       last = err;
-      if (attempt + 1 < attempts) await rest(2000);
+      if (attempt + 1 < ATTEMPTS) await rest(2000);
     }
   }
-  throw new AgentError(`agent call failed after ${attempts} attempts: ${last}`);
+  throw new AgentError(`agent call failed after ${ATTEMPTS} attempts: ${last}`);
 }

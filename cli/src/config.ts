@@ -28,9 +28,6 @@ export const DEATH = path.join(STATE, "death.json");
 
 export const KINDS = ["people", "places", "books", "items", "aspects", "abilities"] as const;
 
-export const READ_TOOLS = ["Bash"];
-export const WRITE_TOOLS = ["Bash"];
-
 export const MAX_GM_RETRIES = 3;
 export const MAX_PROPOSE_RETRIES = 2;
 
@@ -45,12 +42,6 @@ export const FLEE_FLOOR = 25;
 export const BLOW_MINUTES = 1;
 export const BLOW_FATIGUE = 3;
 export const UNARMED = "1–2";
-
-export const MODEL = "claude-sonnet-5";
-export const MODELS: Record<string, string> = {
-  explorer: MODEL, gm: MODEL, lore1: MODEL, lore2: MODEL, lore3: MODEL, lore4: "claude-opus-5-5",
-  questmaster: "claude-opus-5-5",
-};
 
 export const GODHEAD = "the godhead";
 export const GODHEAD_ID = "the-godhead";

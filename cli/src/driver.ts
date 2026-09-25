@@ -14,7 +14,7 @@ import * as chronicle from "./chronicle.ts";
 import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
 import * as ground from "./ground.ts";
-import { AgentError, STEPS } from "./steps.ts";
+import { STEPS } from "./steps.ts";
 import { edgeFrom, STATES, type EdgeOn, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY, STATE } from "./config.ts";
@@ -300,4 +300,4 @@ export function resolveGap(campaign: CampaignT, turn: TurnT): TurnT {
   return turn;
 }
 
-export { AgentError, STATES };
+export { STATES };

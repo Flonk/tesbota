@@ -13,8 +13,7 @@ import * as db from "./db.ts";
 import * as driver from "./driver.ts";
 import * as prompts from "./prompts.ts";
 import { ask } from "./agent.ts";
-import { MAP, sqliteGate } from "./gate.ts";
-import { MODELS, MYSTERY, PROFILES, roomOf, STATE, WRITE_TOOLS } from "./config.ts";
+import { MYSTERY, PROFILES, roomOf, STATE } from "./config.ts";
 import type { EdgeOn, StateName } from "./machine.ts";
 import type { TurnT } from "./schema.ts";
 import {
@@ -66,13 +65,7 @@ export async function say(text: string) {
   let reply: string;
   let next: string | null;
   try {
-    [reply, next] = await ask(message, {
-      system: prompts.LORE3_SYSTEM(),
-      tools: WRITE_TOOLS,
-      permission: sqliteGate({ readonly: false, also: MAP }),
-      session,
-      model: MODELS.lore3,
-    });
+    [reply, next] = await ask("lore3", message, session);
   } catch (exc) {
     // Whatever went wrong, the turn does not stay in the hands of a layer that
     // is no longer answering — it goes back to you.
@@ -109,13 +102,7 @@ export async function say(text: string) {
 export async function talk(text: string) {
   const book = sitting();
   appendTalk("you", text);
-  const [reply, session] = await ask(text, {
-    system: prompts.LORE4_SYSTEM(),
-    tools: WRITE_TOOLS,
-    permission: sqliteGate({ readonly: false, also: MAP }),
-    session: book.session,
-    model: MODELS.lore4,
-  });
+  const [reply, session] = await ask("lore4", text, book.session);
   canon.linkWriting();
   const held = sitting();
   held.session = session;

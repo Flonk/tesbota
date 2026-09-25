@@ -15,8 +15,8 @@ import * as fight from "./fight.ts";
 import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
 import * as worldclock from "./worldclock.ts";
-import { AgentError, ask, extractJson } from "./agent.ts";
-import { sqliteGate, type Gate } from "./gate.ts";
+import { ask, extractJson } from "./agent.ts";
+import { spoken } from "./gate.ts";
 import type { EdgeOn, LoopState } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import { explorerName, pendingDeath, recordDeath } from "./state.ts";
@@ -28,7 +28,7 @@ import {
 import {
   BANDS, BLOW_FATIGUE, BLOW_MINUTES, DIE, EXPLORER, GODHEAD_ID, HUNGER_PER_HOUR,
   MAX_ASKS, MAX_BLOWS, MAX_FATIGUE, MAX_GM_RETRIES, MAX_HEALTH, MAX_HUNGER,
-  MAX_LOOKS, MAX_PROPOSE_RETRIES, MAX_TALKS, MODELS, PRESS_FLOOR, READ_TOOLS, SKILL_DIE,
+  MAX_LOOKS, MAX_PROPOSE_RETRIES, MAX_TALKS, PRESS_FLOOR, SKILL_DIE,
   SPARK_FLOOR, TRIVIAL_FATIGUE, TRIVIAL_MINUTES, WEIGHT,
 } from "./config.ts";
 
@@ -93,34 +93,11 @@ export function openPhase(turn: TurnT): PhaseT | null {
 
 // ── the explorer ────────────────────────────────────────────────────────────
 
-const EXPLORER_COMMANDS = ["tesbota stats", "tesbota inventory", "tesbota quests"];
-
-export function normaliseCommand(text: string): string {
-  let parts = String(text ?? "").trim().split(/\s+/).filter(Boolean);
-  if (parts[0] === "uv" && parts[1] === "run") parts = parts.slice(2);
-  return parts.join(" ");
+async function askExplorer(campaign: CampaignT, message: string): Promise<string> {
+  const [text, session] = await ask("explorer", message, campaign.sessions.explorer);
+  campaign.sessions.explorer = session;
+  return text;
 }
-
-export const explorerPermission: Gate = async (toolName, toolInput) => {
-  if (toolName !== "Bash") {
-    return {
-      behavior: "deny" as const,
-      message: "You have no such power. You may run tesbota stats, tesbota inventory or tesbota quests.",
-    };
-  }
-  const raw = String(toolInput.command ?? "");
-  const parts = raw.split(/&&|;|\n/).map(normaliseCommand).filter((p) => p && !/^echo\b/.test(p));
-  const shell = [..."|&$`><"].some((ch) => raw.replace(/&&/g, "").includes(ch));
-  if (!shell && parts.length && parts.every((p) => EXPLORER_COMMANDS.includes(p))) {
-    return { behavior: "allow" as const };
-  }
-  return {
-    behavior: "deny" as const,
-    message:
-      "Nothing happens. The only things you can do are `tesbota stats`, " +
-      "`tesbota inventory` and `tesbota quests`, one at a time.",
-  };
-};
 
 const ACTION_PREFIX = ["ACTION:", "DO:", "ACT:"];
 
@@ -141,7 +118,7 @@ export function firstUtterance(text: string | null | undefined): string {
       if (kept.length) break;
       continue;
     }
-    if (normaliseCommand(bare).split(" ")[0] === "tesbota") continue;
+    if (spoken(bare)[0] === "tesbota") continue;
     if (bare.toUpperCase().startsWith("LOOK:") || bare.toUpperCase().startsWith("SAY:")) {
       if (kept.length) break;
       return bare;
@@ -206,17 +183,9 @@ function commit(turn: TurnT, action: string) {
 
 export const stepExplorer: Step<"explorer"> = async ({ campaign, turn }) => {
   if (pendingDeath()) return "quiet";
-  const [text, session] = await ask(
-    prompts.explorerTurn(campaign.last_narration ?? null, turn.nudge, turn.check),
-    {
-      system: prompts.EXPLORER_SYSTEM(),
-      tools: ["Bash"],
-      session: campaign.sessions.explorer,
-      model: MODELS.explorer,
-      permission: explorerPermission,
-    }
+  const text = await askExplorer(
+    campaign, prompts.explorerTurn(campaign.last_narration ?? null, turn.nudge, turn.check)
   );
-  campaign.sessions.explorer = session;
 
   const stripped = firstUtterance(text);
   const upper = stripped.toUpperCase();
@@ -270,11 +239,18 @@ export function ledger(campaign: CampaignT): Record<string, string> {
   return campaign.sent;
 }
 
+async function askGm(campaign: CampaignT, message: string, agent: "gm" | "answer" = "gm"): Promise<string> {
+  const [text, session] = await ask(agent, message, campaign.sessions.gm);
+  campaign.sessions.gm = session;
+  return text;
+}
+
 const Answered = Draft.pick({ narration: true });
 
 export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
   const { mode, question } = turn.asking ?? { mode: "look", question: "" };
-  const [text, session] = await ask(
+  const text = await askGm(
+    campaign,
     prompts.gmAnswer(question, {
       previous: campaign.last_narration ?? null,
       mode,
@@ -284,15 +260,8 @@ export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
       correction: turn.correction ?? null,
       sent: ledger(campaign),
     }),
-    {
-      system: prompts.GM_SYSTEM(),
-      tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota traits", "tesbota around", "tesbota route"] }),
-      session: campaign.sessions.gm,
-      model: MODELS.gm,
-    }
+    "answer"
   );
-  campaign.sessions.gm = session;
   const draft = Draft.parse(extractJson(text, Answered));
   turn.draft = draft;
   gmPhase(turn, "answer", draft.narration);
@@ -349,6 +318,7 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
   }
 
   const [text] = await ask(
+    "propose",
     prompts.gmPropose(turn.action, {
       previous: campaign.last_narration ?? null,
       vitals: campaign.vitals,
@@ -358,27 +328,14 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
       load: sheet.load(campaign),
       others: canon.holdingsAt(campaign.location),
       now: worldclock.longStamp(campaign.time),
-    }),
-    {
-      system: prompts.GM_PROPOSE_SYSTEM(),
-      tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
-      session: null,
-      model: MODELS.gm,
-    }
+    })
   );
   const out = extractJson(text, Written);
 
   const question = typeof out.ask === "string" ? out.ask.trim() : null;
   const answers = turn.answers;
   if (question && answers.length < MAX_ASKS) {
-    const [reply] = await ask(prompts.lore1Query(question), {
-      system: prompts.LORE1_QUERY_SYSTEM(),
-      tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
-      session: null,
-      model: MODELS.lore1,
-    });
+    const [reply] = await ask("queries", question);
     answers.push([question, reply.trim()]);
     return "again";
   }
@@ -424,7 +381,8 @@ const onRoad = (turn: TurnT) => !turn.action && (!!turn.arrival || turn.leagues_
 export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
   const agreed = turn.proposal ?? null;
   const world = onRoad(turn);
-  const [text, session] = await ask(
+  const text = await askGm(
+    campaign,
     prompts.gmTurn(turn.action, {
       previous: campaign.last_narration ?? null,
       vitals: campaign.vitals,
@@ -443,16 +401,8 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
       now: worldclock.longStamp(campaign.time),
       sent: ledger(campaign),
       standing: campaign.fight ?? null,
-    }),
-    {
-      system: prompts.GM_SYSTEM(),
-      tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota kill", "tesbota traits", "tesbota around", "tesbota route"] }),
-      session: campaign.sessions.gm,
-      model: MODELS.gm,
-    }
+    })
   );
-  campaign.sessions.gm = session;
 
   const said = extractJson(text, Written);
   const draft = Draft.parse({
@@ -513,14 +463,14 @@ export async function readRecord(
   { campaign, turn }: World, narration: string, roster?: string | null
 ): Promise<string[]> {
   const [read] = await ask(
+    "lore1",
     prompts.lore1Turn(narration, {
       where: campaign.location_path,
       now: worldclock.longStamp(campaign.time),
       roster: roster ?? null,
       // The structured half of the draft goes the same way the prose does.
       did: prompts.doings(turn.draft, campaign.location) || null,
-    }),
-    { system: prompts.LORE1_SYSTEM(), tools: [], session: null, model: MODELS.lore1 }
+    })
   );
   const facts = extractJson(read, Facts).facts.map((f) => f.trim()).filter(Boolean);
   turn.facts = facts;
@@ -535,13 +485,7 @@ export async function ruleRecord(
   { campaign, turn }: World, narration: string, facts: string[],
   unknown?: Array<{ id: string; name: string }> | null
 ): Promise<[ClaimT[], VerdictT[], z.output<typeof Ruled>]> {
-  const [text] = await ask(prompts.lore2Turn(narration, facts, unknown), {
-    system: prompts.LORE2_SYSTEM(),
-    tools: READ_TOOLS,
-    permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
-    session: null,
-    model: MODELS.lore2,
-  });
+  const [text] = await ask("lore2", prompts.lore2Turn(narration, facts, unknown));
   const ruled = extractJson(text, Ruled);
   const [claims, verdicts] = derived(ruled.claims);
   drafted(turn).claims = claims;
@@ -829,14 +773,7 @@ export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
   const message = first
     ? prompts.fightOpen(running, me, fight.usable(turn.spent))
     : prompts.fightBlow(running, me, prompts.saidBlow(running.blows[running.blows.length - 1]));
-  const [text, session] = await ask(message, {
-    system: prompts.EXPLORER_SYSTEM(),
-    tools: ["Bash"],
-    session: campaign.sessions.explorer,
-    model: MODELS.explorer,
-    permission: explorerPermission,
-  });
-  campaign.sessions.explorer = session;
+  const text = await askExplorer(campaign, message);
   turn.swing = chosenBlow(firstUtterance(text) || text, campaign, running, turn.spent);
   return "chose";
 };
@@ -987,17 +924,7 @@ const Worded = Draft.pick({
 export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const running = fightOf(turn);
   const fate = turn.roll == null ? rollFate(turn) : null;
-  const [text, session] = await ask(
-    prompts.gmBlows(running, fate),
-    {
-      system: prompts.GM_SYSTEM(),
-      tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota kill", "tesbota traits", "tesbota around", "tesbota route"] }),
-      session: campaign.sessions.gm,
-      model: MODELS.gm,
-    }
-  );
-  campaign.sessions.gm = session;
+  const text = await askGm(campaign, prompts.gmBlows(running, fate));
   const out = extractJson(text, Worded);
   const lines = out.blows.map((x) => x.trim()).filter(Boolean);
   running.blows.forEach((blow, n) => {
@@ -1077,13 +1004,7 @@ const CLOSED = QuestStatus.exclude(["active"]);
  */
 export async function scriptFor(quest: QuestT, campaign: CampaignT): Promise<string> {
   try {
-    const [text] = await ask(prompts.questmasterTurn(quest, campaign.location_path), {
-      system: prompts.QUESTMASTER_SYSTEM(),
-      tools: READ_TOOLS,
-      permission: sqliteGate({ also: ["tesbota around", "tesbota route"] }),
-      session: null,
-      model: MODELS.questmaster,
-    });
+    const [text] = await ask("questmaster", prompts.questmasterTurn(quest, campaign.location_path));
     return String(extractJson(text, Written).script || "").trim();
   } catch (exc) {
     return `the questmaster fell over: ${(exc as Error).name}: ${exc}`.slice(0, 400);
@@ -1256,5 +1177,3 @@ export const STEPS: { [S in LoopState]: Step<S> } = {
   deliver: stepDeliver,
   narrate: stepNarrate,
 };
-
-export { AgentError };
