@@ -78,6 +78,8 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   /** Turn the world over on its own until it is paused, blocked or stopped. */
   async play({ rest }) {
     const every = Number(rest[0]) || 5;
+    let last = "";
+    let again = 0;
     for (;;) {
       const campaign = loadCampaign();
       if (campaign.paused) {
@@ -89,11 +91,17 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         ran = await driver.run(1);
       } catch (exc) {
         // An agent that will not answer in json is not a reason to lose the world.
-        // It is written down and the loop waits, rather than the process dying.
-        say(`[${loadCampaign().current_turn}] stumbled: ${(exc as Error).message}`.slice(0, 400));
+        // It is written down and the loop waits and asks again. Only the same
+        // failure three times running stops it, since asking again changes nothing.
+        const said = `[${loadCampaign().current_turn}] stumbled: ${(exc as Error).message}`.slice(0, 400);
+        say(said);
+        again = said === last ? again + 1 : 1;
+        last = said;
+        if (again >= 3) return say("stopped: the same stumble three times running");
         await new Promise((r) => setTimeout(r, every * 1000));
         continue;
       }
+      last = "";
       say(`[${ran.turn.turn_id}] ${ran.state}`);
       if (ran.state === "arbiter") return;
       await new Promise((r) => setTimeout(r, every * 1000));
