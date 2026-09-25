@@ -11,9 +11,7 @@
 import { z } from "zod";
 import * as canon from "./canon.ts";
 import * as sheet from "./sheet.ts";
-import {
-  DEFENSE_HALVES, EXPLORER, MAX_HEALTH, SKILL_DIE, UNARMED,
-} from "./config.ts";
+import { DEFENSE_HALVES, EXPLORER, MAX_HEALTH, UNARMED } from "./config.ts";
 import { explorerName } from "./state.ts";
 import type { Rng } from "./rng.ts";
 import {
