@@ -114,16 +114,19 @@ export async function bury(campaign: CampaignT, cause?: string | null): Promise<
 export function walk(
   campaign: CampaignT, leagues: number, destination: string | null, rng: Rng = random
 ): TurnT {
-  const [minutes, left, cut] = travel.leg(
-    campaign.clock as any, leagues, rng, travel.drag(sheet.load(campaign))
-  );
   let path: Array<[number, number]> | null = null;
   if (destination) {
     try {
       const found = ground.route(campaign.location ?? null, destination);
-      if (!("error" in found)) path = found.path;
+      if (!("error" in found)) {
+        path = found.path;
+        leagues = found.leagues;
+      }
     } catch {}
   }
+  const [minutes, left, cut] = travel.leg(
+    campaign.clock as any, leagues, rng, travel.drag(sheet.load(campaign))
+  );
   return newTurn(campaign, "clock", {
     wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock as any, minutes))),
     destination,
@@ -135,7 +138,9 @@ export function walk(
 
 export function advance(campaign: CampaignT, turn: TurnT): TurnT {
   const journey = ((turn as any).draft || {}).travel || {};
-  if (journey.leagues) return walk(campaign, journey.leagues, journey.destination ?? null);
+  if (journey.leagues || journey.destination) {
+    return walk(campaign, Number(journey.leagues) || 0, journey.destination ?? null);
+  }
 
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {

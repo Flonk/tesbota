@@ -99,7 +99,7 @@ Before you describe where they are or what they can see, run `tesbota around`: i
 
 Any walk longer than a few minutes is a journey, even if they do not know where the road goes: pick the place it leads to and commit it.
 
-`{"destination": "kebab-id", "leagues": <number>}` when they commit to a journey — the leagues `tesbota route` gave you. A journey that was interrupted comes back as a shorter one: commit what is left of it the same way.
+`{"destination": "kebab-id"}` when they commit to a journey. How far it is and how long it takes are worked out from the map.
 
 # Quests
 

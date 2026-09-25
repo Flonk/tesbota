@@ -480,6 +480,6 @@ export function tellRoute(found: ReturnType<typeof route>): string {
   if ("error" in found) return found.error;
   const out = [`${found.from} to ${found.to}: ${found.said} (${found.leagues} leagues; ${found.straight} as the crow flies)`];
   found.legs.forEach((l, n) => out.push(`  ${n + 1}. ${l.said}`));
-  if (found.to_id) out.push(`  commit it as {"destination": "${found.to_id}", "leagues": ${found.leagues}}`);
+  if (found.to_id) out.push(`  commit it as {"destination": "${found.to_id}"}`);
   return out.join("\n");
 }
