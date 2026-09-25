@@ -9,9 +9,9 @@ import {
 const FIT = { x: 0, y: 0, w: W, h: H };
 
 /** Put a shape in the window, with room around it. */
-function frame(place, close = false) {
-  if (close && place.lat !== null && place.lon !== null) {
-    const degrees = 3000 / (111320 * Math.cos(place.lat * RAD));
+function frame(place, close, radius) {
+  if (close && radius && place.lat !== null && place.lon !== null) {
+    const degrees = 3000 / (((2 * Math.PI * radius) / 360) * Math.cos(place.lat * RAD));
     const w = hold((degrees / 360) * W, W / CLOSEST, W);
     const x = across(place.lon);
     const y = down(place.lat);
@@ -125,8 +125,8 @@ export function useViewport(body, focus, byId) {
     const place = byId.get(focus.id);
     if (!place || (place.lat === null && !place.extent)) return;
     aimed.current = key;
-    setView(settle(frame(place, !!focus.close)));
-  }, [focus?.id, focus?.asked, byId, settle]);
+    setView(settle(frame(place, !!focus.close, body?.radius)));
+  }, [focus?.id, focus?.asked, byId, settle, body?.radius]);
 
   const zoomAt = useCallback(
     (clientX, clientY, factor) => {
