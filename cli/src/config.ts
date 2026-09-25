@@ -47,8 +47,8 @@ export const UNARMED = "1–2";
 
 export const MODEL = "claude-sonnet-5";
 export const MODELS: Record<string, string> = {
-  explorer: MODEL, gm: MODEL, lore1: MODEL, lore2: MODEL, lore3: MODEL, lore4: MODEL,
-  questmaster: "claude-opus-5",
+  explorer: MODEL, gm: MODEL, lore1: MODEL, lore2: MODEL, lore3: MODEL, lore4: "claude-opus-5-5",
+  questmaster: "claude-opus-5-5",
 };
 
 export const GODHEAD = "the godhead";
@@ -153,10 +153,28 @@ export const OPENING = {
     { id: "o2", text: "Fog stands close around the road on every side, hiding what lies beyond.", entity: "flotburg-trail", kind: "places" },
     { id: "o3", text: "The road runs away in two directions.", entity: "flotburg-trail", kind: "places" },
   ],
+  location: "flotburg-trail",
   travel: null,
   minutes: 0,
   fatigue: 0,
   health: 0,
+};
+
+/**
+ * What every new life is set walking toward. The script is the game master's
+ * alone: a direction to play toward, not a railroad.
+ */
+export const OPENING_QUEST = {
+  id: "the-way-to-alheim",
+  title: "Find your way to Alheim",
+  detail: "There is a village west along the trail. Somebody there will know where you are.",
+  giver: "",
+  script: [
+    "Keep them on Flotburg Trail, drifting west toward Alheim. Nudge, never order: a smell of woodsmoke, a cart track, a signpost.",
+    "Somewhere on the way a rat comes at them out of the wet grass. Make it a real fight — small, one they should win, one that costs them a scratch.",
+    "After the rat, let the fog thin and Alheim come into sight.",
+    "Close the quest as done when they walk into Alheim.",
+  ].join("\n"),
 };
 
 export const DAYS_PER_WEEK = 7;

@@ -17,7 +17,8 @@ import * as ground from "./ground.ts";
 import { AgentError, STEPS } from "./steps.ts";
 import { edgeFrom, STATES, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
-import { EXPLORER, OPENING, PENDING, STARTING_INVENTORY } from "./config.ts";
+import { EXPLORER, OPENING, OPENING_QUEST, PENDING, STARTING_INVENTORY } from "./config.ts";
+import * as worldclock from "./worldclock.ts";
 import {
   clearDeath, ensureLayout, loadCampaign, loadTurn, newCampaign, newTurn, now,
   pendingDeath, pickName, retire, saveCampaign, saveTurn, stamp, stock, turnPath,
@@ -64,6 +65,17 @@ export async function openWorld(campaign: CampaignT): Promise<TurnT> {
   const turn = newTurn(campaign, "lore1");
   (turn as any).draft = JSON.parse(JSON.stringify(OPENING));
   turn.opening = true;
+  const quests = ((campaign as any).quests ||= []) as any[];
+  if (!quests.some((q) => q?.id === OPENING_QUEST.id)) {
+    quests.push({
+      ...OPENING_QUEST,
+      at: worldclock.stamp(campaign.time as any),
+      status: "active",
+      opened: turn.turn_id,
+      closed: null,
+      where: [],
+    });
+  }
   const world = { campaign, turn };
   const edge = await STEPS.lore1(world);
   turn.state = edgeFrom("lore1", edge).to;
