@@ -30,13 +30,6 @@ export function passTime(campaign: CampaignT, minutes: number): string {
 
 export const standingIn = (campaign: CampaignT) => (campaign.position ? null : campaign.location ?? null);
 
-export function standIn(campaign: CampaignT, place: string, turnId: string) {
-  campaign.location = place;
-  campaign.position = null;
-  canon.ensureEntity("places", place, null, turnId);
-  campaign.location_path = canon.ancestry(place);
-}
-
 /**
  * One ledger. `the-godhead` on either side is the world itself — where bread eaten
  * goes, and where a coin found in the mud comes from.
@@ -191,16 +184,13 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   applyInventory(draft, turn.turn_id);
   await applyQuests(campaign, draft, turn.turn_id);
   settleFight(campaign, turn);
-
-  const heading = canon.slug(draft.destination);
-  if (!campaign.location && heading) standIn(campaign, heading, turn.turn_id);
   turn.at = passTime(campaign, draft.minutes);
 
   turn.location_path = campaign.location_path;
   turn.vitals = { ...campaign.vitals };
   const active = campaign.quests.find((q) => q.status === "active");
   turn.quest = active ? active.title : null;
-  turn.destination = heading || standingIn(campaign);
+  turn.destination = canon.slug(draft.destination) || standingIn(campaign);
   turn.minutes = draft.minutes;
 
   if (!onRoad(turn)) {

@@ -15,7 +15,7 @@ import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
 import * as ground from "./ground.ts";
 import { STEPS } from "./steps/index.ts";
-import { applyVitals, passTime, standIn, standingIn } from "./steps/deliver.ts";
+import { applyVitals, passTime, standingIn } from "./steps/deliver.ts";
 import { edgeFrom, STATES, type EdgeOn, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import {
@@ -69,11 +69,19 @@ function begin(campaign: CampaignT, on: EdgeOn<"done">, fields: Partial<TurnT> =
   return newTurn(campaign, to, { ...fields, took, trail: [took] });
 }
 
+function standIn(campaign: CampaignT, place: string, turnId: string) {
+  campaign.location = place;
+  campaign.position = null;
+  canon.ensureEntity("places", place, null, turnId);
+  campaign.location_path = canon.ancestry(place);
+}
+
 export function openWorld(campaign: CampaignT): TurnT {
   const turn = newTurn(campaign, "deliver", {
     draft: Draft.parse(OPENING),
     verdicts: OPENING.claims.map((c) => Verdict.parse({ claim: c.id, result: "TRUE", why: "the world opens here" })),
   });
+  standIn(campaign, OPENING.destination, turn.turn_id);
   const quests = campaign.quests;
   if (!quests.some((q) => q.id === OPENING_QUEST.id)) {
     quests.push({
