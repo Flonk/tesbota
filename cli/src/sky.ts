@@ -18,8 +18,9 @@
 
 import * as db from "./db.ts";
 import { CELESTIAL, DAYS_PER_YEAR, MINUTES_PER_DAY, WORLD_SKY } from "./config.ts";
-import { DEG, RAD } from "./geo.ts";
+import { DEG, pinOf, RAD, shapeOf } from "./geo.ts";
 import { ancestry, placesUnder, type PlaceRow } from "./places.ts";
+import type { PtT } from "./schema.ts";
 
 /** m³ kg⁻¹ s⁻². */
 export const G = 6.6743e-11;
@@ -554,7 +555,7 @@ export function seed(): string[] {
   return written;
 }
 
-export type Standing = PlaceRow & { walked: boolean; altitude: number | null; day: boolean | null };
+export type Standing = PlaceRow & { pin: PtT | null; walked: boolean; altitude: number | null; day: boolean | null };
 
 /**
  * Everywhere on a body that anybody has fixed a position for, however deep it
@@ -571,6 +572,7 @@ export function standing(
     const high = p.lat !== null && p.lon !== null ? altitude(it, when, p.lat, p.lon, known) : null;
     return {
       ...p,
+      pin: pinOf({ ...p, ...shapeOf(p.extent) }),
       walked: been.has(p.id),
       altitude: high === null ? null : Number(high.toFixed(3)),
       day: high === null ? null : high > REFRACTION,
