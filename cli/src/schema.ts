@@ -17,7 +17,7 @@
 
 import { z } from "zod";
 import { STATE_NAMES } from "./machine.ts";
-import { DEFAULTS, MAX_HEALTH, STARTING_SKILLS, WORLD_START } from "./config.ts";
+import { DEFAULTS, GODHEAD_ID, MAX_HEALTH, STARTING_SKILLS, WORLD_START } from "./config.ts";
 
 export const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab-case");
 
@@ -210,18 +210,27 @@ export const Result = z.enum(["TRUE", "WITHIN_BOUNDS", "FALSE", "UNRESOLVED"]);
 
 export const Verdict = z.object({
   claim: z.string(),
-  result: Result,
+  result: z.preprocess(
+    (said) => String(said || "TRUE").toUpperCase().replace(/[^A-Z]+/g, "_").replace(/^_+|_+$/g, ""),
+    Result.catch("UNRESOLVED"),
+  ),
   why: z.string().default(""),
   question: z.string().default(""),
   alternative: z.string().default(""),
-  sources: z.array(z.string()).default([]),
+  sources: z.array(z.coerce.string()).default([]),
 });
 
+const Whole = z.coerce.number().transform(Math.trunc);
+
+const Holder = z.string().nullish().transform((said) => said || GODHEAD_ID);
+
+const Listed = <T extends z.ZodType>(item: T) => z.array(item).nullish().transform((items) => items ?? []);
+
 export const Transaction = z.object({
-  from: z.string(),
-  to: z.string(),
+  from: Holder,
+  to: Holder,
   name: z.string(),
-  qty: z.number().int().default(1),
+  qty: Whole.default(1),
 });
 
 /** What the game master handed back, before anything has been applied. */
@@ -229,16 +238,16 @@ export const Draft = z.object({
   narration: z.string().default(""),
   claims: z.array(Claim).default([]),
   destination: z.string().nullish(),
-  minutes: z.number().int().min(0).default(0),
-  fatigue: z.number().int().default(0),
-  health: z.number().int().default(0),
-  hunger: z.number().int().nullish(),
-  check: z.object({ skill: z.string(), dc: z.number().int() }).nullish(),
+  minutes: Whole.transform((n) => Math.max(0, n)).default(0),
+  fatigue: Whole.default(0),
+  health: Whole.default(0),
+  hunger: Whole.nullish(),
+  check: z.object({ skill: z.string(), dc: Whole.default(10) }).nullish(),
   fight: Written.nullish(),
-  transactions: z.array(Transaction).default([]),
-  quest_open: z.array(z.unknown()).default([]),
-  quest_update: z.array(z.unknown()).default([]),
-  quest_close: z.array(z.unknown()).default([]),
+  transactions: Listed(Transaction),
+  quest_open: Listed(z.unknown()),
+  quest_update: Listed(z.unknown()),
+  quest_close: Listed(z.unknown()),
 });
 
 export const PhaseKind = z.enum(["action", "look", "say", "answer", "outcome", "world", "fight"]);

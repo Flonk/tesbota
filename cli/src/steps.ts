@@ -8,6 +8,7 @@
  * decided the shape of the machine between them and nothing could be read off.
  */
 
+import { z } from "zod";
 import * as canon from "./canon.ts";
 import * as chronicle from "./chronicle.ts";
 import * as fight from "./fight.ts";
@@ -283,9 +284,8 @@ export const stepAnswer: Step<"answer"> = async ({ campaign, turn }) => {
     }
   );
   campaign.sessions.gm = session;
-  const said = extractJson<Record<string, unknown>>(text);
   const draft = Draft.parse({
-    ...said, claims: said.claims ?? [], destination: null, minutes: 0, fatigue: 0, health: 0, check: null,
+    ...extractJson(text, Written), claims: [], destination: null, minutes: 0, fatigue: 0, health: 0, check: null,
   });
   turn.draft = draft;
   gmPhase(turn, "answer", draft.narration);
@@ -360,7 +360,7 @@ export const stepPropose: Step<"propose"> = async ({ campaign, turn }, rng = ran
       model: MODELS.gm,
     }
   );
-  const out = extractJson<Record<string, unknown>>(text);
+  const out = extractJson(text, Written);
 
   const question = typeof out.ask === "string" ? out.ask.trim() : null;
   const answers = turn.answers;
@@ -422,6 +422,7 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
     return "narrated";
   }
 
+  const agreed = turn.confirmed ? turn.proposal : null;
   const [text, session] = await ask(
     prompts.gmTurn(turn.action, {
       previous: campaign.last_narration ?? null,
@@ -430,7 +431,7 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
       event: turn.event ?? null,
       left: turn.leagues_left,
       arrival: turn.arrival ?? null,
-      agreed: turn.confirmed ? turn.proposal : null,
+      agreed,
       note: turn.note ?? null,
       chosen: turn.chosen ?? null,
       press: duePress(turn, campaign),
@@ -452,25 +453,13 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
   );
   campaign.sessions.gm = session;
 
-  const said = extractJson<Record<string, unknown>>(text);
-  said.claims ??= [];
-  said.destination ??= turn.arrival ?? turn.destination ?? campaign.location ?? null;
-  said.minutes ??= 0;
-  said.fatigue ??= 0;
-  said.health ??= 0;
-  said.hunger ??= null;
-  said.check ??= null;
-  said.transactions ??= [];
-  said.quest_open ??= [];
-  said.quest_update ??= [];
-  said.quest_close ??= [];
-
-  const agreed = turn.confirmed ? turn.proposal : null;
-  if (agreed) {
-    said.minutes = agreed.minutes;
-    said.fatigue = agreed.fatigue;
-  }
-  const draft = Draft.parse(said);
+  const said = extractJson(text, Written);
+  const draft = Draft.parse({
+    ...said,
+    claims: [],
+    destination: said.destination ?? turn.arrival ?? turn.destination ?? campaign.location ?? null,
+    ...(agreed ? { minutes: agreed.minutes, fatigue: agreed.fatigue } : {}),
+  });
   turn.draft = draft;
   const world = (turn.arrival || turn.event) && !turn.action;
   gmPhase(turn, world ? "world" : "outcome", draft.narration);
@@ -503,21 +492,28 @@ export function showFight(turn: TurnT, running: FightT): PhaseT {
 
 // ── the lore masters ────────────────────────────────────────────────────────
 
-export function derived(raw: unknown): [ClaimT[], VerdictT[]] {
+const Facts = z.object({ facts: z.array(z.coerce.string()).default([]) });
+
+const Ruled = z.object({
+  claims: z.array(Written).default([]),
+  bodies: z.array(z.object({
+    declared: z.string().nullish(), is: z.string().nullish(), question: z.string().nullish(),
+  })).default([]),
+});
+
+export function derived(ruled: Record<string, unknown>[]): [ClaimT[], VerdictT[]] {
   const claims: ClaimT[] = [];
   const verdicts: VerdictT[] = [];
-  for (const item of Array.isArray(raw) ? raw : []) {
-    const entry = Written.safeParse(item).data;
-    if (!entry) continue;
+  for (const entry of ruled) {
     const id = String(entry.id || `c${claims.length + 1}`);
     claims.push(Claim.parse({ id, text: String(entry.text || ""), entity: entry.entity ?? null, kind: entry.kind ?? null }));
     verdicts.push(Verdict.parse({
       claim: id,
-      result: entry.result || "TRUE",
+      result: entry.result,
       why: entry.why || "",
       question: entry.question || "",
       alternative: entry.alternative || "",
-      sources: entry.sources || [],
+      sources: entry.sources ?? [],
     }));
   }
   return [claims, verdicts];
@@ -541,10 +537,7 @@ export async function readRecord(
     }),
     { system: prompts.LORE1_SYSTEM(), tools: [], session: null, model: MODELS.lore1 }
   );
-  const said = extractJson<Record<string, unknown>>(read).facts;
-  const facts = (Array.isArray(said) ? said : [])
-    .map((f: unknown) => String(f).trim())
-    .filter(Boolean);
+  const facts = extractJson(read, Facts).facts.map((f) => f.trim()).filter(Boolean);
   turn.facts = facts;
   return facts;
 }
@@ -556,7 +549,7 @@ export async function readRecord(
 export async function ruleRecord(
   { campaign, turn }: World, narration: string, facts: string[],
   unknown?: Array<{ id: string; name: string }> | null
-): Promise<[ClaimT[], VerdictT[], Record<string, unknown>]> {
+): Promise<[ClaimT[], VerdictT[], z.output<typeof Ruled>]> {
   const [text] = await ask(prompts.lore2Turn(narration, facts, unknown), {
     system: prompts.LORE2_SYSTEM(),
     tools: READ_TOOLS,
@@ -564,7 +557,7 @@ export async function ruleRecord(
     session: null,
     model: MODELS.lore2,
   });
-  const ruled = extractJson<Record<string, unknown>>(text);
+  const ruled = extractJson(text, Ruled);
   const [claims, verdicts] = derived(ruled.claims);
   drafted(turn).claims = claims;
 
@@ -610,13 +603,12 @@ export const stepMuster: Step<"muster"> = async (world) => {
   );
 
   const asked: string[] = [];
-  for (const item of Array.isArray(ruled.bodies) ? ruled.bodies : []) {
-    const bound = Written.safeParse(item).data ?? {};
-    const declared = canon.slug(bound.declared || "");
-    const became = canon.slug(bound.is || "");
+  for (const bound of ruled.bodies) {
+    const declared = canon.slug(bound.declared);
+    const became = canon.slug(bound.is);
     if (became && canon.called(became) && fight.rebind(running, declared, became)) continue;
     const was = strangers.find((x) => x.id === declared)?.name || declared;
-    asked.push(String(bound.question || "").trim() || `does ${was} exist, and what is it`);
+    asked.push(bound.question?.trim() || `does ${was} exist, and what is it`);
   }
   for (const stray of fight.unbound(running)) {
     if (!strangers.some((x) => x.id === stray.id)) continue;
@@ -1064,6 +1056,10 @@ export const stepFight: Step<"fight"> = async (world, rng = random) => {
   return running.ended ? "over" : "next";
 };
 
+const Worded = Draft.pick({
+  destination: true, transactions: true, quest_open: true, quest_update: true, quest_close: true,
+}).extend({ blows: z.array(z.coerce.string()).default([]) });
+
 /** One game master call to put words on a settled exchange. */
 export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const running = fightOf(turn);
@@ -1079,8 +1075,8 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
     }
   );
   campaign.sessions.gm = session;
-  const out = extractJson<Record<string, unknown>>(text);
-  const lines = (Array.isArray(out.blows) ? out.blows : []).map((x: unknown) => String(x).trim()).filter(Boolean);
+  const out = extractJson(text, Worded);
+  const lines = out.blows.map((x) => x.trim()).filter(Boolean);
   running.blows.forEach((blow, n) => {
     if (lines[n] !== undefined) blow.text = lines[n];
   });
@@ -1091,24 +1087,24 @@ export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const me = running.us[0];
   const mine = running.blows.filter((b) => b.side === "us" && b.who === me.id).length;
   const sated = running.blows.reduce((a, b) => a + fight.mended(b, "hunger"), 0);
-  const draft = Draft.parse({
+  const draft: DraftT = {
     ...was,
     narration: [running.said, ...lines].filter(Boolean).join("\n\n").trim(),
     destination: out.destination || was.destination,
     transactions: [
       ...was.transactions,
-      ...(Array.isArray(out.transactions) ? out.transactions : []),
+      ...out.transactions,
       ...turn.spent.map((name) => ({ from: EXPLORER, to: GODHEAD_ID, name, qty: 1 })),
     ],
-    quest_open: out.quest_open || was.quest_open,
-    quest_update: out.quest_update || was.quest_update,
-    quest_close: out.quest_close || was.quest_close,
+    quest_open: [...was.quest_open, ...out.quest_open],
+    quest_update: [...was.quest_update, ...out.quest_update],
+    quest_close: [...was.quest_close, ...out.quest_close],
     minutes: Math.max(2, running.round * BLOW_MINUTES),
     fatigue: mine * BLOW_FATIGUE,
     health: me.most ? me.health - me.most : 0,
     hunger: sated || null,
     check: null,
-  });
+  };
   turn.draft = draft;
   turn.check = null;
 
@@ -1170,7 +1166,7 @@ export async function scriptFor(quest: QuestT, campaign: CampaignT): Promise<str
       session: null,
       model: MODELS.questmaster,
     });
-    return String(extractJson<Record<string, unknown>>(text).script || "").trim();
+    return String(extractJson(text, Written).script || "").trim();
   } catch (exc) {
     return `the questmaster fell over: ${(exc as Error).name}: ${exc}`.slice(0, 400);
   }

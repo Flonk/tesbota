@@ -6,6 +6,7 @@
  */
 
 import { query, type HookCallback, type Options } from "@anthropic-ai/claude-agent-sdk";
+import { z } from "zod";
 import { ROOT } from "./config.ts";
 import type { Gate } from "./gate.ts";
 import { fill } from "./prompts.ts";
@@ -18,7 +19,7 @@ export class AgentError extends Error {
   }
 }
 
-const FENCE = /```(?:json)?\s*([\s\S]*?)```/;
+const FENCE = /```(\w*)\s*([\s\S]*?)```/g;
 const CLOSERS = new Set([",", ":", "}", "]"]);
 
 /** Escape the bare double quotes a game master leaves around spoken words. */
@@ -58,21 +59,32 @@ export function mend(raw: string): string {
   return out.join("");
 }
 
-export function extractJson<T = unknown>(text: string | null | undefined): T {
-  const said = String(text ?? "");
-  const match = FENCE.exec(said);
-  const raw = match ? match[1] : said;
+function fenced(said: string): string {
+  const fences = [...said.matchAll(FENCE)];
+  const json = fences.filter(([, tag]) => tag.toLowerCase() === "json");
+  return (json.at(-1) ?? fences.at(-1))?.[2] ?? said;
+}
+
+function parsed(said: string): unknown {
+  const raw = fenced(said);
   try {
-    return JSON.parse(raw) as T;
+    return JSON.parse(raw);
   } catch (first) {
     try {
-      return JSON.parse(mend(raw)) as T;
+      return JSON.parse(mend(raw));
     } catch {
       throw new AgentError(
         `agent did not return parseable json: ${(first as Error).message}\n\n${said}`
       );
     }
   }
+}
+
+export function extractJson<S extends z.ZodType>(text: string | null | undefined, shape: S): z.output<S> {
+  const said = String(text ?? "");
+  const read = shape.safeParse(parsed(said));
+  if (read.success) return read.data;
+  throw new AgentError(`agent's json is not the shape asked for:\n${z.prettifyError(read.error)}\n\n${said}`);
 }
 
 export type Asked = {
