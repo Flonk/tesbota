@@ -15,6 +15,7 @@ import { FLEE_FLOOR, ROOT } from "./config.ts";
 import { bookId, bookTitle } from "./chronicle.ts";
 import { EXPLORER } from "./config.ts";
 import { explorerName } from "./state.ts";
+import { ARRIVED } from "./fight.ts";
 import type { Load } from "./sheet.ts";
 import {
   Written,
@@ -237,8 +238,16 @@ Reply in the same json shape you always use, with \`blows\` in place of \`narrat
 
 \`claims\` are not yours this time either — the record was checked when the fight was declared, and a blow is a particular, which nobody rules on. \`minutes\`, \`fatigue\`, \`health\`, \`check\` and \`fight\` are not yours this time — the fight already cost what it cost. \`transactions\` still are: what comes off a body, what breaks, what is dropped.`;
 
-const FIGHT_FATE =
-  "The dice also went hard against them, in the doing of this. Put it in the fight, in the blow it belongs to — the strap goes, the footing goes, something arrives. Do not soften it and do not undo a blow.";
+const FIGHT_FATE: Record<string, string> = {
+  greater_calamity:
+    "The dice also went hard against them, in the doing of this. Put it in the fight, in the blow it belongs to — the strap goes, the footing goes, something arrives. Do not soften it and do not undo a blow.",
+  lesser_calamity:
+    "The dice also went against them, in the doing of this. Put it in the fight, in the blow it belongs to — a fumble, a slip, a small hurt. It should sting, not maim. Do not add a blow and do not undo one.",
+  lesser_fortune:
+    "The dice favoured them a little, in the doing of this. Put it in the fight, in the blow it belongs to — a thing noticed, an opening, a stroke of ordinary luck. Do not add a blow and do not undo one.",
+  greater_fortune:
+    "The dice favoured them greatly, in the doing of this. Put it in the fight, in the blow it belongs to — a real find, a danger that passes them by. Let it matter. Do not add a blow and do not undo one.",
+};
 
 const FIGHT_DEATH = `It ended: you did not get out. They are dead. Before you reply, run:
 
@@ -246,27 +255,50 @@ const FIGHT_DEATH = `It ended: you did not get out. They are dead. Before you re
 
 The last line you write is the last line of their book. Write it as one.`;
 
+function blowKind(blow: BlowT) {
+  if (blow.chose === "ASLEEP") return "asleep";
+  if (blow.who === ARRIVED) return "arrived";
+  if (blow.spawned) return "spawned";
+  if (blow.calling) return "calling";
+  if (blow.side === "us" && blow.chose.startsWith("ITEM")) return "item";
+  if (blow.chose === "FLEE") return "flee";
+  return blow.hit ? "hit" : "miss";
+}
+
 /** One row of the roll sheet: who acted, what they chose, and what came of it. */
 export function blowLine(blow: BlowT): string {
   const who = blow.name || "somebody";
-  const said = blow.chose || "ATTACK";
-  if (said === "ASLEEP") return `${who} — does not stir`;
-  if (blow.spawned) return `${who} — ${said}, and ${blow.spawned} joins it`;
-  if (said.startsWith("ITEM")) {
-    return `${who} — ${said}, ${blow.mended || "nothing changed"}, ${blow.left} left of them`;
-  }
-  if (said === "FLEE") {
-    return blow.hit ? `${who} — broke away` : `${who} — tried to break away and could not`;
-  }
+  const said = blow.chose;
   const mark = blow.atname || "nobody";
-  if (blow.hit) {
-    const hurt = blow.dealt || blow.taken || 0;
-    return `${who} — ${said} on ${mark}, landed, ${hurt} off them, ${blow.left} left of them`;
+  switch (blowKind(blow)) {
+    case "asleep": return `${who} — does not stir`;
+    case "arrived": return `${who} — arrive, answering ${said.replace(/^answers /, "")}`;
+    case "spawned": return `${who} — ${said}, and ${blow.spawned} joins it`;
+    case "calling": return `${who} — ${said}, calling ${blow.calling}`;
+    case "item": return `${who} — ${said}, ${blow.mended || "nothing changed"}, ${blow.left} left of them`;
+    case "flee": return blow.hit ? `${who} — broke away` : `${who} — tried to break away and could not`;
+    case "hit": return `${who} — ${said} on ${mark}, landed, ${blow.dealt || blow.taken} off them, ${blow.left} left of them`;
+    case "miss": return `${who} — ${said} on ${mark}, missed`;
   }
-  return `${who} — ${said} on ${mark}, missed`;
 }
 
-export function gmBlows(fight: FightT, fate?: unknown): string {
+/** The one line the explorer is handed before being asked again. */
+export function saidBlow(blow: BlowT): string {
+  const who = blow.name || "somebody";
+  const mark = blow.atname || "nobody";
+  switch (blowKind(blow)) {
+    case "asleep": return `${who} does not stir.`;
+    case "arrived": return `${who} ${who.includes(", ") ? "arrive" : "arrives"}.`;
+    case "spawned": return `${who} ${blow.chose} — ${blow.spawned} is on you as well.`;
+    case "calling": return `${who} calls for ${blow.calling}.`;
+    case "item": return `${who} used the ${blow.chose.slice(5)}.`;
+    case "flee": return blow.hit ? `${who} broke away.` : `${who} tried to break away and could not.`;
+    case "hit": return `${who} hit ${mark} for ${blow.dealt || blow.taken}.`;
+    case "miss": return `${who} swung at ${mark} and missed.`;
+  }
+}
+
+export function gmBlows(fight: FightT, fate: string | null): string {
   const sheet: string[] = [];
   let seen: unknown = null;
   for (const b of fight.blows) {
@@ -277,7 +309,7 @@ export function gmBlows(fight: FightT, fate?: unknown): string {
     sheet.push(`    ${b.n}  ${blowLine(b)}`);
   }
   const parts = [BLOWS(sheet.join("\n"), fight.ended ? ENDED[fight.ended] : "it is not over.")];
-  if (fate) parts.push(FIGHT_FATE);
+  if (fate && FIGHT_FATE[fate]) parts.push(FIGHT_FATE[fate]);
   if (fight.ended === "killed") parts.push(FIGHT_DEATH);
   return parts.join("\n\n");
 }

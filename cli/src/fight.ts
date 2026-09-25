@@ -369,6 +369,8 @@ export function settle(fight: FightT) {
   else if (fight.them.every((x) => x.dead)) fight.ended = "beaten";
 }
 
+export const ARRIVED = "the-world";
+
 /** Anything called for in an earlier round turns up when its round comes. */
 export function arrive(fight: FightT) {
   const owed = fight.owed.filter((due) => due.at <= fight.round);
@@ -376,7 +378,7 @@ export function arrive(fight: FightT) {
   for (const due of owed) {
     const come = spawn(fight, due.spawn);
     fight.blows.push(Blow.parse({
-      n: fight.blows.length + 1, round: fight.round, who: "the-world",
+      n: fight.blows.length + 1, round: fight.round, who: ARRIVED,
       name: come.map((x) => x.name).join(", "), side: "them",
       chose: `answers ${due.by}`, hit: false, dealt: 0, taken: 0,
       check: null, text: "",

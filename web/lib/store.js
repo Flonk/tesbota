@@ -110,7 +110,7 @@ export async function snapshot(profile = PROFILES[0]) {
       fatigue: draft.fatigue || 0,
       health: draft.health || 0,
       roll: turn.roll || null,
-      calamity: !!turn.calamity,
+      fate: turn.fate || null,
       retries: turn.gm_retries || 0,
       where:
         turn.location_path ||

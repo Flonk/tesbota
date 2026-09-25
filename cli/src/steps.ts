@@ -821,25 +821,6 @@ export function aimed(head: string, running?: FightT | null): string | null {
   return found ? found.id : null;
 }
 
-/** The one line the explorer is handed before being asked again. */
-export function saidBlow(blow: BlowT): string {
-  const who = blow.name || "somebody";
-  if (blow.chose === "ASLEEP") return `${who} does not stir.`;
-  if (blow.spawned) return `${who} ${blow.chose} — ${blow.spawned} is on you as well.`;
-  if (blow.side === "us" && String(blow.chose || "").startsWith("ITEM")) {
-    return `${who} used the ${String(blow.chose).slice(5)}.`;
-  }
-  if (blow.chose === "FLEE") {
-    return blow.hit ? `${who} broke away.` : `${who} tried to break away and could not.`;
-  }
-  const mark = blow.atname || "nobody";
-  if (blow.hit) {
-    const hurt = blow.dealt || blow.taken || 0;
-    return `${who} hit ${mark} for ${hurt}.`;
-  }
-  return `${who} swung at ${mark} and missed.`;
-}
-
 /** Ask them what they do with this turn of theirs. One line out, one word back. */
 export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
   const running = fightOf(turn);
@@ -847,7 +828,7 @@ export const stepSwing: Step<"swing"> = async ({ campaign, turn }) => {
   const first = !running.blows.length;
   const message = first
     ? prompts.fightOpen(running, me, fight.usable(turn.spent))
-    : prompts.fightBlow(running, me, saidBlow(running.blows[running.blows.length - 1]));
+    : prompts.fightBlow(running, me, prompts.saidBlow(running.blows[running.blows.length - 1]));
   const [text, session] = await ask(message, {
     system: prompts.EXPLORER_SYSTEM(),
     tools: ["Bash"],
@@ -1005,9 +986,9 @@ const Worded = Draft.pick({
 /** One game master call to put words on a settled exchange. */
 export const stepBlows: Step<"blows"> = async ({ campaign, turn }) => {
   const running = fightOf(turn);
-  if (turn.roll == null) rollFate(turn);
+  const fate = turn.roll == null ? rollFate(turn) : null;
   const [text, session] = await ask(
-    prompts.gmBlows(running, turn.chosen),
+    prompts.gmBlows(running, fate),
     {
       system: prompts.GM_SYSTEM(),
       tools: READ_TOOLS,
