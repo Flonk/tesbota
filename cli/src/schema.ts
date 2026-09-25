@@ -19,7 +19,7 @@ import { z } from "zod";
 import { STATE_NAMES } from "./machine.ts";
 import { DEFAULTS, GODHEAD_ID, MAX_HEALTH, STARTING_SKILLS, WORLD_START } from "./config.ts";
 
-const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab-case");
+export const Id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "an id is kebab-case");
 
 /** `1–2`, `2-5`, or a bare number — what one blow takes off. */
 export const BAND = /(\d+)\s*[–—-]\s*(\d+)|^\s*(\d+)\s*$/;
