@@ -43,7 +43,7 @@ function writePending(turn: TurnT): string {
       "## Gap\n\n" +
       `${String(turn.gap ?? "").trim()}\n\n` +
       "## Resolution\n\n" +
-      "<!-- run: tesbota lore -->\n",
+      "<!-- answer with: tesbota say \"…\" -->\n",
     "utf8"
   );
   return file;

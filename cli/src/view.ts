@@ -69,7 +69,7 @@ export function renderStatus(campaign: CampaignT, turn: TurnT): string {
         (turn.journey?.cut ? ", and the road does not get them there" : "")
     );
   } else if (state === "arbiter") {
-    lines.push(`  ${WARN}the lore master is waiting on you${OFF} — run: tesbota lore`);
+    lines.push(`  ${WARN}the lore master is waiting on you${OFF} — run: tesbota say "<answer>"`);
     lines.push("");
     for (const line of String(turn.gap ?? "").trim().split("\n")) lines.push(`  ${line}`);
   } else if (state === "done") {

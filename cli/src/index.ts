@@ -74,7 +74,7 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     const ran = await driver.run(1);
     const turn = ran.turn;
     if (ran.state === "arbiter") {
-      say(`[${turn.turn_id}] the world is silent. run: tesbota lore`);
+      say(`[${turn.turn_id}] the world is silent. run: tesbota say "<answer>"`);
       say("");
       say(String(turn.gap ?? "").trim());
     } else if (ran.state === "clock") {
