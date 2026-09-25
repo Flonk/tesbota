@@ -4,6 +4,19 @@ import { useEffect, useState } from "react";
 
 export const typing = (el) => !!el?.closest?.("input, textarea, select, [contenteditable]");
 
+export function useSaveKey(active, save) {
+  useEffect(() => {
+    if (!active) return;
+    const key = (e) => {
+      if (e.key !== "Enter" || !(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      save();
+    };
+    window.addEventListener("keydown", key, true);
+    return () => window.removeEventListener("keydown", key, true);
+  }, [active, save]);
+}
+
 export function useKeyboardAvoid(threshold = 120, query = "(max-width: 640px)") {
   const [inset, setInset] = useState(0);
   const [settled, setSettled] = useState(0);

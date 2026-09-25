@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KINDS, PLACE_ICON, PLACE_TYPES, RARITIES } from "./world";
 import Icon from "./icons";
-import { Field, forget, Pick } from "./edit/fields";
-import { typing } from "./keyboard";
-import { Act, Btn, Empty, Mark, Note, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
+import { saveEdits } from "./edit";
+import { Field, Pick } from "./edit/fields";
+import { typing, useSaveKey } from "./keyboard";
+import { Btn, EditBar, Empty, Mark, Note, Prose, rated, Row, settled, Stub, Table, Tabs, told, unwritten } from "./ui";
 
 const TYPE_CHOICES = PLACE_TYPES.map((t) => [t, t.replace(/-/g, " ")]);
 const NARRATOR = "the narrator";
@@ -341,39 +342,19 @@ export default function Library({
   }
 
   async function save() {
-    const ids = Object.keys(draft);
-    if (!ids.length || saving) return;
+    if (!changed || saving) return;
     setSaving(true);
     setSaid([]);
-    const failed = {};
-    const warned = [];
-    const left = { ...draft };
-    for (const id of ids) {
-      try {
-        const res = await fetch("/api/edit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id, patch: draft[id] }),
-        });
-        const back = await res.json().catch(() => null);
-        if (!back || back.error) {
-          failed[id] = back?.error || "not saved";
-          continue;
-        }
-        delete left[id];
-        warned.push(...(back.wrong || []));
-      } catch (err) {
-        failed[id] = String(err);
-      }
-    }
-    forget();
-    setDraft(left);
+    const { failed, wrong } = await saveEdits(draft);
+    setDraft(Object.fromEntries(Object.entries(draft).filter(([id]) => id in failed)));
     setRefused(failed);
-    setSaid([...new Set(warned)]);
+    setSaid(wrong);
     setSaving(false);
     if (!Object.keys(failed).length) setEditing(false);
     load();
   }
+
+  useSaveKey(editing && !dossier, save);
 
   const ed = {
     get: (r, section, key, saved) => {
@@ -419,19 +400,13 @@ export default function Library({
     }
 
     function key(e) {
+      if (e.defaultPrevented) return;
       const writing = typing(document.activeElement);
 
-      if (editing && !dossier) {
-        if (e.key === "Escape") {
-          e.preventDefault();
-          cancel();
-          return;
-        }
-        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-          e.preventDefault();
-          save();
-          return;
-        }
+      if (editing && !dossier && e.key === "Escape") {
+        e.preventDefault();
+        cancel();
+        return;
       }
 
       if (e.key === "Escape") {
@@ -591,19 +566,13 @@ export default function Library({
       </Row>
 
       {editing && hits === null && (
-        <Row>
-          <span className="gname dim">
-            editing
-            {changed > 0 && <span className="gdirty" title="unsaved changes">•</span>}
-            {changed > 0 && <span className="gdirty">{changed === 1 ? "1 row" : `${changed} rows`}</span>}
-          </span>
-          <Act onClick={cancel} disabled={saving} title="cancel (esc)">
-            cancel
-          </Act>
-          <Act className="keep" onClick={save} disabled={!changed || saving} title="save (ctrl enter)">
-            {saving ? "…" : "save"}
-          </Act>
-        </Row>
+        <EditBar
+          dirty={changed > 0}
+          note={changed ? (changed === 1 ? "1 row" : `${changed} rows`) : null}
+          saving={saving}
+          onCancel={cancel}
+          onSave={save}
+        />
       )}
 
       <div className="libbody">

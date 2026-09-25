@@ -159,10 +159,8 @@ export default function Page() {
   const [draft, setDraft] = useState(null);
   const pen = useRef(null);
   const [settings, setSettings] = useState(false);
-  const [reading, setReading] = useState(null);
   const [mapAt, setMapAt] = useState(null);
   const [walker, setWalker] = useState(WALKERS[0]);
-  const [face, setFace] = useState("content");
   const keyboard = useKeyboardAvoid();
   const [at, setAt] = useState(0);
   const [split, setSplit] = useState(50);
@@ -244,8 +242,6 @@ export default function Page() {
   useEffect(() => {
     const open = (e) => {
       setQuest(null);
-      setReading(null);
-      setFace("content");
       setDossier(e.detail);
     };
     window.addEventListener("bota:open", open);
@@ -260,7 +256,6 @@ export default function Page() {
       if (!id) return;
       setDossier(null);
       setQuest(null);
-      setReading(null);
       setTab("map");
       setMapAt({ id, asked: Date.now() });
     };
@@ -628,18 +623,6 @@ export default function Page() {
           />
         )}
 
-        {reading === "books" && (
-          <Tabs
-            sub
-            className="reading"
-            items={[
-              { id: "content", label: "content", icon: "lines" },
-              { id: "meta", label: "meta", icon: "info" },
-            ]}
-            value={face}
-            onChange={setFace}
-          />
-        )}
 
         <div className="tabbody">
           <div
@@ -707,14 +690,10 @@ export default function Page() {
           )}
           </div>
           <Dossier
+            key={dossier ? `${dossier.id}#${dossier.fragment || ""}` : ""}
             at={dossier}
             who={status.who}
-            face={face}
-            onKind={setReading}
-            onClose={() => {
-              setDossier(null);
-              setReading(null);
-            }}
+            onClose={() => setDossier(null)}
           />
           <QuestPanel quest={quest} onClose={() => setQuest(null)} />
         </div>

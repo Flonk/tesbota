@@ -2,10 +2,11 @@
 
 import { abilityLine, abilityWhere, face as itemFace, KIND_ICON, PLACE_ICON, rare } from "./world";
 import { useCallback, useEffect, useState } from "react";
-import { Act, Crumb, Empty, Mark, openDossier, openMap, Overlay, Pill, Prose, rated, Row, settled, Stub, Table, Tag, tint, told, unrated } from "./ui";
+import { Crumb, EditBar, Empty, Mark, Note, openDossier, openMap, Overlay, Pill, Prose, rated, settled, Stub, Table, Tabs, Tag, tint, told, unrated } from "./ui";
 import Icon from "./icons";
-import { EDITORS, merged } from "./edit";
-import { Field, forget } from "./edit/fields";
+import { EDITORS, merged, saveEdits } from "./edit";
+import { Field } from "./edit/fields";
+import { useSaveKey } from "./keyboard";
 
 function Leaves({ thing, fragment }) {
   const passages = thing.passages || [];
@@ -333,46 +334,36 @@ function Section({ label, children }) {
   );
 }
 
-export default function Dossier({ at, onClose, who, face = "content", onKind }) {
+const FACES = [
+  { id: "content", label: "content", icon: "lines" },
+  { id: "meta", label: "meta", icon: "info" },
+];
+
+export default function Dossier({ at, onClose, who }) {
   const id = at?.id || null;
   const fragment = at?.fragment || null;
   const [thing, setThing] = useState(null);
   const [missing, setMissing] = useState(false);
+  const [face, setFace] = useState("content");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({});
   const [saving, setSaving] = useState(false);
   const [said, setSaid] = useState(null);
   const dirty = Object.keys(draft).length > 0;
 
-  useEffect(() => {
-    onKind?.(thing?.kind || null);
-  }, [thing?.kind, onKind]);
+  const load = useCallback(() => {
+    if (!id) return () => {};
+    let live = true;
+    fetch(`/api/entity/${encodeURIComponent(id)}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((t) => live && setThing(t))
+      .catch(() => live && setMissing(true));
+    return () => {
+      live = false;
+    };
+  }, [id]);
 
-  const load = useCallback(
-    (quiet = false) => {
-      if (!id) return () => {};
-      let live = true;
-      if (!quiet) {
-        setThing(null);
-        setMissing(false);
-      }
-      fetch(`/api/entity/${encodeURIComponent(id)}`, { cache: "no-store" })
-        .then((r) => (r.ok ? r.json() : Promise.reject()))
-        .then((t) => live && setThing(t))
-        .catch(() => live && setMissing(true));
-      return () => {
-        live = false;
-      };
-    },
-    [id]
-  );
-
-  useEffect(() => {
-    setEditing(false);
-    setDraft({});
-    setSaid(null);
-    return load();
-  }, [load]);
+  useEffect(() => load(), [load]);
 
   const change = useCallback((section, value) => setDraft((was) => merged(was, section, value)), []);
 
@@ -387,40 +378,16 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
     if (!dirty || saving) return;
     setSaving(true);
     setSaid(null);
-    try {
-      const res = await fetch("/api/edit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, patch: draft }),
-      });
-      const back = await res.json().catch(() => null);
-      if (!back || back.error) {
-        setSaid({ tone: "bad", text: back?.error || "the edit was not saved" });
-        return;
-      }
-      forget();
-      setDraft({});
-      setEditing(false);
-      setSaid(back.wrong?.length ? { tone: "warn", text: back.wrong.join(" · ") } : null);
-      load(true);
-    } catch (err) {
-      setSaid({ tone: "bad", text: String(err) });
-    } finally {
-      setSaving(false);
-    }
+    const { failed, wrong } = await saveEdits({ [id]: draft });
+    setSaving(false);
+    if (failed[id]) return setSaid({ tone: "bad", text: failed[id] });
+    setDraft({});
+    setEditing(false);
+    setSaid(wrong.length ? { tone: "warn", text: wrong.join(" · ") } : null);
+    load();
   }, [dirty, saving, id, draft, load]);
 
-  useEffect(() => {
-    if (!editing) return;
-    const key = (e) => {
-      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        save();
-      }
-    };
-    window.addEventListener("keydown", key);
-    return () => window.removeEventListener("keydown", key);
-  }, [editing, save]);
+  useSaveKey(editing, save);
 
   if (!id) return null;
 
@@ -457,33 +424,20 @@ export default function Dossier({ at, onClose, who, face = "content", onKind }) 
           </button>
         ) : null
       }
+      bar={
+        editing ? (
+          <EditBar dirty={dirty} saving={saving} onCancel={cancel} onSave={save} />
+        ) : thing?.kind === "books" ? (
+          <Tabs sub items={FACES} value={face} onChange={setFace} />
+        ) : null
+      }
       onEscape={editing ? cancel : null}
       holding={editing && dirty}
       tags={thing?.kind === "people" ? <Lifespan person={thing.person} /> : null}
       copy={thing?.address}
-      under={
-        thing ? (
-          <>
-            <Head thing={thing} />
-          </>
-        ) : null
-      }
+      under={thing ? <Head thing={thing} /> : null}
     >
-        {editing && (
-          <Row className="editbar">
-            <span className="gname dim">
-              editing
-              {dirty && <span className="gdirty" title="unsaved changes">•</span>}
-            </span>
-            <Act onClick={cancel} disabled={saving} title="cancel (esc)">
-              cancel
-            </Act>
-            <Act className="keep" onClick={save} disabled={!dirty || saving} title="save (ctrl enter)">
-              {saving ? "…" : "save"}
-            </Act>
-          </Row>
-        )}
-        {said && <p className={`hint hint-${said.tone}`}>{said.text}</p>}
+        {said && <Note tone={said.tone}>{said.text}</Note>}
 
         {missing && <Empty>nothing in the world has this address — it is a dangling link</Empty>}
         {!thing && !missing && <Empty>looking it up…</Empty>}

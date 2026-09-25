@@ -272,8 +272,26 @@ export function Row({
 }
 
 /** A button that lives in a bar and does something, as against a tab that picks. */
-export function Act({ on, className = "", ...rest }) {
-  return <button className={`gtool${on ? " on" : ""} ${className}`.trim()} {...rest} />;
+export function Act({ on, className = "", type = "button", ...rest }) {
+  return <button type={type} className={`gtool${on ? " on" : ""} ${className}`.trim()} {...rest} />;
+}
+
+export function EditBar({ dirty, note, saving, onCancel, onSave }) {
+  return (
+    <Row>
+      <span className="gname dim">
+        editing
+        {dirty && <span className="gdirty" title="unsaved changes">•</span>}
+        {note && <span className="gdirty">{note}</span>}
+      </span>
+      <Act onClick={onCancel} disabled={saving} title="cancel (esc)">
+        cancel
+      </Act>
+      <Act className="keep" onClick={onSave} disabled={!dirty || saving} title="save (ctrl enter)">
+        {saving ? "…" : "save"}
+      </Act>
+    </Row>
+  );
 }
 
 export function Palette({ items, value, onChange, across = false, className = "" }) {
@@ -404,7 +422,7 @@ export function Toggle({ on, onClick, className = "", children }) {
   );
 }
 
-export function Overlay({ title, tags, face, tone, under, copy, onClose, tools, onEscape, holding, children }) {
+export function Overlay({ title, tags, face, tone, under, copy, onClose, tools, bar, onEscape, holding, children }) {
   const panel = useRef(null);
   useEffect(() => {
     function key(e) {
@@ -414,7 +432,6 @@ export function Overlay({ title, tags, face, tone, under, copy, onClose, tools, 
     }
     function away(e) {
       if (holding) return;
-      if (e.target.closest?.(".reading")) return;
       if (panel.current && !panel.current.contains(e.target)) onClose();
     }
     document.addEventListener("keydown", key);
@@ -453,6 +470,7 @@ export function Overlay({ title, tags, face, tone, under, copy, onClose, tools, 
             ×
           </button>
         </div>
+        {bar}
         <div className="dpad">{children}</div>
       </div>
     </div>
