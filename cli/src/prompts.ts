@@ -473,6 +473,10 @@ export function doings(draft: Record<string, any> | null | undefined): string {
   if (typeof draft.location === "string" && draft.location.trim()) {
     said.push(`They are now at: ${draft.location.trim()}`);
   }
+  const heading = typeof draft.destination === "string" ? draft.destination.trim() : "";
+  if (heading && heading !== String(draft.location || "").trim()) {
+    said.push(`They are heading for: ${heading}`);
+  }
   for (const t of draft.transactions || []) {
     if (!t?.name) continue;
     const from = t.from && t.from !== "the-godhead" ? t.from : "the world";
