@@ -23,7 +23,7 @@ list section replaces the whole list.
 | `effects` | `[{ stat, amount }]` | `effect` for the item |
 | `book` | `{ author, author_id, written, rarity }` | `book` |
 | `passages` | `["text", …]` in order | `passage`, renumbered from 1 |
-| `aspect` | `{ applies, ability }` | `aspect` |
+| `aspect` | `{ applies }` | `aspect` |
 | `grants` | `["ability-id", …]` — what the aspect grants | `grants` where `aspect` is it |
 | `ability` | `{ damage, advantage, cooldown, sleep, delay, spawn, within, in_kind, in_aspect }` | `ability` |
 | `granted` | `["aspect-id", …]` — which aspects grant the ability | `grants` where `ability` is it |
