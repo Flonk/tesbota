@@ -1,5 +1,6 @@
 import type { Ctx } from "./index.ts";
-import { CELESTIAL, typeAfter } from "./place.ts";
+import { CELESTIAL } from "../config.ts";
+import { typeAfter } from "./place.ts";
 import { fields, number } from "./shared.ts";
 
 const WORDS: Record<string, string> = {

@@ -24,8 +24,8 @@ import { launcher, reachable } from "./sqlite.ts";
 import * as view from "./view.ts";
 import * as worldclock from "./worldclock.ts";
 import {
-  APPAREL_ICON, EXPLORER, FIRST_NAMES, ITEM_TYPES, PLACE_TYPES, PROFILE, RARITY,
-  STARTING_INVENTORY, SURNAME, TRAITS, WORLD_START,
+  APPAREL_ICON, CELESTIAL, EXPLORER, FIRST_NAMES, ITEM_TYPES, PLACE_TYPES, PROFILE, RARITY,
+  STARTING_INVENTORY, SURNAME, TRAITS, WIDE, WORLD_START,
   ROOT,
 } from "./config.ts";
 import {
@@ -376,7 +376,9 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
         slot: entry.slot ?? null,
         effect: canon.does(entry.effects),
       })),
-      places: PLACE_TYPES.map(([type, what, icon]) => ({ type, what, icon })),
+      places: PLACE_TYPES.map(([type, what, icon]) => ({
+        type, what, icon, celestial: CELESTIAL.includes(type), wide: WIDE.includes(type),
+      })),
       items: ITEM_TYPES.map(([type, stats, icon, slots]) => ({
         type, stats, icon,
         slots: slots.map((s) => ({ slot: s, icon: APPAREL_ICON[s] ?? icon })),

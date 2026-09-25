@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import * as db from "./db.ts";
 import { slug } from "./canon.ts";
-import { PROFILES, roomOf } from "./config.ts";
+import { HEAVENS, PLACE_TYPE_NAMES, PROFILES, roomOf, WIDE } from "./config.ts";
 import { area, covers, dragged, interior, pinOf, runsIn, shapeOf } from "./geo.ts";
 
 export type PlaceRow = {
@@ -99,7 +99,7 @@ export function shape(
   if (width !== undefined) {
     if (width !== null && !(Number.isFinite(width) && width > 0)) return { error: "a width is a number of metres" };
     const kind = db.value<string>("SELECT type FROM place WHERE id = ?", [ident]);
-    if (width !== null && kind !== "road" && kind !== "river") return { error: "only a road or a river has a width" };
+    if (width !== null && !WIDE.includes(String(kind))) return { error: "only a road or a river has a width" };
     db.writing((con) => con.prepare("UPDATE place SET width = ? WHERE id = ?").run(width, ident));
     if (extent === undefined) return { ok: true, id: ident, width };
   }
@@ -231,10 +231,9 @@ export function restack(ground: string) {
      SELECT p.id, p.parent, p.type, p.lat, p.lon, e.extent
        FROM place p JOIN entity e ON e.id = p.id
       WHERE p.id <> ?
-        AND p.id NOT IN (SELECT id FROM elsewhere)
-        AND coalesce(p.type, '') NOT IN ('celestial-body', 'celestial-system', 'realm')`,
+        AND p.id NOT IN (SELECT id FROM elsewhere)`,
     [ground, ground]
-  );
+  ).filter((r) => !HEAVENS.includes(r.type ?? ""));
 
   const held = all.map((r) => {
     const place = {
@@ -287,11 +286,6 @@ export function restack(ground: string) {
   return moved;
 }
 
-const KINDS_OF_PLACE = [
-  "location", "region", "road", "river", "water",
-  "celestial-body", "celestial-system", "realm",
-];
-
 /**
  * Write down a place that did not exist, with nothing said about it but its name
  * and what sort of thing it is.
@@ -303,8 +297,8 @@ const KINDS_OF_PLACE = [
 export function makePlace(name: string, type: string, on: string) {
   const said = String(name || "").trim();
   if (!said) return { error: "a place needs a name" };
-  if (!KINDS_OF_PLACE.includes(type)) {
-    return { error: `a place is one of ${KINDS_OF_PLACE.join(", ")}` };
+  if (!PLACE_TYPE_NAMES.includes(type)) {
+    return { error: `a place is one of ${PLACE_TYPE_NAMES.join(", ")}` };
   }
   const holder = String(on || "").trim().toLowerCase();
   if (!db.row("SELECT 1 FROM place WHERE id = ?", [holder])) {
@@ -366,7 +360,7 @@ export function unmakePlace(id: string, deep = false) {
   const ident = String(id || "").trim().toLowerCase();
   const there = db.row("SELECT type, parent FROM place WHERE id = ?", [ident]);
   if (!there) return { error: `no such place: ${ident}` };
-  if (["celestial-body", "celestial-system", "realm"].includes(String(there.type))) {
+  if (HEAVENS.includes(String(there.type))) {
     return { error: `${ident} is a ${there.type}, and the sky is not edited from the map` };
   }
 

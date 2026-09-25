@@ -15,7 +15,7 @@ import path from "node:path";
 import * as machine from "./machine.ts";
 import { AGENTS } from "./agents.ts";
 import { Campaign, Turn } from "./schema.ts";
-import { DAYS_PER_MONTH, DAYS_PER_YEAR, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
+import { DAYS_PER_MONTH, DAYS_PER_YEAR, HEAVENS, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
 import * as db from "./db.ts";
 import * as sky from "./sky.ts";
 import { sqlite3 } from "./sqlite.ts";
@@ -131,10 +131,8 @@ function unplaced(): Wrong[] {
     lost = db.rows(
       `SELECT e.id, p.type FROM entity e LEFT JOIN place p ON p.id = e.id
         WHERE e.kind = 'places' AND p.lat IS NULL AND e.extent IS NULL
-          AND coalesce(p.type, '') NOT IN (?, ?, ?)
-        ORDER BY e.id`,
-      ["celestial-body", "celestial-system", "realm"]
-    );
+        ORDER BY e.id`
+    ).filter((r) => !HEAVENS.includes(r.type ?? ""));
   } catch (err) {
     return [{ what: "canon", said: `could not read places: ${(err as Error).message}` }];
   }

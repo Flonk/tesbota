@@ -1,6 +1,6 @@
 import type { Ctx } from "./index.ts";
 import { ABILITY } from "../canon.ts";
-import { PLACE_TYPES } from "../config.ts";
+import { PLACE_TYPE_NAMES } from "../config.ts";
 import { Band } from "../schema.ts";
 import { fields, named, oneOf, said, whole } from "./shared.ts";
 
@@ -64,7 +64,7 @@ export default function ability(con: any, id: string, value: unknown, ctx: Ctx) 
     } else if (key === "spawn") out = spawn(v);
     else if (key === "within") out = named(con, v, "within", "places");
     else if (key === "in_aspect") out = named(con, v, "in aspect", "aspects");
-    else if (key === "in_kind") out = oneOf(v, "in kind", PLACE_TYPES.map(([type]) => type));
+    else if (key === "in_kind") out = oneOf(v, "in kind", PLACE_TYPE_NAMES);
     else out = counted(v, key);
     if (out === "$BOTA" && (key === "within" || key === "in_aspect")) throw new Error(`${key.replace("_", " ")} names a thing, not something owed`);
     con.prepare(`UPDATE ability SET ${key} = ? WHERE id = ?`).run(out, id);

@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import { CANON_DB, KINDS, PLACE_TYPES, SLOTS } from "./config.ts";
+import { CANON_DB, KINDS, PLACE_TYPE_NAMES, SLOTS } from "./config.ts";
 
 const listed = (values: readonly string[]) => values.map((v) => `'${v}'`).join(",");
 
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS passage (
 CREATE TABLE IF NOT EXISTS place (
   id     TEXT PRIMARY KEY REFERENCES entity(id) ON DELETE CASCADE,
   parent TEXT,
-  type   TEXT CHECK (type IN (${listed(PLACE_TYPES.map(([type]) => type))})),
+  type   TEXT CHECK (type IN (${listed(PLACE_TYPE_NAMES)})),
   lat    REAL,
   lon    REAL,
   width  REAL

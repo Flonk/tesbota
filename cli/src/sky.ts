@@ -17,7 +17,7 @@
  */
 
 import * as db from "./db.ts";
-import { DAYS_PER_YEAR, MINUTES_PER_DAY, WORLD_SKY } from "./config.ts";
+import { CELESTIAL, DAYS_PER_YEAR, MINUTES_PER_DAY, WORLD_SKY } from "./config.ts";
 import { DEG, RAD } from "./geo.ts";
 import { ancestry, placesUnder, type PlaceRow } from "./places.ts";
 
@@ -63,8 +63,6 @@ export const STAR_MASS = 1.5e29;
 export const wrap360 = (deg: number) => ((deg % 360) + 360) % 360;
 export const wrap180 = (deg: number) => wrap360(deg + 180) - 180;
 
-const CELESTIAL = ["celestial-body", "celestial-system"];
-
 export function bodies(): Record<string, Body> {
   const out: Record<string, Body> = {};
   const rows = db.rows(
@@ -74,7 +72,7 @@ export function bodies(): Record<string, Body> {
        FROM entity e
        LEFT JOIN place p ON p.id = e.id
        LEFT JOIN orbit o ON o.id = e.id
-      WHERE p.type IN (?, ?) OR o.id IS NOT NULL
+      WHERE p.type IN (${CELESTIAL.map(() => "?").join(", ")}) OR o.id IS NOT NULL
       ORDER BY e.id`,
     CELESTIAL
   );

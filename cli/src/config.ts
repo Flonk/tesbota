@@ -274,6 +274,10 @@ export const PLACE_TYPES: ReadonlyArray<readonly [string, string, string]> = [
   ["celestial-system", "bodies bound to each other, and the space between them", "orbit"],
   ["realm", "a universe, and everything any of this hangs inside", "realm"],
 ];
+export const PLACE_TYPE_NAMES: string[] = PLACE_TYPES.map(([type]) => type);
+export const CELESTIAL: string[] = ["celestial-body", "celestial-system"];
+export const HEAVENS: string[] = [...CELESTIAL, "realm"];
+export const WIDE: string[] = ["road", "river"];
 
 export const ITEM_TYPES: ReadonlyArray<readonly [string, string, string, readonly string[]]> = [
   ["weapon", "damage", "sword", ["mainhand", "offhand"]],

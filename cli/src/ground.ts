@@ -9,6 +9,7 @@
  */
 
 import * as db from "./db.ts";
+import { HEAVENS } from "./config.ts";
 import {
   area, bearing, closest, covers, gap, metres, page, pinOf, point16, shapeOf, type Pt, type Shape,
 } from "./geo.ts";
@@ -28,7 +29,7 @@ const radiusOf = (world: string | null) =>
 
 function placesOn(world: string): Spot[] {
   return placesUnder(world)
-    .filter((p) => !["celestial-body", "celestial-system", "realm"].includes(p.type ?? ""))
+    .filter((p) => !HEAVENS.includes(p.type ?? ""))
     .map((p) => ({ ...p, ...shapeOf(p.extent) }));
 }
 

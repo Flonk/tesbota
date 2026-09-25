@@ -1,15 +1,11 @@
 import type { Ctx } from "./index.ts";
-import { PLACE_TYPES } from "../config.ts";
+import { CELESTIAL, PLACE_TYPE_NAMES, WIDE } from "../config.ts";
 import { fields, named, number, oneOf } from "./shared.ts";
-
-const TYPES = PLACE_TYPES.map(([type]) => type);
-export const CELESTIAL = ["celestial-body", "celestial-system"];
-const WIDE = ["road", "river"];
 
 /** The type a place will have once the whole patch is in. */
 export function typeAfter(con: any, id: string, ctx: Ctx): string | null {
   const next = ctx.all.place as Record<string, unknown> | null | undefined;
-  if (next && typeof next === "object" && "type" in next) return oneOf(next.type, "type", TYPES);
+  if (next && typeof next === "object" && "type" in next) return oneOf(next.type, "type", PLACE_TYPE_NAMES);
   const row = con.prepare("SELECT type FROM place WHERE id = ?").get(id) as { type?: string } | undefined;
   return row?.type ?? null;
 }
@@ -22,7 +18,7 @@ export default function place(con: any, id: string, value: unknown, ctx: Ctx) {
   }) as Record<string, any>;
   const row = { ...was };
 
-  if ("type" in got) row.type = oneOf(got.type, "type", TYPES);
+  if ("type" in got) row.type = oneOf(got.type, "type", PLACE_TYPE_NAMES);
 
   if ("parent" in got) {
     const parent = named(con, got.parent, "inside", "places");
