@@ -16,7 +16,11 @@ import * as machine from "./machine.ts";
 import { AGENTS } from "./agents.ts";
 import { Campaign, Turn } from "./schema.ts";
 import { DAYS_PER_MONTH, DAYS_PER_YEAR, HEAVENS, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
+import { BODY } from "./canon.ts";
 import * as db from "./db.ts";
+import { spawn } from "./edit/ability.ts";
+import { fightStats } from "./edit/body.ts";
+import { band } from "./edit/shared.ts";
 import * as sky from "./sky.ts";
 import { sqlite3 } from "./sqlite.ts";
 
@@ -143,6 +147,30 @@ function unplaced(): Wrong[] {
   }));
 }
 
+function records(): Wrong[] {
+  const wrong: Wrong[] = [];
+  const read = (id: unknown, rule: () => unknown) => {
+    try {
+      rule();
+    } catch (err) {
+      wrong.push({ what: "record", ids: [String(id)], said: `${id}: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  };
+  try {
+    for (const { id, ...stats } of db.rows(`SELECT id, ${BODY.join(", ")} FROM body ORDER BY id`)) read(id, () => fightStats(stats));
+    for (const r of db.rows("SELECT id, damage, spawn FROM ability ORDER BY id")) {
+      read(r.id, () => band(r.damage, "damage"));
+      read(r.id, () => spawn(r.spawn));
+    }
+    for (const r of db.rows("SELECT item, amount FROM effect WHERE stat = 'damage' ORDER BY item")) {
+      read(r.item, () => band(r.amount, "damage"));
+    }
+  } catch {
+    return [];
+  }
+  return wrong;
+}
+
 /** The one command every layer above the explorer reads the world with. */
 function reader(): Wrong[] {
   return sqlite3()
@@ -150,7 +178,7 @@ function reader(): Wrong[] {
     : [{ what: "sqlite3", said: "no sqlite3 anywhere — every agent above the explorer is blind" }];
 }
 
-export const canonWrong = (): Wrong[] => [...calendar(), ...orphans(), ...unplaced()];
+export const canonWrong = (): Wrong[] => [...calendar(), ...orphans(), ...unplaced(), ...records()];
 
 export function check(): Wrong[] {
   return [

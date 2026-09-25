@@ -11,7 +11,7 @@ const counted = (value: unknown, what: string): number => {
   return n;
 };
 
-function spawn(value: unknown): string | null {
+export function spawn(value: unknown): string | null {
   let got = value;
   if (typeof got === "string") {
     if (!got.trim()) return null;
