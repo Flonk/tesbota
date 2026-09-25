@@ -11,17 +11,16 @@
 import * as db from "./db.ts";
 import { POINTS } from "./travel.ts";
 import { campaignIfAny } from "./state.ts";
-import type { CampaignT } from "./schema.ts";
+import type { CampaignT, PtT } from "./schema.ts";
 
 const EARTH = 6371000;
 const LEAGUE = 4800;
 const ACROSS_COUNTRY = 1.6;
 const JOIN = 60;
 
-type Pt = [number, number];
 type Spot = {
   id: string; name: string; type: string | null; parent: string | null;
-  lat: number | null; lon: number | null; rings: Pt[][]; line: Pt[] | null;
+  lat: number | null; lon: number | null; rings: PtT[][]; line: PtT[] | null;
 };
 
 const RAD = Math.PI / 180;
@@ -44,7 +43,7 @@ function worldOf(id: string): string | null {
 const radiusOf = (world: string | null) =>
   Number(world ? db.value("SELECT radius FROM orbit WHERE id = ?", [world], null) : null) || EARTH;
 
-function shapeOf(extent: string | null): { rings: Pt[][]; line: Pt[] | null } {
+function shapeOf(extent: string | null): { rings: PtT[][]; line: PtT[] | null } {
   let drawn: any;
   try {
     drawn = JSON.parse(String(extent));
@@ -52,7 +51,7 @@ function shapeOf(extent: string | null): { rings: Pt[][]; line: Pt[] | null } {
     return { rings: [], line: null };
   }
   if (drawn?.type === "LineString") return { rings: [], line: drawn.coordinates };
-  const rings: Pt[][] = [];
+  const rings: PtT[][] = [];
   const walk = (node: any) => {
     if (!Array.isArray(node)) return;
     if (node.length && Array.isArray(node[0]) && typeof node[0][0] === "number") rings.push(node);
@@ -88,26 +87,26 @@ function placesOn(world: string): Spot[] {
 }
 
 /** A flat page of metres around one point, good for the few kilometres a walk spans. */
-function page(origin: Pt, radius: number) {
+function page(origin: PtT, radius: number) {
   const k = (2 * Math.PI * radius) / 360;
   const c = Math.cos(origin[1] * RAD);
   return {
-    to: ([lon, lat]: Pt): Pt => [(lon - origin[0]) * k * c, (lat - origin[1]) * k],
-    from: ([x, y]: Pt): Pt => [origin[0] + x / (k * c), origin[1] + y / k],
+    to: ([lon, lat]: PtT): PtT => [(lon - origin[0]) * k * c, (lat - origin[1]) * k],
+    from: ([x, y]: PtT): PtT => [origin[0] + x / (k * c), origin[1] + y / k],
   };
 }
 
-const gap = (a: Pt, b: Pt) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+const gap = (a: PtT, b: PtT) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 
 /** Great-circle metres, so a long road is not measured on a flat page. */
-function metres(a: Pt, b: Pt, radius: number) {
+function metres(a: PtT, b: PtT, radius: number) {
   const dLat = (b[1] - a[1]) * RAD;
   const dLon = (b[0] - a[0]) * RAD;
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * RAD) * Math.cos(b[1] * RAD) * Math.sin(dLon / 2) ** 2;
   return 2 * radius * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-function bearing(a: Pt, b: Pt) {
+function bearing(a: PtT, b: PtT) {
   const y = Math.sin((b[0] - a[0]) * RAD) * Math.cos(b[1] * RAD);
   const x = Math.cos(a[1] * RAD) * Math.sin(b[1] * RAD) -
     Math.sin(a[1] * RAD) * Math.cos(b[1] * RAD) * Math.cos((b[0] - a[0]) * RAD);
@@ -122,7 +121,7 @@ function spoken(m: number) {
   return `${Math.round(m / 1000)} km`;
 }
 
-function covers(rings: Pt[][], [x, y]: Pt) {
+function covers(rings: PtT[][], [x, y]: PtT) {
   let inside = false;
   for (const ring of rings) {
     for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
@@ -134,7 +133,7 @@ function covers(rings: Pt[][], [x, y]: Pt) {
   return inside;
 }
 
-function area(rings: Pt[][]) {
+function area(rings: PtT[][]) {
   let total = 0;
   for (const ring of rings) {
     let sum = 0;
@@ -145,7 +144,7 @@ function area(rings: Pt[][]) {
 }
 
 /** The nearest point of a run of points, in page metres: where, how far, which segment, how far along it. */
-function nearest(run: Pt[], p: Pt) {
+function nearest(run: PtT[], p: PtT) {
   let best = { q: run[0], d: gap(run[0], p), seg: 0, t: 0 };
   for (let i = 1; i < run.length; i++) {
     const a = run[i - 1];
@@ -154,21 +153,21 @@ function nearest(run: Pt[], p: Pt) {
     const dy = b[1] - a[1];
     const len = dx * dx + dy * dy;
     const t = len ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len)) : 0;
-    const q: Pt = [a[0] + t * dx, a[1] + t * dy];
+    const q: PtT = [a[0] + t * dx, a[1] + t * dy];
     const d = gap(q, p);
     if (d < best.d) best = { q, d, seg: i - 1, t };
   }
   return best;
 }
 
-function interior(rings: Pt[][]): Pt | null {
+function interior(rings: PtT[][]): PtT | null {
   const ring = rings[0];
   if (!ring || ring.length < 3) return null;
-  const mid: Pt = [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
+  const mid: PtT = [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
   if (covers(rings, mid)) return mid;
   for (let i = 0; i < ring.length; i++) {
     for (let j = i + 2; j < ring.length; j++) {
-      const m: Pt = [(ring[i][0] + ring[j][0]) / 2, (ring[i][1] + ring[j][1]) / 2];
+      const m: PtT = [(ring[i][0] + ring[j][0]) / 2, (ring[i][1] + ring[j][1]) / 2];
       if (covers(rings, m)) return m;
     }
   }
@@ -176,14 +175,14 @@ function interior(rings: Pt[][]): Pt | null {
 }
 
 /** Where a place is, as one point: its pin, or somewhere inside its outline, or the middle of its line. */
-function pinOf(s: Spot): Pt | null {
+function pinOf(s: Spot): PtT | null {
   if (s.lat !== null && s.lon !== null) return [s.lon, s.lat];
   if (s.rings.length) return interior(s.rings);
   if (s.line?.length) return s.line[Math.floor((s.line.length - 1) / 2)];
   return null;
 }
 
-export function pointAlong(path: Pt[], fraction: number): Pt {
+export function pointAlong(path: PtT[], fraction: number): PtT {
   const lengths = path.slice(1).map((p, n) => metres(path[n], p, 1));
   let want = Math.max(0, Math.min(1, fraction)) * lengths.reduce((a, b) => a + b, 0);
   for (let n = 0; n < lengths.length; n++) {
@@ -202,7 +201,7 @@ export function standsAt(campaign: CampaignT | null): string | null {
   return `${lat.toFixed(6)},${lon.toFixed(6)}`;
 }
 
-type Where = { world: string; at: Pt; spot: Spot | null; said: string };
+type Where = { world: string; at: PtT; spot: Spot | null; said: string };
 
 /** A place id, `lat,lon`, or nothing for wherever the explorer is standing. */
 function resolve(target: string | null | undefined): Where | { error: string } {
@@ -277,7 +276,7 @@ export function around(target?: string | null, within = 3000, most = 16) {
   const near = [];
   for (const s of all) {
     if (s.id === where.spot?.id || inside.has(s.id)) continue;
-    let reach: { d: number; q: Pt } | null = null;
+    let reach: { d: number; q: PtT } | null = null;
     let runs: string | null = null;
     if (s.line?.length) {
       const run = s.line.map(flat.to);
@@ -288,7 +287,7 @@ export function around(target?: string | null, within = 3000, most = 16) {
       const heading = bearing(a, b);
       runs = `${point16(heading)}–${point16((heading + 180) % 360)}`;
     } else if (s.rings.length) {
-      let best: { d: number; q: Pt } | null = null;
+      let best: { d: number; q: PtT } | null = null;
       for (const ring of s.rings) {
         const hit = nearest(ring.map(flat.to), me);
         if (!best || hit.d < best.d) best = { d: hit.d, q: flat.from(hit.q) };
@@ -373,12 +372,12 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
   if (a.world !== b.world) return { error: `${a.said} and ${b.said} are not on the same world` };
   const radius = radiusOf(a.world);
   const all = placesOn(a.world);
-  const middle: Pt = [(a.at[0] + b.at[0]) / 2, (a.at[1] + b.at[1]) / 2];
+  const middle: PtT = [(a.at[0] + b.at[0]) / 2, (a.at[1] + b.at[1]) / 2];
   const flat = page(middle, radius);
 
-  const nodes: Pt[] = [];
+  const nodes: PtT[] = [];
   const edges: Edge[][] = [];
-  const node = (p: Pt) => {
+  const node = (p: PtT) => {
     nodes.push(p);
     edges.push([]);
     return nodes.length - 1;
@@ -390,9 +389,9 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
   };
 
   const roads = all.filter((s) => s.type === "road" && s.line && s.line.length >= 2);
-  const cuts = new Map<string, Array<{ seg: number; t: number; p: Pt; n?: number }>>();
+  const cuts = new Map<string, Array<{ seg: number; t: number; p: PtT; n?: number }>>();
   for (const r of roads) cuts.set(r.id, r.line!.map((p, i) => ({ seg: i, t: 0, p })));
-  const cut = (road: Spot, seg: number, t: number, p: Pt) => {
+  const cut = (road: Spot, seg: number, t: number, p: PtT) => {
     const at = { seg, t, p, n: node(p) };
     cuts.get(road.id)!.push(at);
     return at.n!;
@@ -415,7 +414,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
 
   const start = node(a.at);
   const end = node(b.at);
-  for (const [n, p] of [[start, a.at], [end, b.at]] as Array<[number, Pt]>) {
+  for (const [n, p] of [[start, a.at], [end, b.at]] as Array<[number, PtT]>) {
     for (const r of roads) {
       const hit = nearest(r.line!.map(flat.to), flat.to(p));
       const onto = cut(r, hit.seg, hit.t, flat.from(hit.q));
@@ -442,7 +441,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
     link(i, nearestNode(p), "join", "");
     link(j, nearestNode(q), "join", "");
   }
-  function nearestNode(p: Pt) {
+  function nearestNode(p: PtT) {
     let best = start;
     for (let n = 0; n < nodes.length - 2; n++) if (metres(nodes[n], p, radius) < metres(nodes[best], p, radius)) best = n;
     return best;
@@ -469,7 +468,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
   const steps: Array<{ from: number; to: number; edge: Edge }> = [];
   for (let n = end; back[n]; n = back[n]!.from) steps.unshift({ from: back[n]!.from, to: n, edge: back[n]!.edge });
 
-  const legs: Array<{ by: string; name: string; metres: number; from: Pt; to: Pt }> = [];
+  const legs: Array<{ by: string; name: string; metres: number; from: PtT; to: PtT }> = [];
   for (const s of steps) {
     const by = s.edge.by === "join" ? (legs.at(-1)?.by ?? "off") : s.edge.by;
     const name = s.edge.by === "join" ? (legs.at(-1)?.name ?? "") : s.edge.name;
@@ -491,7 +490,7 @@ export function route(fromTarget: string | null | undefined, toTarget: string) {
       return { by: "across", name: "", metres: Math.round(l.metres), said: `go ${spoken(l.metres)} ${way} across country` };
     });
   const total = said.reduce((n, l) => n + l.metres, 0);
-  const path: Pt[] = [nodes[start], ...steps.map((s) => nodes[s.to])]
+  const path: PtT[] = [nodes[start], ...steps.map((s) => nodes[s.to])]
     .filter((p, n, all) => n === 0 || p[0] !== all[n - 1][0] || p[1] !== all[n - 1][1]);
   return {
     path,

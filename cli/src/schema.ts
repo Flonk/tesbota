@@ -397,6 +397,7 @@ export const Campaign = z.object({
 
 export type TurnT = z.infer<typeof Turn>;
 export type CampaignT = z.infer<typeof Campaign>;
+export type PtT = z.infer<typeof Pt>;
 export type PhaseT = z.infer<typeof Phase>;
 export type FightT = z.infer<typeof Fight>;
 export type FighterT = z.infer<typeof Fighter>;
