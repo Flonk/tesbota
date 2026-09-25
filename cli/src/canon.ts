@@ -5,6 +5,7 @@
  * the hands that write it, and that is all.
  */
 
+import type { DatabaseSync } from "node:sqlite";
 import * as db from "./db.ts";
 import { random, type Rng } from "./rng.ts";
 import {
@@ -46,20 +47,30 @@ function titled(name: unknown): string {
 export const findEntity = (id: string) =>
   db.row("SELECT * FROM entity WHERE id = ?", [slug(id)]);
 
-export function ensureEntity(
-  kind: string, entityId: string, name?: string | null, turnId?: string | null
+type Kind = (typeof KINDS)[number];
+
+const TABLE: Partial<Record<Kind, string>> = {
+  people: "person", places: "place", items: "item", aspects: "aspect", abilities: "ability",
+};
+
+function mint(
+  con: DatabaseSync, kind: Kind, entityId: string, name?: string | null, turnId?: string | null
 ): string {
   const ident = slug(entityId);
-  const sort = (KINDS as readonly string[]).includes(kind) ? kind : "places";
   let called = name || ident.replace(/-/g, " ");
-  if (["items", "books", "aspects", "abilities"].includes(sort)) called = titled(called);
-  db.writing((con) => {
-    con.prepare("INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)")
-      .run(ident, sort, called, turnId ?? null);
-    if (sort === "people") con.prepare("INSERT OR IGNORE INTO person (id) VALUES (?)").run(ident);
-  });
+  if (["items", "books", "aspects", "abilities"].includes(kind)) called = titled(called);
+  con.prepare("INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)")
+    .run(ident, kind, called, turnId ?? null);
+  const table = TABLE[kind];
+  if (table) {
+    con.prepare(`INSERT OR IGNORE INTO ${table} (id) SELECT id FROM entity WHERE id = ? AND kind = ?`)
+      .run(ident, kind);
+  }
   return ident;
 }
+
+export const ensureEntity = (kind: Kind, entityId: string, name?: string | null, turnId?: string | null) =>
+  db.writing((con) => mint(con, kind, entityId, name, turnId));
 
 export const passages = (bookId: string) =>
   db.rows("SELECT * FROM passage WHERE book_id = ? ORDER BY ord", [slug(bookId)]);
@@ -314,18 +325,8 @@ export function mermaid(): string {
  * Everything anybody carries is a thing the world has a row for. Naming one that
  * has none writes it down, the same as naming a place.
  */
-function thing(name: string, kind = "items", turnId?: string | null): string | null {
-  const ident = slug(name);
-  if (!ident) return null;
-  if (!findEntity(ident)) {
-    db.writing((con) => {
-      con.prepare("INSERT OR IGNORE INTO entity (id, kind, name, introduced) VALUES (?,?,?,?)")
-        .run(ident, kind, titled(name), turnId ?? null);
-      con.prepare("INSERT OR IGNORE INTO item (id) VALUES (?)").run(ident);
-    });
-  }
-  return ident;
-}
+const thing = (name: string, turnId?: string | null): string | null =>
+  slug(name) ? ensureEntity("items", name, name, turnId) : null;
 
 const STATS = ["type", "weight", "worth", "owed_by", "rarity", "slot"];
 
@@ -516,7 +517,7 @@ export function holders() {
 }
 
 export function give(holder: string, name: string, qty = 1, worn = false, turnId?: string | null): number {
-  const item = thing(name, "items", turnId);
+  const item = thing(name, turnId);
   if (!holder || !item) return 0;
   const want = Math.trunc(qty || 1);
   db.writing((con) => {

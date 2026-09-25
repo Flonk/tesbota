@@ -129,10 +129,10 @@ function unplaced(): Wrong[] {
   let lost: Array<Record<string, any>>;
   try {
     lost = db.rows(
-      `SELECT p.id, p.type FROM place p JOIN entity e ON e.id = p.id
-        WHERE p.lat IS NULL AND e.extent IS NULL
+      `SELECT e.id, p.type FROM entity e LEFT JOIN place p ON p.id = e.id
+        WHERE e.kind = 'places' AND p.lat IS NULL AND e.extent IS NULL
           AND coalesce(p.type, '') NOT IN (?, ?, ?)
-        ORDER BY p.id`,
+        ORDER BY e.id`,
       ["celestial-body", "celestial-system", "realm"]
     );
   } catch (err) {
