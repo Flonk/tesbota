@@ -14,7 +14,7 @@ import * as chronicle from "./chronicle.ts";
 import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
 import * as ground from "./ground.ts";
-import { applyVitals, passTime, standIn, STEPS } from "./steps.ts";
+import { applyVitals, passTime, standIn, standingIn, STEPS } from "./steps.ts";
 import { edgeFrom, STATES, type EdgeOn, type StateName } from "./machine.ts";
 import { random, type Rng } from "./rng.ts";
 import {
@@ -134,7 +134,7 @@ export function walk(campaign: CampaignT, destination: string, rng: Rng = random
 
 export function advance(campaign: CampaignT, turn: TurnT): TurnT {
   const goal = turn.destination;
-  if (goal && goal !== campaign.location) return walk(campaign, goal);
+  if (goal && goal !== standingIn(campaign)) return walk(campaign, goal);
 
   const minutes = Math.trunc(Number(turn.minutes) || 0);
   if (minutes > 0) {

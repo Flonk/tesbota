@@ -403,7 +403,9 @@ export const stepGm: Step<"gm"> = async ({ campaign, turn }) => {
   const draft = Draft.parse({
     ...said,
     claims: [],
-    destination: said.destination ?? turn.destination ?? turn.journey?.to ?? campaign.location ?? null,
+    destination: said.destination !== undefined
+      ? said.destination
+      : turn.destination ?? turn.journey?.to ?? standingIn(campaign),
     ...(agreed ? { minutes: agreed.minutes, fatigue: agreed.fatigue } : {}),
   });
   turn.draft = draft;
@@ -464,7 +466,7 @@ export async function readRecord(
       now: worldclock.longStamp(campaign.time),
       roster: roster ?? null,
       // The structured half of the draft goes the same way the prose does.
-      did: prompts.doings(turn.draft, campaign.location) || null,
+      did: prompts.doings(turn.draft, standingIn(campaign)) || null,
     })
   );
   const facts = extractJson(read, Facts).facts.map((f) => f.trim()).filter(Boolean);
@@ -982,6 +984,8 @@ export function passTime(campaign: CampaignT, minutes: number): string {
   return time.long;
 }
 
+export const standingIn = (campaign: CampaignT) => (campaign.position ? null : campaign.location ?? null);
+
 export function standIn(campaign: CampaignT, place: string, turnId: string) {
   campaign.location = place;
   campaign.position = null;
@@ -1152,7 +1156,7 @@ export const stepDeliver: Step<"deliver"> = async ({ campaign, turn }) => {
   turn.vitals = { ...campaign.vitals };
   const active = campaign.quests.find((q) => q.status === "active");
   turn.quest = active ? active.title : null;
-  turn.destination = heading || campaign.location || null;
+  turn.destination = heading || standingIn(campaign);
   turn.minutes = draft.minutes;
 
   if (!onRoad(turn)) {
