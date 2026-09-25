@@ -18,7 +18,6 @@ import { Campaign, Turn } from "./schema.ts";
 import { DAYS_PER_MONTH, MONTH_NAMES, PROFILES, roomOf } from "./config.ts";
 import * as db from "./db.ts";
 import * as sky from "./sky.ts";
-import * as travel from "./travel.ts";
 import { sqlite3 } from "./sqlite.ts";
 
 export type Wrong = { what: string; said: string };

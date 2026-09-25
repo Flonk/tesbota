@@ -121,9 +121,7 @@ export function walk(campaign: CampaignT, destination: string, rng: Rng = random
     path = found.path;
     leagues = found.leagues;
   }
-  const [minutes, left, cut] = travel.leg(
-    campaign.clock, leagues, rng, travel.drag(sheet.load(campaign))
-  );
+  const [minutes, left, cut] = travel.leg(campaign.clock, leagues, rng, sheet.load(campaign).drag);
   return begin(campaign, "walks", {
     wake_at: stamp(new Date(now().getTime() + travel.realDelayMs(campaign.clock, minutes))),
     destination,

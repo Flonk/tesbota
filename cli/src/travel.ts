@@ -3,7 +3,6 @@
  * of a walk gets done before something interrupts it.
  */
 
-import { OVER_DRAG } from "./config.ts";
 import type { Rng } from "./rng.ts";
 import type { ClockT } from "./schema.ts";
 
@@ -83,16 +82,6 @@ export function distanceBand(text: unknown): [number, number] | null {
 export function realDelayMs(clock: ClockT, inWorldMinutes: number): number {
   const factor = Number(clock?.speed_factor) || 1;
   return ((Number(inWorldMinutes) * 60) / factor) * 1000;
-}
-
-/**
- * An overloaded back is paid for on the road: every tenth of their capacity they
- * are carrying over it doubles what the walking costs.
- */
-export function drag(load: { carried?: number; capacity?: number } | null | undefined): number {
-  if (!load || !load.capacity) return 1.0;
-  const over = (Number(load.carried) - Number(load.capacity)) / Number(load.capacity);
-  return over > 0 ? Number((1 + OVER_DRAG * over).toFixed(3)) : 1.0;
 }
 
 /**
