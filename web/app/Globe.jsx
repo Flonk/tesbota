@@ -1322,10 +1322,12 @@ export default function Globe({
             </text>
           )}
           <title>
-            {mark.all.map((p) => p.name).join(", ")} —{" "}
-            {mark.day
-              ? `the sun stands ${mark.altitude.toFixed(1)}° up`
-              : `the sun is ${Math.abs(mark.altitude).toFixed(1)}° down`}
+            {mark.all.map((p) => p.name).join(", ")}
+            {mark.altitude === null
+              ? ""
+              : mark.day
+                ? ` — the sun stands ${mark.altitude.toFixed(1)}° up`
+                : ` — the sun is ${Math.abs(mark.altitude).toFixed(1)}° down`}
           </title>
         </g>
       ))}
