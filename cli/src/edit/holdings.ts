@@ -1,5 +1,5 @@
 import type { Ctx } from "./index.ts";
-import { EXPLORERS } from "../config.ts";
+import { EXPLORERS, RING_SLOTS } from "../config.ts";
 import { fields, list, named, whole } from "./shared.ts";
 
 export default function holdings(con: any, id: string, value: unknown, ctx: Ctx) {
@@ -28,6 +28,9 @@ export default function holdings(con: any, id: string, value: unknown, ctx: Ctx)
     const other = on.get(r.slot!);
     if (other) throw new Error(`${other} and ${r.item} are both worn as ${r.slot}`);
     on.set(r.slot!, r.item);
+  }
+  if (rows.filter((r) => r.worn && r.slot === "ring").length > RING_SLOTS) {
+    throw new Error(`only ${RING_SLOTS} rings can be worn at once`);
   }
   const turns = new Map<string, string | null>(
     (con.prepare("SELECT item, turn_id FROM holding WHERE holder = ?").all(id) as { item: string; turn_id: string | null }[])
