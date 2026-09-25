@@ -37,8 +37,9 @@ Rules every section keeps:
 - A reference (`lives`, `parent`, `author_id`, `dst`, an aspect, an ability, an
   item) must name an entity that exists and is of the right kind, or the whole
   patch is refused with a sentence saying which.
-- A section refuses what its table's `CHECK` would refuse, and says so in words
-  before the database gets to.
+- A section refuses what its table's `CHECK` would refuse, and what a fight
+  could not use — a damage band that does not read like `2-5`, a health or dc
+  under 1, a defense under 0 — and says so in words before the database gets to.
 - The chronicle — a book written by `The Narrator` — is the record of what
   happened and is never edited: every patch to it is refused.
 - `entity.changed` is stamped on every successful edit.

@@ -1,5 +1,7 @@
 /** What every section needs to say no properly. */
 
+import { Band } from "../schema.ts";
+
 const KINDS: Record<string, string> = {
   people: "people", person: "people",
   places: "places", place: "places",
@@ -36,6 +38,12 @@ export function whole(value: unknown, what: string): number | null {
   const n = number(value, what);
   if (n !== null && !Number.isInteger(n)) throw new Error(`${what} has to be a whole number`);
   return n;
+}
+
+export function band(value: unknown, what: string): string | null {
+  const text = said(value);
+  if (text !== null && !Band.safeParse(text).success) throw new Error(`${what} reads like 2-5, or one number`);
+  return text;
 }
 
 /** An entity that exists, and of the right kind when one is asked for. */

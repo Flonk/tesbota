@@ -1,5 +1,5 @@
 import type { Ctx } from "./index.ts";
-import { fields, list, said } from "./shared.ts";
+import { band, fields, list, said } from "./shared.ts";
 
 const WORDS = /^[a-z]+(?:[ -][a-z]+)*$/;
 
@@ -12,6 +12,7 @@ export default function effects(con: any, id: string, value: unknown, ctx: Ctx) 
     if (!WORDS.test(stat)) throw new Error(`effect ${n + 1}: a stat is lowercase words, not ${stat}`);
     const amount = said(got.amount);
     if (!amount) throw new Error(`effect ${n + 1}: ${stat} has no amount`);
+    if (stat === "damage") band(amount, `effect ${n + 1}: damage`);
     return { stat, amount };
   });
   const seen = new Set<string>();

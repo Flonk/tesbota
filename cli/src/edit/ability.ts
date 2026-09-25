@@ -1,16 +1,9 @@
 import type { Ctx } from "./index.ts";
 import { ABILITY } from "../canon.ts";
 import { PLACE_TYPE_NAMES } from "../config.ts";
-import { Band } from "../schema.ts";
-import { fields, named, oneOf, said, whole } from "./shared.ts";
+import { band, fields, named, oneOf, said, whole } from "./shared.ts";
 
 const SPAWN = ["name", "who", "count", "health", "most", "damage", "dc", "bonus", "defense", "skill"] as const;
-
-const band = (value: unknown, what: string): string | null => {
-  const text = said(value);
-  if (text !== null && !Band.safeParse(text).success) throw new Error(`${what} reads like 2-5, or one number`);
-  return text;
-};
 
 const counted = (value: unknown, what: string): number => {
   const n = whole(value, what) ?? 0;
