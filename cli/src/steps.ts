@@ -1137,13 +1137,13 @@ export function applyVitals(campaign: CampaignT, draft: DraftT): CampaignT {
 export function applyInventory(draft: DraftT, turnId?: string | null) {
   for (const entry of draft.transactions) {
     if (!entry.name) continue;
-    const src = canon.slug(entry.from || "");
-    const dst = canon.slug(entry.to || "");
+    const src = canon.slug(entry.from);
+    const dst = canon.slug(entry.to);
     canon.transfer(
       src === "" || src === GODHEAD_ID ? null : src,
       dst === "" || dst === GODHEAD_ID ? null : dst,
       entry.name,
-      Number(entry.qty) || 1,
+      entry.qty,
       turnId
     );
   }

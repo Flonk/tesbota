@@ -484,21 +484,21 @@ export function doings(draft: DraftT | null | undefined, here?: string | null): 
   if (!draft) return "";
   const said: string[] = [];
 
-  const heading = typeof draft.destination === "string" ? draft.destination.trim() : "";
+  const heading = draft.destination?.trim() ?? "";
   if (heading && heading !== here) said.push(`They are heading for: ${heading}`);
-  for (const t of draft.transactions || []) {
-    if (!t?.name) continue;
-    const from = t.from && t.from !== "the-godhead" ? t.from : "the world";
-    const to = t.to && t.to !== "the-godhead" ? t.to : "the world";
-    const many = Math.abs(Number(t.qty) || 1);
+  for (const t of draft.transactions) {
+    if (!t.name) continue;
+    const from = t.from !== "the-godhead" ? t.from : "the world";
+    const to = t.to !== "the-godhead" ? t.to : "the world";
+    const many = Math.abs(t.qty || 1);
     said.push(`${many} ${t.name} passed from ${from} to ${to}`);
   }
-  for (const item of draft.quest_open || []) {
+  for (const item of draft.quest_open) {
     const q = Written.safeParse(item).data;
     if (!q?.title && !q?.id) continue;
     said.push(`They have taken on: ${q.title || q.id}` + (q.giver ? `, set by ${q.giver}` : ""));
   }
-  for (const q of draft.quest_close || []) {
+  for (const q of draft.quest_close) {
     const id = q && typeof q === "object" ? Written.safeParse(q).data?.id : q;
     if (id) said.push(`An errand is finished: ${id}`);
   }
