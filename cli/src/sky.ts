@@ -18,6 +18,8 @@
 
 import * as db from "./db.ts";
 import { DAYS_PER_YEAR, MINUTES_PER_DAY, WORLD_SKY } from "./config.ts";
+import { DEG, RAD } from "./geo.ts";
+import { ancestry, placesUnder, type PlaceRow } from "./places.ts";
 
 /** m³ kg⁻¹ s⁻². */
 export const G = 6.6743e-11;
@@ -54,9 +56,6 @@ export type Body = {
   /** which meridian faced its star when the era began, degrees */
   meridian: number;
 };
-
-const RAD = Math.PI / 180;
-const DEG = 180 / Math.PI;
 
 /** Heavy enough to burn hydrogen, and so to be what lights the worlds around it. */
 export const STAR_MASS = 1.5e29;
@@ -495,19 +494,7 @@ export function system(known: Record<string, Body> = bodies()) {
  * Everything a body sits inside, outermost first. A world is not simply in its
  * system: it is in its own reach, and that is in the system.
  */
-export function above(id: string) {
-  const chain = db.rows(
-    `WITH RECURSIVE up(id, depth) AS (
-       SELECT (SELECT parent FROM place WHERE id = ?), 0
-       UNION
-       SELECT p.parent, up.depth + 1 FROM place p JOIN up ON p.id = up.id
-        WHERE up.depth < 32 AND p.parent IS NOT NULL
-     )
-     SELECT up.id, e.name FROM up JOIN entity e ON e.id = up.id ORDER BY up.depth DESC`,
-    [id]
-  );
-  return chain.map((r) => ({ id: String(r.id), name: String(r.name) }));
-}
+const above = (id: string) => ancestry(id).slice(0, -1);
 
 /**
  * The whole sky as plain data, which is what the map draws: every body and every
@@ -569,19 +556,7 @@ export function seed(): string[] {
   return written;
 }
 
-export type Standing = {
-  id: string;
-  name: string;
-  type: string | null;
-  parent: string | null;
-  lat: number | null;
-  lon: number | null;
-  extent: string | null;
-  width: number | null;
-  walked: boolean;
-  altitude: number | null;
-  day: boolean | null;
-};
+export type Standing = PlaceRow & { walked: boolean; altitude: number | null; day: boolean | null };
 
 /**
  * Everywhere on a body that anybody has fixed a position for, however deep it
@@ -594,33 +569,11 @@ export type Standing = {
 export function standing(
   it: Body, when: When, known: Record<string, Body> = bodies(), been = new Set<string>()
 ): Standing[] {
-  const rows = db.rows(
-    `WITH RECURSIVE under(id) AS (
-       SELECT ?
-       UNION
-       SELECT p.id FROM place p JOIN under u ON p.parent = u.id
-     )
-     SELECT p.id, e.name, e.extent, p.type, p.parent, p.lat, p.lon, p.width
-       FROM place p JOIN entity e ON e.id = p.id
-      WHERE p.id IN (SELECT id FROM under)
-        AND p.id <> ?
-      ORDER BY lower(e.name)`,
-    [it.id, it.id]
-  );
-  return rows.map((r) => {
-    const lat = r.lat === null || r.lat === undefined ? null : Number(r.lat);
-    const lon = r.lon === null || r.lon === undefined ? null : Number(r.lon);
-    const high = lat !== null && lon !== null ? altitude(it, when, lat, lon, known) : null;
+  return placesUnder(it.id).map((p) => {
+    const high = p.lat !== null && p.lon !== null ? altitude(it, when, p.lat, p.lon, known) : null;
     return {
-      id: String(r.id),
-      name: String(r.name),
-      type: r.type ?? null,
-      parent: r.parent ?? null,
-      lat,
-      lon,
-      extent: r.extent ?? null,
-      width: r.width === null || r.width === undefined ? null : Number(r.width),
-      walked: been.has(String(r.id)),
+      ...p,
+      walked: been.has(p.id),
       altitude: high === null ? null : Number(high.toFixed(3)),
       day: high === null ? null : high > REFRACTION,
     };

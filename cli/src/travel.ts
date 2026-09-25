@@ -6,13 +6,6 @@
 import type { Rng } from "./rng.ts";
 import type { PaceT } from "./schema.ts";
 
-export const POINTS = [
-  "north", "north-north-east", "north-east", "east-north-east",
-  "east", "east-south-east", "south-east", "south-south-east",
-  "south", "south-south-west", "south-west", "west-south-west",
-  "west", "west-north-west", "north-west", "north-north-west",
-];
-
 /** How long a stretch of world-time takes in real seconds, at the current speed. */
 export function realDelayMs(pace: PaceT, inWorldMinutes: number): number {
   const factor = Number(pace?.speed_factor) || 1;

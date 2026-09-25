@@ -13,6 +13,7 @@ import * as chronicle from "./chronicle.ts";
 import * as db from "./db.ts";
 import * as driver from "./driver.ts";
 import * as machine from "./machine.ts";
+import * as places from "./places.ts";
 import * as prompts from "./prompts.ts";
 import * as sheet from "./sheet.ts";
 import * as sky from "./sky.ts";
@@ -266,14 +267,14 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
     const said = flags.has("--clear") ? null : drawn.length ? drawn.join(" ") : undefined;
     // `--carry=<lon>,<lat>`: bring whatever stood on this ground along with it.
     const by = opts.carry;
-    let carry: actions.Carry = null;
+    let carry: places.Carry = null;
     if (by) {
       const [lon, lat] = by.split(",").map(Number);
       if (Number.isFinite(lon) && Number.isFinite(lat)) carry = { lon, lat };
     }
     const wide = opts.width;
     const width = wide === undefined ? undefined : wide === "" ? null : Number(wide);
-    return say(actions.shape(id, said, carry, width, flags.has("--alone")));
+    return say(places.shape(id, said, carry, width, flags.has("--alone")));
   },
 
   /** What is around the explorer, or around a place or a point: `tesbota around [place | lat,lon] [--within=metres]`. */
@@ -311,12 +312,12 @@ const COMMANDS: Record<string, (a: Args) => Promise<void> | void> = {
   /** Put down a place that did not exist. The map draws it afterwards. */
   place({ rest, opts }) {
     const name = rest.join(" ");
-    return say(actions.makePlace(name, opts.type || "region", opts.on || ""));
+    return say(places.makePlace(name, opts.type || "region", opts.on || ""));
   },
 
   /** Take a place out. Its places come up a level unless `--deep` takes them too. */
   unplace({ rest, flags }) {
-    return say(actions.unmakePlace(rest[0], flags.has("--deep")));
+    return say(places.unmakePlace(rest[0], flags.has("--deep")));
   },
 
   /** What is written where, as a tree, for reading in a terminal. */

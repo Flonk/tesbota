@@ -13,7 +13,9 @@ import * as canon from "./canon.ts";
 import * as chronicle from "./chronicle.ts";
 import * as sheet from "./sheet.ts";
 import * as travel from "./travel.ts";
+import * as geo from "./geo.ts";
 import * as ground from "./ground.ts";
+import * as places from "./places.ts";
 import { STEPS } from "./steps/index.ts";
 import { applyVitals, passTime, standingIn } from "./steps/deliver.ts";
 import { edgeFrom, STATES, type EdgeOn, type StateName } from "./machine.ts";
@@ -73,7 +75,7 @@ function standIn(campaign: CampaignT, place: string, turnId: string) {
   campaign.location = place;
   campaign.position = null;
   canon.ensureEntity("places", place, null, turnId);
-  campaign.location_path = canon.ancestry(place);
+  campaign.location_path = places.ancestry(place);
 }
 
 export function openWorld(campaign: CampaignT): TurnT {
@@ -166,7 +168,7 @@ export function tickClock(campaign: CampaignT, turn: TurnT, moment: Date): boole
   const fatigue = Math.round((road.minutes / 60) * WALK_FATIGUE_PER_HOUR);
   applyVitals(campaign, { minutes: road.minutes, fatigue, health: 0, hunger: null });
   passTime(campaign, road.minutes);
-  if (road.cut) campaign.position = ground.pointAlong(road.path, road.reach);
+  if (road.cut) campaign.position = geo.pointAlong(road.path, road.reach);
   else standIn(campaign, road.to, turn.turn_id);
   cross(turn, "clock", "arrived");
   return true;

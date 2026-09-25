@@ -79,22 +79,6 @@ export const findPlace = (placeId: string | null | undefined) =>
 const contains = (placeId: string): string[] =>
   db.rows("SELECT id FROM place WHERE parent = ? ORDER BY id", [slug(placeId)]).map((r) => String(r.id));
 
-export function ancestry(placeId: string): Array<{ id: string; name: string }> {
-  const found = db.rows(
-    `WITH RECURSIVE up(id, depth) AS (
-       SELECT ?, 0
-       UNION
-       SELECT p.parent, up.depth + 1 FROM place p JOIN up ON p.id = up.id
-        WHERE up.depth < 24 AND p.parent IS NOT NULL
-     )
-     SELECT up.id, coalesce(entity.name, replace(up.id, '-', ' ')) AS name, up.depth
-       FROM up LEFT JOIN entity ON entity.id = up.id
-      ORDER BY up.depth DESC`,
-    [slug(placeId)]
-  );
-  return found.filter((r) => r.id).map((r) => ({ id: String(r.id), name: String(r.name) }));
-}
-
 export function library() {
   return db.rows(
     `SELECT e.id, e.name, b.author, b.author_id, b.written, b.rarity
