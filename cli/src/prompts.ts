@@ -166,7 +166,7 @@ const vitalsBlock = (v: VitalsT) =>
 
 const lastTold = (previous: string) => `What the adventurer was last told:\n\n${previous}`;
 
-function kit(
+function kitBlocks(
   parts: string[], sent: Record<string, string> | null,
   { inventory = null, load = null, others = null, quests = null }:
   { inventory?: Holding[] | null; load?: Load | null; others?: Keeps | null; quests?: QuestT[] | null }
@@ -341,7 +341,7 @@ export function gmAnswer(
 ): string {
   const parts: string[] = [];
   if (previous) parts.push(lastTold(previous));
-  kit(parts, sent, { inventory, load, others });
+  kitBlocks(parts, sent, { inventory, load, others });
 
   if (mode === "say") {
     parts.push(
@@ -367,7 +367,7 @@ export function gmAnswer(
   return parts.join("\n\n");
 }
 
-export const REJECTED = "Your previous draft was rejected. Revise it and reply with the same json shape:\n\n";
+const REJECTED = "Your previous draft was rejected. Revise it and reply with the same json shape:\n\n";
 
 export const PRESS = `The world does not wait, and this turn it moves.
 
@@ -425,7 +425,7 @@ export function gmTurn(
     }
     parts.push(said);
   }
-  kit(parts, sent, { inventory, load, others, quests });
+  kitBlocks(parts, sent, { inventory, load, others, quests });
   if (standing) {
     const left = standing.them.filter((x) => !x.dead).map((x) => `${x.name}, ${x.health} left`).join("; ");
     parts.push(
@@ -457,7 +457,7 @@ export function gmPropose(
   if (note) parts.push(noteBlock(note));
   if (previous) parts.push(lastTold(previous));
   if (vitals) parts.push(vitalsBlock(vitals));
-  kit(parts, null, { inventory, load, others });
+  kitBlocks(parts, null, { inventory, load, others });
   parts.push(`What they intend to do:\n\n${action}`);
   for (const [question, answer] of answers || []) {
     parts.push(`You asked: ${question}\n\nThe record says: ${answer}`);
