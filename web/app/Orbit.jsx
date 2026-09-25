@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Globe from "./Globe";
-import Icon from "./icons";
 import { treeOf } from "./map/pins";
-import { Crumb, Empty, Note, openDossier, Row } from "./ui";
+import { Crumb, Empty, Note, openDossier, Pen, Row } from "./ui";
 
 /**
  * The system, drawn from the system.
@@ -187,14 +186,12 @@ export default function Orbit({ focus = null, onUnsaved = null }) {
       <div className="orbit">
         <Row pad={false} middled={false} className="maprow">
           <Crumb className="maptrail" where={trail} onPick={step} />
-          <button
-            className={`crumbtool${editing ? " on" : ""}`}
+          <Pen
+            on={editing}
             onClick={() => leave() && setEditing((was) => !was)}
             title={editing ? "stop reshaping" : "reshape what is drawn"}
-            aria-label="reshape"
-          >
-            <Icon name="pen" size={14} />
-          </button>
+            label="reshape"
+          />
         </Row>
         {stale}
         <Globe
